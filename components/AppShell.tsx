@@ -2,6 +2,8 @@
 
 import { ReactNode, useCallback, useState } from "react";
 import Preloader from "./Preloader";
+import LanguageSwitcher from "./LanguageSwitcher";
+import ThemeToggle from "./ThemeToggle";
 
 interface AppShellProps {
   children: ReactNode;
@@ -24,6 +26,10 @@ export default function AppShell({ children }: AppShellProps) {
         aria-hidden={!isReady}
         aria-busy={!isReady}
       >
+        <div className="pointer-events-auto fixed bottom-6 left-6 z-40 flex items-center gap-3">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
         {children}
       </div>
     </>
