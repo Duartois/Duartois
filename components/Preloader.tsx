@@ -1,25 +1,45 @@
 "use client";
 
-import { Html, useProgress } from '@react-three/drei';
+import { Suspense, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { useProgress } from "@react-three/drei";
 
-/**
- * Displays a spinner and the current loading percentage while assets
- * are being downloaded.  This component leverages the `useProgress`
- * hook from `@react-three/drei`, which wraps Three.js’s
- * `DefaultLoadingManager` and provides loading state information
- * such as the total items and the number loaded so far【616259478648088†L8-L26】.
- */
-export default function Preloader() {
+const MetaballsCanvas = dynamic(() => import("./three/MetaballsCanvas"), {
+  ssr: false,
+  loading: () => <div className="h-48 w-48 animate-pulse rounded-full bg-fg/10" />,
+});
+
+interface PreloaderProps {
+  onComplete?: () => void;
+}
+
+export default function Preloader({ onComplete }: PreloaderProps) {
   const { progress, active } = useProgress();
+  const hasCompletedRef = useRef(false);
+  const formattedProgress = Math.round(progress);
 
-  // Only display the loader when there are assets being loaded.  Once
-  // everything is done `active` becomes false and the loader fades
-  // out.
-  if (!active) return null;
+  useEffect(() => {
+    if (!active && !hasCompletedRef.current) {
+      hasCompletedRef.current = true;
+      onComplete?.();
+    }
+  }, [active, onComplete]);
+
   return (
-    <div className="preloader">
-      <div className="spinner" />
-      <p>{progress.toFixed(0)}&#37;</p>
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bg/95 backdrop-blur"
+      role="status"
+      aria-live="polite"
+    >
+      <Suspense fallback={<div className="h-48 w-48 animate-pulse rounded-full bg-fg/10" />}>
+        <div className="pointer-events-none">
+          <MetaballsCanvas />
+        </div>
+      </Suspense>
+      <div className="text-center text-fg">
+        <p className="text-lg font-semibold tracking-wide">Materializing shapes…</p>
+        <p className="mt-1 text-sm font-medium text-fg/70">{formattedProgress}%</p>
+      </div>
     </div>
   );
 }
