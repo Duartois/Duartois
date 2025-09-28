@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { MarchingCubes, MarchingPlane } from "@react-three/drei";
 import { useMemo, useRef } from "react";
 import { Color } from "three";
-import type { MarchingCubes as MarchingCubesImpl } from "three/examples/jsm/objects/MarchingCubes";
+import type { MarchingCubes as MarchingCubesImpl } from "three/examples/jsm/objects/MarchingCubes.js";
 
 type Metaball = {
   color: Color;
@@ -53,9 +53,8 @@ export default function Metaballs() {
       resolution={32}
       maxPolyCount={12000}
       enableColors
-      isovalue={0.15}
     >
-      <MarchingPlane planeType="z" constant={-1} />
+      <MarchingPlane planeType="z" />
       <meshStandardMaterial vertexColors roughness={0.35} metalness={0.15} />
     </MarchingCubes>
   );

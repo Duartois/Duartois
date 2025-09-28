@@ -42,7 +42,7 @@ export default function Experience({ variant }: ExperienceProps) {
         <Suspense
           fallback={
             <Html center>
-              <div className="rounded-full bg-fg/10 px-6 py-3 text-sm font-medium text-fg/70 shadow-soft">
+              <div className="rounded-full bg-fg/10 px-6 py-3 text-sm font-medium text-fg/70 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]">
                 Materializing shapes…
               </div>
             </Html>

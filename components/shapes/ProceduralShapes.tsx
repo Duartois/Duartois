@@ -2,7 +2,8 @@
 
 import { useMemo } from 'react';
 import { CatmullRomCurve3, TorusGeometry, TubeGeometry, SphereGeometry, Vector3 } from 'three';
-import { useSpring, animated } from '@react-spring/three';
+import type { Vector3Tuple } from 'three';
+import { a, useSpring } from '@react-spring/three';
 import { useVariantStore } from '../../store/variants';
 import GradientMat from '../../materials/GradientMat';
 
@@ -37,61 +38,80 @@ export default function ProceduralShapes() {
 
   // Animations: each shape uses its own spring to interpolate towards
   // the target position and rotation defined in the variant store.
+  const tuple = (value: [number, number, number]) => value as Vector3Tuple;
+  const sharedConfig = { mass: 5, tension: 300, friction: 50 } as const;
+
   const cTopSpring = useSpring({
-    position: variant.cTop.position,
-    rotation: variant.cTop.rotation,
-    config: { mass: 5, tension: 300, friction: 50 },
+    position: tuple(variant.cTop.position),
+    rotationX: variant.cTop.rotation[0],
+    rotationY: variant.cTop.rotation[1],
+    rotationZ: variant.cTop.rotation[2],
+    config: sharedConfig,
   });
   const cBottomSpring = useSpring({
-    position: variant.cBottom.position,
-    rotation: variant.cBottom.rotation,
-    config: { mass: 5, tension: 300, friction: 50 },
+    position: tuple(variant.cBottom.position),
+    rotationX: variant.cBottom.rotation[0],
+    rotationY: variant.cBottom.rotation[1],
+    rotationZ: variant.cBottom.rotation[2],
+    config: sharedConfig,
   });
   const sSpring = useSpring({
-    position: variant.sShape.position,
-    rotation: variant.sShape.rotation,
-    config: { mass: 5, tension: 300, friction: 50 },
+    position: tuple(variant.sShape.position),
+    rotationX: variant.sShape.rotation[0],
+    rotationY: variant.sShape.rotation[1],
+    rotationZ: variant.sShape.rotation[2],
+    config: sharedConfig,
   });
   const dotSpring = useSpring({
-    position: variant.dot.position,
-    rotation: variant.dot.rotation,
-    config: { mass: 5, tension: 300, friction: 50 },
+    position: tuple(variant.dot.position),
+    rotationX: variant.dot.rotation[0],
+    rotationY: variant.dot.rotation[1],
+    rotationZ: variant.dot.rotation[2],
+    config: sharedConfig,
   });
 
   return (
     <>
       {/* Top C shape */}
-      <animated.mesh
+      <a.mesh
         geometry={cGeometry}
         position={cTopSpring.position}
-        rotation={cTopSpring.rotation}
+        rotation-x={cTopSpring.rotationX}
+        rotation-y={cTopSpring.rotationY}
+        rotation-z={cTopSpring.rotationZ}
       >
         <GradientMat colorA="#9CA3AF" colorB="#6366F1" fresnelStrength={1.2} />
-      </animated.mesh>
+      </a.mesh>
       {/* Bottom C shape */}
-      <animated.mesh
+      <a.mesh
         geometry={cBottomGeometry}
         position={cBottomSpring.position}
-        rotation={cBottomSpring.rotation}
+        rotation-x={cBottomSpring.rotationX}
+        rotation-y={cBottomSpring.rotationY}
+        rotation-z={cBottomSpring.rotationZ}
       >
         <GradientMat colorA="#60A5FA" colorB="#4338CA" fresnelStrength={1.2} />
-      </animated.mesh>
+      </a.mesh>
       {/* S shape built from a tube along a Catmull Rom curve */}
-      <animated.mesh
+      <a.mesh
         geometry={sGeometry}
         position={sSpring.position}
-        rotation={sSpring.rotation}
+        rotation-x={sSpring.rotationX}
+        rotation-y={sSpring.rotationY}
+        rotation-z={sSpring.rotationZ}
       >
         <GradientMat colorA="#F472B6" colorB="#EC4899" fresnelStrength={1.2} />
-      </animated.mesh>
+      </a.mesh>
       {/* Dot */}
-      <animated.mesh
+      <a.mesh
         geometry={dotGeometry}
         position={dotSpring.position}
-        rotation={dotSpring.rotation}
+        rotation-x={dotSpring.rotationX}
+        rotation-y={dotSpring.rotationY}
+        rotation-z={dotSpring.rotationZ}
       >
         <GradientMat colorA="#34D399" colorB="#10B981" fresnelStrength={1.2} />
-      </animated.mesh>
+      </a.mesh>
     </>
   );
 }
