@@ -15,42 +15,57 @@ const config: Config = {
       },
       colors: {
         // Paleta base em cima de variáveis (permite trocar tema sem rebuild)
-        bg: "rgb(var(--bg) / <alpha-value>)",
-        fg: "rgb(var(--fg) / <alpha-value>)",
-        muted: "rgb(var(--muted) / <alpha-value>)",
-        // Paleta “Sharlee vibes” para gradientes/materiais
+        bg: "rgb(var(--color-bg) / <alpha-value>)",
+        fg: "rgb(var(--color-fg) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        // Rampas pastéis para os novos acentos do tema
         brand: {
-          50:  "#eef3ff",
-          100: "#d7e4ff",
-          200: "#b9d2ff",
-          300: "#93b8ff",
-          400: "#7ab6ff",
-          500: "#4b8dff",
-          600: "#2a63e6",
-          700: "#1f49b3",
-          800: "#193a8f",
-          900: "#142e73"
+          50: "#f4ffe7",
+          100: "#e8ffc8",
+          200: "#d4ff9d",
+          300: "#b6f972",
+          400: "#9ae752",
+          500: "#6ecd29",
+          600: "#4da01f",
+          700: "#37781b",
+          800: "#285c18",
+          900: "#1e4715"
         },
-        candy: {
-          50:  "#fff1f6",
-          100: "#ffd6e7",
-          300: "#ff9cc7",
-          500: "#ff5fa7",
-          700: "#e23d8b"
+        accent1: {
+          50: "#fff5fa",
+          100: "#ffe7f2",
+          200: "#ffcee4",
+          300: "#ffafd1",
+          400: "#ff8fbb",
+          500: "#f96aa7",
+          600: "#df4c8b",
+          700: "#b8366d",
+          800: "#8e274f",
+          900: "#6c1d3b"
         },
-        lime: {
-          50:  "#eeffef",
-          100: "#e8ffd1",
-          300: "#b8f9b0",
-          500: "#62ff9a",
-          700: "#28b56f"
+        accent2: {
+          50: "#f9f5ff",
+          100: "#f1e8ff",
+          200: "#e3d4ff",
+          300: "#ceb5ff",
+          400: "#b391f6",
+          500: "#9472dd",
+          600: "#7657bd",
+          700: "#5c4395",
+          800: "#443171",
+          900: "#322456"
         },
-        amber: {
-          50:  "#fff9e8",
-          100: "#fff7cc",
-          300: "#ffea85",
-          500: "#ffd262",
-          700: "#d1a53b"
+        accent3: {
+          50: "#e8fffc",
+          100: "#c8fff4",
+          200: "#99f7ea",
+          300: "#6ae7dd",
+          400: "#3ecfd0",
+          500: "#1fb0ba",
+          600: "#188c99",
+          700: "#136d79",
+          800: "#0f535e",
+          900: "#0b4048"
         }
       },
       // sombras e transições suaves
