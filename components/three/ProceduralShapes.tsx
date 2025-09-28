@@ -1,11 +1,17 @@
 "use client";
 
-import { useMemo } from 'react';
-import { CatmullRomCurve3, TorusGeometry, TubeGeometry, SphereGeometry, Vector3 } from 'three';
-import type { Vector3Tuple } from 'three';
-import { a, useSpring } from '@react-spring/three';
-import { useVariantStore } from '../../store/variants';
-import GradientMat from '../../materials/GradientMat';
+import { useMemo } from "react";
+import {
+  CatmullRomCurve3,
+  TorusGeometry,
+  TubeGeometry,
+  SphereGeometry,
+  Vector3,
+} from "three";
+import type { Vector3Tuple } from "three";
+import { a, useSpring } from "@react-spring/three";
+import { useVariantStore } from "../../store/variants";
+import GradientMat from "../../materials/GradientMat";
 
 /**
  * Procedurally generates and animates the monogram shapes.  Each shape
