@@ -1,11 +1,10 @@
 "use client";
 
-import { Canvas } from '@react-three/fiber';
-import { Suspense, useEffect } from 'react';
-import { Environment, OrbitControls, Html } from '@react-three/drei';
-import Preloader from './Preloader';
-import Shapes from './shapes/ProceduralShapes';
-import { useVariantStore } from '../store/variants';
+import { Canvas } from "@react-three/fiber";
+import { Suspense, useEffect } from "react";
+import { Html } from "@react-three/drei";
+import Shapes from "./shapes/ProceduralShapes";
+import { useVariantStore } from "../store/variants";
 
 interface ExperienceProps {
   /**
@@ -14,7 +13,7 @@ interface ExperienceProps {
    * repositions the shapes to spell out a different arrangement or
    * create a different composition.  See `store/variants.ts`.
    */
-  variant: 'home' | 'about' | 'work' | 'contact';
+  variant: "home" | "about" | "work" | "contact";
 }
 
 export default function Experience({ variant }: ExperienceProps) {
@@ -28,7 +27,7 @@ export default function Experience({ variant }: ExperienceProps) {
   }, [variant, setVariant]);
 
   return (
-    <div className="w-screen h-screen">
+    <div className="h-screen w-screen">
       <Canvas
         camera={{ position: [0, 0, 6], fov: 40 }}
         gl={{ antialias: true, alpha: false }}
@@ -37,20 +36,22 @@ export default function Experience({ variant }: ExperienceProps) {
         {/* Ambient and directional lighting to softly illuminate the shapes */}
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1.2} />
-        {/* Optionally enable OrbitControls during development.  Uncomment to
-            orbit the camera around the scene. */}
+        {/* Optionally enable OrbitControls during development.  Uncomment to */}
+        {/* orbit the camera around the scene. */}
         {/* <OrbitControls enableDamping /> */}
         <Suspense
           fallback={
             <Html center>
-              <Preloader />
+              <div className="rounded-full bg-fg/10 px-6 py-3 text-sm font-medium text-fg/70 shadow-soft">
+                Materializing shapes…
+              </div>
             </Html>
           }
         >
           <Shapes />
-          {/* Optional environment map; remove if not used.  You can place
-              an HDRI in public and reference it here to get realistic
-              reflections. */}
+          {/* Optional environment map; remove if not used.  You can place */}
+          {/* an HDRI in public and reference it here to get realistic */}
+          {/* reflections. */}
           {/* <Environment preset="city" /> */}
         </Suspense>
       </Canvas>
