@@ -5,6 +5,7 @@ import { Suspense, useEffect } from "react";
 import { Html } from "@react-three/drei";
 import Shapes from "./shapes/ProceduralShapes";
 import { useVariantStore } from "../store/variants";
+import { useTranslation } from "@/app/i18n/client";
 
 interface ExperienceProps {
   /**
@@ -18,6 +19,7 @@ interface ExperienceProps {
 
 export default function Experience({ variant }: ExperienceProps) {
   const setVariant = useVariantStore((state) => state.setVariant);
+  const { t } = useTranslation();
 
   // Whenever the variant prop changes, update the global store so that
   // animations can transition to the new values.  Because this is a
@@ -43,7 +45,7 @@ export default function Experience({ variant }: ExperienceProps) {
           fallback={
             <Html center>
               <div className="rounded-full bg-fg/10 px-6 py-3 text-sm font-medium text-fg/70 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]">
-                Materializing shapes…
+                {t("experience.loading")}
               </div>
             </Html>
           }

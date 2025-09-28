@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useProgress } from "@react-three/drei";
+import { useTranslation } from "@/app/i18n/client";
 
 const MetaballsCanvas = dynamic(() => import("./three/MetaballsCanvas"), {
   ssr: false,
@@ -17,6 +18,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const { progress, active } = useProgress();
   const hasCompletedRef = useRef(false);
   const formattedProgress = Math.round(progress);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!active && !hasCompletedRef.current) {
@@ -37,7 +39,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         </div>
       </Suspense>
       <div className="text-center text-fg">
-        <p className="text-lg font-semibold tracking-wide">Materializing shapes…</p>
+        <p className="text-lg font-semibold tracking-wide">{t("experience.loading")}</p>
         <p className="mt-1 text-sm font-medium text-fg/70">{formattedProgress}%</p>
       </div>
     </div>

@@ -1,0 +1,28 @@
+{
+  "navbar": {
+    "menu": "Menu",
+    "openNavigation": "Ouvrir la navigation",
+    "closeNavigation": "Fermer la navigation",
+    "close": "Fermer",
+    "social": "Réseaux sociaux",
+    "links": {
+      "home": "Accueil",
+      "work": "Portfolio",
+      "about": "À propos",
+      "contact": "Contact"
+    }
+  },
+  "experience": {
+    "loading": "Matérialisation des formes…"
+  },
+  "languageSwitcher": {
+    "label": "Langue",
+    "languages": {
+      "en": "Anglais",
+      "fr": "Français"
+    }
+  },
+  "themeToggle": {
+    "label": "Changer de thème"
+  }
+}
