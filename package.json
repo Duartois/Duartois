@@ -14,7 +14,7 @@
     "classnames": "^2.5.1",
     "framer-motion": "^12.23.22",
     "i18next": "^25.5.2",
-    "next": "14.2.5",
+    "next": "^14.2.33",
     "next-i18next": "^15.4.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
