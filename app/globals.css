@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --bg: 0 0 0;        /* preto */
-  --fg: 255 255 255;  /* branco */
-  --muted: 160 160 160;
+  --color-bg: 244 247 255;      /* fallback pastel sky */
+  --color-fg: 30 36 46;         /* suave e legível */
+  --color-muted: 122 136 158;   /* detalhes discretos */
 }
 
 /* Modo claro */
 :root[data-theme="light"], :root.light {
-  --bg: 250 250 255;
-  --fg: 15 18 22;
-  --muted: 100 110 125;
+  --color-bg: 244 247 255;      /* fundo pastel azulado */
+  --color-fg: 28 32 45;         /* texto levemente frio */
+  --color-muted: 130 142 164;   /* elementos secundários */
 }
 
 /* Modo escuro */
 :root[data-theme="dark"], :root.dark {
-  --bg: 0 0 0;
-  --fg: 255 255 255;
-  --muted: 160 160 160;
+  --color-bg: 6 8 12;           /* preto profundo */
+  --color-fg: 230 236 250;      /* texto claro vívido */
+  --color-muted: 140 154 174;   /* destaque suave em contraste */
 }
 
 /* 2) Reset & base */
 html, body, #__next { height: 100% }
 html, body {
-  background: rgb(var(--bg));
-  color: rgb(var(--fg));
+  background: rgb(var(--color-bg));
+  color: rgb(var(--color-fg));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -37,8 +37,8 @@ html, body {
 }
 .btn-secondary {
   @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition duration-300 ease-[cubic-bezier(.22,.61,.36,1)];
-  background: rgb(var(--fg) / 0.07);
-  color: rgb(var(--fg));
+  background: rgb(var(--color-fg) / 0.07);
+  color: rgb(var(--color-fg));
 }
 .link {
   @apply underline underline-offset-4 decoration-transparent hover:decoration-current transition-colors duration-300 ease-[cubic-bezier(.22,.61,.36,1)];
