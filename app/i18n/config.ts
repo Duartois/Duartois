@@ -1,0 +1,157 @@
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+
+const resources = {
+  pt: {
+    translation: {
+      home: {
+        kicker: "PORTFÓLIO DIGITAL DE DUARTOIS",
+        title: "Design generativo encontra experiências humanas.",
+        subtitle:
+          "Eu transformo dados, narrativas e ritmo visual em composições imersivas para marcas que querem se destacar em movimento.",
+        ctaProjects: "ver meus projetos",
+        ctaAbout: "mais sobre mim",
+      },
+      work: {
+        title: "Projetos selecionados",
+        subtitle:
+          "Passe o cursor ou use o teclado sobre cada projeto para explorar um preview do processo criativo.",
+        previewHint: "Preview dinâmico",
+        projects: {
+          aurora: {
+            title: "Aurora Chromatica",
+            year: "2024",
+            description:
+              "Experiência interativa que responde a trilhas sonoras em tempo real, gerando paisagens luminosas para um festival imersivo.",
+            previewAlt: "Visualização abstrata do projeto Aurora Chromatica.",
+          },
+          mare: {
+            title: "Maré Atlântica",
+            year: "2023",
+            description:
+              "Narrativa audiovisual que combina dados de marés e poesia para uma instalação em grande escala no litoral português.",
+            previewAlt: "Poster conceitual do projeto Maré Atlântica.",
+          },
+          spectrum: {
+            title: "Spectrum Pulse",
+            year: "2022",
+            description:
+              "Sistema de identidade modular para uma plataforma de música generativa, com diretrizes responsivas para print e motion.",
+            previewAlt: "Interface dinâmica do projeto Spectrum Pulse.",
+          },
+        },
+      },
+      about: {
+        kicker: "quem sou",
+        title: "Criativo multidisciplinar com foco em futuros visuais.",
+        paragraphs: {
+          first:
+            "Sou Duarte, designer e diretor criativo com raízes em Lisboa e atuação global. Trabalho na interseção entre storytelling, tecnologia e estética vibrante.",
+          second:
+            "Nos últimos anos liderei projetos para estúdios de motion, marcas culturais e startups, orquestrando experiências que misturam 3D, vídeo interativo e narrativa sonora.",
+          third:
+            "Quando não estou explorando novos shaders, ensino workshops sobre design generativo e colaboro com comunidades que impulsionam a criatividade luso-brasileira.",
+        },
+        visualCaption: "Retrato estilizado de Duarte, com textura digital.",
+      },
+      contact: {
+        title: "Vamos criar algo juntos?",
+        subtitle:
+          "Envie uma mensagem com o que você está planejando ou conecte-se pelas redes abaixo.",
+        form: {
+          nameLabel: "Nome",
+          namePlaceholder: "Ana Silva",
+          emailLabel: "E-mail",
+          emailPlaceholder: "voce@estudio.com",
+          messageLabel: "Mensagem",
+          messagePlaceholder: "Conte-me sobre o projeto, prazos e objetivos.",
+          submit: "enviar mensagem",
+          success: "Mensagem enviada! Vou responder em breve.",
+        },
+      },
+    },
+  },
+  en: {
+    translation: {
+      home: {
+        kicker: "DUARTOIS DIGITAL PORTFOLIO",
+        title: "Generative design meets human experiences.",
+        subtitle:
+          "I translate data, stories, and visual rhythm into immersive compositions for brands that want to stand out in motion.",
+        ctaProjects: "see my projects",
+        ctaAbout: "more about me",
+      },
+      work: {
+        title: "Selected projects",
+        subtitle:
+          "Hover or focus each project to explore a glimpse of the creative process.",
+        previewHint: "Dynamic preview",
+        projects: {
+          aurora: {
+            title: "Aurora Chromatica",
+            year: "2024",
+            description:
+              "Interactive experience reacting to live soundtracks, generating luminous landscapes for an immersive festival.",
+            previewAlt: "Abstract visualization of the Aurora Chromatica project.",
+          },
+          mare: {
+            title: "Atlantic Tide",
+            year: "2023",
+            description:
+              "Audiovisual narrative blending tide data and poetry for a large-scale installation on the Portuguese coast.",
+            previewAlt: "Concept poster for the Atlantic Tide project.",
+          },
+          spectrum: {
+            title: "Spectrum Pulse",
+            year: "2022",
+            description:
+              "Modular identity system for a generative music platform, with responsive guidelines for print and motion.",
+            previewAlt: "Dynamic interface of the Spectrum Pulse project.",
+          },
+        },
+      },
+      about: {
+        kicker: "about me",
+        title: "Multidisciplinary creative focused on visual futures.",
+        paragraphs: {
+          first:
+            "I'm Duarte, a designer and creative director born in Lisbon with a global practice. I work where storytelling, technology, and vibrant aesthetics converge.",
+          second:
+            "In recent years I've led projects for motion studios, cultural brands, and startups, orchestrating experiences that mix 3D, interactive video, and sound narrative.",
+          third:
+            "When I'm not exploring new shaders, I teach workshops on generative design and collaborate with communities that champion Luso-Brazilian creativity.",
+        },
+        visualCaption: "Stylized portrait of Duarte with digital texture.",
+      },
+      contact: {
+        title: "Shall we create something together?",
+        subtitle:
+          "Send a note with what you're planning or connect through the networks below.",
+        form: {
+          nameLabel: "Name",
+          namePlaceholder: "Alex Johnson",
+          emailLabel: "Email",
+          emailPlaceholder: "you@studio.com",
+          messageLabel: "Message",
+          messagePlaceholder: "Tell me about the project, timeline, and goals.",
+          submit: "send message",
+          success: "Message sent! I'll reply soon.",
+        },
+      },
+    },
+  },
+} as const;
+
+if (!i18n.isInitialized) {
+  i18n.use(initReactI18next).init({
+    resources,
+    lng: "pt",
+    fallbackLng: "en",
+    interpolation: { escapeValue: false },
+    supportedLngs: ["pt", "en"],
+    defaultNS: "translation",
+  });
+}
+
+export default i18n;
+export type AppTranslationKeys = keyof typeof resources.pt.translation;
