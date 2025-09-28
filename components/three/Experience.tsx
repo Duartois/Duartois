@@ -3,8 +3,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import { Html } from "@react-three/drei";
-import Shapes from "./shapes/ProceduralShapes";
-import { useVariantStore } from "../store/variants";
+import Shapes from "./ProceduralShapes";
+import { useVariantStore } from "../../store/variants";
 
 interface ExperienceProps {
   /**

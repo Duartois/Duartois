@@ -44,7 +44,7 @@ lighting effect, matching the glossy “blob” aesthetic of the original site.
 
 3. **Editing shapes**
 
-   The file at `components/shapes/ProceduralShapes.tsx` defines helper
+   The file at `components/three/ProceduralShapes.tsx` defines helper
    functions for creating each shape.  You can experiment with
    different geometries by changing the radius, tube thickness or the
    control points used for the `CatmullRomCurve3` S‑shape.  The

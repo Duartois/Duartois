@@ -1,10 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Experience from "../../components/Experience";
+import dynamic from "next/dynamic";
 import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
+
+const Experience = dynamic(
+  () => import("../../components/three/Experience"),
+  { ssr: false }
+);
 
 export default function AboutPage() {
   const { t } = useTranslation();
