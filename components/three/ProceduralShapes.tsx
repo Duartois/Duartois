@@ -148,10 +148,10 @@ export default function ProceduralShapes({
   const mats = useMemo(
     () =>
       palette ?? [
-        { colorA: "#9CA3AF", colorB: "#6366F1" }, // C top: cinza→índigo
-        { colorA: "#60A5FA", colorB: "#4338CA" }, // C bottom: azul→índigo
-        { colorA: "#F472B6", colorB: "#EC4899" }, // S: rosa→pink
-        { colorA: "#34D399", colorB: "#10B981" }, // dot: verde
+        { colorA: "#f1e8ff", colorB: "#ceb5ff" }, // C top: violeta suave
+        { colorA: "#ffe7f2", colorB: "#ff8fbb" }, // C bottom: magenta pastel
+        { colorA: "#c8fff4", colorB: "#3ecfd0" }, // S: aqua luminoso
+        { colorA: "#e8ffc8", colorB: "#9ae752" }, // dot: verde-lima
       ],
     [palette]
   );
@@ -169,7 +169,7 @@ export default function ProceduralShapes({
         <GradientMat
           colorA={mats[0].colorA}
           colorB={mats[0].colorB}
-          fresnelStrength={1.2}
+          fresnelStrength={1.05}
         />
       </a.mesh>
 
@@ -184,7 +184,7 @@ export default function ProceduralShapes({
         <GradientMat
           colorA={mats[1].colorA}
           colorB={mats[1].colorB}
-          fresnelStrength={1.2}
+          fresnelStrength={1.05}
         />
       </a.mesh>
 
@@ -199,7 +199,7 @@ export default function ProceduralShapes({
         <GradientMat
           colorA={mats[2].colorA}
           colorB={mats[2].colorB}
-          fresnelStrength={1.2}
+          fresnelStrength={1.05}
         />
       </a.mesh>
 
@@ -214,7 +214,7 @@ export default function ProceduralShapes({
         <GradientMat
           colorA={mats[3].colorA}
           colorB={mats[3].colorB}
-          fresnelStrength={1.2}
+          fresnelStrength={1.05}
         />
       </a.mesh>
     </group>
