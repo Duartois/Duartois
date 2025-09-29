@@ -1,17 +1,26 @@
 "use client";
 
 import * as THREE from "three";
-import React, { useMemo, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import React, { useEffect, useMemo, useRef } from "react";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { a, useSpring } from "@react-spring/three";
 import {
   useVariantStore,
   type VariantState,
 } from "../../store/variants";
 import GradientMat from "../../materials/GradientMat";
+import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
 
 // Tupla util p/ react-spring aceitar vetores
 const tuple = (v: [number, number, number]) => v as unknown as THREE.Vector3Tuple;
+
+type SVGResult = {
+  paths: {
+    id?: string;
+    userData?: { node?: { id?: string } };
+    toShapes: (isCCW: boolean) => THREE.Shape[];
+  }[];
+};
 
 type ProceduralShapesProps = {
   /**
@@ -40,28 +49,87 @@ export default function ProceduralShapes({
   const storeVariant = useVariantStore((s) => s.variant);
   const variant = variantOverride ?? storeVariant;
 
-  // === Geometrias (primitives — como no Sharlee) ===
-  // Dois “C” (torus parciais), um “S” (tube em spline), e um “dot” (esfera).
-  const cTopGeometry = useMemo(
-    () => new THREE.TorusGeometry(1.0, 0.34, 40, 96, Math.PI * 1.5),
-    []
-  );
-  const cBottomGeometry = useMemo(
-    () => new THREE.TorusGeometry(1.0, 0.34, 40, 96, Math.PI * 1.5),
-    []
-  );
-  const sGeometry = useMemo(() => {
-    // S suave e centrípeta (sem self-intersection), bem fluido no hover
-    const pts = [
-      new THREE.Vector3(-1.05, -1.0, 0.0),
-      new THREE.Vector3(-0.25, -0.35, 0.0),
-      new THREE.Vector3(0.15, 0.15, 0.0),
-      new THREE.Vector3(1.05, 1.0, 0.0),
-    ];
-    const curve = new THREE.CatmullRomCurve3(pts, false, "centripetal", 0.45);
-    return new THREE.TubeGeometry(curve, 140, 0.24, 18, false);
-  }, []);
+  // === Geometrias (SVG extrusions + esfera “dot”) ===
+  const svgPaths = useLoader(
+    SVGLoader,
+    "/shapes/procedural-shapes.svg"
+  ) as SVGResult;
+
+  const {
+    magnetTopGeometry,
+    waveGeometry,
+    magnetBottomGeometry,
+    openLoopGeometry,
+  } = useMemo(() => {
+    const extrudeSettings: THREE.ExtrudeGeometryOptions = {
+      depth: 16,
+      steps: 1,
+      bevelEnabled: true,
+      bevelThickness: 6,
+      bevelSize: 6,
+      bevelSegments: 10,
+      curveSegments: 96,
+    };
+
+    const centerAndScale = (
+      geometry: THREE.ExtrudeGeometry,
+      targetSize: number
+    ) => {
+      geometry.computeBoundingBox();
+      const bbox = geometry.boundingBox;
+      if (bbox) {
+        const size = new THREE.Vector3();
+        bbox.getSize(size);
+        const maxDim = Math.max(size.x, size.y);
+        if (maxDim > 0) {
+          const scale = targetSize / maxDim;
+          geometry.scale(scale, scale, scale);
+        }
+      }
+      geometry.center();
+    };
+
+    const createGeometry = (id: string, targetSize: number) => {
+      const path = svgPaths.paths.find(
+        (p) => p.userData?.node?.id === id || p.id === id
+      );
+      if (!path) {
+        return null;
+      }
+      const shapes = path.toShapes(true);
+      const geometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
+      centerAndScale(geometry, targetSize);
+      return geometry;
+    };
+
+    return {
+      magnetTopGeometry: createGeometry("Magnet1", 2.4),
+      waveGeometry: createGeometry("Wave", 2.2),
+      magnetBottomGeometry: createGeometry("Magnet2", 2.4),
+      openLoopGeometry: createGeometry("OpenLoop", 2.0),
+    };
+  }, [svgPaths]);
+
+  useEffect(() => {
+    return () => {
+      magnetTopGeometry?.dispose();
+      waveGeometry?.dispose();
+      magnetBottomGeometry?.dispose();
+      openLoopGeometry?.dispose();
+    };
+  }, [
+    magnetTopGeometry,
+    waveGeometry,
+    magnetBottomGeometry,
+    openLoopGeometry,
+  ]);
+
   const dotGeometry = useMemo(() => new THREE.SphereGeometry(0.36, 48, 48), []);
+  useEffect(() => {
+    return () => {
+      dotGeometry.dispose();
+    };
+  }, [dotGeometry]);
 
   // === Springs por shape (compatível com seu store) ===
   const springCfg = { mass: 5, tension: 320, friction: 50 } as const;
@@ -156,11 +224,20 @@ export default function ProceduralShapes({
     [palette]
   );
 
+  if (
+    !magnetTopGeometry ||
+    !waveGeometry ||
+    !magnetBottomGeometry ||
+    !openLoopGeometry
+  ) {
+    return null;
+  }
+
   return (
     <group ref={groupRef}>
       {/* C de cima */}
       <a.mesh
-        geometry={cTopGeometry}
+        geometry={magnetTopGeometry}
         position={cTop.position}
         rotation-x={cTop.rotationX}
         rotation-y={cTop.rotationY}
@@ -175,7 +252,7 @@ export default function ProceduralShapes({
 
       {/* C de baixo */}
       <a.mesh
-        geometry={cBottomGeometry}
+        geometry={magnetBottomGeometry}
         position={cBottom.position}
         rotation-x={cBottom.rotationX}
         rotation-y={cBottom.rotationY}
@@ -190,7 +267,7 @@ export default function ProceduralShapes({
 
       {/* “S” (tube) */}
       <a.mesh
-        geometry={sGeometry}
+        geometry={waveGeometry}
         position={sShape.position}
         rotation-x={sShape.rotationX}
         rotation-y={sShape.rotationY}
@@ -204,19 +281,27 @@ export default function ProceduralShapes({
       </a.mesh>
 
       {/* Ponto (dot) */}
-      <a.mesh
-        geometry={dotGeometry}
+      <a.group
         position={dot.position}
         rotation-x={dot.rotationX}
         rotation-y={dot.rotationY}
         rotation-z={dot.rotationZ}
       >
-        <GradientMat
-          colorA={mats[3].colorA}
-          colorB={mats[3].colorB}
-          fresnelStrength={1.05}
-        />
-      </a.mesh>
+        <mesh geometry={openLoopGeometry}>
+          <GradientMat
+            colorA={mats[3].colorA}
+            colorB={mats[3].colorB}
+            fresnelStrength={1.05}
+          />
+        </mesh>
+        <mesh geometry={dotGeometry}>
+          <GradientMat
+            colorA={mats[3].colorA}
+            colorB={mats[3].colorB}
+            fresnelStrength={1.05}
+          />
+        </mesh>
+      </a.group>
     </group>
   );
 }
