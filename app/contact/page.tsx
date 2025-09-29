@@ -12,7 +12,7 @@ const Experience = dynamic(
 );
 
 export default function ContactPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const [status, setStatus] = useState<"idle" | "submitted">("idle");
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {

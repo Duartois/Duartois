@@ -16,7 +16,7 @@ const OrganicShape = dynamic(
 );
 
 export default function HomePage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
 
   return (
     <>

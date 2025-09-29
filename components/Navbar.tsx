@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import "@/app/i18n/config";
 
 import NavOverlay from "./NavOverlay";
 
@@ -27,6 +29,7 @@ export default function Navbar() {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const hasOpenedRef = useRef(false);
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     if (isOpen) {
@@ -101,7 +104,7 @@ export default function Navbar() {
         aria-controls="main-navigation-overlay"
         className="group fixed right-6 top-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-fg/20 bg-bg/80 text-fg shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-fg/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
       >
-        <span className="sr-only">{isOpen ? "Fechar navegação" : "Abrir navegação"}</span>
+        <span className="sr-only">{isOpen ? t("navbar.close") : t("navbar.open")}</span>
         <span aria-hidden="true" className="grid grid-cols-3 gap-1.5">
           {Array.from({ length: 9 }).map((_, index) => (
             <motion.span
