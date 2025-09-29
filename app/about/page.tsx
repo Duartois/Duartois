@@ -20,7 +20,10 @@ export default function AboutPage() {
       <main className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <Experience variant="about" />
-          <div className="absolute inset-0 bg-gradient-to-b from-bg/35 via-bg/80 to-bg" aria-hidden />
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-accent1-200/60 via-bg/70 to-bg dark:from-accent1-700/35 dark:via-bg/80 dark:to-bg"
+            aria-hidden
+          />
         </div>
         <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-16">
           <section className="flex-1 space-y-6">
