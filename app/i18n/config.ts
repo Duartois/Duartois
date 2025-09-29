@@ -48,13 +48,13 @@ const resources = {
         title: "Criativo multidisciplinar com foco em futuros visuais.",
         paragraphs: {
           first:
-            "Sou Duarte, designer e diretor criativo com raízes em Lisboa e atuação global. Trabalho na interseção entre storytelling, tecnologia e estética vibrante.",
+            "Sou Duarte, designer e diretor criativo com raízes em Lisboa e atuação global. Transformo conceitos em experiências digitais unindo JavaScript, React e Three.js à direção de arte cinematográfica.",
           second:
-            "Nos últimos anos liderei projetos para estúdios de motion, marcas culturais e startups, orquestrando experiências que misturam 3D, vídeo interativo e narrativa sonora.",
+            "No estúdio aplico processos ágeis: prototipagem com Tailwind, integrações Stripe, desenho de APIs e modelagem de dados em MongoDB para escalar produtos expressivos.",
           third:
-            "Quando não estou explorando novos shaders, ensino workshops sobre design generativo e colaboro com comunidades que impulsionam a criatividade luso-brasileira.",
+            "Entre colaborações sigo estudando som, motion e design generativo — explore meu <github>GitHub</github> (@Duartois) para ver protótipos vivos e ferramentas abertas.",
         },
-        visualCaption: "Retrato estilizado de Duarte, com textura digital.",
+        visualCaption: "Avatar orgânico animado representando Duarte.",
       },
       contact: {
         title: "Vamos criar algo juntos?",
@@ -119,13 +119,13 @@ const resources = {
         title: "Multidisciplinary creative focused on visual futures.",
         paragraphs: {
           first:
-            "I'm Duarte, a designer and creative director born in Lisbon with a global practice. I work where storytelling, technology, and vibrant aesthetics converge.",
+            "I'm Duarte, a designer and creative director from Lisbon with a global practice. I turn concepts into digital experiences by pairing JavaScript, React, and Three.js with cinematic art direction.",
           second:
-            "In recent years I've led projects for motion studios, cultural brands, and startups, orchestrating experiences that mix 3D, interactive video, and sound narrative.",
+            "Inside the studio I lean on agile workflows — rapid prototyping with Tailwind, Stripe integrations, API design, and MongoDB data modelling to ship expressive products.",
           third:
-            "When I'm not exploring new shaders, I teach workshops on generative design and collaborate with communities that champion Luso-Brazilian creativity.",
+            "When I'm not co-creating with teams, I'm studying sound, motion, and generative design — browse my <github>GitHub</github> (@Duartois) to see living prototypes and open tools.",
         },
-        visualCaption: "Stylized portrait of Duarte with digital texture.",
+        visualCaption: "Animated organic avatar representing Duarte.",
       },
       contact: {
         title: "Shall we create something together?",
