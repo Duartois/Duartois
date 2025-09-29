@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { Suspense, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
+import { Canvas } from "@react-three/fiber";
 
 const OrganicShape = dynamic(() => import("./three/OrganicShape"), {
   ssr: false,
@@ -67,11 +68,20 @@ export default function NavOverlay({
             transition={{ duration: 0.35, ease: "easeInOut" }}
           />
           <div className="pointer-events-none absolute inset-0 opacity-35 mix-blend-screen">
-            <Suspense fallback={null}>
-              <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 blur-sm">
-                <OrganicShape variant="marchingCubes" colorScheme="brand" />
-              </div>
-            </Suspense>
+            <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 blur-sm">
+              <Canvas
+                camera={{ position: [0, 0, 6], fov: 42 }}
+                gl={{ antialias: true, alpha: true }}
+                dpr={[1, 2]}
+                className="h-full w-full"
+              >
+                <ambientLight intensity={0.55} />
+                <directionalLight position={[4, 5, 7]} intensity={1.25} />
+                <Suspense fallback={null}>
+                  <OrganicShape variant="marchingCubes" colorScheme="brand" />
+                </Suspense>
+              </Canvas>
+            </div>
           </div>
 
           <motion.div
