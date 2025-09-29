@@ -6,12 +6,15 @@ import dynamic from "next/dynamic";
 import { Suspense, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
+import { Canvas } from "@react-three/fiber";
+
+const OrganicShapeFallback = () => (
+  <div className="h-full w-full animate-pulse rounded-full bg-accent2-200/20" />
+);
 
 const OrganicShape = dynamic(() => import("./three/OrganicShape"), {
   ssr: false,
-  loading: () => (
-    <div className="h-full w-full animate-pulse rounded-full bg-accent2-200/20" />
-  ),
+  loading: () => <OrganicShapeFallback />,
 });
 
 type NavigationLink = {
@@ -66,10 +69,34 @@ export default function NavOverlay({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
           />
-          <div className="pointer-events-none absolute inset-0 opacity-35 mix-blend-screen">
-            <Suspense fallback={null}>
+          <div
+            className="pointer-events-none absolute inset-0 opacity-35 mix-blend-screen"
+            aria-hidden
+          >
+            <Suspense fallback={<OrganicShapeFallback />}>
               <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 blur-sm">
-                <OrganicShape variant="marchingCubes" colorScheme="brand" />
+                <Canvas
+                  camera={{ position: [0, 0, 6], fov: 42 }}
+                  gl={{ antialias: true, alpha: true }}
+                  dpr={[1, 2]}
+                  className="h-full w-full"
+                >
+                  <ambientLight intensity={0.5} color="#dbe0ff" />
+                  <directionalLight
+                    position={[4.5, 5.2, 7.5]}
+                    intensity={1.15}
+                    color="#ffe0ff"
+                  />
+                  <directionalLight
+                    position={[-3, -4, -2]}
+                    intensity={0.35}
+                    color="#8ec5ff"
+                  />
+                  <Suspense fallback={null}>
+                    <OrganicShape variant="marchingCubes" colorScheme="brand" />
+                  </Suspense>
+                </Canvas>
+                <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(229,211,255,0.35)_0%,rgba(180,212,255,0.15)_45%,transparent_70%)]" />
               </div>
             </Suspense>
           </div>
