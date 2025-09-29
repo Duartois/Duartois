@@ -216,7 +216,7 @@ export default function NavOverlay({
                 transition={{ delay: 0.35, duration: 0.4 }}
               >
                 <div className="flex flex-col gap-2 text-xs tracking-[0.4em] text-fg/40">
-                  <span>Social</span>
+                  <span>{t("navOverlay.socialHeading")}</span>
                   <div className="h-px w-16 bg-fg/20" />
                 </div>
                 <div className="flex flex-wrap gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.35em]">

@@ -65,5 +65,23 @@
       "submit": "send message",
       "success": "Message sent! I'll reply soon."
     }
+  },
+  "preloader": {
+    "title": "Materializing shapes…",
+    "progress": "Loading {{value}}%"
+  },
+  "experience": {
+    "loadingFallback": "Materializing shapes…"
+  },
+  "themeToggle": {
+    "ariaLabel": "Switch to the {{theme}} theme",
+    "title": "{{theme}} theme",
+    "themes": {
+      "light": "light",
+      "dark": "dark"
+    }
+  },
+  "navOverlay": {
+    "socialHeading": "Social"
   }
 }

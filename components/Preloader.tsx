@@ -3,6 +3,9 @@
 import { Suspense, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useProgress } from "@react-three/drei";
+import { useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import "@/app/i18n/config";
 import type { VariantState } from "../store/variants";
 
 const ProceduralPreview = dynamic(() => import("./three/ProceduralCanvas"), {
@@ -44,6 +47,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const { progress, active } = useProgress();
   const hasCompletedRef = useRef(false);
   const formattedProgress = Math.round(progress);
+  const prefersReducedMotion = useReducedMotion();
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     if (!active && !hasCompletedRef.current) {
@@ -58,20 +63,30 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       role="status"
       aria-live="polite"
     >
-      <Suspense fallback={<div className="h-48 w-48 animate-pulse rounded-full bg-fg/10" />}> 
-        <div className="pointer-events-none"> 
-          <ProceduralPreview
-            className="h-48 w-48"
-            variantOverride={PRELOADER_VARIANT}
-            palette={PRELOADER_PALETTE}
-            parallax={false}
-            dpr={[1, 1.5]}
-          />
-        </div>
-      </Suspense>
+      {prefersReducedMotion ? (
+        <div className="h-48 w-48 rounded-full bg-fg/10" aria-hidden />
+      ) : (
+        <Suspense
+          fallback={
+            <div className="h-48 w-48 animate-pulse rounded-full bg-fg/10" aria-hidden />
+          }
+        >
+          <div className="pointer-events-none">
+            <ProceduralPreview
+              className="h-48 w-48"
+              variantOverride={PRELOADER_VARIANT}
+              palette={PRELOADER_PALETTE}
+              parallax={false}
+              dpr={[1, 1.5]}
+            />
+          </div>
+        </Suspense>
+      )}
       <div className="text-center text-fg">
-        <p className="text-lg font-semibold tracking-wide">Materializing shapes…</p>
-        <p className="mt-1 text-sm font-medium text-fg/70">{formattedProgress}%</p>
+        <p className="text-lg font-semibold tracking-wide">{t("preloader.title")}</p>
+        <p className="mt-1 text-sm font-medium text-fg/70" aria-live="polite">
+          {t("preloader.progress", { value: formattedProgress })}
+        </p>
       </div>
     </div>
   );
