@@ -1,4 +1,4 @@
-# Sharlee‑Clone Portfolio
+# Duartois New Portfolio
 
 This folder contains a ready‑to‑use **Next.js 14** project scaffolded with the
 new **App Router** and configured to work with
