@@ -1,15 +1,21 @@
 "use client";
 
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import Navbar from "../../components/Navbar";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
 import "../i18n/config";
 
-const Experience = dynamic(
-  () => import("../../components/three/Experience"),
-  { ssr: false }
+const OrganicShape = dynamic(
+  () => import("../../components/three/OrganicShape"),
+  { ssr: false },
 );
+
+const AvatarOrb = dynamic(() => import("../../components/three/AvatarOrb"), {
+  ssr: false,
+});
 
 export default function AboutPage() {
   const { t } = useTranslation();
@@ -19,9 +25,20 @@ export default function AboutPage() {
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10">
-          <Experience variant="about" />
+          <Canvas
+            camera={{ position: [0, 0, 6], fov: 42 }}
+            gl={{ antialias: true, alpha: true }}
+            dpr={[1, 2]}
+            className="h-full w-full"
+          >
+            <ambientLight intensity={0.5} />
+            <directionalLight position={[5, 6, 8]} intensity={1.2} />
+            <Suspense fallback={null}>
+              <OrganicShape variant="torusKnot" colorScheme="lagoon" />
+            </Suspense>
+          </Canvas>
           <div
-            className="absolute inset-0 bg-gradient-to-b from-accent1-200/60 via-bg/70 to-bg dark:from-accent1-700/35 dark:via-bg/80 dark:to-bg"
+            className="absolute inset-0 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg"
             aria-hidden
           />
         </div>
@@ -36,21 +53,25 @@ export default function AboutPage() {
             <div className="space-y-4 text-base text-fg/80 sm:text-lg">
               <p>{t("about.paragraphs.first")}</p>
               <p>{t("about.paragraphs.second")}</p>
-              <p>{t("about.paragraphs.third")}</p>
+              <p>
+                <Trans
+                  i18nKey="about.paragraphs.third"
+                  components={{
+                    github: (
+                      <Link
+                        href="https://github.com/Duartois"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-semibold text-fg underline decoration-dotted underline-offset-4 transition hover:text-fg/80"
+                      />
+                    ),
+                  }}
+                />
+              </p>
             </div>
           </section>
           <section className="flex flex-1 justify-center lg:justify-end">
-            <div className="relative h-80 w-80 overflow-hidden rounded-full border border-fg/20 bg-gradient-to-br from-fg/10 via-transparent to-transparent shadow-[0_20px_50px_-25px_rgba(0,0,0,0.6)]">
-              <Image
-                src="/images/about-portrait.svg"
-                alt={t("about.visualCaption")}
-                fill
-                className="object-cover"
-                sizes="320px"
-                priority
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-radial from-transparent via-transparent to-bg/20" aria-hidden />
-            </div>
+            <AvatarOrb />
           </section>
         </div>
       </main>
