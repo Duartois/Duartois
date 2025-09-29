@@ -10,7 +10,7 @@ const LANGUAGES = [
 ] as const;
 
 export default function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation("common");
   const currentLanguage = (i18n.resolvedLanguage || i18n.language || "pt").split("-")[0];
 
   return (
@@ -33,7 +33,7 @@ export default function LanguageSwitcher() {
                 : "text-fg/70 hover:text-fg"
             )}
             aria-pressed={isActive}
-            aria-label={`Alterar idioma para ${label}`}
+            aria-label={t("languageSwitcher.ariaLabel", { label })}
           >
             {label}
           </button>

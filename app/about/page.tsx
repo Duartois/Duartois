@@ -18,7 +18,7 @@ const AvatarOrb = dynamic(() => import("../../components/three/AvatarOrb"), {
 });
 
 export default function AboutPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
 
   return (
     <>
@@ -56,6 +56,7 @@ export default function AboutPage() {
               <p>
                 <Trans
                   i18nKey="about.paragraphs.third"
+                  ns="common"
                   components={{
                     github: (
                       <Link

@@ -1,0 +1,69 @@
+{
+  "languageSwitcher": {
+    "ariaLabel": "Switch language to {{label}}"
+  },
+  "navbar": {
+    "open": "Open navigation",
+    "close": "Close navigation",
+    "menu": "Menu",
+    "closeMenu": "Close"
+  },
+  "home": {
+    "hero": {
+      "kicker": "DUARTOIS IMMERSIVE PORTFOLIO",
+      "title": "Kinetic identities for brands embracing the future.",
+      "subtitle": "Digital experiences that fuse generative art, spatial sound, and interactive storytelling to spark new sensations.",
+      "ctaProjects": "explore projects",
+      "ctaAbout": "meet the story"
+    }
+  },
+  "work": {
+    "title": "Selected experiments",
+    "subtitle": "Hover or focus to reveal snapshots of the hybrid process between 3D, code, and art direction.",
+    "previewHint": "Pick a project",
+    "projects": {
+      "aurora": {
+        "title": "Aurora Chromatica",
+        "year": "2024",
+        "description": "Responsive installation translating live soundtracks into luminous landscapes for an immersive festival.",
+        "previewAlt": "Abstract visualization of the Aurora Chromatica project."
+      },
+      "mare": {
+        "title": "Atlantic Tide",
+        "year": "2023",
+        "description": "Audiovisual narrative merging tide data, poetry, and projection mapping along the Portuguese coastline.",
+        "previewAlt": "Concept poster for the Atlantic Tide project."
+      },
+      "spectrum": {
+        "title": "Spectrum Pulse",
+        "year": "2022",
+        "description": "Modular identity for a generative music platform with dynamic motion and print guidelines.",
+        "previewAlt": "Dynamic interface of the Spectrum Pulse project."
+      }
+    }
+  },
+  "about": {
+    "kicker": "the mind behind",
+    "title": "Designer-director weaving technology, art, and performance.",
+    "paragraphs": {
+      "first": "I'm Duarte, a Lisbon-born designer and creative director. I pair JavaScript, React, and Three.js with cinematic art direction to turn ideas into multisensory digital experiences.",
+      "second": "Within each engagement I mix rapid prototyping with Tailwind, Stripe integrations, API design, and MongoDB modelling to scale expressive products.",
+      "third": "Between collaborations I research sound, motion, and generative design — explore my <github>GitHub</github> (@Duartois) to find living prototypes and open tools."
+    },
+    "visualCaption": "Animated organic avatar representing Duarte."
+  },
+  "contact": {
+    "title": "Shall we create something together?",
+    "subtitle": "Send a note with what you're planning or connect through the networks below.",
+    "form": {
+      "nameLabel": "Name",
+      "namePlaceholder": "Alex Johnson",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@studio.com",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Tell me about the project, timeline, and goals.",
+      "submit": "send message",
+      "success": "Message sent! I'll reply soon."
+    }
+  }
+}

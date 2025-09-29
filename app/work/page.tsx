@@ -48,7 +48,7 @@ const projectPreviews: ProjectPreview[] = [
 ];
 
 export default function WorkPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
   const shouldReduceMotion = useReducedMotion();
 

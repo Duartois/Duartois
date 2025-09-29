@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Suspense, type RefObject } from "react";
+import { useTranslation } from "react-i18next";
+import "@/app/i18n/config";
 
 const OrganicShape = dynamic(() => import("./three/OrganicShape"), {
   ssr: false,
@@ -39,6 +41,8 @@ export default function NavOverlay({
   socialLinks,
   overlayRef,
 }: NavOverlayProps) {
+  const { t } = useTranslation("common");
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -84,7 +88,7 @@ export default function NavOverlay({
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.3 }}
               >
-                Menu
+                {t("navbar.menu")}
               </motion.span>
               <motion.button
                 type="button"
@@ -94,12 +98,12 @@ export default function NavOverlay({
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.15, duration: 0.3 }}
               >
-                Close
+                {t("navbar.closeMenu")}
               </motion.button>
             </header>
 
             <div className="flex flex-1 flex-col justify-end gap-16 px-6 pb-12 text-left md:flex-row md:items-end md:justify-between md:px-12 md:pb-16">
-              <nav aria-label="Primary" className="w-full md:w-auto">
+              <nav aria-label={t("navbar.menu")} className="w-full md:w-auto">
                 <motion.ul
                   className="flex flex-col gap-6 text-4xl font-semibold uppercase tracking-[0.3em] text-fg sm:text-5xl md:text-[clamp(3rem,6vw,4.5rem)]"
                   initial="hidden"

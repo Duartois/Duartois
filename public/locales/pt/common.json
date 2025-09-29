@@ -1,0 +1,69 @@
+{
+  "languageSwitcher": {
+    "ariaLabel": "Alterar idioma para {{label}}"
+  },
+  "navbar": {
+    "open": "Abrir navegação",
+    "close": "Fechar navegação",
+    "menu": "Menu",
+    "closeMenu": "Fechar"
+  },
+  "home": {
+    "hero": {
+      "kicker": "PORTFÓLIO IMERSIVO DE DUARTOIS",
+      "title": "Identidades cinéticas para marcas que abraçam o futuro.",
+      "subtitle": "Experiências digitais que misturam arte generativa, som espacial e narrativas interativas para despertar novos sentidos.",
+      "ctaProjects": "explorar projetos",
+      "ctaAbout": "conhecer trajetória"
+    }
+  },
+  "work": {
+    "title": "Experimentos selecionados",
+    "subtitle": "Passe o cursor ou use o teclado para revelar snapshots do processo híbrido entre 3D, código e direção de arte.",
+    "previewHint": "Escolha um projeto",
+    "projects": {
+      "aurora": {
+        "title": "Aurora Chromatica",
+        "year": "2024",
+        "description": "Instalação responsiva que traduz trilhas sonoras em paisagens luminosas ao vivo para um festival imersivo.",
+        "previewAlt": "Visualização abstrata do projeto Aurora Chromatica."
+      },
+      "mare": {
+        "title": "Maré Atlântica",
+        "year": "2023",
+        "description": "Narrativa audiovisual que combina dados de marés, poesia e projeções para ocupar a costa portuguesa.",
+        "previewAlt": "Poster conceitual do projeto Maré Atlântica."
+      },
+      "spectrum": {
+        "title": "Spectrum Pulse",
+        "year": "2022",
+        "description": "Identidade modular para uma plataforma de música generativa com diretrizes dinâmicas para motion e print.",
+        "previewAlt": "Interface dinâmica do projeto Spectrum Pulse."
+      }
+    }
+  },
+  "about": {
+    "kicker": "quem assina",
+    "title": "Designer-diretor que costura tecnologia, arte e performance.",
+    "paragraphs": {
+      "first": "Sou Duarte, designer e diretor criativo nascido em Lisboa. Conecto JavaScript, React e Three.js à direção de arte cinematográfica para transformar ideias em experiências digitais multisensoriais.",
+      "second": "Nos projetos, combino protótipos rápidos com Tailwind, integrações Stripe, design de APIs e modelagem em MongoDB para escalar produtos expressivos.",
+      "third": "Entre colaborações, investigo som, motion e design generativo — explore meu <github>GitHub</github> (@Duartois) para ver protótipos vivos e ferramentas abertas."
+    },
+    "visualCaption": "Avatar orgânico animado representando Duarte."
+  },
+  "contact": {
+    "title": "Vamos criar algo juntos?",
+    "subtitle": "Envie uma mensagem com o que você está planejando ou conecte-se pelas redes abaixo.",
+    "form": {
+      "nameLabel": "Nome",
+      "namePlaceholder": "Ana Silva",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "voce@estudio.com",
+      "messageLabel": "Mensagem",
+      "messagePlaceholder": "Conte-me sobre o projeto, prazos e objetivos.",
+      "submit": "enviar mensagem",
+      "success": "Mensagem enviada! Vou responder em breve."
+    }
+  }
+}
