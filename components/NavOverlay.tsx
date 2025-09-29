@@ -3,16 +3,19 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Suspense, type RefObject } from "react";
+import { Suspense, useEffect, useMemo, useRef, type RefObject, type FocusEvent } from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
-import { Canvas } from "@react-three/fiber";
+import {
+  useVariantStore,
+  type VariantName,
+} from "../store/variants";
 
 const OrganicShapeFallback = () => (
   <div className="h-full w-full animate-pulse rounded-full bg-accent2-200/20" />
 );
 
-const OrganicShape = dynamic(() => import("./three/OrganicShape"), {
+const ProceduralCanvas = dynamic(() => import("./three/ProceduralCanvas"), {
   ssr: false,
   loading: () => <OrganicShapeFallback />,
 });
@@ -45,6 +48,53 @@ export default function NavOverlay({
   overlayRef,
 }: NavOverlayProps) {
   const { t } = useTranslation("common");
+  const setVariant = useVariantStore((state) => state.setVariant);
+  const currentVariantName = useVariantStore((state) => state.variantName);
+  const initialVariantRef = useRef<VariantName>(currentVariantName);
+  const wasOpenRef = useRef(isOpen);
+  const navListRef = useRef<HTMLUListElement | null>(null);
+
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      initialVariantRef.current = currentVariantName;
+    } else if (!isOpen && wasOpenRef.current) {
+      setVariant(initialVariantRef.current);
+    }
+
+    wasOpenRef.current = isOpen;
+  }, [currentVariantName, isOpen, setVariant]);
+
+  const overlayPalette = useMemo(
+    () => [
+      { colorA: "#f5eaff", colorB: "#d1b8ff" },
+      { colorA: "#ffe1f1", colorB: "#f57bb8" },
+      { colorA: "#c7fbf3", colorB: "#4dd8cf" },
+      { colorA: "#e9ffd6", colorB: "#9be26a" },
+    ],
+    []
+  );
+
+  const overlayLights = useMemo(
+    () => (
+      <>
+        <ambientLight intensity={0.58} color="#ffe9ff" />
+        <directionalLight position={[4.5, 5.2, 7.5]} intensity={1.2} color="#ffb7d8" />
+        <directionalLight position={[-3.2, -4.1, -2.5]} intensity={0.42} color="#8fc5ff" />
+      </>
+    ),
+    []
+  );
+
+  const handleLinkFocus = (variant: VariantName) => () => {
+    setVariant(variant);
+  };
+
+  const handleLinkBlur = (event: FocusEvent<HTMLAnchorElement>) => {
+    const relatedTarget = event.relatedTarget as HTMLElement | null;
+    if (!relatedTarget || !navListRef.current?.contains(relatedTarget)) {
+      setVariant(initialVariantRef.current);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -75,27 +125,14 @@ export default function NavOverlay({
           >
             <Suspense fallback={<OrganicShapeFallback />}>
               <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 blur-sm">
-                <Canvas
-                  camera={{ position: [0, 0, 6], fov: 42 }}
-                  gl={{ antialias: true, alpha: true }}
-                  dpr={[1, 2]}
+                <ProceduralCanvas
                   className="h-full w-full"
-                >
-                  <ambientLight intensity={0.5} color="#dbe0ff" />
-                  <directionalLight
-                    position={[4.5, 5.2, 7.5]}
-                    intensity={1.15}
-                    color="#ffe0ff"
-                  />
-                  <directionalLight
-                    position={[-3, -4, -2]}
-                    intensity={0.35}
-                    color="#8ec5ff"
-                  />
-                  <Suspense fallback={null}>
-                    <OrganicShape variant="marchingCubes" colorScheme="brand" />
-                  </Suspense>
-                </Canvas>
+                  camera={{ position: [0, 0, 6], fov: 42 }}
+                  dpr={[1, 1.75]}
+                  palette={overlayPalette}
+                  parallax={false}
+                  lights={overlayLights}
+                />
                 <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(229,211,255,0.35)_0%,rgba(180,212,255,0.15)_45%,transparent_70%)]" />
               </div>
             </Suspense>
@@ -132,6 +169,7 @@ export default function NavOverlay({
             <div className="flex flex-1 flex-col justify-end gap-16 px-6 pb-12 text-left md:flex-row md:items-end md:justify-between md:px-12 md:pb-16">
               <nav aria-label={t("navbar.menu")} className="w-full md:w-auto">
                 <motion.ul
+                  ref={navListRef}
                   className="flex flex-col gap-6 text-4xl font-semibold uppercase tracking-[0.3em] text-fg sm:text-5xl md:text-[clamp(3rem,6vw,4.5rem)]"
                   initial="hidden"
                   animate="visible"
@@ -141,6 +179,7 @@ export default function NavOverlay({
                       transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                     },
                   }}
+                  onMouseLeave={() => setVariant(initialVariantRef.current)}
                 >
                   {navigationLinks.map(({ name, href }, index) => (
                     <motion.li
@@ -154,6 +193,9 @@ export default function NavOverlay({
                         ref={index === 0 ? firstLinkRef : undefined}
                         href={href}
                         onClick={onClose}
+                        onMouseEnter={handleLinkFocus(name as VariantName)}
+                        onFocus={handleLinkFocus(name as VariantName)}
+                        onBlur={handleLinkBlur}
                         className="group flex items-center gap-6 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
                       >
                         <span className="text-sm font-normal tracking-[0.4em] text-fg/40">0{index + 1}</span>
