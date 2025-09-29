@@ -7,14 +7,15 @@ import { Canvas } from "@react-three/fiber";
 import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
+import { variantMapping, type VariantName } from "../../store/variants";
 
 const Experience = dynamic(
   () => import("../../components/three/Experience"),
   { ssr: false }
 );
 
-const OrganicShape = dynamic(
-  () => import("../../components/three/OrganicShape"),
+const ProceduralShapes = dynamic(
+  () => import("../../components/three/ProceduralShapes"),
   { ssr: false },
 );
 
@@ -22,28 +23,52 @@ const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
 type ProjectKey = (typeof projectOrder)[number];
 
+type ShapePalette = { colorA: string; colorB: string }[];
+
 type ProjectPreview = {
   id: ProjectKey;
-  shape: {
-    variant: "marchingCubes" | "torusKnot";
-    colorScheme: "aurora" | "blossom" | "lagoon" | "brand";
-  };
+  variantName: VariantName;
+  palette: ShapePalette;
   showDescription?: boolean;
+};
+
+const previewPalettes: Record<ProjectKey, ShapePalette> = {
+  aurora: [
+    { colorA: "#C7D2FE", colorB: "#4F46E5" },
+    { colorA: "#BFDBFE", colorB: "#2563EB" },
+    { colorA: "#FDE68A", colorB: "#F97316" },
+    { colorA: "#F9A8D4", colorB: "#EC4899" },
+  ],
+  mare: [
+    { colorA: "#BBF7D0", colorB: "#10B981" },
+    { colorA: "#BAE6FD", colorB: "#0284C7" },
+    { colorA: "#DDD6FE", colorB: "#7C3AED" },
+    { colorA: "#99F6E4", colorB: "#14B8A6" },
+  ],
+  spectrum: [
+    { colorA: "#FDE68A", colorB: "#FACC15" },
+    { colorA: "#FBCFE8", colorB: "#EC4899" },
+    { colorA: "#BAE6FD", colorB: "#3B82F6" },
+    { colorA: "#C7D2FE", colorB: "#6366F1" },
+  ],
 };
 
 const projectPreviews: ProjectPreview[] = [
   {
     id: "aurora",
-    shape: { variant: "marchingCubes", colorScheme: "aurora" },
+    variantName: "home",
+    palette: previewPalettes.aurora,
   },
   {
     id: "mare",
-    shape: { variant: "torusKnot", colorScheme: "lagoon" },
+    variantName: "about",
+    palette: previewPalettes.mare,
     showDescription: true,
   },
   {
     id: "spectrum",
-    shape: { variant: "marchingCubes", colorScheme: "blossom" },
+    variantName: "work",
+    palette: previewPalettes.spectrum,
   },
 ];
 
@@ -52,16 +77,18 @@ export default function WorkPage() {
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
   const shouldReduceMotion = useReducedMotion();
 
-  const activePreview = projectPreviews.find((preview) => preview.id === activeProject)!;
+  const activePreview = projectPreviews.find(
+    (preview) => preview.id === activeProject,
+  )!;
 
   return (
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <Experience variant="work" />
+        <div className="absolute inset-0 -z-10">
+          <Experience variant="work" className="pointer-events-auto" />
           <div
-            className="absolute inset-0 bg-gradient-to-b from-accent3-200/55 via-bg/70 to-bg dark:from-accent2-800/35 dark:via-bg/85 dark:to-bg"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent3-200/55 via-bg/70 to-bg dark:from-accent2-800/35 dark:via-bg/85 dark:to-bg"
             aria-hidden
           />
         </div>
@@ -133,9 +160,10 @@ export default function WorkPage() {
                     <ambientLight intensity={0.5} />
                     <directionalLight position={[5, 6, 8]} intensity={1.2} />
                     <Suspense fallback={null}>
-                      <OrganicShape
-                        variant={activePreview.shape.variant}
-                        colorScheme={activePreview.shape.colorScheme}
+                      <ProceduralShapes
+                        variantOverride={variantMapping[activePreview.variantName]}
+                        palette={activePreview.palette}
+                        parallax={false}
                       />
                     </Suspense>
                   </Canvas>
