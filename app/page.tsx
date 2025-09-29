@@ -19,7 +19,10 @@ export default function HomePage() {
       <main className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <Experience variant="home" />
-          <div className="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/80 to-bg" aria-hidden />
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-brand-200/55 via-bg/70 to-bg dark:from-accent2-700/35 dark:via-bg/80 dark:to-bg"
+            aria-hidden
+          />
         </div>
         <section className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-8 px-6 text-center sm:gap-10">
           <p className="text-xs uppercase tracking-[0.4em] text-fg/60 sm:text-sm">
