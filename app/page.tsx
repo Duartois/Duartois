@@ -2,14 +2,12 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
 import Navbar from "../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "./i18n/config";
 
-const OrganicShape = dynamic(
-  () => import("../components/three/OrganicShape"),
+const Experience = dynamic(
+  () => import("../components/three/Experience"),
   {
     ssr: false,
   },
@@ -22,21 +20,10 @@ export default function HomePage() {
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <Canvas
-            camera={{ position: [0, 0, 6], fov: 42 }}
-            gl={{ antialias: true, alpha: true }}
-            dpr={[1, 2]}
-            className="h-full w-full"
-          >
-            <ambientLight intensity={0.5} />
-            <directionalLight position={[5, 6, 8]} intensity={1.2} />
-            <Suspense fallback={null}>
-              <OrganicShape variant="hero" colorScheme="brand" />
-            </Suspense>
-          </Canvas>
+        <div className="absolute inset-0 -z-10">
+          <Experience variant="home" className="pointer-events-auto" />
           <div
-            className="absolute inset-0 bg-gradient-to-b from-brand-200/55 via-bg/70 to-bg dark:from-accent2-700/35 dark:via-bg/80 dark:to-bg"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-b from-brand-200/55 via-bg/70 to-bg dark:from-accent2-700/35 dark:via-bg/80 dark:to-bg"
             aria-hidden
           />
         </div>

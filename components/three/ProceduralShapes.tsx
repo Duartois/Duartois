@@ -4,15 +4,41 @@ import * as THREE from "three";
 import React, { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { a, useSpring } from "@react-spring/three";
-import { useVariantStore } from "../../store/variants";
+import {
+  useVariantStore,
+  type VariantState,
+} from "../../store/variants";
 import GradientMat from "../../materials/GradientMat";
 
 // Tupla util p/ react-spring aceitar vetores
 const tuple = (v: [number, number, number]) => v as unknown as THREE.Vector3Tuple;
 
-export default function ProceduralShapes() {
+type ProceduralShapesProps = {
+  /**
+   * Overrides the global variant store and renders the provided transforms.
+   * Useful for small previews that should not mutate the global scene.
+   */
+  variantOverride?: VariantState;
+  /**
+   * Custom colours for each mesh.  Pass four pairs for the two torus segments,
+   * the spline and the dot respectively.
+   */
+  palette?: { colorA: string; colorB: string }[];
+  /**
+   * Enables pointer based parallax.  Disable for static previews in tight
+   * containers.
+   */
+  parallax?: boolean;
+};
+
+export default function ProceduralShapes({
+  variantOverride,
+  palette,
+  parallax = true,
+}: ProceduralShapesProps) {
   // Lê as variantes já usadas pelas suas páginas (home/work/about)
-  const variant = useVariantStore((s) => s.variant);
+  const storeVariant = useVariantStore((s) => s.variant);
+  const variant = variantOverride ?? storeVariant;
 
   // === Geometrias (primitives — como no Sharlee) ===
   // Dois “C” (torus parciais), um “S” (tube em spline), e um “dot” (esfera).
@@ -91,8 +117,8 @@ export default function ProceduralShapes() {
     const t = clock.getElapsedTime();
 
     // Parallax/tilt suave, reduzido em mobile
-    const px = pointer.x * (isMobile ? 0.02 : 0.045);
-    const py = pointer.y * (isMobile ? 0.015 : 0.035);
+    const px = parallax ? pointer.x * (isMobile ? 0.02 : 0.045) : 0;
+    const py = parallax ? pointer.y * (isMobile ? 0.015 : 0.035) : 0;
 
     // “Respiração” sutil
     const breathe = (isMobile ? 0.006 : 0.01) * Math.sin(t * 0.8);
@@ -120,13 +146,14 @@ export default function ProceduralShapes() {
   // === Paleta pastel (fixa por shape) — igual vibe do site de referência ===
   // Usa seu GradientMat para fresnel/iridescência e evita mexer em Tailwind aqui.
   const mats = useMemo(
-    () => [
-      { a: "#9CA3AF", b: "#6366F1" }, // C top: cinza→índigo
-      { a: "#60A5FA", b: "#4338CA" }, // C bottom: azul→índigo
-      { a: "#F472B6", b: "#EC4899" }, // S: rosa→pink
-      { a: "#34D399", b: "#10B981" }, // dot: verde
-    ],
-    []
+    () =>
+      palette ?? [
+        { colorA: "#9CA3AF", colorB: "#6366F1" }, // C top: cinza→índigo
+        { colorA: "#60A5FA", colorB: "#4338CA" }, // C bottom: azul→índigo
+        { colorA: "#F472B6", colorB: "#EC4899" }, // S: rosa→pink
+        { colorA: "#34D399", colorB: "#10B981" }, // dot: verde
+      ],
+    [palette]
   );
 
   return (
@@ -139,7 +166,11 @@ export default function ProceduralShapes() {
         rotation-y={cTop.rotationY}
         rotation-z={cTop.rotationZ}
       >
-        <GradientMat colorA={mats[0].a} colorB={mats[0].b} fresnelStrength={1.2} />
+        <GradientMat
+          colorA={mats[0].colorA}
+          colorB={mats[0].colorB}
+          fresnelStrength={1.2}
+        />
       </a.mesh>
 
       {/* C de baixo */}
@@ -150,7 +181,11 @@ export default function ProceduralShapes() {
         rotation-y={cBottom.rotationY}
         rotation-z={cBottom.rotationZ}
       >
-        <GradientMat colorA={mats[1].a} colorB={mats[1].b} fresnelStrength={1.2} />
+        <GradientMat
+          colorA={mats[1].colorA}
+          colorB={mats[1].colorB}
+          fresnelStrength={1.2}
+        />
       </a.mesh>
 
       {/* “S” (tube) */}
@@ -161,7 +196,11 @@ export default function ProceduralShapes() {
         rotation-y={sShape.rotationY}
         rotation-z={sShape.rotationZ}
       >
-        <GradientMat colorA={mats[2].a} colorB={mats[2].b} fresnelStrength={1.2} />
+        <GradientMat
+          colorA={mats[2].colorA}
+          colorB={mats[2].colorB}
+          fresnelStrength={1.2}
+        />
       </a.mesh>
 
       {/* Ponto (dot) */}
@@ -172,7 +211,11 @@ export default function ProceduralShapes() {
         rotation-y={dot.rotationY}
         rotation-z={dot.rotationZ}
       >
-        <GradientMat colorA={mats[3].a} colorB={mats[3].b} fresnelStrength={1.2} />
+        <GradientMat
+          colorA={mats[3].colorA}
+          colorB={mats[3].colorB}
+          fresnelStrength={1.2}
+        />
       </a.mesh>
     </group>
   );

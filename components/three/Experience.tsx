@@ -4,7 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import { Html } from "@react-three/drei";
 import Shapes from "./ProceduralShapes";
-import { useVariantStore } from "../../store/variants";
+import { useVariantStore, type VariantName } from "../../store/variants";
 
 interface ExperienceProps {
   /**
@@ -13,10 +13,15 @@ interface ExperienceProps {
    * repositions the shapes to spell out a different arrangement or
    * create a different composition.  See `store/variants.ts`.
    */
-  variant: "home" | "about" | "work" | "contact";
+  variant: VariantName;
+  /**
+   * Optional class name applied to the wrapper so the canvas can be
+   * positioned relative to different layouts.
+   */
+  className?: string;
 }
 
-export default function Experience({ variant }: ExperienceProps) {
+export default function Experience({ variant, className }: ExperienceProps) {
   const setVariant = useVariantStore((state) => state.setVariant);
 
   // Whenever the variant prop changes, update the global store so that
@@ -26,12 +31,17 @@ export default function Experience({ variant }: ExperienceProps) {
     setVariant(variant);
   }, [variant, setVariant]);
 
+  const containerClassName = className
+    ? `${className} h-full w-full`
+    : "h-full w-full";
+
   return (
-    <div className="h-screen w-screen">
+    <div className={containerClassName}>
       <Canvas
         camera={{ position: [0, 0, 6], fov: 40 }}
-        gl={{ antialias: true, alpha: false }}
+        gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
+        className="h-full w-full"
       >
         {/* Ambient and directional lighting to softly illuminate the shapes */}
         <ambientLight intensity={0.5} />
