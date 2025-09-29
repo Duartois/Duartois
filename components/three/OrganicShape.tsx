@@ -5,6 +5,7 @@ import { MarchingCubes } from "@react-three/drei";
 import { useMemo, useRef } from "react";
 import {
   Color,
+  Group,
   Mesh,
   MeshStandardMaterial,
   TorusKnotGeometry,
@@ -24,9 +25,13 @@ const pastelColorSchemes = {
     gradient: ["#b7f0e4", "#cfe7ff", "#e4d3ff"],
     emissive: "#b3e5c9",
   },
+  brand: {
+    gradient: ["#cdd7ff", "#f2c7ff", "#ffe6cc"],
+    emissive: "#c7d1ff",
+  },
 } as const;
 
-type OrganicVariant = "marchingCubes" | "torusKnot";
+type OrganicVariant = "marchingCubes" | "torusKnot" | "hero";
 
 type PastelSchemeName = keyof typeof pastelColorSchemes;
 
@@ -48,6 +53,9 @@ export default function OrganicShape({
 }: OrganicShapeProps) {
   const scheme = pastelColorSchemes[colorScheme] ?? pastelColorSchemes.aurora;
 
+  const resolvedVariant = variant === "hero" ? "marchingCubes" : variant;
+  const isHero = variant === "hero";
+
   const gradientColors = useMemo(
     () => scheme.gradient.map((hex) => new Color(hex)),
     [scheme],
@@ -55,30 +63,31 @@ export default function OrganicShape({
   const emissiveColor = useMemo(() => new Color(scheme.emissive), [scheme]);
 
   const marchingRef = useRef<MarchingCubesImpl | null>(null);
+  const groupRef = useRef<Group | null>(null);
   const torusRef = useRef<Mesh<TorusKnotGeometry, MeshStandardMaterial> | null>(
     null,
   );
   const materialRef = useRef<MeshStandardMaterial | null>(null);
 
   const metaballs = useMemo<Metaball[]>(() => {
-    if (variant !== "marchingCubes") {
+    if (resolvedVariant !== "marchingCubes") {
       return [];
     }
 
     return gradientColors.map((color, index) => ({
       color,
       offset: (index / gradientColors.length) * Math.PI * 2,
-      radius: 0.32 + index * 0.05,
-      speed: 0.55 + index * 0.2,
+      radius: (isHero ? 0.38 : 0.32) + index * (isHero ? 0.065 : 0.05),
+      speed: (isHero ? 0.65 : 0.55) + index * (isHero ? 0.24 : 0.2),
     }));
-  }, [gradientColors, variant]);
+  }, [gradientColors, isHero, resolvedVariant]);
 
   const tempColor = useMemo(() => new Color(), []);
 
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
 
-    if (variant === "marchingCubes") {
+    if (resolvedVariant === "marchingCubes") {
       const marching = marchingRef.current;
       if (marching) {
         marching.reset();
@@ -89,14 +98,24 @@ export default function OrganicShape({
           const y = Math.cos(phase * 1.1 + index * 0.45) * 0.55;
           const z = Math.sin(phase * 0.7 + index * 0.6) * 0.55;
 
-          marching.addBall(x, y, z, ball.radius, 5, ball.color);
+          const strength = isHero ? 6 : 5;
+          marching.addBall(x, y, z, ball.radius, strength, ball.color);
         });
 
         marching.update();
       }
     }
 
-    if (variant === "torusKnot") {
+    if (variant === "hero") {
+      const group = groupRef.current;
+      if (group) {
+        group.rotation.x = Math.sin(time * 0.25) * 0.18;
+        group.rotation.y = time * 0.22;
+        group.rotation.z = Math.sin(time * 0.18) * 0.12;
+      }
+    }
+
+    if (resolvedVariant === "torusKnot") {
       const torus = torusRef.current;
       const material = materialRef.current;
       if (torus && material) {
@@ -117,7 +136,7 @@ export default function OrganicShape({
     }
   });
 
-  if (variant === "torusKnot") {
+  if (resolvedVariant === "torusKnot") {
     return (
       <mesh ref={torusRef} castShadow receiveShadow>
         <torusKnotGeometry args={[0.95, 0.32, 256, 32, 2, 5]} />
@@ -134,21 +153,23 @@ export default function OrganicShape({
   }
 
   return (
-    <MarchingCubes
-      ref={marchingRef}
-      resolution={32}
-      maxPolyCount={10000}
-      enableColors
-    >
-      <meshStandardMaterial
-        vertexColors
-        roughness={0.3}
-        metalness={0.1}
-        emissive={emissiveColor}
-        emissiveIntensity={0.5}
-        envMapIntensity={0.7}
-        toneMapped={false}
-      />
-    </MarchingCubes>
+    <group ref={groupRef}>
+      <MarchingCubes
+        ref={marchingRef}
+        resolution={isHero ? 40 : 32}
+        maxPolyCount={12000}
+        enableColors
+      >
+        <meshStandardMaterial
+          vertexColors
+          roughness={0.3}
+          metalness={0.1}
+          emissive={emissiveColor}
+          emissiveIntensity={isHero ? 0.65 : 0.5}
+          envMapIntensity={0.7}
+          toneMapped={false}
+        />
+      </MarchingCubes>
+    </group>
   );
 }

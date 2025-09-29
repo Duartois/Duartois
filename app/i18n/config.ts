@@ -5,12 +5,14 @@ const resources = {
   pt: {
     translation: {
       home: {
-        kicker: "PORTFÓLIO DIGITAL DE DUARTOIS",
-        title: "Design generativo encontra experiências humanas.",
-        subtitle:
-          "Eu transformo dados, narrativas e ritmo visual em composições imersivas para marcas que querem se destacar em movimento.",
-        ctaProjects: "ver meus projetos",
-        ctaAbout: "mais sobre mim",
+        hero: {
+          kicker: "PORTFÓLIO DIGITAL DE DUARTOIS",
+          title: "Identidades cinéticas para marcas visionárias.",
+          subtitle:
+            "Crio narrativas digitais que unem arte generativa, movimento e som para lançar experiências inesquecíveis.",
+          ctaProjects: "ver meus projetos",
+          ctaAbout: "mais sobre mim",
+        },
       },
       work: {
         title: "Projetos selecionados",
@@ -74,12 +76,14 @@ const resources = {
   en: {
     translation: {
       home: {
-        kicker: "DUARTOIS DIGITAL PORTFOLIO",
-        title: "Generative design meets human experiences.",
-        subtitle:
-          "I translate data, stories, and visual rhythm into immersive compositions for brands that want to stand out in motion.",
-        ctaProjects: "see my projects",
-        ctaAbout: "more about me",
+        hero: {
+          kicker: "DUARTOIS DIGITAL PORTFOLIO",
+          title: "Kinetic identities for vision-led brands.",
+          subtitle:
+            "I craft digital narratives that blend generative art, motion, and sound to launch unforgettable experiences.",
+          ctaProjects: "see my projects",
+          ctaAbout: "more about me",
+        },
       },
       work: {
         title: "Selected projects",
