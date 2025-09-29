@@ -3,6 +3,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect } from "react";
 import { Html } from "@react-three/drei";
+import { useTranslation } from "react-i18next";
+import "@/app/i18n/config";
 import Shapes from "./ProceduralShapes";
 import { useVariantStore, type VariantName } from "../../store/variants";
 
@@ -23,6 +25,7 @@ interface ExperienceProps {
 
 export default function Experience({ variant, className }: ExperienceProps) {
   const setVariant = useVariantStore((state) => state.setVariant);
+  const { t } = useTranslation("common");
 
   // Whenever the variant prop changes, update the global store so that
   // animations can transition to the new values.  Because this is a
@@ -53,7 +56,7 @@ export default function Experience({ variant, className }: ExperienceProps) {
           fallback={
             <Html center>
               <div className="rounded-full bg-fg/10 px-6 py-3 text-sm font-medium text-fg/70 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]">
-                Materializing shapes…
+                {t("experience.loadingFallback")}
               </div>
             </Html>
           }
