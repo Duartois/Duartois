@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type VariantName = "home" | "about" | "work" | "contact";
+export type VariantName = "home" | "about" | "work" | "contact" | "avatar";
 
 export type ShapeTransform = {
   position: [number, number, number];
@@ -86,6 +86,24 @@ export const variantMapping: Record<VariantName, VariantState> = {
     dot: {
       position: [0.2, -0.1, 0.04],
       rotation: [0.1, 0.08, 0.16],
+    },
+  },
+  avatar: {
+    cTop: {
+      position: [0, 1.05, 0.08],
+      rotation: [0.3, 0.12, 0.24],
+    },
+    cBottom: {
+      position: [0, -1.05, -0.08],
+      rotation: [-0.3, -0.12, -0.24],
+    },
+    sShape: {
+      position: [0, 0, 0.12],
+      rotation: [0.4, 0.2, 1.4],
+    },
+    dot: {
+      position: [1.6, 0.2, 0.3],
+      rotation: [0.2, -0.15, 0.45],
     },
   },
 };
