@@ -5,16 +5,16 @@
       "static/chunks/_app-pages-browser_components_three_OrganicShape_tsx.js"
     ]
   },
-  "components\\Navbar.tsx -> ./three/MetaballsCanvas": {
-    "id": "components\\Navbar.tsx -> ./three/MetaballsCanvas",
+  "components\\NavOverlay.tsx -> ./three/OrganicShape": {
+    "id": "components\\NavOverlay.tsx -> ./three/OrganicShape",
     "files": [
-      "static/chunks/_app-pages-browser_components_three_MetaballsCanvas_tsx-_01c11.js"
+      "static/chunks/_app-pages-browser_components_three_OrganicShape_tsx.js"
     ]
   },
   "components\\Preloader.tsx -> ./three/MetaballsCanvas": {
     "id": "components\\Preloader.tsx -> ./three/MetaballsCanvas",
     "files": [
-      "static/chunks/_app-pages-browser_components_three_MetaballsCanvas_tsx-_01c10.js"
+      "static/chunks/_app-pages-browser_components_three_MetaballsCanvas_tsx.js"
     ]
   },
   "node_modules\\@react-three\\drei\\core\\VideoTexture.js -> hls.js": {
