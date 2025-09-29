@@ -28,3 +28,28 @@ declare module "three/examples/jsm/objects/MarchingCubes.js" {
     update(): void;
   }
 }
+
+declare module "three/examples/jsm/loaders/SVGLoader.js" {
+  import * as THREE from "three";
+
+  export interface SVGPath {
+    id?: string;
+    userData?: { node?: { id?: string } };
+    toShapes: (isCCW: boolean) => THREE.Shape[];
+  }
+
+  export interface SVGResult {
+    paths: SVGPath[];
+  }
+
+  export class SVGLoader extends THREE.Loader {
+    constructor();
+    load(
+      url: string,
+      onLoad: (data: SVGResult) => void,
+      onProgress?: (event: ProgressEvent<EventTarget>) => void,
+      onError?: (event: ErrorEvent) => void,
+    ): void;
+    parse(data: string): SVGResult;
+  }
+}
