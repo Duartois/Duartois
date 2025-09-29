@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { Suspense, useState } from "react";
 import dynamic from "next/dynamic";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Canvas } from "@react-three/fiber";
 import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
@@ -12,25 +13,44 @@ const Experience = dynamic(
   { ssr: false }
 );
 
+const OrganicShape = dynamic(
+  () => import("../../components/three/OrganicShape"),
+  { ssr: false },
+);
+
 const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
 type ProjectKey = (typeof projectOrder)[number];
 
 type ProjectPreview = {
   id: ProjectKey;
-  type: "image" | "description";
-  imageSrc?: string;
+  shape: {
+    variant: "marchingCubes" | "torusKnot";
+    colorScheme: "aurora" | "blossom" | "lagoon" | "brand";
+  };
+  showDescription?: boolean;
 };
 
 const projectPreviews: ProjectPreview[] = [
-  { id: "aurora", type: "image", imageSrc: "/images/project-aurora.svg" },
-  { id: "mare", type: "description" },
-  { id: "spectrum", type: "image", imageSrc: "/images/project-spectrum.svg" },
+  {
+    id: "aurora",
+    shape: { variant: "marchingCubes", colorScheme: "aurora" },
+  },
+  {
+    id: "mare",
+    shape: { variant: "torusKnot", colorScheme: "lagoon" },
+    showDescription: true,
+  },
+  {
+    id: "spectrum",
+    shape: { variant: "marchingCubes", colorScheme: "blossom" },
+  },
 ];
 
 export default function WorkPage() {
   const { t } = useTranslation();
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
+  const shouldReduceMotion = useReducedMotion();
 
   const activePreview = projectPreviews.find((preview) => preview.id === activeProject)!;
 
@@ -81,24 +101,75 @@ export default function WorkPage() {
             </ul>
           </section>
           <section className="relative flex w-full flex-1 items-center justify-center">
-            <div className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-3xl border border-fg/15 bg-bg/80 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur">
-              {activePreview.type === "image" && activePreview.imageSrc ? (
-                <Image
-                  src={activePreview.imageSrc}
-                  alt={t(`work.projects.${activePreview.id}.previewAlt`)}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 80vw, 480px"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center p-10">
-                  <p className="text-pretty text-lg text-fg/80">
-                    {t(`work.projects.${activePreview.id}.description`)}
-                  </p>
-                </div>
-              )}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-transparent via-bg/20 to-bg/40" aria-hidden />
+            <div
+              className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-3xl border border-fg/15 bg-bg/80 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur"
+              role="img"
+              aria-label={t(`work.projects.${activePreview.id}.previewAlt`)}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activePreview.id}
+                  className="absolute inset-0"
+                  initial={{
+                    opacity: shouldReduceMotion ? 1 : 0,
+                    y: shouldReduceMotion ? 0 : 16,
+                  }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{
+                    opacity: shouldReduceMotion ? 1 : 0,
+                    y: shouldReduceMotion ? 0 : -16,
+                  }}
+                  transition={{
+                    duration: shouldReduceMotion ? 0 : 0.45,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <Canvas
+                    camera={{ position: [0, 0, 6], fov: 42 }}
+                    gl={{ antialias: true, alpha: true }}
+                    dpr={[1, 2]}
+                    className="h-full w-full"
+                  >
+                    <ambientLight intensity={0.5} />
+                    <directionalLight position={[5, 6, 8]} intensity={1.2} />
+                    <Suspense fallback={null}>
+                      <OrganicShape
+                        variant={activePreview.shape.variant}
+                        colorScheme={activePreview.shape.colorScheme}
+                      />
+                    </Suspense>
+                  </Canvas>
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-br from-transparent via-bg/20 to-bg/40"
+                    aria-hidden
+                  />
+                  <AnimatePresence initial={false}>
+                    {activePreview.showDescription ? (
+                      <motion.div
+                        key={`${activePreview.id}-description`}
+                        className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg/85 via-bg/65 to-transparent p-8"
+                        initial={{
+                          opacity: shouldReduceMotion ? 1 : 0,
+                          y: shouldReduceMotion ? 0 : 12,
+                        }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{
+                          opacity: shouldReduceMotion ? 1 : 0,
+                          y: shouldReduceMotion ? 0 : 12,
+                        }}
+                        transition={{
+                          duration: shouldReduceMotion ? 0 : 0.35,
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
+                      >
+                        <p className="text-pretty text-base text-fg/85 sm:text-lg">
+                          {t(`work.projects.${activePreview.id}.description`)}
+                        </p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </section>
         </div>
