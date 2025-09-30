@@ -6,6 +6,7 @@ export const createStateSnapshot = (state: ThreeAppState) =>
     variant: createVariantState(state.variant),
     palette: state.palette.map((stops) => [...stops]) as ThreeAppState["palette"],
     pointer: { ...state.pointer },
+    manualPointer: { ...state.manualPointer },
   });
 
 export const attachToWindow = (handle: ThreeAppHandle) => {

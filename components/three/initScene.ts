@@ -67,7 +67,10 @@ export const initScene = ({
     theme,
     parallax,
     hovered: false,
+    cursorBoost: 0,
     pointer: { x: 0, y: 0 },
+    pointerDriver: "device",
+    manualPointer: { x: 0, y: 0 },
     ready: false,
   };
 
@@ -76,7 +79,14 @@ export const initScene = ({
   let state = initialState;
   const currentTransforms = createVariantState(state.variant);
   const pointer = new Vector2();
-  const pointerTarget = new Vector2();
+  const devicePointerTarget = new Vector2();
+  const manualPointerTarget = new Vector2();
+
+  devicePointerTarget.set(initialState.pointer.x, initialState.pointer.y);
+  manualPointerTarget.set(
+    initialState.manualPointer.x,
+    initialState.manualPointer.y,
+  );
 
   const clock = new Clock();
   let readyDispatched = false;
@@ -101,11 +111,13 @@ export const initScene = ({
     const height = window.innerHeight;
     const x = (event.clientX / width) * 2 - 1;
     const y = -((event.clientY / height) * 2 - 1);
-    pointerTarget.set(x, y);
-    state = {
-      ...state,
-      pointer: { x, y },
-    };
+    devicePointerTarget.set(x, y);
+    if (state.pointerDriver === "device") {
+      state = {
+        ...state,
+        pointer: { x, y },
+      };
+    }
   };
 
   const pointerEnter = () => {
@@ -120,7 +132,10 @@ export const initScene = ({
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
-    pointer.lerp(pointerTarget, clamp(delta * 7, 0, 1));
+    const targetPointer =
+      state.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
+
+    pointer.lerp(targetPointer, clamp(delta * 7, 0, 1));
 
     const mobile = isMobile();
     const baseTilt = mobile ? 0.18 : 0.32;
@@ -144,7 +159,7 @@ export const initScene = ({
     sceneObjects.group.rotation.y +=
       (targetRotY - sceneObjects.group.rotation.y) * clamp(delta * 5, 0, 1);
 
-    const scaleTarget = 1 + breathe + hoverBoost;
+    const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);
     const currentScale = sceneObjects.group.scale.x;
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
@@ -242,6 +257,41 @@ export const initScene = ({
 
     if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
       nextState = { ...nextState, hovered: partial.hovered };
+      changed = true;
+    }
+
+    if (typeof partial.cursorBoost === "number") {
+      const boost = clamp(partial.cursorBoost, -0.3, 0.45);
+      if (boost !== state.cursorBoost) {
+        nextState = { ...nextState, cursorBoost: boost };
+        changed = true;
+      }
+    }
+
+    if (partial.manualPointer) {
+      manualPointerTarget.set(partial.manualPointer.x, partial.manualPointer.y);
+      nextState = {
+        ...nextState,
+        manualPointer: { ...partial.manualPointer },
+      };
+      const effectiveDriver = partial.pointerDriver ?? nextState.pointerDriver;
+      if (effectiveDriver === "manual") {
+        nextState = {
+          ...nextState,
+          pointer: { ...partial.manualPointer },
+        };
+      }
+      changed = true;
+    }
+
+    if (partial.pointerDriver && partial.pointerDriver !== state.pointerDriver) {
+      nextState = { ...nextState, pointerDriver: partial.pointerDriver };
+      const source =
+        partial.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
+      nextState = {
+        ...nextState,
+        pointer: { x: source.x, y: source.y },
+      };
       changed = true;
     }
 
