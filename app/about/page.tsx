@@ -25,7 +25,7 @@ export default function AboutPage() {
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-16">
           <section className="flex-1 space-y-6">
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
