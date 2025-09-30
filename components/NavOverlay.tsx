@@ -71,6 +71,8 @@ export default function NavOverlay({
       ["#ffe1f1", "#ffc9e4", "#ffadd4", "#f57bb8"],
       ["#c7fbf3", "#9df3e5", "#6fe4d6", "#4dd8cf"],
       ["#e9ffd6", "#c8f6a0", "#aeee78", "#9be26a"],
+      ["#fff2de", "#ffd9b3", "#ffbb87", "#ff9a58"],
+      ["#e3eaff", "#c7d8ff", "#a6c0ff", "#7da1ff"],
     ],
     []
   );

@@ -20,6 +20,8 @@ const LIGHT_THEME_PALETTE: GradientPalette = [
   ["#ffe7f2", "#ffd0e6", "#ffb8d8", "#ff8fbb"],
   ["#c8fff4", "#a8faea", "#7eeadf", "#3ecfd0"],
   ["#e8ffc8", "#ccf78f", "#b4ef66", "#9ae752"],
+  ["#fff1da", "#ffdcb0", "#ffc785", "#ffae57"],
+  ["#dce9ff", "#bcd4ff", "#96baff", "#6d9aff"],
 ];
 
 const DARK_THEME_PALETTE: GradientPalette = [
@@ -27,13 +29,17 @@ const DARK_THEME_PALETTE: GradientPalette = [
   ["#310f27", "#5a1b47", "#99326f", "#ff6fa7"],
   ["#0b2d32", "#104b52", "#167a7a", "#3fe6d8"],
   ["#142818", "#1f4427", "#2f703a", "#7fe65e"],
+  ["#3b230d", "#583315", "#8b4e1f", "#f18c38"],
+  ["#101d33", "#1c2d4d", "#2f4b7b", "#5889d6"],
 ];
 
 const MATERIAL_CONFIGS = [
   { amp: 0.085, freq: 1.2, timeOffset: 0 },
   { amp: 0.095, freq: 1.05, timeOffset: 0.85 },
-  { amp: 0.12, freq: 1.45, timeOffset: 1.6 },
+  { amp: 0.11, freq: 1.3, timeOffset: 1.6 },
   { amp: 0.075, freq: 0.9, timeOffset: 2.35 },
+  { amp: 0.105, freq: 1.15, timeOffset: 3.05 },
+  { amp: 0.07, freq: 0.78, timeOffset: 3.65 },
 ] as const;
 
 // Tupla util p/ react-spring aceitar vetores
@@ -54,8 +60,9 @@ type ProceduralShapesProps = {
    */
   variantOverride?: VariantState;
   /**
-   * Custom colours for each mesh.  Pass four gradient stop arrays for the two
-   * torus segments, the spline and the dot respectively.
+   * Custom colours for each mesh.  Pass six gradient stop arrays for the two
+   * 270° torus segments, the two 180° semi-torus segments, the spline and the
+   * sphere respectively.
    */
   palette?: GradientPalette;
   /**
@@ -87,10 +94,11 @@ export default function ProceduralShapes({
   ) as SVGResult;
 
   const {
-    magnetTopGeometry,
+    torus270AGeometry,
+    torus270BGeometry,
+    semi180AGeometry,
+    semi180BGeometry,
     waveGeometry,
-    magnetBottomGeometry,
-    openLoopGeometry,
   } = useMemo(() => {
     const extrudeSettings: THREE.ExtrudeGeometryOptions = {
       depth: 16,
@@ -134,25 +142,28 @@ export default function ProceduralShapes({
     };
 
     return {
-      magnetTopGeometry: createGeometry("Magnet1", 2.4),
-      waveGeometry: createGeometry("Wave", 2.2),
-      magnetBottomGeometry: createGeometry("Magnet2", 2.4),
-      openLoopGeometry: createGeometry("OpenLoop", 2.0),
+      torus270AGeometry: createGeometry("Torus270A", 2.6),
+      torus270BGeometry: createGeometry("Torus270B", 2.35),
+      semi180AGeometry: createGeometry("SemiTorus180A", 2.1),
+      semi180BGeometry: createGeometry("SemiTorus180B", 1.75),
+      waveGeometry: createGeometry("Wave", 2.3),
     };
   }, [svgPaths]);
 
   useEffect(() => {
     return () => {
-      magnetTopGeometry?.dispose();
+      torus270AGeometry?.dispose();
+      torus270BGeometry?.dispose();
+      semi180AGeometry?.dispose();
+      semi180BGeometry?.dispose();
       waveGeometry?.dispose();
-      magnetBottomGeometry?.dispose();
-      openLoopGeometry?.dispose();
     };
   }, [
-    magnetTopGeometry,
+    torus270AGeometry,
+    torus270BGeometry,
+    semi180AGeometry,
+    semi180BGeometry,
     waveGeometry,
-    magnetBottomGeometry,
-    openLoopGeometry,
   ]);
 
   const dotGeometry = useMemo(() => new THREE.SphereGeometry(0.36, 48, 48), []);
@@ -170,6 +181,8 @@ export default function ProceduralShapes({
         material.uniforms.uFreq.value = config.freq;
         return material;
       }) as [
+        GradientShaderMaterial,
+        GradientShaderMaterial,
         GradientShaderMaterial,
         GradientShaderMaterial,
         GradientShaderMaterial,
@@ -202,41 +215,63 @@ export default function ProceduralShapes({
     });
   }, [palette, defaultPalette, gradientMaterials]);
 
-  const [magnetTopMaterial, magnetBottomMaterial, waveMaterial, dotMaterial] =
-    gradientMaterials;
+  const [
+    torus270AMaterial,
+    torus270BMaterial,
+    semi180AMaterial,
+    semi180BMaterial,
+    waveMaterial,
+    sphereMaterial,
+  ] = gradientMaterials;
 
   // === Springs por shape (compatível com seu store) ===
   const springCfg = { mass: 5, tension: 320, friction: 50 } as const;
 
-  const cTop = useSpring({
-    position: tuple(variant.cTop.position),
-    rotationX: variant.cTop.rotation[0],
-    rotationY: variant.cTop.rotation[1],
-    rotationZ: variant.cTop.rotation[2],
+  const torus270A = useSpring({
+    position: tuple(variant.torus270A.position),
+    rotationX: variant.torus270A.rotation[0],
+    rotationY: variant.torus270A.rotation[1],
+    rotationZ: variant.torus270A.rotation[2],
     config: springCfg,
   });
 
-  const cBottom = useSpring({
-    position: tuple(variant.cBottom.position),
-    rotationX: variant.cBottom.rotation[0],
-    rotationY: variant.cBottom.rotation[1],
-    rotationZ: variant.cBottom.rotation[2],
+  const torus270B = useSpring({
+    position: tuple(variant.torus270B.position),
+    rotationX: variant.torus270B.rotation[0],
+    rotationY: variant.torus270B.rotation[1],
+    rotationZ: variant.torus270B.rotation[2],
     config: springCfg,
   });
 
-  const sShape = useSpring({
-    position: tuple(variant.sShape.position),
-    rotationX: variant.sShape.rotation[0],
-    rotationY: variant.sShape.rotation[1],
-    rotationZ: variant.sShape.rotation[2],
+  const semi180A = useSpring({
+    position: tuple(variant.semi180A.position),
+    rotationX: variant.semi180A.rotation[0],
+    rotationY: variant.semi180A.rotation[1],
+    rotationZ: variant.semi180A.rotation[2],
     config: springCfg,
   });
 
-  const dot = useSpring({
-    position: tuple(variant.dot.position),
-    rotationX: variant.dot.rotation[0],
-    rotationY: variant.dot.rotation[1],
-    rotationZ: variant.dot.rotation[2],
+  const semi180B = useSpring({
+    position: tuple(variant.semi180B.position),
+    rotationX: variant.semi180B.rotation[0],
+    rotationY: variant.semi180B.rotation[1],
+    rotationZ: variant.semi180B.rotation[2],
+    config: springCfg,
+  });
+
+  const wave = useSpring({
+    position: tuple(variant.wave.position),
+    rotationX: variant.wave.rotation[0],
+    rotationY: variant.wave.rotation[1],
+    rotationZ: variant.wave.rotation[2],
+    config: springCfg,
+  });
+
+  const sphere = useSpring({
+    position: tuple(variant.sphere.position),
+    rotationX: variant.sphere.rotation[0],
+    rotationY: variant.sphere.rotation[1],
+    rotationZ: variant.sphere.rotation[2],
     config: springCfg,
   });
 
@@ -310,56 +345,70 @@ export default function ProceduralShapes({
   });
 
   if (
-    !magnetTopGeometry ||
-    !waveGeometry ||
-    !magnetBottomGeometry ||
-    !openLoopGeometry
+    !torus270AGeometry ||
+    !torus270BGeometry ||
+    !semi180AGeometry ||
+    !semi180BGeometry ||
+    !waveGeometry
   ) {
     return null;
   }
 
   return (
     <group ref={groupRef}>
-      {/* C de cima */}
       <a.mesh
-        geometry={magnetTopGeometry}
-        position={cTop.position}
-        rotation-x={cTop.rotationX}
-        rotation-y={cTop.rotationY}
-        rotation-z={cTop.rotationZ}
-        material={magnetTopMaterial}
+        geometry={torus270AGeometry}
+        position={torus270A.position}
+        rotation-x={torus270A.rotationX}
+        rotation-y={torus270A.rotationY}
+        rotation-z={torus270A.rotationZ}
+        material={torus270AMaterial}
       />
 
-      {/* C de baixo */}
       <a.mesh
-        geometry={magnetBottomGeometry}
-        position={cBottom.position}
-        rotation-x={cBottom.rotationX}
-        rotation-y={cBottom.rotationY}
-        rotation-z={cBottom.rotationZ}
-        material={magnetBottomMaterial}
+        geometry={torus270BGeometry}
+        position={torus270B.position}
+        rotation-x={torus270B.rotationX}
+        rotation-y={torus270B.rotationY}
+        rotation-z={torus270B.rotationZ}
+        material={torus270BMaterial}
       />
 
-      {/* “S” (tube) */}
+      <a.mesh
+        geometry={semi180AGeometry}
+        position={semi180A.position}
+        rotation-x={semi180A.rotationX}
+        rotation-y={semi180A.rotationY}
+        rotation-z={semi180A.rotationZ}
+        material={semi180AMaterial}
+      />
+
+      <a.mesh
+        geometry={semi180BGeometry}
+        position={semi180B.position}
+        rotation-x={semi180B.rotationX}
+        rotation-y={semi180B.rotationY}
+        rotation-z={semi180B.rotationZ}
+        material={semi180BMaterial}
+      />
+
       <a.mesh
         geometry={waveGeometry}
-        position={sShape.position}
-        rotation-x={sShape.rotationX}
-        rotation-y={sShape.rotationY}
-        rotation-z={sShape.rotationZ}
+        position={wave.position}
+        rotation-x={wave.rotationX}
+        rotation-y={wave.rotationY}
+        rotation-z={wave.rotationZ}
         material={waveMaterial}
       />
 
-      {/* Ponto (dot) */}
-      <a.group
-        position={dot.position}
-        rotation-x={dot.rotationX}
-        rotation-y={dot.rotationY}
-        rotation-z={dot.rotationZ}
-      >
-        <mesh geometry={openLoopGeometry} material={dotMaterial} />
-        <mesh geometry={dotGeometry} material={dotMaterial} />
-      </a.group>
+      <a.mesh
+        geometry={dotGeometry}
+        position={sphere.position}
+        rotation-x={sphere.rotationX}
+        rotation-y={sphere.rotationY}
+        rotation-z={sphere.rotationZ}
+        material={sphereMaterial}
+      />
     </group>
   );
 }

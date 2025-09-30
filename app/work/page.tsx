@@ -37,18 +37,24 @@ const previewPalettes: Record<ProjectKey, GradientPalette> = {
     ["#BFDBFE", "#93C5FD", "#5EA3F4", "#2563EB"],
     ["#FDE68A", "#FACA61", "#F6A53D", "#F97316"],
     ["#F9A8D4", "#F472B6", "#F04F9A", "#EC4899"],
+    ["#CFFAFE", "#A5F3FC", "#67E8F9", "#22D3EE"],
+    ["#FEE2E2", "#FCA5A5", "#F87171", "#EF4444"],
   ],
   mare: [
     ["#BBF7D0", "#86EFAC", "#4ADE80", "#10B981"],
     ["#BAE6FD", "#7DD3FC", "#38BDF8", "#0284C7"],
     ["#DDD6FE", "#C4B5FD", "#A78BFA", "#7C3AED"],
     ["#99F6E4", "#5EEAD4", "#2DD4BF", "#14B8A6"],
+    ["#FDE68A", "#FCD34D", "#FBBF24", "#D97706"],
+    ["#FECACA", "#FCA5A5", "#F87171", "#DC2626"],
   ],
   spectrum: [
     ["#FDE68A", "#FCD34D", "#FBBF24", "#FACC15"],
     ["#FBCFE8", "#F472B6", "#F04F9A", "#EC4899"],
     ["#BAE6FD", "#7DD3FC", "#38BDF8", "#3B82F6"],
     ["#C7D2FE", "#A5B4FF", "#818CF8", "#6366F1"],
+    ["#BBF7D0", "#86EFAC", "#4ADE80", "#22C55E"],
+    ["#DDD6FE", "#C4B5FD", "#A78BFA", "#8B5CF6"],
   ],
 };
 
