@@ -8,6 +8,7 @@ import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 import { variantMapping, type VariantName } from "../../store/variants";
+import type { GradientPalette } from "../../components/three/ProceduralShapes";
 
 const Experience = dynamic(
   () => import("../../components/three/Experience"),
@@ -23,33 +24,31 @@ const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
 type ProjectKey = (typeof projectOrder)[number];
 
-type ShapePalette = { colorA: string; colorB: string }[];
-
 type ProjectPreview = {
   id: ProjectKey;
   variantName: VariantName;
-  palette: ShapePalette;
+  palette: GradientPalette;
   showDescription?: boolean;
 };
 
-const previewPalettes: Record<ProjectKey, ShapePalette> = {
+const previewPalettes: Record<ProjectKey, GradientPalette> = {
   aurora: [
-    { colorA: "#C7D2FE", colorB: "#4F46E5" },
-    { colorA: "#BFDBFE", colorB: "#2563EB" },
-    { colorA: "#FDE68A", colorB: "#F97316" },
-    { colorA: "#F9A8D4", colorB: "#EC4899" },
+    ["#C7D2FE", "#A5B4FF", "#7C8BFF", "#4F46E5"],
+    ["#BFDBFE", "#93C5FD", "#5EA3F4", "#2563EB"],
+    ["#FDE68A", "#FACA61", "#F6A53D", "#F97316"],
+    ["#F9A8D4", "#F472B6", "#F04F9A", "#EC4899"],
   ],
   mare: [
-    { colorA: "#BBF7D0", colorB: "#10B981" },
-    { colorA: "#BAE6FD", colorB: "#0284C7" },
-    { colorA: "#DDD6FE", colorB: "#7C3AED" },
-    { colorA: "#99F6E4", colorB: "#14B8A6" },
+    ["#BBF7D0", "#86EFAC", "#4ADE80", "#10B981"],
+    ["#BAE6FD", "#7DD3FC", "#38BDF8", "#0284C7"],
+    ["#DDD6FE", "#C4B5FD", "#A78BFA", "#7C3AED"],
+    ["#99F6E4", "#5EEAD4", "#2DD4BF", "#14B8A6"],
   ],
   spectrum: [
-    { colorA: "#FDE68A", colorB: "#FACC15" },
-    { colorA: "#FBCFE8", colorB: "#EC4899" },
-    { colorA: "#BAE6FD", colorB: "#3B82F6" },
-    { colorA: "#C7D2FE", colorB: "#6366F1" },
+    ["#FDE68A", "#FCD34D", "#FBBF24", "#FACC15"],
+    ["#FBCFE8", "#F472B6", "#F04F9A", "#EC4899"],
+    ["#BAE6FD", "#7DD3FC", "#38BDF8", "#3B82F6"],
+    ["#C7D2FE", "#A5B4FF", "#818CF8", "#6366F1"],
   ],
 };
 

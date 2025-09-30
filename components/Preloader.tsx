@@ -7,6 +7,7 @@ import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 import type { VariantState } from "../store/variants";
+import type { GradientPalette } from "./three/ProceduralShapes";
 
 const ProceduralPreview = dynamic(() => import("./three/ProceduralCanvas"), {
   ssr: false,
@@ -32,11 +33,11 @@ const PRELOADER_VARIANT: VariantState = {
   },
 };
 
-const PRELOADER_PALETTE = [
-  { colorA: "#f8f5ff", colorB: "#ceb5ff" },
-  { colorA: "#ffeaf5", colorB: "#ff9fcf" },
-  { colorA: "#dffdf7", colorB: "#65ded1" },
-  { colorA: "#f3ffe3", colorB: "#baf775" },
+const PRELOADER_PALETTE: GradientPalette = [
+  ["#f8f5ff", "#eadfff", "#d9c5ff", "#cbb2ff"],
+  ["#ffeaf5", "#ffd4e8", "#ffb9d8", "#ff9fcf"],
+  ["#dffdf7", "#bdf4ea", "#87e6df", "#65ded1"],
+  ["#f3ffe3", "#d8f8a8", "#c1f27d", "#baf775"],
 ];
 
 interface PreloaderProps {

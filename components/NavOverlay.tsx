@@ -10,6 +10,7 @@ import {
   useVariantStore,
   type VariantName,
 } from "../store/variants";
+import type { GradientPalette } from "./three/ProceduralShapes";
 
 const OrganicShapeFallback = () => (
   <div className="h-full w-full animate-pulse rounded-full bg-accent2-200/20" />
@@ -64,12 +65,12 @@ export default function NavOverlay({
     wasOpenRef.current = isOpen;
   }, [currentVariantName, isOpen, setVariant]);
 
-  const overlayPalette = useMemo(
+  const overlayPalette = useMemo<GradientPalette>(
     () => [
-      { colorA: "#f5eaff", colorB: "#d1b8ff" },
-      { colorA: "#ffe1f1", colorB: "#f57bb8" },
-      { colorA: "#c7fbf3", colorB: "#4dd8cf" },
-      { colorA: "#e9ffd6", colorB: "#9be26a" },
+      ["#f5eaff", "#e4d5ff", "#d4bfff", "#d1b8ff"],
+      ["#ffe1f1", "#ffc9e4", "#ffadd4", "#f57bb8"],
+      ["#c7fbf3", "#9df3e5", "#6fe4d6", "#4dd8cf"],
+      ["#e9ffd6", "#c8f6a0", "#aeee78", "#9be26a"],
     ],
     []
   );
