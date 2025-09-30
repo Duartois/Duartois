@@ -1,19 +1,19 @@
 "use client";
 
-import { motion } from "framer-motion";
-import type { ComponentPropsWithoutRef } from "react";
+import { motion, type SVGMotionProps } from "framer-motion";
 
 type MenuToggleIconProps = {
   isOpen: boolean;
-} & Omit<ComponentPropsWithoutRef<"svg">, "viewBox">;
+} & Omit<SVGMotionProps<SVGSVGElement>, "animate" | "initial">;
 
 const transition = {
   duration: 0.4,
-  ease: [0.4, 0, 0.2, 1],
+  ease: [0.4, 0, 0.2, 1] as const,
 };
 
 export default function MenuToggleIcon({ isOpen, className, ...rest }: MenuToggleIconProps) {
   const composedClassName = ["relative", className].filter(Boolean).join(" ");
+  const state = isOpen ? "open" : "closed";
 
   return (
     <motion.svg
@@ -22,7 +22,7 @@ export default function MenuToggleIcon({ isOpen, className, ...rest }: MenuToggl
       height={24}
       className={composedClassName}
       initial={false}
-      animate={isOpen ? "open" : "closed"}
+      animate={state}
       {...rest}
     >
       <motion.path
