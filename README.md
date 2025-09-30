@@ -22,7 +22,17 @@ gradient fresnel rim with animated noise for the glossy “blob” aesthetic.
    and `three`.  The scene manager, materials and factories live in
    plain TypeScript modules under `components/three`.
 
-2. **Run the development server**
+2. **Verify core-only Three.js usage**
+
+   ```bash
+   npm run verify:three
+   ```
+
+   This guard scans the `app`, `components` and `types` directories to ensure no
+   forbidden helpers such as `three/examples` or `@react-three/*` make it into
+   the bundle. It also runs automatically before `npm run build`.
+
+3. **Run the development server**
 
    ```bash
    npm run dev
@@ -35,20 +45,20 @@ gradient fresnel rim with animated noise for the glossy “blob” aesthetic.
    while the preloader listens for the scene’s `ready` event before
    revealing the UI.
 
-3. **Editing shapes**
+4. **Editing shapes**
 
    The factories in `components/three/factories.ts` create the
    geometries and gradient materials.  Adjust the torus radii, the
    Catmull–Rom control points or the shader uniforms to explore new
    looks.  Variant transforms are defined in `components/three/types.ts`.
 
-4. **Changing the material**
+5. **Changing the material**
 
    The gradient shader is defined inline in `components/three/factories.ts`.
    It exposes colour stops plus animated amplitude/frequency uniforms.
    You can tweak them or swap the shader for any other `THREE.Material`.
 
-5. **Extending the project**
+6. **Extending the project**
 
    The singleton canvas avoids layout thrashing: it mounts once in
    `CanvasRoot` and reacts to state changes.  Use
