@@ -29,14 +29,6 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-body {
-  cursor: none;
-}
-
-body.cursor-visible {
-  cursor: auto;
-}
-
 .btn {
   @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition-[transform,box-shadow,background-color,color] duration-300 ease-[cubic-bezier(.22,.61,.36,1)];
   @apply shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] hover:scale-[1.02] active:scale-[0.98];
