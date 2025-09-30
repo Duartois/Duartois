@@ -9,6 +9,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import MenuToggleIcon from "./MenuToggleIcon";
 import NavOverlay from "./NavOverlay";
 import ThemeToggle from "./ThemeToggle";
+import SharleeMonogram from "./icons/SharleeMonogram";
 
 const navigationLinks = [
   { name: "home", href: "/" },
