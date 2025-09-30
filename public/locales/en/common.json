@@ -10,11 +10,13 @@
   },
   "home": {
     "hero": {
-      "kicker": "DUARTOIS IMMERSIVE PORTFOLIO",
-      "title": "Kinetic identities for brands embracing the future.",
-      "subtitle": "Digital experiences that fuse generative art, spatial sound, and interactive storytelling to spark new sensations.",
-      "ctaProjects": "explore projects",
-      "ctaAbout": "meet the story"
+      "kicker": "HEY, I'M",
+      "title": "BUT YOU CAN CALL ME",
+      "subtitle": "CREATIVE TECHNOLOGIST · GENERATIVE DESIGNER · AUDIOVISUAL DIRECTOR",
+      "name": "DUARTE",
+      "alias": "DUARTOIS",
+      "ctaProjects": "→ see my projects",
+      "ctaAbout": "→ meet the artist"
     }
   },
   "work": {

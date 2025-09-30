@@ -84,6 +84,15 @@ const config: Config = {
       transitionTimingFunction: {
         pleasant: "cubic-bezier(.22,.61,.36,1)",
       },
+      keyframes: {
+        wave: {
+          "0%": { backgroundPositionX: "0%" },
+          "100%": { backgroundPositionX: "100%" },
+        },
+      },
+      animation: {
+        wave: "wave 2.4s linear infinite",
+      },
     }
   },
   plugins: [],
