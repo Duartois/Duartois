@@ -15,19 +15,27 @@ const ProceduralPreview = dynamic(() => import("./three/ProceduralCanvas"), {
 });
 
 const PRELOADER_VARIANT: VariantState = {
-  cTop: {
+  torus270A: {
     position: [-1.3, 1.15, 0.12],
     rotation: [0.32, -0.18, 1.38],
   },
-  cBottom: {
+  torus270B: {
     position: [-1.05, -1.2, -0.08],
     rotation: [-0.38, 0.16, -1.24],
   },
-  sShape: {
+  semi180A: {
+    position: [1.05, 0.95, 0.12],
+    rotation: [0.28, 0.46, -0.26],
+  },
+  semi180B: {
+    position: [1.75, -0.55, -0.06],
+    rotation: [-0.3, -0.34, 0.52],
+  },
+  wave: {
     position: [0.8, 0.45, 0.04],
     rotation: [0.08, 0.28, -0.18],
   },
-  dot: {
+  sphere: {
     position: [2.25, -0.35, 0.08],
     rotation: [0.28, -0.08, 0.56],
   },
@@ -38,6 +46,8 @@ const PRELOADER_PALETTE: GradientPalette = [
   ["#ffeaf5", "#ffd4e8", "#ffb9d8", "#ff9fcf"],
   ["#dffdf7", "#bdf4ea", "#87e6df", "#65ded1"],
   ["#f3ffe3", "#d8f8a8", "#c1f27d", "#baf775"],
+  ["#fff4e0", "#ffe0b8", "#ffc98f", "#ffb066"],
+  ["#e0ecff", "#c5dbff", "#a5c4ff", "#82aaff"],
 ];
 
 type PreloaderStatus = "fonts" | "scene" | "idle" | "ready";
