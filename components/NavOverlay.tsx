@@ -202,7 +202,6 @@ export default function NavOverlay({
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
-
             <motion.header
               className="flex items-start justify-between px-6 pt-8 md:px-12"
               initial={{ opacity: 0, y: -12 }}
@@ -210,40 +209,37 @@ export default function NavOverlay({
               transition={{ delay: 0.1, duration: 0.35, ease: "easeOut" }}
             >
               <span id="main-navigation-title" className="sr-only">
-
-            <header className="flex items-center justify-between px-6 pt-10 text-[0.7rem] font-medium uppercase tracking-[0.42em] text-fg/60 md:px-12">
+                {t("navbar.menu")}
+              </span>
               <motion.span
-                id="main-navigation-title"
                 initial={{ y: -8, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.1, duration: 0.3 }}
+                className="text-[0.7rem] font-medium uppercase tracking-[0.42em] text-fg/60"
               >
-
                 {t("navbar.menu")}
-              </span>
-              <Link
-                href="/"
-                aria-label="Sharlee Studio"
-                className="pointer-events-auto"
-                onClick={onClose}
-
-                className="rounded-full border border-fg/10 bg-white/70 px-4 py-2 text-[0.65rem] uppercase tracking-[0.32em] text-fg/70 shadow-soft backdrop-blur transition hover:border-fg/30 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+              </motion.span>
+              <motion.div
                 initial={{ y: -8, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.15, duration: 0.3 }}
-
               >
-                <span className="inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-3 py-2 shadow-soft backdrop-blur transition hover:border-fg/30 hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg">
-                  <SharleeMonogramIcon aria-hidden />
-                </span>
-              </Link>
-
+                <Link
+                  href="/"
+                  aria-label="Sharlee Studio"
+                  onClick={onClose}
+                  className="pointer-events-auto inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-4 py-2 text-[0.65rem] uppercase tracking-[0.32em] text-fg/70 shadow-soft backdrop-blur transition hover:border-fg/30 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                >
+                  <span className="inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-3 py-2 shadow-soft backdrop-blur transition hover:border-fg/30 hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg">
+                    <SharleeMonogramIcon aria-hidden />
+                  </span>
+                </Link>
+              </motion.div>
               <div className="pointer-events-auto flex flex-col items-end gap-3 text-[0.65rem] uppercase tracking-[0.32em] text-fg/60">
                 <div className="flex items-center gap-2">
                   <LanguageSwitcher />
                   <ThemeToggle />
                 </div>
-
                 <button
                   type="button"
                   onClick={onClose}
@@ -262,12 +258,6 @@ export default function NavOverlay({
                 <motion.ul
                   ref={navListRef}
                   className="flex flex-col items-start gap-4 text-left text-[clamp(3.25rem,7vw,5rem)] font-extralight uppercase tracking-[0.14em] text-fg/90"
-
-            <div className="relative flex flex-1 items-center justify-center px-6 pb-20 pt-10 md:px-12 md:pb-24">
-              <nav aria-label={t("navbar.menu")} className="w-full md:w-auto">
-                <motion.ul
-                  ref={navListRef}
-                  className="flex flex-col items-center gap-6 text-center text-4xl font-light uppercase tracking-[0.28em] text-fg/90 sm:text-5xl md:text-[clamp(3.25rem,6vw,4.75rem)]"
 
                   initial="hidden"
                   animate="visible"
@@ -294,7 +284,6 @@ export default function NavOverlay({
                         onMouseEnter={handleLinkFocus(name as VariantName)}
                         onFocus={handleLinkFocus(name as VariantName)}
                         onBlur={handleLinkBlur}
-
                         className="group relative inline-flex items-center px-2 py-1 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
                       >
                         <span className="relative inline-flex items-center gap-6 text-[clamp(2.75rem,5vw,4rem)] uppercase tracking-[0.2em] text-fg/90">
@@ -304,13 +293,6 @@ export default function NavOverlay({
                             </span>
                             <span className="absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
                           </span>
-
-                        className="group relative inline-flex items-center justify-center px-2 py-1 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
-                      >
-                        <span className="relative inline-block overflow-hidden">
-                          <span className="block translate-y-0 transition-transform duration-300 ease-out group-hover:-translate-y-1">{name}</span>
-                          <span className="absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-
                         </span>
                       </Link>
                     </motion.li>
@@ -319,25 +301,16 @@ export default function NavOverlay({
               </nav>
 
               <motion.div
-
                 className="pointer-events-auto absolute bottom-12 right-10 hidden flex-col items-end gap-4 text-[0.62rem] uppercase tracking-[0.38em] text-fg/60 md:flex"
-
-                className="pointer-events-auto absolute bottom-10 right-8 hidden flex-col items-end gap-3 text-[0.65rem] uppercase tracking-[0.38em] text-fg/60 md:flex"
-
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45, duration: 0.35 }}
               >
-
                 <span className="flex items-center gap-3 text-fg/45">
                   <span className="hidden h-px w-10 bg-fg/30 md:block" />
                   {t("navOverlay.socialHeading")}
                 </span>
                 <div className="flex flex-col gap-2 text-fg/80">
-                  {socialLinks.map(({ label, href }) => {
-
-                <span className="text-fg/45">{t("navOverlay.socialHeading")}</span>
-                <div className="flex flex-col gap-2 text-fg/70">
                   {socialLinks.map(({ label, href }) => {
                     const IconComponent = socialIcons[label as keyof typeof socialIcons] ?? LinkedInIcon;
 
@@ -348,21 +321,15 @@ export default function NavOverlay({
                         target="_blank"
                         rel="noreferrer noopener"
                         prefetch={false}
-
                         className="group flex items-center gap-4 rounded-full border border-fg/12 bg-white/70 px-4 py-1.5 text-[0.6rem] tracking-[0.32em] text-inherit shadow-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-fg/35 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                      >
-                        <span className="text-[0.58rem] tracking-[0.28em] text-current">{label}</span>
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-fg/10 text-fg/70 transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
-                          <ArrowLaunchIcon className="h-3.5 w-3.5" aria-hidden />
-                        </span>
-
-                        className="group flex items-center gap-3 rounded-full border border-fg/10 bg-white/70 px-4 py-1.5 text-[0.6rem] tracking-[0.32em] text-inherit shadow-soft backdrop-blur transition hover:border-fg/30 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
                       >
                         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-fg/10 text-fg/80 transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
                           <IconComponent className="h-3.5 w-3.5" />
                         </span>
-                        <span>{label}</span>
-
+                        <span className="text-[0.58rem] tracking-[0.28em] text-current">{label}</span>
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-fg/10 text-fg/70 transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
+                          <ArrowLaunchIcon className="h-3.5 w-3.5" aria-hidden />
+                        </span>
                       </Link>
                     );
                   })}
