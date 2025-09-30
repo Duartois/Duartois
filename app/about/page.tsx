@@ -31,13 +31,13 @@ export default function AboutPage() {
         </div>
         <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-16">
           <section className="flex-1 space-y-6">
-            <p className="text-xs uppercase tracking-[0.4em] text-fg/60">
+            <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
               {t("about.kicker")}
             </p>
-            <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
+            <h1 className="text-4xl font-medium text-fg sm:text-5xl">
               {t("about.title")}
             </h1>
-            <div className="space-y-4 text-base text-fg/80 sm:text-lg">
+            <div className="space-y-4 text-base leading-relaxed text-fg/80 sm:text-lg">
               <p>{t("about.paragraphs.first")}</p>
               <p>{t("about.paragraphs.second")}</p>
               <p>

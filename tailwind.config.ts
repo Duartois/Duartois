@@ -10,8 +10,17 @@ const config: Config = {
     extend: {
       container: { center: true, padding: "1rem" },
       fontFamily: {
-        // ajuste pra tua fonte (usa system por padrão)
-        sans: ["ui-sans-serif", "system-ui", "Segoe UI", "Roboto", "Arial"],
+        sans: [
+          "var(--font-neue-montreal)",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Arial",
+          "sans-serif",
+        ],
       },
       colors: {
         // Paleta base em cima de variáveis (permite trocar tema sem rebuild)

@@ -28,25 +28,25 @@ export default function HomePage() {
           />
         </div>
         <section className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-8 px-6 text-center sm:gap-10">
-          <p className="text-xs uppercase tracking-[0.4em] text-fg/60 sm:text-sm">
+          <p className="text-xs font-medium uppercase tracking-[0.45em] text-fg/65 sm:text-sm">
             {t("home.hero.kicker")}
           </p>
-          <h1 className="text-balance text-4xl font-semibold leading-tight text-fg sm:text-5xl md:text-6xl">
+          <h1 className="text-balance text-4xl font-medium leading-tight text-fg sm:text-5xl md:text-6xl">
             {t("home.hero.title")}
           </h1>
-          <p className="max-w-2xl text-pretty text-base text-fg/80 sm:text-lg">
+          <p className="max-w-2xl text-pretty text-base leading-relaxed text-fg/80 sm:text-lg">
             {t("home.hero.subtitle")}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/work"
-              className="rounded-full bg-fg px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-bg transition hover:bg-fg/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+              className="rounded-full bg-fg px-8 py-3 text-sm font-medium uppercase tracking-[0.32em] text-bg transition hover:bg-fg/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
             >
               {t("home.hero.ctaProjects")}
             </Link>
             <Link
               href="/about"
-              className="rounded-full border border-fg/30 px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-fg transition hover:border-fg/60 hover:bg-fg/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+              className="rounded-full border border-fg/30 px-8 py-3 text-sm font-medium uppercase tracking-[0.32em] text-fg transition hover:border-fg/60 hover:bg-fg/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
             >
               {t("home.hero.ctaAbout")}
             </Link>

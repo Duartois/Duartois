@@ -99,13 +99,13 @@ export default function WorkPage() {
         </div>
         <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20">
           <section className="lg:w-1/2">
-            <p className="text-xs uppercase tracking-[0.4em] text-fg/60">
+            <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
               {t("work.previewHint")}
             </p>
-            <h1 className="mt-4 text-4xl font-semibold text-fg sm:text-5xl">
+            <h1 className="mt-4 text-4xl font-medium text-fg sm:text-5xl">
               {t("work.title")}
             </h1>
-            <p className="mt-6 max-w-xl text-base text-fg/80 sm:text-lg">
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-fg/80 sm:text-lg">
               {t("work.subtitle")}
             </p>
             <ul className="mt-10 flex flex-col gap-3">
@@ -121,10 +121,10 @@ export default function WorkPage() {
                         : "border-fg/20 bg-bg/60 hover:border-fg/40 hover:bg-fg/5"
                     }`}
                   >
-                    <span className="text-lg font-semibold uppercase tracking-[0.3em] text-fg">
+                    <span className="text-lg font-medium uppercase tracking-[0.28em] text-fg">
                       {t(`work.projects.${projectKey}.title`)}
                     </span>
-                    <span className="text-sm font-medium text-fg/60">
+                    <span className="text-sm font-medium text-fg/55">
                       {t(`work.projects.${projectKey}.year`)}
                     </span>
                   </button>
@@ -195,7 +195,7 @@ export default function WorkPage() {
                           ease: [0.16, 1, 0.3, 1],
                         }}
                       >
-                        <p className="text-pretty text-base text-fg/85 sm:text-lg">
+                        <p className="text-pretty text-base leading-relaxed text-fg/85 sm:text-lg">
                           {t(`work.projects.${activePreview.id}.description`)}
                         </p>
                       </motion.div>

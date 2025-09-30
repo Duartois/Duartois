@@ -1,8 +1,10 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import ThemeScript from "./theme/ThemeScript";
+import classNames from "classnames";
 import AppShell from "@/components/AppShell";
+import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
+import { neueMontreal } from "./fonts/fonts";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -10,7 +12,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <ThemeScript />
       </head>
-      <body className="bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10">
+      <body
+        className={classNames(
+          neueMontreal.variable,
+          neueMontreal.className,
+          "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
+        )}
+      >
         <ThemeProvider>
           <AppShell>{children}</AppShell>
         </ThemeProvider>

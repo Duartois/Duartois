@@ -148,7 +148,7 @@ export default function NavOverlay({
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
-            <header className="flex items-center justify-between px-6 pt-10 text-xs uppercase tracking-[0.4em] text-fg/60 md:px-12">
+            <header className="flex items-center justify-between px-6 pt-10 text-xs font-medium uppercase tracking-[0.42em] text-fg/60 md:px-12">
               <motion.span
                 id="main-navigation-title"
                 initial={{ y: -8, opacity: 0 }}
@@ -160,7 +160,7 @@ export default function NavOverlay({
               <motion.button
                 type="button"
                 onClick={onClose}
-                className="flex items-center gap-2 rounded-full bg-fg/10 px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-fg transition hover:bg-fg/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                className="flex items-center gap-2 rounded-full bg-fg/10 px-4 py-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-fg transition hover:bg-fg/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
                 initial={{ y: -8, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.15, duration: 0.3 }}
@@ -173,7 +173,7 @@ export default function NavOverlay({
               <nav aria-label={t("navbar.menu")} className="w-full md:w-auto">
                 <motion.ul
                   ref={navListRef}
-                  className="flex flex-col gap-6 text-4xl font-semibold uppercase tracking-[0.3em] text-fg sm:text-5xl md:text-[clamp(3rem,6vw,4.5rem)]"
+                  className="flex flex-col gap-6 text-4xl font-medium uppercase tracking-[0.26em] text-fg sm:text-5xl md:text-[clamp(3rem,6vw,4.5rem)]"
                   initial="hidden"
                   animate="visible"
                   variants={{
@@ -201,7 +201,7 @@ export default function NavOverlay({
                         onBlur={handleLinkBlur}
                         className="group flex items-center gap-6 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
                       >
-                        <span className="text-sm font-normal tracking-[0.4em] text-fg/40">0{index + 1}</span>
+                        <span className="text-sm font-medium tracking-[0.38em] text-fg/45">0{index + 1}</span>
                         <span className="relative">
                           <span className="block transition duration-300 ease-out group-hover:-translate-y-1">{name}</span>
                           <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-fg/80 transition-transform duration-300 ease-out group-hover:scale-x-100" />
@@ -213,7 +213,7 @@ export default function NavOverlay({
               </nav>
 
               <motion.div
-                className="flex w-full flex-col gap-8 text-sm uppercase tracking-[0.35em] text-fg/60 md:w-64"
+                className="flex w-full flex-col gap-8 text-sm font-medium uppercase tracking-[0.32em] text-fg/60 md:w-64"
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35, duration: 0.4 }}
@@ -222,7 +222,7 @@ export default function NavOverlay({
                   <span>{t("navOverlay.socialHeading")}</span>
                   <div className="h-px w-16 bg-fg/20" />
                 </div>
-                <div className="flex flex-wrap gap-3 text-[0.75rem] font-semibold uppercase tracking-[0.35em]">
+                <div className="flex flex-col gap-2 text-xs font-medium tracking-[0.4em] text-fg/40">
                   {socialLinks.map(({ label, href }) => (
                     <Link
                       key={label}
