@@ -12,6 +12,9 @@ import {
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
+import LanguageSwitcher from "./LanguageSwitcher";
+import MenuToggleIcon from "./MenuToggleIcon";
+import ThemeToggle from "./ThemeToggle";
 import {
   getDefaultPalette,
   type GradientPalette,
@@ -19,6 +22,8 @@ import {
   type ThreeAppHandle,
   type VariantName,
 } from "./three/types";
+import SharleeMonogramIcon from "./icons/SharleeMonogram";
+import ArrowLaunchIcon from "./icons/ArrowLaunchIcon";
 
 type NavigationLink = {
   name: string;
@@ -166,18 +171,19 @@ export default function NavOverlay({
           transition={{ duration: 0.25, ease: "easeInOut" }}
         >
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-brand-900 via-accent2-900/90 to-accent3-900"
+            className="absolute inset-0 bg-gradient-to-br from-[#F9F5FF] via-[#FDF8F4] to-[#F0FBFF]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeInOut" }}
           />
           <div
-            className="pointer-events-none absolute inset-0 opacity-35 mix-blend-screen"
+            className="pointer-events-none absolute inset-0"
             aria-hidden
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,214,255,0.35)_0%,rgba(193,235,255,0.18)_40%,transparent_75%)]" />
-            <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_90deg_at_50%_50%,rgba(255,240,254,0.55)_0deg,rgba(206,235,255,0.35)_140deg,rgba(255,214,240,0.4)_260deg,rgba(255,240,254,0.55)_360deg)] blur-3xl" />
+            <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-[radial-gradient(circle,#F7E7FF_0%,rgba(255,246,233,0)_70%)] blur-3xl" />
+            <div className="absolute bottom-0 left-1/2 h-[22rem] w-[22rem] -translate-x-1/2 translate-y-1/3 rounded-full bg-[radial-gradient(circle,#E8FFF6_0%,rgba(232,255,246,0)_70%)] blur-3xl" />
+            <div className="absolute -right-16 top-1/4 h-80 w-80 rounded-full bg-[radial-gradient(circle,#E2F1FF_0%,rgba(226,241,255,0)_70%)] blur-3xl" />
           </div>
 
           <motion.div
@@ -187,38 +193,56 @@ export default function NavOverlay({
             exit={{ opacity: 0, y: 24 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
-            <header className="flex items-center justify-between px-6 pt-10 text-xs font-medium uppercase tracking-[0.42em] text-fg/60 md:px-12">
-              <motion.span
-                id="main-navigation-title"
-                initial={{ y: -8, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-              >
+            <motion.header
+              className="flex items-start justify-between px-6 pt-8 md:px-12"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.35, ease: "easeOut" }}
+            >
+              <span id="main-navigation-title" className="sr-only">
                 {t("navbar.menu")}
-              </motion.span>
-              <motion.button
-                type="button"
+              </span>
+              <Link
+                href="/"
+                aria-label="Sharlee Studio"
+                className="pointer-events-auto"
                 onClick={onClose}
-                className="flex items-center gap-2 rounded-full bg-fg/10 px-4 py-2 text-[0.7rem] font-medium uppercase tracking-[0.28em] text-fg transition hover:bg-fg/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                initial={{ y: -8, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.15, duration: 0.3 }}
               >
-                {t("navbar.closeMenu")}
-              </motion.button>
-            </header>
+                <span className="inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-3 py-2 shadow-soft backdrop-blur transition hover:border-fg/30 hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg">
+                  <SharleeMonogramIcon aria-hidden />
+                </span>
+              </Link>
 
-            <div className="flex flex-1 flex-col justify-end gap-16 px-6 pb-12 text-left md:flex-row md:items-end md:justify-between md:px-12 md:pb-16">
-              <nav aria-label={t("navbar.menu")} className="w-full md:w-auto">
+              <div className="pointer-events-auto flex flex-col items-end gap-3 text-[0.65rem] uppercase tracking-[0.32em] text-fg/60">
+                <div className="flex items-center gap-2">
+                  <LanguageSwitcher />
+                  <ThemeToggle />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="group flex items-center gap-3 rounded-full border border-fg/12 bg-white/70 px-6 py-2 text-[0.65rem] font-medium tracking-[0.28em] text-fg/80 shadow-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-fg/40 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                >
+                  <span>{t("navbar.close")}</span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-fg/10 text-fg transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
+                    <MenuToggleIcon isOpen className="h-5 w-5" aria-hidden />
+                  </span>
+                </button>
+              </div>
+            </motion.header>
+
+            <div className="relative flex flex-1 items-center justify-center px-6 pb-24 pt-12 md:px-12">
+              <nav aria-label={t("navbar.menu")} className="w-full max-w-4xl">
                 <motion.ul
                   ref={navListRef}
-                  className="flex flex-col gap-6 text-4xl font-medium uppercase tracking-[0.26em] text-fg sm:text-5xl md:text-[clamp(3rem,6vw,4.5rem)]"
+                  className="flex flex-col items-start gap-4 text-left text-[clamp(3.25rem,7vw,5rem)] font-extralight uppercase tracking-[0.14em] text-fg/90"
                   initial="hidden"
                   animate="visible"
                   variants={{
                     hidden: {},
                     visible: {
-                      transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+                      transition: { staggerChildren: 0.08, delayChildren: 0.18 },
                     },
                   }}
                   onMouseLeave={restoreInitialVariant}
@@ -227,7 +251,7 @@ export default function NavOverlay({
                     <motion.li
                       key={href}
                       variants={{
-                        hidden: { opacity: 0, y: 24 },
+                        hidden: { opacity: 0, y: 20 },
                         visible: { opacity: 1, y: 0 },
                       }}
                     >
@@ -238,12 +262,15 @@ export default function NavOverlay({
                         onMouseEnter={handleLinkFocus(name as VariantName)}
                         onFocus={handleLinkFocus(name as VariantName)}
                         onBlur={handleLinkBlur}
-                        className="group flex items-center gap-6 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
+                        className="group relative inline-flex items-center px-2 py-1 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
                       >
-                        <span className="text-sm font-medium tracking-[0.38em] text-fg/45">0{index + 1}</span>
-                        <span className="relative">
-                          <span className="block transition duration-300 ease-out group-hover:-translate-y-1">{name}</span>
-                          <span className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-fg/80 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                        <span className="relative inline-flex items-center gap-6 text-[clamp(2.75rem,5vw,4rem)] uppercase tracking-[0.2em] text-fg/90">
+                          <span className="relative inline-block overflow-hidden">
+                            <span className="block translate-y-0 transition-transform duration-300 ease-out group-hover:-translate-y-1">
+                              {name}
+                            </span>
+                            <span className="absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                          </span>
                         </span>
                       </Link>
                     </motion.li>
@@ -252,28 +279,33 @@ export default function NavOverlay({
               </nav>
 
               <motion.div
-                className="flex w-full flex-col gap-8 text-sm font-medium uppercase tracking-[0.32em] text-fg/60 md:w-64"
-                initial={{ opacity: 0, y: 24 }}
+                className="pointer-events-auto absolute bottom-12 right-10 hidden flex-col items-end gap-4 text-[0.62rem] uppercase tracking-[0.38em] text-fg/60 md:flex"
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.4 }}
+                transition={{ delay: 0.45, duration: 0.35 }}
               >
-                <div className="flex flex-col gap-2 text-xs tracking-[0.4em] text-fg/40">
-                  <span>{t("navOverlay.socialHeading")}</span>
-                  <div className="h-px w-16 bg-fg/20" />
-                </div>
-                <div className="flex flex-col gap-2 text-xs font-medium tracking-[0.4em] text-fg/40">
-                  {socialLinks.map(({ label, href }) => (
-                    <Link
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      prefetch={false}
-                      className="rounded-full bg-fg/10 px-5 py-2 transition hover:bg-fg/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                <span className="flex items-center gap-3 text-fg/45">
+                  <span className="hidden h-px w-10 bg-fg/30 md:block" />
+                  {t("navOverlay.socialHeading")}
+                </span>
+                <div className="flex flex-col gap-2 text-fg/80">
+                  {socialLinks.map(({ label, href }) => {
+                    return (
+                      <Link
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        prefetch={false}
+                        className="group flex items-center gap-4 rounded-full border border-fg/12 bg-white/70 px-4 py-1.5 text-[0.6rem] tracking-[0.32em] text-inherit shadow-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-fg/35 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                      >
+                        <span className="text-[0.58rem] tracking-[0.28em] text-current">{label}</span>
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-fg/10 text-fg/70 transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
+                          <ArrowLaunchIcon className="h-3.5 w-3.5" aria-hidden />
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </motion.div>
             </div>
@@ -283,3 +315,4 @@ export default function NavOverlay({
     </AnimatePresence>
   );
 }
+
