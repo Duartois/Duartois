@@ -1,12 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
+import LanguageSwitcher from "./LanguageSwitcher";
 import NavOverlay from "./NavOverlay";
+import ThemeToggle from "./ThemeToggle";
 
 const navigationLinks = [
   { name: "home", href: "/" },
@@ -95,38 +98,55 @@ export default function Navbar() {
 
   return (
     <>
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        aria-controls="main-navigation-overlay"
-        className="group fixed right-6 top-6 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-fg/20 bg-bg/80 text-fg shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-fg/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-      >
-        <span className="sr-only">{isOpen ? t("navbar.close") : t("navbar.open")}</span>
-        <span aria-hidden="true" className="grid grid-cols-3 gap-1.5">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <motion.span
-              key={index}
-              layout
-              className="h-1.5 w-1.5 rounded-full bg-fg transition group-hover:scale-110 group-focus-visible:scale-110"
-              animate={
-                isOpen
-                  ? {
-                      scale: 0.6,
-                      opacity: 0.35,
+      <div className="fixed inset-x-0 top-6 z-50 px-6">
+        <div className="flex items-center justify-between gap-6">
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-full bg-bg/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.32em] text-fg/80 transition hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+          >
+            <span className="text-fg">DD</span>
+            <span className="hidden text-xs sm:inline">Duartois Design</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <ThemeToggle />
+
+            <button
+              ref={triggerRef}
+              type="button"
+              onClick={() => setIsOpen((open) => !open)}
+              aria-haspopup="dialog"
+              aria-expanded={isOpen}
+              aria-controls="main-navigation-overlay"
+              className="group flex h-12 w-12 items-center justify-center rounded-full border border-fg/20 bg-bg/80 text-fg shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-fg/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+            >
+              <span className="sr-only">{isOpen ? t("navbar.close") : t("navbar.open")}</span>
+              <span aria-hidden="true" className="grid grid-cols-3 gap-1.5">
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <motion.span
+                    key={index}
+                    layout
+                    className="h-1.5 w-1.5 rounded-full bg-fg transition group-hover:scale-110 group-focus-visible:scale-110"
+                    animate={
+                      isOpen
+                        ? {
+                            scale: 0.6,
+                            opacity: 0.35,
+                          }
+                        : {
+                            scale: 1,
+                            opacity: 1,
+                          }
                     }
-                  : {
-                      scale: 1,
-                      opacity: 1,
-                    }
-              }
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            />
-          ))}
-        </span>
-      </button>
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  />
+                ))}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <NavOverlay
         isOpen={isOpen}
