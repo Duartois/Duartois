@@ -15,6 +15,7 @@ import "@/app/i18n/config";
 import {
   getDefaultPalette,
   type GradientPalette,
+  type PointerTarget,
   type ThreeAppHandle,
   type VariantName,
 } from "./three/types";
@@ -58,6 +59,16 @@ export default function NavOverlay({
     ],
     [],
   );
+  const pointerTargets = useMemo<Record<VariantName, PointerTarget>>(
+    () => ({
+      home: { x: -0.28, y: 0.22 },
+      work: { x: -0.14, y: -0.18 },
+      about: { x: 0.34, y: 0.18 },
+      contact: { x: 0.2, y: -0.12 },
+      avatar: { x: 0.06, y: 0.14 },
+    }),
+    [],
+  );
   const initialVariantRef = useRef<VariantName | null>(null);
   const initialSceneStateRef = useRef<ReturnType<
     ThreeAppHandle["bundle"]["getState"]
@@ -68,7 +79,11 @@ export default function NavOverlay({
   const restoreInitialVariant = () => {
     const variantToRestore = initialVariantRef.current;
     if (variantToRestore) {
-      window.__THREE_APP__?.setState({ variantName: variantToRestore });
+      const pointerTarget = pointerTargets[variantToRestore];
+      window.__THREE_APP__?.setState({
+        variantName: variantToRestore,
+        manualPointer: pointerTarget,
+      });
     }
   };
 
@@ -80,10 +95,14 @@ export default function NavOverlay({
       const snapshot = app.bundle.getState();
       initialVariantRef.current = snapshot.variantName;
       initialSceneStateRef.current = snapshot;
+      const pointerTarget = pointerTargets[snapshot.variantName];
       app.setState({
         palette: overlayPalette,
         parallax: false,
         hovered: true,
+        cursorBoost: 0.08,
+        pointerDriver: "manual",
+        manualPointer: pointerTarget,
       });
     } else if (!isOpen && wasOpenRef.current) {
       const snapshot = initialSceneStateRef.current;
@@ -93,6 +112,9 @@ export default function NavOverlay({
           palette: snapshot.palette,
           parallax: snapshot.parallax,
           hovered: false,
+          cursorBoost: snapshot.cursorBoost,
+          pointerDriver: snapshot.pointerDriver,
+          manualPointer: snapshot.manualPointer,
         }));
       } else {
         const current = app.bundle.getState();
@@ -100,6 +122,9 @@ export default function NavOverlay({
           palette: getDefaultPalette(current.theme),
           parallax: true,
           hovered: false,
+          cursorBoost: 0,
+          pointerDriver: "device",
+          manualPointer: { x: 0, y: 0 },
         });
       }
       initialSceneStateRef.current = null;
@@ -110,7 +135,11 @@ export default function NavOverlay({
   }, [isOpen, overlayPalette]);
 
   const handleLinkFocus = (variant: VariantName) => () => {
-    window.__THREE_APP__?.setState({ variantName: variant });
+    const pointerTarget = pointerTargets[variant];
+    window.__THREE_APP__?.setState({
+      variantName: variant,
+      manualPointer: pointerTarget,
+    });
   };
 
   const handleLinkBlur = (event: FocusEvent<HTMLAnchorElement>) => {

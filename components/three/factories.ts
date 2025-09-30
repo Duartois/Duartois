@@ -1,13 +1,17 @@
 import {
+  BufferAttribute,
   CatmullRomCurve3,
   Color,
+  DoubleSide,
   Group,
+  IcosahedronGeometry,
+  LatheGeometry,
   Mesh,
   PerspectiveCamera,
   ShaderMaterial,
-  SphereGeometry,
   TorusGeometry,
   TubeGeometry,
+  Vector2,
   Vector3,
 } from "three";
 
@@ -196,12 +200,12 @@ const createGradientMaterial = () => {
 };
 
 export const MATERIAL_CONFIGS = [
-  { amp: 0.085, freq: 1.2, timeOffset: 0 },
-  { amp: 0.095, freq: 1.05, timeOffset: 0.85 },
-  { amp: 0.11, freq: 1.3, timeOffset: 1.6 },
-  { amp: 0.075, freq: 0.9, timeOffset: 2.35 },
-  { amp: 0.105, freq: 1.15, timeOffset: 3.05 },
-  { amp: 0.07, freq: 0.78, timeOffset: 3.65 },
+  { amp: 0.12, freq: 1.15, timeOffset: 0 },
+  { amp: 0.1, freq: 1.05, timeOffset: 0.72 },
+  { amp: 0.14, freq: 1.32, timeOffset: 1.46 },
+  { amp: 0.11, freq: 0.96, timeOffset: 2.18 },
+  { amp: 0.16, freq: 1.25, timeOffset: 2.94 },
+  { amp: 0.09, freq: 0.86, timeOffset: 3.58 },
 ] as const;
 
 export const createGradientMaterials = () =>
@@ -231,25 +235,143 @@ export const applyPaletteToMaterials = (
   });
 };
 
-export const createGeometries = () => {
-  const torus270A = new TorusGeometry(1.35, 0.42, 64, 180, (Math.PI * 3) / 2);
-  const torus270B = new TorusGeometry(1.2, 0.35, 64, 180, (Math.PI * 3) / 2);
-  const semi180A = new TorusGeometry(1.05, 0.32, 64, 140, Math.PI);
-  const semi180B = new TorusGeometry(0.85, 0.28, 64, 120, Math.PI);
+const createArcGeometry = ({
+  radius,
+  thickness,
+  arc,
+  tilt,
+  squishY,
+  squishZ,
+  offset,
+}: {
+  radius: number;
+  thickness: number;
+  arc: number;
+  tilt: number;
+  squishY: number;
+  squishZ: number;
+  offset: Vector3;
+}) => {
+  const geometry = new TorusGeometry(radius, thickness, 96, 320, arc);
+  geometry.scale(1, squishY, squishZ);
+  geometry.rotateX(Math.PI / 2);
+  geometry.rotateZ(tilt);
+  geometry.translate(offset.x, offset.y, offset.z);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+};
 
+const createPetalGeometry = ({
+  height,
+  radiusTop,
+  radiusBottom,
+  pinch,
+  steps,
+  twist,
+}: {
+  height: number;
+  radiusTop: number;
+  radiusBottom: number;
+  pinch: number;
+  steps: number;
+  twist: number;
+}) => {
+  const points: Vector2[] = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps;
+    const eased = Math.pow(t, 0.85);
+    const radius =
+      radiusBottom + (radiusTop - radiusBottom) * eased + Math.sin(t * Math.PI) * pinch;
+    const y = (t - 0.5) * height;
+    points.push(new Vector2(radius, y));
+  }
+
+  const geometry = new LatheGeometry(points, 96);
+  geometry.rotateX(Math.PI / 2);
+  geometry.rotateZ(twist);
+  geometry.scale(0.82, 0.82, 0.82);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+};
+
+const createRibbonGeometry = () => {
   const curve = new CatmullRomCurve3(
     [
-      new Vector3(-1.6, -0.6, 0.0),
-      new Vector3(-0.6, 0.45, 0.15),
-      new Vector3(0.5, -0.25, -0.1),
-      new Vector3(1.4, 0.6, 0.18),
+      new Vector3(-1.85, -0.85, 0.35),
+      new Vector3(-0.95, 0.55, -0.12),
+      new Vector3(0.2, -0.25, 0.2),
+      new Vector3(1.35, 0.65, -0.18),
+      new Vector3(2.05, 0.15, 0.3),
     ],
     false,
     "centripetal",
+    0.6,
   );
-  const wave = new TubeGeometry(curve, 128, 0.25, 24, false);
+  const geometry = new TubeGeometry(curve, 360, 0.2, 64, false);
+  geometry.scale(1.05, 0.78, 1.2);
+  geometry.rotateZ(Math.PI / 8);
+  geometry.rotateX(Math.PI / 12);
+  geometry.translate(-0.05, 0.1, 0);
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+};
 
-  const sphere = new SphereGeometry(0.42, 48, 48);
+const createRippleSphereGeometry = () => {
+  const geometry = new IcosahedronGeometry(0.6, 4);
+  const positions = geometry.getAttribute("position") as BufferAttribute;
+  for (let i = 0; i < positions.count; i += 1) {
+    const x = positions.getX(i);
+    const y = positions.getY(i);
+    const z = positions.getZ(i);
+    const radial = Math.sqrt(x * x + y * y + z * z);
+    const wave = 1 + 0.12 * Math.sin(radial * 5.5 + x * 3) + 0.06 * Math.cos(y * 7.2);
+    positions.setXYZ(i, x * wave, y * wave, z * wave);
+  }
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  return geometry;
+};
+
+export const createGeometries = () => {
+  const torus270A = createArcGeometry({
+    radius: 1.7,
+    thickness: 0.36,
+    arc: Math.PI * 1.75,
+    tilt: Math.PI / 5,
+    squishY: 0.82,
+    squishZ: 1.1,
+    offset: new Vector3(-0.25, 0.08, 0.1),
+  });
+  const torus270B = createArcGeometry({
+    radius: 1.4,
+    thickness: 0.3,
+    arc: Math.PI * 1.62,
+    tilt: -Math.PI / 4.5,
+    squishY: 0.9,
+    squishZ: 0.92,
+    offset: new Vector3(0.18, -0.05, -0.08),
+  });
+  const semi180A = createPetalGeometry({
+    height: 2.1,
+    radiusTop: 0.55,
+    radiusBottom: 0.95,
+    pinch: 0.22,
+    steps: 48,
+    twist: Math.PI / 9,
+  });
+  const semi180B = createPetalGeometry({
+    height: 1.85,
+    radiusTop: 0.45,
+    radiusBottom: 0.78,
+    pinch: 0.18,
+    steps: 42,
+    twist: -Math.PI / 7,
+  });
+  const wave = createRibbonGeometry();
+  const sphere = createRippleSphereGeometry();
 
   return { torus270A, torus270B, semi180A, semi180B, wave, sphere };
 };
@@ -282,9 +404,18 @@ export const createSceneObjects = (palette: GradientPalette): SceneObjects => {
   meshEntries.forEach(([, mesh]) => {
     mesh.castShadow = false;
     mesh.receiveShadow = false;
+    const shaderMaterial = mesh.material as GradientMaterial;
+    shaderMaterial.side = DoubleSide;
     mesh.rotation.set(0, 0, 0);
     group.add(mesh);
   });
+
+  meshEntries[0][1].scale.setScalar(1.18);
+  meshEntries[1][1].scale.setScalar(1.05);
+  meshEntries[2][1].scale.set(0.92, 0.92, 0.92);
+  meshEntries[3][1].scale.set(0.86, 0.86, 0.86);
+  meshEntries[4][1].scale.set(1.12, 1.12, 1.12);
+  meshEntries[5][1].scale.setScalar(0.94);
 
   const dispose = () => {
     meshEntries.forEach(([, mesh]) => {
