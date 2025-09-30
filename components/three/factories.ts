@@ -131,10 +131,7 @@ const vertexShader = /* glsl */ `
 
   void main() {
     vec3 displaced = position;
-    float wave = sin((position.x + position.y + position.z) * uFreq + uTime) * uAmp;
-    float noiseSample = snoise((normal + position) * uNoiseScale + vec3(uTime * 0.1));
-    float ripple = wave + noiseSample * (uAmp * 0.65);
-    displaced += normal * ripple;
+    float ripple = 0.0;
 
     vec4 world = modelMatrix * vec4(displaced, 1.0);
     vWorldPos = world.xyz;
@@ -170,7 +167,7 @@ const fragmentShader = /* glsl */ `
     vec3 normal = normalize(vNormal);
 
     float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.5);
-    float rippleGlow = smoothstep(0.25, 1.0, abs(vRipple));
+    float rippleGlow = 0.05;
 
     vec3 colour = gradient + fresnel * 0.45 + rippleGlow * 0.18;
     gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
@@ -185,9 +182,9 @@ const createGradientMaterial = () => {
       uColor3: { value: new Color("#c1a6ff") },
       uColor4: { value: new Color("#9d7aff") },
       uTime: { value: 0 },
-      uAmp: { value: 0.08 },
+      uAmp: { value: 0 },
       uFreq: { value: 1.25 },
-      uNoiseScale: { value: 0.65 },
+      uNoiseScale: { value: 0 },
     },
     vertexShader,
     fragmentShader,
@@ -200,12 +197,12 @@ const createGradientMaterial = () => {
 };
 
 export const MATERIAL_CONFIGS = [
-  { amp: 0.12, freq: 1.15, timeOffset: 0 },
-  { amp: 0.1, freq: 1.05, timeOffset: 0.72 },
-  { amp: 0.14, freq: 1.32, timeOffset: 1.46 },
-  { amp: 0.11, freq: 0.96, timeOffset: 2.18 },
-  { amp: 0.16, freq: 1.25, timeOffset: 2.94 },
-  { amp: 0.09, freq: 0.86, timeOffset: 3.58 },
+  { amp: 0, freq: 1.15, timeOffset: 0 },
+  { amp: 0, freq: 1.05, timeOffset: 0.72 },
+  { amp: 0, freq: 1.32, timeOffset: 1.46 },
+  { amp: 0, freq: 0.96, timeOffset: 2.18 },
+  { amp: 0, freq: 1.25, timeOffset: 2.94 },
+  { amp: 0, freq: 0.86, timeOffset: 3.58 },
 ] as const;
 
 export const createGradientMaterials = () =>
