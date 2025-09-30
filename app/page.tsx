@@ -46,7 +46,7 @@ export default function HomePage() {
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand-200/55 via-bg/70 to-bg dark:from-accent2-700/35 dark:via-bg/80 dark:to-bg" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-brand-200/55 via-bg/70 to-bg dark:from-accent2-700/35 dark:via-bg/80 dark:to-bg" aria-hidden />
         <section className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col justify-center gap-10 px-6 py-24 text-left sm:gap-12 sm:px-10 md:py-32">
           <div className="flex flex-col gap-6 sm:gap-8">
             <h1 className="text-balance text-4xl font-semibold uppercase leading-[1.05] tracking-[0.28em] text-fg sm:text-5xl md:text-6xl">

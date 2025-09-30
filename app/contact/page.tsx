@@ -31,7 +31,7 @@ export default function ContactPage() {
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg/45 via-bg/85 to-bg" aria-hidden />
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-bg/45 via-bg/85 to-bg" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left">
           <div className="space-y-4">
             <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
