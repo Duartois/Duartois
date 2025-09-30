@@ -97,19 +97,21 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-6 z-50 px-6">
-        <div className="flex items-center justify-between gap-6">
+      <div className="fixed inset-x-0 top-5 z-50 px-6 md:px-10">
+        <div className="flex items-start justify-between gap-6">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-full bg-bg/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.32em] text-fg/80 transition hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+            className="group inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-3 py-2 shadow-soft backdrop-blur transition hover:border-fg/30 hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+            aria-label="Sharlee Studio"
           >
-            <span className="text-fg">DD</span>
-            <span className="hidden text-xs sm:inline">Duartois Design</span>
+            <SharleeMonogram className="h-12 w-12 text-fg transition duration-300 ease-out group-hover:scale-[1.02]" />
           </Link>
 
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher />
-            <ThemeToggle />
+          <div className="flex flex-col items-end gap-3">
+            <div className="flex items-center gap-2 text-right">
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
 
             <button
               ref={triggerRef}
@@ -118,14 +120,16 @@ export default function Navbar() {
               aria-haspopup="dialog"
               aria-expanded={isOpen}
               aria-controls="main-navigation-overlay"
-              className="group relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-fg/15 bg-bg/80 text-fg shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] backdrop-blur transition-colors duration-300 hover:border-fg/40 hover:bg-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+              className="group relative flex items-center gap-3 rounded-full border border-fg/15 bg-white/70 px-4 py-2 text-sm font-medium uppercase tracking-[0.32em] text-fg/80 shadow-[0_10px_30px_-18px_rgba(18,23,35,0.35)] backdrop-blur transition duration-300 ease-out hover:-translate-y-0.5 hover:border-fg/40 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
             >
-              <span className="sr-only">{isOpen ? t("navbar.close") : t("navbar.open")}</span>
-              <MenuToggleIcon
-                aria-hidden="true"
-                isOpen={isOpen}
-                className="h-6 w-6 text-fg transition-colors duration-300 group-hover:text-fg group-focus-visible:text-fg"
-              />
+              <span>{isOpen ? t("navbar.close") : t("navbar.open")}</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-fg/10 transition duration-300 ease-out group-hover:bg-fg/20">
+                <MenuToggleIcon
+                  aria-hidden="true"
+                  isOpen={isOpen}
+                  className="h-5 w-5 text-fg transition duration-300 ease-out"
+                />
+              </span>
             </button>
           </div>
         </div>
@@ -140,5 +144,68 @@ export default function Navbar() {
         overlayRef={overlayRef}
       />
     </>
+  );
+}
+
+function SharleeMonogram({ className }: { className?: string }) {
+  return (
+    <span className={className}>
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-full w-full"
+      >
+        <defs>
+          <linearGradient id="sharleeMonogramBg" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#F1E8FF" />
+            <stop offset="0.52" stopColor="#FCE5F6" />
+            <stop offset="1" stopColor="#E9F7FF" />
+          </linearGradient>
+          <linearGradient id="sharleeMonogramStroke" x1="20" y1="12" x2="44" y2="52" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#6741D9" />
+            <stop offset="1" stopColor="#0FA3B1" />
+          </linearGradient>
+        </defs>
+        <rect
+          x="2"
+          y="2"
+          width="60"
+          height="60"
+          rx="18"
+          fill="url(#sharleeMonogramBg)"
+        />
+        <rect
+          x="2"
+          y="2"
+          width="60"
+          height="60"
+          rx="18"
+          stroke="rgba(27, 30, 36, 0.08)"
+          strokeWidth="2"
+        />
+        <path
+          d="M42 16h-9.5a8.5 8.5 0 0 0 0 17h6a9.5 9.5 0 1 1 0 19h-9.5a9.5 9.5 0 0 1-9.5-9.5"
+          stroke="url(#sharleeMonogramStroke)"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle
+          cx="32"
+          cy="17"
+          r="3"
+          fill="#6741D9"
+          fillOpacity="0.9"
+        />
+        <circle
+          cx="32"
+          cy="47"
+          r="3"
+          fill="#0FA3B1"
+          fillOpacity="0.85"
+        />
+      </svg>
+    </span>
   );
 }

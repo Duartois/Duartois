@@ -24,14 +24,11 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       className={clsx(
-        "group relative flex h-11 w-11 items-center justify-center rounded-full border bg-bg/90 text-fg shadow-soft transition-all duration-300 ease-pleasant",
-        "hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+        "group relative flex h-11 w-11 items-center justify-center rounded-full border border-fg/12 bg-white/70 text-fg/80 shadow-soft backdrop-blur transition-all duration-300 ease-pleasant",
+        "hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
         theme === "dark"
-          ? "border-accent3-700/60 text-accent3-100 hover:border-accent3-400/80 hover:bg-accent3-900/40 focus-visible:outline-accent3-300/60"
-          : "border-brand-200/80 text-brand-700 hover:border-brand-400 hover:bg-brand-100/60 focus-visible:outline-brand-400/70",
-        theme === "dark"
-          ? "ring-1 ring-accent3-500/40"
-          : "ring-1 ring-brand-400/50",
+          ? "hover:border-accent3-400/70 hover:text-accent3-200"
+          : "hover:border-brand-400/70 hover:text-brand-600",
       )}
       aria-label={t("themeToggle.ariaLabel", { theme: nextThemeLabel })}
       aria-pressed={theme === "dark"}
