@@ -10,13 +10,11 @@
   },
   "home": {
     "hero": {
-      "kicker": "HEY, I'M",
-      "title": "BUT YOU CAN CALL ME",
-      "subtitle": "CREATIVE TECHNOLOGIST · GENERATIVE DESIGNER · AUDIOVISUAL DIRECTOR",
-      "name": "DUARTE",
-      "alias": "DUARTOIS",
-      "ctaProjects": "→ see my projects",
-      "ctaAbout": "→ meet the artist"
+      "kicker": "creative technologist & art director from lisbon",
+      "title": "i weave neon, sound, and immersive code into sensorial stories.",
+      "subtitle": "i collaborate with studios and performers to craft reactive identities, experiential stages, and living visuals.",
+      "ctaProjects": "+ see my projects",
+      "ctaAbout": "+ more about me"
     }
   },
   "work": {

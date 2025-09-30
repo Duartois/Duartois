@@ -10,13 +10,11 @@
   },
   "home": {
     "hero": {
-      "kicker": "OLÁ, SOU",
-      "title": "MAS PODES CHAMAR-ME DE",
-      "subtitle": "TECNÓLOGO CRIATIVO · DESIGNER GENERATIVO · DIRETOR AUDIOVISUAL",
-      "name": "DUARTE",
-      "alias": "DUARTOIS",
-      "ctaProjects": "→ ver os meus projetos",
-      "ctaAbout": "→ conhecer o artista"
+      "kicker": "tecnólogo criativo & diretor de arte em lisboa",
+      "title": "teço neon, som e código imersivo em histórias sensoriais.",
+      "subtitle": "colaboro com estúdios e performers para criar identidades reativas, palcos imersivos e visuais vivos.",
+      "ctaProjects": "+ ver os meus projetos",
+      "ctaAbout": "+ saber mais sobre mim"
     }
   },
   "work": {
