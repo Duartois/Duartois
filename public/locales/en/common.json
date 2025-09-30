@@ -43,21 +43,22 @@
     }
   },
   "about": {
-    "kicker": "the mind behind",
-    "title": "Designer-director weaving technology, art, and performance.",
+    "kicker": "about",
+    "title": "duarte duartois",
+    "subtitle": "creative technologist crafting sensorial narratives.",
     "paragraphs": {
-      "first": "I'm Duarte, a Lisbon-born designer and creative director. I pair JavaScript, React, and Three.js with cinematic art direction to turn ideas into multisensory digital experiences.",
-      "second": "Within each engagement I mix rapid prototyping with Tailwind, Stripe integrations, API design, and MongoDB modelling to scale expressive products.",
-      "third": "Between collaborations I research sound, motion, and generative design — explore my <github>GitHub</github> (@Duartois) to find living prototypes and open tools."
+      "first": "i choreograph realtime visuals, light, and spatial sound with javascript, three.js, and midi-driven tools for immersive stages.",
+      "second": "i lead collaborations from concept to deployment, prototyping with react, node, and bespoke pipelines that keep teams in flow.",
+      "third": "beyond the spotlight i mentor new media artists, publish open-source utilities, and share learnings — explore my <github>github</github> (@duartois) for living builds."
     },
-    "portraitAlt": "Portrait illustration of Duarte Duartois.",
-    "miniplayer": {
-      "track": "Liminal Echoes (Live Session)",
-      "artist": "Duartois",
-      "coverAlt": "Album art for the track Liminal Echoes."
-    },
-    "visualCaption": "Animated organic avatar representing Duarte."
+    "portraitAlt": "Portrait photo of Duarte Duartois in a studio lighting setup.",
+    "badgeAlt": "Circular badge with Lisbon creative text.",
+    "cta": {
+      "resume": "download resume",
+      "contact": "book a call"
+    }
   },
+
   "contact": {
     "title": "Shall we create something together?",
     "subtitle": "Send a note with what you're planning or connect through the networks below.",

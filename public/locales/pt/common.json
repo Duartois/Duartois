@@ -43,20 +43,20 @@
     }
   },
   "about": {
-    "kicker": "quem assina",
-    "title": "Designer-diretor que costura tecnologia, arte e performance.",
+    "kicker": "sobre",
+    "title": "duarte duartois",
+    "subtitle": "tecnólogo criativo que cria narrativas sensoriais.",
     "paragraphs": {
-      "first": "Sou Duarte, designer e diretor criativo nascido em Lisboa. Conecto JavaScript, React e Three.js à direção de arte cinematográfica para transformar ideias em experiências digitais multisensoriais.",
-      "second": "Nos projetos, combino protótipos rápidos com Tailwind, integrações Stripe, design de APIs e modelagem em MongoDB para escalar produtos expressivos.",
-      "third": "Entre colaborações, investigo som, motion e design generativo — explore meu <github>GitHub</github> (@Duartois) para ver protótipos vivos e ferramentas abertas."
+      "first": "coreografo visuais em tempo real, luz e som espacial com javascript, three.js e ferramentas guiadas por midi para palcos imersivos.",
+      "second": "conduzo colaborações do conceito à entrega, prototipando com react, node e pipelines sob medida que mantêm as equipas em fluxo.",
+      "third": "fora dos holofotes mentoro artistas de new media, publico utilitários open source e partilho aprendizados — explore meu <github>github</github> (@duartois) para ver construções vivas."
     },
-    "portraitAlt": "Retrato ilustrado de Duarte Duartois.",
-    "miniplayer": {
-      "track": "Liminal Echoes (Live Session)",
-      "artist": "Duartois",
-      "coverAlt": "Capa do single Liminal Echoes."
-    },
-    "visualCaption": "Avatar orgânico animado representando Duarte."
+    "portraitAlt": "Retrato fotográfico de Duarte Duartois com iluminação de estúdio.",
+    "badgeAlt": "Selo circular com texto criativo de Lisboa.",
+    "cta": {
+      "resume": "baixar currículo",
+      "contact": "agendar uma chamada"
+    }
   },
   "contact": {
     "title": "Vamos criar algo juntos?",

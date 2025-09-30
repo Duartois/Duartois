@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import Navbar from "../../components/Navbar";
-import { Trans, useTranslation } from "react-i18next";
 import Link from "next/link";
+import { Trans, useTranslation } from "react-i18next";
 import Image from "next/image";
 import "../i18n/config";
 
@@ -26,18 +26,19 @@ export default function AboutPage() {
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-16">
+        <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-16 px-6 py-24 lg:flex-row lg:items-center lg:gap-24">
           <section className="flex-1 space-y-6">
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
               {t("about.kicker")}
             </p>
-            <h1 className="text-4xl font-medium text-fg sm:text-5xl">
-              {t("about.title")}
-            </h1>
+            <div className="space-y-4">
+              <h1 className="text-5xl font-semibold text-fg sm:text-6xl">{t("about.title")}</h1>
+              <p className="text-lg text-fg/70 sm:text-xl">{t("about.subtitle")}</p>
+            </div>
             <div className="space-y-4 text-base leading-relaxed text-fg/80 sm:text-lg">
-              <p>{t("about.paragraphs.first")}</p>
-              <p>{t("about.paragraphs.second")}</p>
-              <p>
+              <p className="lowercase">{t("about.paragraphs.first")}</p>
+              <p className="lowercase">{t("about.paragraphs.second")}</p>
+              <p className="lowercase">
                 <Trans
                   i18nKey="about.paragraphs.third"
                   ns="common"
@@ -54,52 +55,56 @@ export default function AboutPage() {
                 />
               </p>
             </div>
+            <div className="flex flex-wrap gap-3 pt-6">
+              <Link
+                href="/Duartois-Resume.pdf"
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full border border-transparent bg-fg px-6 py-3 text-sm font-semibold text-bg shadow-[0_18px_40px_-22px_rgba(0,0,0,0.65)] transition hover:-translate-y-0.5 hover:bg-fg/90"
+              >
+                <span>{t("about.cta.resume")}</span>
+                <span aria-hidden className="text-base transition-transform group-hover:translate-x-0.5">
+                  ↗
+                </span>
+              </Link>
+              <Link
+                href="mailto:hello@duartois.studio"
+                className="inline-flex items-center gap-2 rounded-full border border-fg/20 bg-bg/80 px-6 py-3 text-sm font-semibold text-fg shadow-[0_18px_40px_-24px_rgba(0,0,0,0.55)] backdrop-blur transition hover:-translate-y-0.5 hover:border-fg/35"
+              >
+                <span>{t("about.cta.contact")}</span>
+              </Link>
+            </div>
           </section>
           <section className="flex flex-1 justify-center lg:justify-end">
-            <div className="relative flex h-72 w-72 max-w-full flex-col items-center justify-center">
+            <div className="relative flex h-[22rem] w-[22rem] max-w-full items-center justify-center">
               <div
-                className="pointer-events-none absolute inset-0 -z-10 rounded-full border border-fg/10 bg-[radial-gradient(circle_at_30%_25%,rgba(255,223,245,0.45)_0%,rgba(205,231,255,0.22)_45%,transparent_80%)] shadow-[0_35px_90px_-45px_rgba(0,0,0,0.65)] backdrop-blur"
+                className="pointer-events-none absolute inset-0 -z-20 rounded-full border border-fg/10 bg-[radial-gradient(circle_at_30%_25%,rgba(255,223,245,0.45)_0%,rgba(205,231,255,0.25)_45%,transparent_78%)] shadow-[0_35px_90px_-45px_rgba(0,0,0,0.65)] backdrop-blur"
                 aria-hidden
               />
-              <div className="pointer-events-none absolute inset-0 animate-[spin_18s_linear_infinite] rounded-full border border-transparent border-t-fg/15" aria-hidden />
-
-              <div className="relative flex h-72 w-72 flex-col items-center justify-center gap-6">
-                <div className="relative h-44 w-44 overflow-hidden rounded-full border border-fg/20 bg-fg/5 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.5)]">
+              <div className="pointer-events-none absolute inset-[-6%] -z-10 animate-[spin_24s_linear_infinite] rounded-full border border-transparent border-t-accent2-300/50 border-b-accent1-200/50" aria-hidden />
+              <div className="pointer-events-none absolute inset-[16%] rounded-full border border-fg/10 opacity-60" aria-hidden />
+              <div className="relative h-56 w-56 overflow-hidden rounded-full border border-fg/15 shadow-[0_28px_60px_-30px_rgba(0,0,0,0.65)]">
+                <Image
+                  src="/about/profile.jpg"
+                  alt={t("about.portraitAlt")}
+                  fill
+                  sizes="(min-width: 1024px) 20rem, 14rem"
+                  className="object-cover"
+                  priority
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-accent1-200/25 via-transparent to-accent2-200/20 mix-blend-screen" aria-hidden />
+              </div>
+              <div className="pointer-events-none absolute -left-6 top-0 h-20 w-20 rounded-full bg-accent2-200/15 blur-2xl" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-10 right-0 h-24 w-24 rounded-full bg-accent1-300/20 blur-3xl" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-6 -left-10 h-28 w-28">
+                <div className="relative h-full w-full">
                   <Image
-                    src="/about-portrait.svg"
-                    alt={t("about.portraitAlt")}
+                    src="/about/badge.svg"
+                    alt={t("about.badgeAlt")}
                     fill
-                    sizes="(min-width: 1024px) 18rem, 11rem"
-                    className="object-cover"
-                    priority
+                    className="object-contain"
+                    sizes="7rem"
                   />
-                </div>
-
-                <div className="relative w-full max-w-[15rem]">
-                  <div
-                    className="pointer-events-none absolute inset-0 -z-10 rounded-[1.8rem] bg-[conic-gradient(from_120deg_at_50%_50%,rgba(255,223,245,0.55),rgba(205,231,255,0.45),rgba(255,223,245,0.55))] opacity-75 blur-sm"
-                    aria-hidden
-                  />
-                  <Link
-                    href="https://open.spotify.com/track/5v0AIJfxNbu74eXZOyAOXl"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="relative flex items-center gap-3 rounded-2xl border border-fg/10 bg-bg/70 p-3 text-left shadow-[0_10px_40px_-25px_rgba(0,0,0,0.45)] backdrop-blur"
-                  >
-                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-fg/15 bg-fg/10">
-                      <Image
-                        src="/about-portrait.svg"
-                        alt={t("about.miniplayer.coverAlt")}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-sm font-medium text-fg">{t("about.miniplayer.track")}</span>
-                      <span className="truncate text-xs text-fg/70">{t("about.miniplayer.artist")}</span>
-                    </div>
-                  </Link>
                 </div>
               </div>
             </div>
