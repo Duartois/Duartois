@@ -1,72 +1,29 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import { useProgress } from "@react-three/drei";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
-import type { VariantState } from "../store/variants";
-import type { GradientPalette } from "./three/ProceduralShapes";
 
-const ProceduralPreview = dynamic(() => import("./three/ProceduralCanvas"), {
-  ssr: false,
-  loading: () => <div className="h-48 w-48 animate-pulse rounded-full bg-fg/10" />,
-});
-
-const PRELOADER_VARIANT: VariantState = {
-  torus270A: {
-    position: [-1.3, 1.15, 0.12],
-    rotation: [0.32, -0.18, 1.38],
-  },
-  torus270B: {
-    position: [-1.05, -1.2, -0.08],
-    rotation: [-0.38, 0.16, -1.24],
-  },
-  semi180A: {
-    position: [1.05, 0.95, 0.12],
-    rotation: [0.28, 0.46, -0.26],
-  },
-  semi180B: {
-    position: [1.75, -0.55, -0.06],
-    rotation: [-0.3, -0.34, 0.52],
-  },
-  wave: {
-    position: [0.8, 0.45, 0.04],
-    rotation: [0.08, 0.28, -0.18],
-  },
-  sphere: {
-    position: [2.25, -0.35, 0.08],
-    rotation: [0.28, -0.08, 0.56],
-  },
-};
-
-const PRELOADER_PALETTE: GradientPalette = [
-  ["#f8f5ff", "#eadfff", "#d9c5ff", "#cbb2ff"],
-  ["#ffeaf5", "#ffd4e8", "#ffb9d8", "#ff9fcf"],
-  ["#dffdf7", "#bdf4ea", "#87e6df", "#65ded1"],
-  ["#f3ffe3", "#d8f8a8", "#c1f27d", "#baf775"],
-  ["#fff4e0", "#ffe0b8", "#ffc98f", "#ffb066"],
-  ["#e0ecff", "#c5dbff", "#a5c4ff", "#82aaff"],
-];
+import type { ThreeAppState } from "./three/types";
 
 type PreloaderStatus = "fonts" | "scene" | "idle" | "ready";
 
-interface PreloaderProps {
+type PreloaderProps = {
   onComplete?: () => void;
-}
+};
+
+const STATIC_PREVIEW_STYLES =
+  "h-48 w-48 rounded-full bg-gradient-to-br from-fg/15 via-fg/10 to-fg/5";
 
 export default function Preloader({ onComplete }: PreloaderProps) {
-  const { progress } = useProgress();
-  const hasCompletedRef = useRef(false);
-  const stableFrameResolverRef = useRef<(() => void) | null>(null);
-  const idleTimeoutRef = useRef<number>();
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
-  const [hasMounted, setHasMounted] = useState(false);
-  const formattedProgress = Math.round(progress);
-  const prefersReducedMotion = useReducedMotion();
-  const showStaticPreview = hasMounted && prefersReducedMotion;
+  const [progress, setProgress] = useState(0);
+  const hasCompletedRef = useRef(false);
+  const idleTimeoutRef = useRef<number>();
   const { t } = useTranslation("common");
+  const prefersReducedMotion = useReducedMotion();
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -75,73 +32,100 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   useEffect(() => {
     let isCancelled = false;
 
-    const fontsReadyPromise = (typeof document !== "undefined" && "fonts" in document
+    const fontsPromise = (typeof document !== "undefined" && "fonts" in document
       ? document.fonts.ready.catch(() => undefined)
       : Promise.resolve()
     ).then(() => {
       if (!isCancelled) {
-        setStatusKey("scene");
+        setProgress((current) => (current < 50 ? 50 : current));
+        setStatusKey((current) => (current === "fonts" ? "scene" : current));
       }
-    });
-
-    const stableFramePromise = new Promise<void>((resolve) => {
-      stableFrameResolverRef.current = () => {
-        resolve();
-        stableFrameResolverRef.current = null;
-      };
-    }).then(() => {
-      if (!isCancelled) {
-        setStatusKey("idle");
-      }
-    });
-
-    const idlePromise = Promise.all([fontsReadyPromise, stableFramePromise])
-      .then(() => {
-        if (isCancelled) {
-          return;
-        }
-        return new Promise<void>((resolve) => {
-          idleTimeoutRef.current = window.setTimeout(() => {
-            idleTimeoutRef.current = undefined;
-            resolve();
-          }, 250);
-        });
-      })
-      .then(() => {
-        if (!isCancelled) {
-          setStatusKey("ready");
-        }
-      });
-
-    if (showStaticPreview) {
-      stableFrameResolverRef.current?.();
-    }
-
-    Promise.all([fontsReadyPromise, stableFramePromise, idlePromise]).then(() => {
-      if (isCancelled || hasCompletedRef.current) {
-        return;
-      }
-      hasCompletedRef.current = true;
-      window.setTimeout(() => {
-        if (!isCancelled) {
-          onComplete?.();
-        }
-      }, 350);
     });
 
     return () => {
       isCancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasMounted) return;
+
+    let cancelled = false;
+    let detach: (() => void) | null = null;
+
+    const connect = () => {
+      if (cancelled) return;
+      const app = window.__THREE_APP__;
+      if (!app) {
+        requestAnimationFrame(connect);
+        return;
+      }
+
+      const handleStateChange = (event: Event) => {
+        const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
+        if (!detail) return;
+        if (detail.state.ready) {
+          setProgress(100);
+          setStatusKey((current) => {
+            if (current === "ready") return current;
+            return "idle";
+          });
+        }
+      };
+
+      const handleReady = () => {
+        setProgress(100);
+        setStatusKey("idle");
+      };
+
+      const events = app.bundle.events;
+      events.addEventListener("ready", handleReady);
+      events.addEventListener("statechange", handleStateChange);
+
+      const snapshot = app.bundle.getState();
+      if (snapshot.ready) {
+        handleReady();
+      }
+
+      detach = () => {
+        events.removeEventListener("ready", handleReady);
+        events.removeEventListener("statechange", handleStateChange);
+      };
+    };
+
+    connect();
+
+    return () => {
+      cancelled = true;
+      detach?.();
+    };
+  }, [hasMounted]);
+
+  useEffect(() => {
+    if (statusKey !== "idle" || hasCompletedRef.current) {
+      return;
+    }
+
+    idleTimeoutRef.current = window.setTimeout(() => {
+      idleTimeoutRef.current = undefined;
+      if (!hasCompletedRef.current) {
+        hasCompletedRef.current = true;
+        setStatusKey("ready");
+        onComplete?.();
+      }
+    }, 350);
+
+    return () => {
       if (idleTimeoutRef.current !== undefined) {
         window.clearTimeout(idleTimeoutRef.current);
         idleTimeoutRef.current = undefined;
       }
-      stableFrameResolverRef.current = null;
     };
-  }, [onComplete, showStaticPreview]);
+  }, [onComplete, statusKey]);
 
-  const handleStableFrame = useCallback(() => {
-    stableFrameResolverRef.current?.();
-  }, []);
+  const previewClassName = prefersReducedMotion
+    ? STATIC_PREVIEW_STYLES
+    : "h-48 w-48 animate-pulse rounded-full bg-fg/10";
 
   return (
     <div
@@ -149,33 +133,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       role="status"
       aria-live="polite"
     >
-      {showStaticPreview ? (
-        <div className="h-48 w-48 rounded-full bg-fg/10" aria-hidden />
-      ) : (
-        <Suspense
-          fallback={
-            <div className="h-48 w-48 animate-pulse rounded-full bg-fg/10" aria-hidden />
-          }
-        >
-          <div className="pointer-events-none">
-            <ProceduralPreview
-              className="h-48 w-48"
-              variantOverride={PRELOADER_VARIANT}
-              palette={PRELOADER_PALETTE}
-              parallax={false}
-              dpr={[1, 1.5]}
-              onStableFrame={handleStableFrame}
-            />
-          </div>
-        </Suspense>
-      )}
+      <div className={previewClassName} aria-hidden />
       <div className="text-center text-fg">
         <p className="text-lg font-semibold tracking-wide">{t("preloader.title")}</p>
         <p className="mt-1 text-sm font-medium text-fg/70" aria-live="polite">
           {t(`preloader.status.${statusKey}`)}
         </p>
         <p className="mt-1 text-xs font-medium text-fg/60" aria-live="polite">
-          {t("preloader.progress", { value: formattedProgress })}
+          {t("preloader.progress", { value: progress })}
         </p>
       </div>
     </div>

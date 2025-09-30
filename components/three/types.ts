@@ -1,21 +1,26 @@
-import { create } from "zustand";
+import type { PerspectiveCamera, Scene, WebGLRenderer } from "three";
+
+export type Vector3Tuple = [number, number, number];
+
+export type ShapeId =
+  | "torus270A"
+  | "torus270B"
+  | "semi180A"
+  | "semi180B"
+  | "wave"
+  | "sphere";
+
+export type GradientStops = [string, string, string, string];
+export type GradientPalette = readonly GradientStops[];
 
 export type VariantName = "home" | "about" | "work" | "contact" | "avatar";
 
 export type ShapeTransform = {
-  position: [number, number, number];
-  rotation: [number, number, number];
+  position: Vector3Tuple;
+  rotation: Vector3Tuple;
 };
 
-/** A collection of transformations for all shapes in the scene. */
-export type VariantState = {
-  torus270A: ShapeTransform;
-  torus270B: ShapeTransform;
-  semi180A: ShapeTransform;
-  semi180B: ShapeTransform;
-  wave: ShapeTransform;
-  sphere: ShapeTransform;
-};
+export type VariantState = Record<ShapeId, ShapeTransform>;
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: {
@@ -150,15 +155,86 @@ export const variantMapping: Record<VariantName, VariantState> = {
   },
 };
 
-interface VariantStore {
+export const LIGHT_THEME_PALETTE: GradientPalette = [
+  ["#f1e8ff", "#e8d9ff", "#d9c4ff", "#ceb5ff"],
+  ["#ffe7f2", "#ffd0e6", "#ffb8d8", "#ff8fbb"],
+  ["#c8fff4", "#a8faea", "#7eeadf", "#3ecfd0"],
+  ["#e8ffc8", "#ccf78f", "#b4ef66", "#9ae752"],
+  ["#fff1da", "#ffdcb0", "#ffc785", "#ffae57"],
+  ["#dce9ff", "#bcd4ff", "#96baff", "#6d9aff"],
+];
+
+export const DARK_THEME_PALETTE: GradientPalette = [
+  ["#2c2150", "#42307d", "#6b3fb8", "#b67bff"],
+  ["#310f27", "#5a1b47", "#99326f", "#ff6fa7"],
+  ["#0b2d32", "#104b52", "#167a7a", "#3fe6d8"],
+  ["#142818", "#1f4427", "#2f703a", "#7fe65e"],
+  ["#3b230d", "#583315", "#8b4e1f", "#f18c38"],
+  ["#101d33", "#1c2d4d", "#2f4b7b", "#5889d6"],
+];
+
+export type ThemeName = "light" | "dark";
+
+export type ThreeAppState = {
   variantName: VariantName;
   variant: VariantState;
-  setVariant: (name: VariantName) => void;
+  palette: GradientPalette;
+  theme: ThemeName;
+  parallax: boolean;
+  hovered: boolean;
+  pointer: { x: number; y: number };
+  ready: boolean;
+};
+
+export type StateUpdater =
+  | Partial<ThreeAppState>
+  | ((previous: Readonly<ThreeAppState>) => Partial<ThreeAppState>);
+
+export interface ThreeAppHandle {
+  setState: (updater: StateUpdater) => void;
+  dispose: () => void;
+  bundle: {
+    getState: () => Readonly<ThreeAppState>;
+    events: EventTarget;
+    scene: Scene;
+    camera: PerspectiveCamera;
+    renderer: WebGLRenderer;
+    variantMapping: typeof variantMapping;
+  };
 }
 
-export const useVariantStore = create<VariantStore>((set) => ({
-  variantName: "home",
-  variant: variantMapping.home,
-  setVariant: (name) =>
-    set(() => ({ variantName: name, variant: variantMapping[name] })),
-}));
+declare global {
+  interface Window {
+    __THREE_APP__?: ThreeAppHandle;
+  }
+}
+
+export const createVariantState = (variant: VariantState): VariantState => ({
+  torus270A: {
+    position: [...variant.torus270A.position] as Vector3Tuple,
+    rotation: [...variant.torus270A.rotation] as Vector3Tuple,
+  },
+  torus270B: {
+    position: [...variant.torus270B.position] as Vector3Tuple,
+    rotation: [...variant.torus270B.rotation] as Vector3Tuple,
+  },
+  semi180A: {
+    position: [...variant.semi180A.position] as Vector3Tuple,
+    rotation: [...variant.semi180A.rotation] as Vector3Tuple,
+  },
+  semi180B: {
+    position: [...variant.semi180B.position] as Vector3Tuple,
+    rotation: [...variant.semi180B.rotation] as Vector3Tuple,
+  },
+  wave: {
+    position: [...variant.wave.position] as Vector3Tuple,
+    rotation: [...variant.wave.rotation] as Vector3Tuple,
+  },
+  sphere: {
+    position: [...variant.sphere.position] as Vector3Tuple,
+    rotation: [...variant.sphere.rotation] as Vector3Tuple,
+  },
+});
+
+export const getDefaultPalette = (theme: ThemeName): GradientPalette =>
+  theme === "dark" ? DARK_THEME_PALETTE : LIGHT_THEME_PALETTE;
