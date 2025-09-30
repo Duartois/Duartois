@@ -1,34 +1,30 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import { Trans, useTranslation } from "react-i18next";
 import Link from "next/link";
 import "../i18n/config";
 
-const Experience = dynamic(
-  () => import("../../components/three/Experience"),
-  { ssr: false },
-);
-
-const AvatarOrb = dynamic(() => import("../../components/three/AvatarOrb"), {
-  ssr: false,
-});
+import { getDefaultPalette } from "../../components/three/types";
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState((previous) => ({
+      variantName: "about",
+      palette: getDefaultPalette(previous.theme),
+      parallax: true,
+      hovered: false,
+    }));
+  }, []);
 
   return (
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <Experience variant="about" className="pointer-events-auto" />
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg"
-            aria-hidden
-          />
-        </div>
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-16">
           <section className="flex-1 space-y-6">
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
@@ -59,7 +55,10 @@ export default function AboutPage() {
             </div>
           </section>
           <section className="flex flex-1 justify-center lg:justify-end">
-            <AvatarOrb />
+            <div className="relative h-72 w-72 max-w-full rounded-full border border-fg/10 bg-[radial-gradient(circle_at_30%_25%,rgba(255,223,245,0.45)_0%,rgba(205,231,255,0.22)_45%,transparent_80%)] shadow-[0_35px_90px_-45px_rgba(0,0,0,0.65)] backdrop-blur">
+              <div className="absolute inset-4 rounded-full border border-fg/20" aria-hidden />
+              <div className="absolute inset-0 animate-[spin_18s_linear_infinite] rounded-full border border-transparent border-t-fg/15" aria-hidden />
+            </div>
           </section>
         </div>
       </main>

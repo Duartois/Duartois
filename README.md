@@ -1,17 +1,14 @@
 # Duartois New Portfolio
 
 This folder contains a ready‑to‑use **Next.js 14** project scaffolded with the
-new **App Router** and configured to work with
-[@react‑three/fiber](https://github.com/pmndrs/react-three-fiber) and
-[@react‑three/drei](https://github.com/pmndrs/drei).  The goal of this
-project is to reproduce the look and feel of the portfolio at
-[`itssharl.ee`](https://itssharl.ee/) without relying on any external
-geometry files or Blender exports.  All shapes are generated
-procedurally using Three.js primitives (e.g. `TorusGeometry`,
-`TubeGeometry`, `SphereGeometry`, etc.) and animated via
-[`@react‑spring/three`](https://github.com/pmndrs/react-spring).  A
-custom shader material provides a subtle gradient with a fresnel rim
-lighting effect, matching the glossy “blob” aesthetic of the original site.
+new **App Router** and a bespoke Three.js scene manager.  The look and feel is
+inspired by [`itssharl.ee`](https://itssharl.ee/) yet no external geometry
+files or Blender exports are required.  A single global canvas is driven by the
+modules in `components/three`, exposing a small API on `window.__THREE_APP__` so
+pages and widgets can switch scene variants without remounting the renderer.
+All shapes are generated procedurally (e.g. `TorusGeometry`, `TubeGeometry`,
+`SphereGeometry`) and animated via lightweight lerping.  A custom shader adds a
+gradient fresnel rim with animated noise for the glossy “blob” aesthetic.
 
 ## Getting started
 
@@ -21,12 +18,9 @@ lighting effect, matching the glossy “blob” aesthetic of the original site.
    npm install
    ```
 
-   The `package.json` lists the necessary packages: `react`,
-   `next@canary`, `@react-three/fiber`, `@react-three/drei`,
-   `@react-spring/three`, and `zustand` for state management.  Note
-   that at the time of writing you may need the `canary` channel for
-   Next 14 in order to use the App Router.  If you are targeting
-   another version of Next please adjust accordingly.
+   The `package.json` lists the necessary packages: `react`, `next`
+   and `three`.  The scene manager, materials and factories live in
+   plain TypeScript modules under `components/three`.
 
 2. **Run the development server**
 
@@ -35,34 +29,28 @@ lighting effect, matching the glossy “blob” aesthetic of the original site.
    ```
 
    The site will be available at [http://localhost:3000](http://localhost:3000).
-   Each page (`/`, `/about`, `/work` and `/contact`) sets a different
-   configuration for the shapes.  Hovering over the navigation items
-   gently scales them and clicking changes the variant.  A custom
-   preloader uses the `useProgress` hook from `drei` to report the
-   loading progress; it is displayed until all assets in the scene have
-   been downloaded.
+   Each page (`/`, `/about`, `/work` and `/contact`) updates the
+   singleton canvas via `window.__THREE_APP__?.setState(...)`.  Hovering
+   over navigation items or project previews gently scales the meshes,
+   while the preloader listens for the scene’s `ready` event before
+   revealing the UI.
 
 3. **Editing shapes**
 
-   The file at `components/three/ProceduralShapes.tsx` defines helper
-   functions for creating each shape.  You can experiment with
-   different geometries by changing the radius, tube thickness or the
-   control points used for the `CatmullRomCurve3` S‑shape.  The
-   animations for each page are defined in `store/variants.ts`.
+   The factories in `components/three/factories.ts` create the
+   geometries and gradient materials.  Adjust the torus radii, the
+   Catmull–Rom control points or the shader uniforms to explore new
+   looks.  Variant transforms are defined in `components/three/types.ts`.
 
 4. **Changing the material**
 
-  The custom shader material lives in `materials/GradientMat.tsx`.  It
-  exposes four gradient colour uniforms (`uColor1` – `uColor4`) and
-  animated controls (`uTime`, `uAmp`, `uFreq`) that drive the vertex
-  displacement.  Feel free to tweak these values or replace the shader
-  with any other `THREE.Material`.
+   The gradient shader is defined inline in `components/three/factories.ts`.
+   It exposes colour stops plus animated amplitude/frequency uniforms.
+   You can tweak them or swap the shader for any other `THREE.Material`.
 
 5. **Extending the project**
 
-   This scaffold purposefully stays close to the original site’s
-   structure: there is no layout thrashing, the canvas is rendered
-   on every page and the navigation triggers animations rather than
-   remounting the entire scene.  You can build upon this foundation to
-   include additional sections, integrate CMS content or implement
-   custom interactions.
+   The singleton canvas avoids layout thrashing: it mounts once in
+   `CanvasRoot` and reacts to state changes.  Use
+   `window.__THREE_APP__?.setState` to orchestrate transitions from
+   any page, preloader or widget.

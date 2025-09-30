@@ -1,24 +1,12 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
 import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
-import { variantMapping, type VariantName } from "../../store/variants";
-import type { GradientPalette } from "../../components/three/ProceduralShapes";
 
-const Experience = dynamic(
-  () => import("../../components/three/Experience"),
-  { ssr: false }
-);
-
-const ProceduralShapes = dynamic(
-  () => import("../../components/three/ProceduralShapes"),
-  { ssr: false },
-);
+import { getDefaultPalette, type GradientPalette, type VariantName } from "../../components/three/types";
 
 const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
@@ -86,17 +74,46 @@ export default function WorkPage() {
     (preview) => preview.id === activeProject,
   )!;
 
+  const previewGradient = useMemo(() => {
+    const [c1, c2, c3, c4] = activePreview.palette[0];
+    return `linear-gradient(135deg, ${c1} 0%, ${c2} 35%, ${c3} 65%, ${c4} 100%)`;
+  }, [activePreview]);
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState((previous) => ({
+      variantName: "work",
+      palette: getDefaultPalette(previous.theme),
+      parallax: true,
+      hovered: false,
+    }));
+  }, []);
+
+  useEffect(() => {
+    const preview = activePreview;
+    window.__THREE_APP__?.setState({
+      variantName: preview.variantName,
+      palette: preview.palette,
+      parallax: false,
+      hovered: true,
+    });
+  }, [activePreview]);
+
+  useEffect(() => {
+    return () => {
+      window.__THREE_APP__?.setState((previous) => ({
+        variantName: "work",
+        palette: getDefaultPalette(previous.theme),
+        parallax: true,
+        hovered: false,
+      }));
+    };
+  }, []);
+
   return (
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <Experience variant="work" className="pointer-events-auto" />
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-b from-accent3-200/55 via-bg/70 to-bg dark:from-accent2-800/35 dark:via-bg/85 dark:to-bg"
-            aria-hidden
-          />
-        </div>
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-accent3-200/55 via-bg/70 to-bg dark:from-accent2-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20">
           <section className="lg:w-1/2">
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
@@ -156,26 +173,12 @@ export default function WorkPage() {
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 >
-                  <Canvas
-                    camera={{ position: [0, 0, 6], fov: 42 }}
-                    gl={{ antialias: true, alpha: true }}
-                    dpr={[1, 2]}
-                    className="h-full w-full"
-                  >
-                    <ambientLight intensity={0.5} />
-                    <directionalLight position={[5, 6, 8]} intensity={1.2} />
-                    <Suspense fallback={null}>
-                      <ProceduralShapes
-                        variantOverride={variantMapping[activePreview.variantName]}
-                        palette={activePreview.palette}
-                        parallax={false}
-                      />
-                    </Suspense>
-                  </Canvas>
                   <div
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-br from-transparent via-bg/20 to-bg/40"
+                    className="absolute inset-0"
+                    style={{ background: previewGradient }}
                     aria-hidden
                   />
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-bg/20 to-bg/40" aria-hidden />
                   <AnimatePresence initial={false}>
                     {activePreview.showDescription ? (
                       <motion.div

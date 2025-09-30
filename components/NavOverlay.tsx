@@ -2,24 +2,22 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { Suspense, useEffect, useMemo, useRef, type RefObject, type FocusEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  type FocusEvent,
+  type RefObject,
+} from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
+
 import {
-  useVariantStore,
+  getDefaultPalette,
+  type GradientPalette,
+  type ThreeAppHandle,
   type VariantName,
-} from "../store/variants";
-import type { GradientPalette } from "./three/ProceduralShapes";
-
-const OrganicShapeFallback = () => (
-  <div className="h-full w-full animate-pulse rounded-full bg-accent2-200/20" />
-);
-
-const ProceduralCanvas = dynamic(() => import("./three/ProceduralCanvas"), {
-  ssr: false,
-  loading: () => <OrganicShapeFallback />,
-});
+} from "./three/types";
 
 type NavigationLink = {
   name: string;
@@ -49,22 +47,6 @@ export default function NavOverlay({
   overlayRef,
 }: NavOverlayProps) {
   const { t } = useTranslation("common");
-  const setVariant = useVariantStore((state) => state.setVariant);
-  const currentVariantName = useVariantStore((state) => state.variantName);
-  const initialVariantRef = useRef<VariantName>(currentVariantName);
-  const wasOpenRef = useRef(isOpen);
-  const navListRef = useRef<HTMLUListElement | null>(null);
-
-  useEffect(() => {
-    if (isOpen && !wasOpenRef.current) {
-      initialVariantRef.current = currentVariantName;
-    } else if (!isOpen && wasOpenRef.current) {
-      setVariant(initialVariantRef.current);
-    }
-
-    wasOpenRef.current = isOpen;
-  }, [currentVariantName, isOpen, setVariant]);
-
   const overlayPalette = useMemo<GradientPalette>(
     () => [
       ["#f5eaff", "#e4d5ff", "#d4bfff", "#d1b8ff"],
@@ -74,28 +56,67 @@ export default function NavOverlay({
       ["#fff2de", "#ffd9b3", "#ffbb87", "#ff9a58"],
       ["#e3eaff", "#c7d8ff", "#a6c0ff", "#7da1ff"],
     ],
-    []
+    [],
   );
+  const initialVariantRef = useRef<VariantName | null>(null);
+  const initialSceneStateRef = useRef<ReturnType<
+    ThreeAppHandle["bundle"]["getState"]
+  > | null>(null);
+  const wasOpenRef = useRef(isOpen);
+  const navListRef = useRef<HTMLUListElement | null>(null);
 
-  const overlayLights = useMemo(
-    () => (
-      <>
-        <ambientLight intensity={0.58} color="#ffe9ff" />
-        <directionalLight position={[4.5, 5.2, 7.5]} intensity={1.2} color="#ffb7d8" />
-        <directionalLight position={[-3.2, -4.1, -2.5]} intensity={0.42} color="#8fc5ff" />
-      </>
-    ),
-    []
-  );
+  const restoreInitialVariant = () => {
+    const variantToRestore = initialVariantRef.current;
+    if (variantToRestore) {
+      window.__THREE_APP__?.setState({ variantName: variantToRestore });
+    }
+  };
+
+  useEffect(() => {
+    const app = window.__THREE_APP__;
+    if (!app) return;
+
+    if (isOpen && !wasOpenRef.current) {
+      const snapshot = app.bundle.getState();
+      initialVariantRef.current = snapshot.variantName;
+      initialSceneStateRef.current = snapshot;
+      app.setState({
+        palette: overlayPalette,
+        parallax: false,
+        hovered: true,
+      });
+    } else if (!isOpen && wasOpenRef.current) {
+      const snapshot = initialSceneStateRef.current;
+      if (snapshot) {
+        app.setState(() => ({
+          variantName: snapshot.variantName,
+          palette: snapshot.palette,
+          parallax: snapshot.parallax,
+          hovered: false,
+        }));
+      } else {
+        const current = app.bundle.getState();
+        app.setState({
+          palette: getDefaultPalette(current.theme),
+          parallax: true,
+          hovered: false,
+        });
+      }
+      initialSceneStateRef.current = null;
+      initialVariantRef.current = null;
+    }
+
+    wasOpenRef.current = isOpen;
+  }, [isOpen, overlayPalette]);
 
   const handleLinkFocus = (variant: VariantName) => () => {
-    setVariant(variant);
+    window.__THREE_APP__?.setState({ variantName: variant });
   };
 
   const handleLinkBlur = (event: FocusEvent<HTMLAnchorElement>) => {
     const relatedTarget = event.relatedTarget as HTMLElement | null;
     if (!relatedTarget || !navListRef.current?.contains(relatedTarget)) {
-      setVariant(initialVariantRef.current);
+      restoreInitialVariant();
     }
   };
 
@@ -126,19 +147,8 @@ export default function NavOverlay({
             className="pointer-events-none absolute inset-0 opacity-35 mix-blend-screen"
             aria-hidden
           >
-            <Suspense fallback={<OrganicShapeFallback />}>
-              <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 blur-sm">
-                <ProceduralCanvas
-                  className="h-full w-full"
-                  camera={{ position: [0, 0, 6], fov: 42 }}
-                  dpr={[1, 1.75]}
-                  palette={overlayPalette}
-                  parallax={false}
-                  lights={overlayLights}
-                />
-                <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(229,211,255,0.35)_0%,rgba(180,212,255,0.15)_45%,transparent_70%)]" />
-              </div>
-            </Suspense>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,214,255,0.35)_0%,rgba(193,235,255,0.18)_40%,transparent_75%)]" />
+            <div className="absolute left-1/2 top-1/2 h-[min(60vh,32rem)] w-[min(60vh,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_90deg_at_50%_50%,rgba(255,240,254,0.55)_0deg,rgba(206,235,255,0.35)_140deg,rgba(255,214,240,0.4)_260deg,rgba(255,240,254,0.55)_360deg)] blur-3xl" />
           </div>
 
           <motion.div
@@ -182,7 +192,7 @@ export default function NavOverlay({
                       transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                     },
                   }}
-                  onMouseLeave={() => setVariant(initialVariantRef.current)}
+                  onMouseLeave={restoreInitialVariant}
                 >
                   {navigationLinks.map(({ name, href }, index) => (
                     <motion.li

@@ -1,0 +1,332 @@
+import {
+  CatmullRomCurve3,
+  Color,
+  Group,
+  Mesh,
+  PerspectiveCamera,
+  ShaderMaterial,
+  SphereGeometry,
+  TorusGeometry,
+  TubeGeometry,
+  Vector3,
+} from "three";
+
+import {
+  LIGHT_THEME_PALETTE,
+  type GradientPalette,
+  type GradientStops,
+  type ThemeName,
+  type VariantState,
+  createVariantState,
+  getDefaultPalette,
+} from "./types";
+
+export type GradientMaterialUniforms = {
+  uColor1: { value: Color };
+  uColor2: { value: Color };
+  uColor3: { value: Color };
+  uColor4: { value: Color };
+  uTime: { value: number };
+  uAmp: { value: number };
+  uFreq: { value: number };
+  uNoiseScale: { value: number };
+};
+
+export type GradientMaterial = ShaderMaterial & {
+  uniforms: GradientMaterialUniforms;
+};
+
+const vertexShader = /* glsl */ `
+  uniform float uTime;
+  uniform float uAmp;
+  uniform float uFreq;
+  uniform float uNoiseScale;
+
+  varying vec3 vWorldPos;
+  varying vec3 vNormal;
+  varying float vRipple;
+
+  vec3 mod289(vec3 x) {
+    return x - floor(x * (1.0 / 289.0)) * 289.0;
+  }
+
+  vec4 mod289(vec4 x) {
+    return x - floor(x * (1.0 / 289.0)) * 289.0;
+  }
+
+  vec4 permute(vec4 x) {
+    return mod289(((x*34.0)+1.0)*x);
+  }
+
+  vec4 taylorInvSqrt(vec4 r)
+  {
+    return 1.79284291400159 - 0.85373472095314 * r;
+  }
+
+  float snoise(vec3 v)
+  {
+    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+
+    vec3 i  = floor(v + dot(v, C.yyy) );
+    vec3 x0 =   v - i + dot(i, C.xxx) ;
+
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min( g.xyz, l.zxy );
+    vec3 i2 = max( g.xyz, l.zxy );
+
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy;
+    vec3 x3 = x0 - D.yyy;
+
+    i = mod289(i);
+    vec4 p = permute( permute( permute(
+               i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+             + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+             + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+    float n_ = 0.142857142857;
+    vec3  ns = n_ * D.wyz - D.xzx;
+
+    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_ );
+
+    vec4 x = x_ *ns.x + ns.yyyy;
+    vec4 y = y_ *ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+
+    vec4 b0 = vec4( x.xy, y.xy );
+    vec4 b1 = vec4( x.zw, y.zw );
+
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+    vec3 p0 = vec3(a0.xy,h.x);
+    vec3 p1 = vec3(a0.zw,h.y);
+    vec3 p2 = vec3(a1.xy,h.z);
+    vec3 p3 = vec3(a1.zw,h.w);
+
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+    p0 *= norm.x;
+    p1 *= norm.y;
+    p2 *= norm.z;
+    p3 *= norm.w;
+
+    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
+                                  dot(p2,x2), dot(p3,x3) ) );
+  }
+
+  void main() {
+    vec3 displaced = position;
+    float wave = sin((position.x + position.y + position.z) * uFreq + uTime) * uAmp;
+    float noiseSample = snoise((normal + position) * uNoiseScale + vec3(uTime * 0.1));
+    float ripple = wave + noiseSample * (uAmp * 0.65);
+    displaced += normal * ripple;
+
+    vec4 world = modelMatrix * vec4(displaced, 1.0);
+    vWorldPos = world.xyz;
+    vNormal = normalize(normalMatrix * normal);
+    vRipple = ripple;
+    gl_Position = projectionMatrix * viewMatrix * world;
+  }
+`;
+
+const fragmentShader = /* glsl */ `
+  uniform vec3 uColor1;
+  uniform vec3 uColor2;
+  uniform vec3 uColor3;
+  uniform vec3 uColor4;
+
+  varying vec3 vWorldPos;
+  varying vec3 vNormal;
+  varying float vRipple;
+
+  vec3 sampleGradient(float h) {
+    vec3 c12 = mix(uColor1, uColor2, smoothstep(0.0, 0.33, h));
+    vec3 c23 = mix(uColor2, uColor3, smoothstep(0.33, 0.66, h));
+    vec3 c34 = mix(uColor3, uColor4, smoothstep(0.66, 1.0, h));
+    vec3 blend = mix(c12, c23, smoothstep(0.2, 0.75, h));
+    return mix(blend, c34, smoothstep(0.6, 1.0, h));
+  }
+
+  void main() {
+    float height = clamp(vWorldPos.y * 0.32 + 0.5, 0.0, 1.0);
+    vec3 gradient = sampleGradient(height);
+
+    vec3 viewDir = normalize(cameraPosition - vWorldPos);
+    vec3 normal = normalize(vNormal);
+
+    float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.5);
+    float rippleGlow = smoothstep(0.25, 1.0, abs(vRipple));
+
+    vec3 colour = gradient + fresnel * 0.45 + rippleGlow * 0.18;
+    gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
+  }
+`;
+
+const createGradientMaterial = () => {
+  const material = new ShaderMaterial({
+    uniforms: {
+      uColor1: { value: new Color("#f1e8ff") },
+      uColor2: { value: new Color("#e8d9ff") },
+      uColor3: { value: new Color("#d9c4ff") },
+      uColor4: { value: new Color("#ceb5ff") },
+      uTime: { value: 0 },
+      uAmp: { value: 0.08 },
+      uFreq: { value: 1.25 },
+      uNoiseScale: { value: 0.65 },
+    },
+    vertexShader,
+    fragmentShader,
+  }) as GradientMaterial;
+
+  material.transparent = false;
+  material.depthWrite = true;
+
+  return material;
+};
+
+export const MATERIAL_CONFIGS = [
+  { amp: 0.085, freq: 1.2, timeOffset: 0 },
+  { amp: 0.095, freq: 1.05, timeOffset: 0.85 },
+  { amp: 0.11, freq: 1.3, timeOffset: 1.6 },
+  { amp: 0.075, freq: 0.9, timeOffset: 2.35 },
+  { amp: 0.105, freq: 1.15, timeOffset: 3.05 },
+  { amp: 0.07, freq: 0.78, timeOffset: 3.65 },
+] as const;
+
+export const createGradientMaterials = () =>
+  MATERIAL_CONFIGS.map(() => createGradientMaterial()) as [
+    GradientMaterial,
+    GradientMaterial,
+    GradientMaterial,
+    GradientMaterial,
+    GradientMaterial,
+    GradientMaterial,
+  ];
+
+const applyStops = (material: GradientMaterial, stops: GradientStops) => {
+  material.uniforms.uColor1.value.set(stops[0]);
+  material.uniforms.uColor2.value.set(stops[1]);
+  material.uniforms.uColor3.value.set(stops[2]);
+  material.uniforms.uColor4.value.set(stops[3]);
+};
+
+export const applyPaletteToMaterials = (
+  materials: readonly GradientMaterial[],
+  palette: GradientPalette,
+) => {
+  materials.forEach((material, index) => {
+    const stops = palette[index] ?? LIGHT_THEME_PALETTE[index];
+    applyStops(material, stops);
+  });
+};
+
+export const createGeometries = () => {
+  const torus270A = new TorusGeometry(1.35, 0.42, 64, 180, (Math.PI * 3) / 2);
+  const torus270B = new TorusGeometry(1.2, 0.35, 64, 180, (Math.PI * 3) / 2);
+  const semi180A = new TorusGeometry(1.05, 0.32, 64, 140, Math.PI);
+  const semi180B = new TorusGeometry(0.85, 0.28, 64, 120, Math.PI);
+
+  const curve = new CatmullRomCurve3(
+    [
+      new Vector3(-1.6, -0.6, 0.0),
+      new Vector3(-0.6, 0.45, 0.15),
+      new Vector3(0.5, -0.25, -0.1),
+      new Vector3(1.4, 0.6, 0.18),
+    ],
+    false,
+    "centripetal",
+  );
+  const wave = new TubeGeometry(curve, 128, 0.25, 24, false);
+
+  const sphere = new SphereGeometry(0.42, 48, 48);
+
+  return { torus270A, torus270B, semi180A, semi180B, wave, sphere };
+};
+
+export type SceneObjects = {
+  group: Group;
+  meshes: Record<keyof VariantState, Mesh>;
+  materials: ReturnType<typeof createGradientMaterials>;
+  dispose: () => void;
+};
+
+export const createSceneObjects = (palette: GradientPalette): SceneObjects => {
+  const materials = createGradientMaterials();
+  applyPaletteToMaterials(materials, palette);
+
+  const geometries = createGeometries();
+
+  const group = new Group();
+  group.position.set(0, 0, 0);
+
+  const meshEntries: [keyof VariantState, Mesh][] = [
+    ["torus270A", new Mesh(geometries.torus270A, materials[0])],
+    ["torus270B", new Mesh(geometries.torus270B, materials[1])],
+    ["semi180A", new Mesh(geometries.semi180A, materials[2])],
+    ["semi180B", new Mesh(geometries.semi180B, materials[3])],
+    ["wave", new Mesh(geometries.wave, materials[4])],
+    ["sphere", new Mesh(geometries.sphere, materials[5])],
+  ];
+
+  meshEntries.forEach(([, mesh]) => {
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    mesh.rotation.set(0, 0, 0);
+    group.add(mesh);
+  });
+
+  const dispose = () => {
+    meshEntries.forEach(([, mesh]) => {
+      mesh.geometry.dispose();
+    });
+    materials.forEach((material) => material.dispose());
+  };
+
+  return {
+    group,
+    meshes: Object.fromEntries(meshEntries) as SceneObjects["meshes"],
+    materials,
+    dispose,
+  };
+};
+
+export const updateMeshesFromVariant = (
+  meshes: SceneObjects["meshes"],
+  variant: VariantState,
+) => {
+  (Object.keys(meshes) as (keyof VariantState)[]).forEach((key, index) => {
+    const mesh = meshes[key];
+    const target = variant[key];
+    mesh.position.set(...target.position);
+    mesh.rotation.set(...target.rotation);
+    if (mesh.material && "uniforms" in mesh.material) {
+      const material = mesh.material as GradientMaterial;
+      material.uniforms.uAmp.value = MATERIAL_CONFIGS[index].amp;
+      material.uniforms.uFreq.value = MATERIAL_CONFIGS[index].freq;
+    }
+  });
+};
+
+export const createCamera = () => {
+  const camera = new PerspectiveCamera(40, 1, 0.1, 50);
+  camera.position.set(0, 0, 6);
+  return camera;
+};
+
+export const cloneVariant = (variant: VariantState) => createVariantState(variant);
+
+export const ensurePalette = (
+  palette: GradientPalette | undefined,
+  theme: ThemeName,
+): GradientPalette => palette ?? getDefaultPalette(theme);

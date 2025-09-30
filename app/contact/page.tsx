@@ -1,19 +1,24 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import dynamic from "next/dynamic";
+import { FormEvent, useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-const Experience = dynamic(
-  () => import("../../components/three/Experience"),
-  { ssr: false }
-);
+import { getDefaultPalette } from "../../components/three/types";
 
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const [status, setStatus] = useState<"idle" | "submitted">("idle");
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState((previous) => ({
+      variantName: "contact",
+      palette: getDefaultPalette(previous.theme),
+      parallax: true,
+      hovered: false,
+    }));
+  }, []);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,10 +31,7 @@ export default function ContactPage() {
     <>
       <Navbar />
       <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <Experience variant="contact" />
-          <div className="absolute inset-0 bg-gradient-to-b from-bg/45 via-bg/85 to-bg" aria-hidden />
-        </div>
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-bg/45 via-bg/85 to-bg" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left">
           <div className="space-y-4">
             <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
