@@ -2,6 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import classNames from "classnames";
 import AppShell from "@/components/AppShell";
+import CursorOverlay from "@/components/CursorOverlay";
 import CanvasRoot from "@/components/three/CanvasRoot";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       >
         <ThemeProvider>
           <CanvasRoot />
+          <CursorOverlay />
           <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>
