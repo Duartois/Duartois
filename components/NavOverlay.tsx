@@ -12,9 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
-import LanguageSwitcher from "./LanguageSwitcher";
-import MenuToggleIcon from "./MenuToggleIcon";
-import ThemeToggle from "./ThemeToggle";
+import NavHeaderContent from "./NavHeaderContent";
 import {
   getDefaultPalette,
   type GradientPalette,
@@ -23,7 +21,6 @@ import {
   type VariantName,
 } from "./three/types";
 
-import SharleeMonogramIcon from "./icons/SharleeMonogram";
 import ArrowLaunchIcon from "./icons/ArrowLaunchIcon";
 
 import {
@@ -223,34 +220,16 @@ export default function NavOverlay({
                 initial={{ y: -8, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.15, duration: 0.3 }}
+                className="w-full"
               >
-                <Link
-                  href="/"
-                  aria-label="Sharlee Studio"
-                  onClick={onClose}
-                  className="pointer-events-auto inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-4 py-2 text-[0.65rem] uppercase tracking-[0.32em] text-fg/70 shadow-soft backdrop-blur transition hover:border-fg/30 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                >
-                  <span className="inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-3 py-2 shadow-soft backdrop-blur transition hover:border-fg/30 hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg">
-                    <SharleeMonogramIcon aria-hidden />
-                  </span>
-                </Link>
+                <NavHeaderContent
+                  variant="overlay"
+                  isOpen={isOpen}
+                  onToggle={onClose}
+                  labels={{ open: t("navbar.open"), close: t("navbar.close") }}
+                  onBrandClick={onClose}
+                />
               </motion.div>
-              <div className="pointer-events-auto flex flex-col items-end gap-3 text-[0.65rem] uppercase tracking-[0.32em] text-fg/60">
-                <div className="flex items-center gap-2">
-                  <LanguageSwitcher />
-                  <ThemeToggle />
-                </div>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="group flex items-center gap-3 rounded-full border border-fg/12 bg-white/70 px-6 py-2 text-[0.65rem] font-medium tracking-[0.28em] text-fg/80 shadow-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-fg/40 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                >
-                  <span>{t("navbar.close")}</span>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-fg/10 text-fg transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
-                    <MenuToggleIcon isOpen className="h-5 w-5" aria-hidden />
-                  </span>
-                </button>
-              </div>
             </motion.header>
 
             <div className="relative flex flex-1 items-center justify-center px-6 pb-24 pt-12 md:px-12">
