@@ -10,11 +10,13 @@
   },
   "home": {
     "hero": {
-      "kicker": "PORTFÓLIO IMERSIVO DE DUARTOIS",
-      "title": "Identidades cinéticas para marcas que abraçam o futuro.",
-      "subtitle": "Experiências digitais que misturam arte generativa, som espacial e narrativas interativas para despertar novos sentidos.",
-      "ctaProjects": "explorar projetos",
-      "ctaAbout": "conhecer trajetória"
+      "kicker": "OLÁ, SOU",
+      "title": "MAS PODES CHAMAR-ME DE",
+      "subtitle": "TECNÓLOGO CRIATIVO · DESIGNER GENERATIVO · DIRETOR AUDIOVISUAL",
+      "name": "DUARTE",
+      "alias": "DUARTOIS",
+      "ctaProjects": "→ ver os meus projetos",
+      "ctaAbout": "→ conhecer o artista"
     }
   },
   "work": {
