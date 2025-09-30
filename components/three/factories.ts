@@ -180,10 +180,10 @@ const fragmentShader = /* glsl */ `
 const createGradientMaterial = () => {
   const material = new ShaderMaterial({
     uniforms: {
-      uColor1: { value: new Color("#f1e8ff") },
-      uColor2: { value: new Color("#e8d9ff") },
-      uColor3: { value: new Color("#d9c4ff") },
-      uColor4: { value: new Color("#ceb5ff") },
+      uColor1: { value: new Color("#f4ebff") },
+      uColor2: { value: new Color("#dcc8ff") },
+      uColor3: { value: new Color("#c1a6ff") },
+      uColor4: { value: new Color("#9d7aff") },
       uTime: { value: 0 },
       uAmp: { value: 0.08 },
       uFreq: { value: 1.25 },

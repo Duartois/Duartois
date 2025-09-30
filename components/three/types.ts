@@ -160,21 +160,21 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#f1e8ff", "#e8d9ff", "#d9c4ff", "#ceb5ff"],
-  ["#ffe7f2", "#ffd0e6", "#ffb8d8", "#ff8fbb"],
-  ["#c8fff4", "#a8faea", "#7eeadf", "#3ecfd0"],
-  ["#e8ffc8", "#ccf78f", "#b4ef66", "#9ae752"],
-  ["#fff1da", "#ffdcb0", "#ffc785", "#ffae57"],
-  ["#dce9ff", "#bcd4ff", "#96baff", "#6d9aff"],
+  ["#f4ebff", "#dcc8ff", "#c1a6ff", "#9d7aff"],
+  ["#ffe8f1", "#ffc4dd", "#ff9ec8", "#ff6faa"],
+  ["#d0fff9", "#a7f5ef", "#76e0df", "#2fc4c3"],
+  ["#ebffd4", "#c7f7a2", "#a0ed75", "#7bd74b"],
+  ["#fff0dd", "#ffd5aa", "#ffb877", "#ff9042"],
+  ["#deecff", "#b8d2ff", "#8ab2ff", "#5a8cff"],
 ];
 
 export const DARK_THEME_PALETTE: GradientPalette = [
-  ["#2c2150", "#42307d", "#6b3fb8", "#b67bff"],
-  ["#310f27", "#5a1b47", "#99326f", "#ff6fa7"],
-  ["#0b2d32", "#104b52", "#167a7a", "#3fe6d8"],
-  ["#142818", "#1f4427", "#2f703a", "#7fe65e"],
-  ["#3b230d", "#583315", "#8b4e1f", "#f18c38"],
-  ["#101d33", "#1c2d4d", "#2f4b7b", "#5889d6"],
+  ["#241a44", "#3d2972", "#5f3aa9", "#9b6cf5"],
+  ["#2a0d21", "#4f183c", "#862a64", "#e75b9a"],
+  ["#07272c", "#0d4149", "#156a6c", "#2fd6cc"],
+  ["#112215", "#1a3821", "#295631", "#6cd551"],
+  ["#331c0b", "#4d2a12", "#753e1a", "#e0762d"],
+  ["#0d192d", "#192941", "#2a4669", "#4f7ecc"],
 ];
 
 export type ThemeName = "light" | "dark";
