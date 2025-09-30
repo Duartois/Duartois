@@ -1,50 +1,112 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: 244 247 255;      /* fallback pastel sky */
-  --color-fg: 30 36 46;         /* suave e legível */
-  --color-muted: 122 136 158;   /* detalhes discretos */
+  --color-bg: 246 243 255;
+  --color-fg: 27 22 46;
+  --color-muted: 132 124 174;
+  --glow-lilac: 218 184 255;
+  --glow-mint: 158 255 210;
 }
 
 /* Modo claro */
 :root[data-theme="light"], :root.light {
-  --color-bg: 244 247 255;      /* fundo pastel azulado */
-  --color-fg: 28 32 45;         /* texto levemente frio */
-  --color-muted: 130 142 164;   /* elementos secundários */
+  --color-bg: 246 243 255;
+  --color-fg: 27 22 46;
+  --color-muted: 132 124 174;
+  --glow-lilac: 218 184 255;
+  --glow-mint: 158 255 210;
 }
 
 /* Modo escuro */
 :root[data-theme="dark"], :root.dark {
-  --color-bg: 6 8 12;           /* preto profundo */
-  --color-fg: 230 236 250;      /* texto claro vívido */
-  --color-muted: 140 154 174;   /* destaque suave em contraste */
+  --color-bg: 15 12 26;
+  --color-fg: 236 233 255;
+  --color-muted: 164 158 210;
+  --glow-lilac: 120 78 180;
+  --glow-mint: 68 172 156;
 }
 
 /* 2) Reset & base */
 html, body, #__next { height: 100% }
 html, body {
-  background: rgb(var(--color-bg));
+  background: radial-gradient(circle at 20% 0%, rgb(var(--glow-lilac) / 0.6), transparent 55%),
+    radial-gradient(circle at 80% 20%, rgb(var(--glow-mint) / 0.45), transparent 60%),
+    linear-gradient(140deg, rgb(var(--glow-lilac) / 0.35), rgb(var(--glow-mint) / 0.3));
   color: rgb(var(--color-fg));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 .btn {
-  @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition-[transform,box-shadow,background-color,color] duration-300 ease-[cubic-bezier(.22,.61,.36,1)];
-  @apply shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] hover:scale-[1.02] active:scale-[0.98];
-  background: linear-gradient(180deg, #7ab6ff, #2a63e6);
-  color: white;
+  @apply inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-medium lowercase tracking-[0.08em] transition-[transform,box-shadow,background-color,color] duration-500 ease-[cubic-bezier(.22,.61,.36,1)];
+  @apply shadow-[0_10px_30px_-12px_rgba(112,81,155,0.55)] hover:scale-[1.03] active:scale-[0.97];
+  background: linear-gradient(135deg, rgb(var(--glow-lilac) / 0.95), rgb(var(--glow-mint) / 0.95));
+  color: rgb(var(--color-fg));
+  backdrop-filter: blur(16px);
 }
 .btn-secondary {
-  @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition duration-300 ease-[cubic-bezier(.22,.61,.36,1)];
-  background: rgb(var(--color-fg) / 0.07);
+  @apply inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-medium lowercase tracking-[0.08em] transition duration-500 ease-[cubic-bezier(.22,.61,.36,1)];
+  background: rgb(var(--color-fg) / 0.08);
   color: rgb(var(--color-fg));
+  backdrop-filter: blur(12px);
 }
 .link {
   @apply underline underline-offset-4 decoration-transparent hover:decoration-current transition-colors duration-300 ease-[cubic-bezier(.22,.61,.36,1)];
 }
 
+.hero-button {
+  @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium lowercase tracking-[0.12em] transition-[background-color,box-shadow,transform,color] duration-500 ease-[cubic-bezier(.22,.61,.36,1)];
+  background: rgb(var(--glow-lilac) / 0.35);
+  color: rgb(var(--color-fg));
+  backdrop-filter: blur(22px);
+  box-shadow: 0 10px 30px -12px rgba(62, 44, 102, 0.45);
+}
+.hero-button:hover,
+.hero-button:focus-visible {
+  @apply outline-none;
+  background: rgb(var(--glow-mint) / 0.45);
+  color: rgb(var(--color-fg));
+  transform: translateY(-1px);
+}
+.hero-button--ghost {
+  background: rgb(var(--color-fg) / 0.08);
+  color: rgb(var(--color-fg));
+}
+.hero-button--ghost:hover,
+.hero-button--ghost:focus-visible {
+  background: rgb(var(--glow-lilac) / 0.4);
+}
+
+.hero-animate {
+  animation: hero-fade 0.9s cubic-bezier(.22,.61,.36,1) both;
+}
+.hero-animate[data-hero-index="1"] {
+  animation-delay: 0.12s;
+}
+.hero-animate[data-hero-index="2"] {
+  animation-delay: 0.24s;
+}
+.hero-animate[data-hero-index="3"] {
+  animation-delay: 0.36s;
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 4) Acessibilidade: reduz animações */
 @media (prefers-reduced-motion: reduce) {
-  .btn, .btn-secondary, .link { transition: none !important; }
+  .btn, .btn-secondary, .link, .hero-button {
+    transition: none !important;
+  }
+  .hero-animate {
+    animation: none !important;
+  }
 }
