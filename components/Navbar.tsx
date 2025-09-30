@@ -9,6 +9,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import MenuToggleIcon from "./MenuToggleIcon";
 import NavOverlay from "./NavOverlay";
 import ThemeToggle from "./ThemeToggle";
+import SharleeMonogramIcon from "./icons/SharleeMonogram";
 
 const navigationLinks = [
   { name: "home", href: "/" },
@@ -104,7 +105,11 @@ export default function Navbar() {
             className="group inline-flex items-center rounded-full border border-fg/10 bg-white/70 px-3 py-2 shadow-soft backdrop-blur transition hover:border-fg/30 hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
             aria-label="Sharlee Studio"
           >
+
+            <SharleeMonogramIcon className="text-fg transition duration-300 ease-out group-hover:scale-[1.02]" aria-hidden />
+
             <SharleeMonogram className="h-12 w-12 text-fg transition duration-300 ease-out group-hover:scale-[1.02]" />
+
           </Link>
 
           <div className="flex flex-col items-end gap-3">
