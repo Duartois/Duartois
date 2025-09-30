@@ -62,9 +62,15 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const stableFrameResolverRef = useRef<(() => void) | null>(null);
   const idleTimeoutRef = useRef<number>();
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
+  const [hasMounted, setHasMounted] = useState(false);
   const formattedProgress = Math.round(progress);
   const prefersReducedMotion = useReducedMotion();
+  const showStaticPreview = hasMounted && prefersReducedMotion;
   const { t } = useTranslation("common");
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     let isCancelled = false;
@@ -107,7 +113,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         }
       });
 
-    if (prefersReducedMotion) {
+    if (showStaticPreview) {
       stableFrameResolverRef.current?.();
     }
 
@@ -131,7 +137,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       }
       stableFrameResolverRef.current = null;
     };
-  }, [onComplete, prefersReducedMotion]);
+  }, [onComplete, showStaticPreview]);
 
   const handleStableFrame = useCallback(() => {
     stableFrameResolverRef.current?.();
@@ -143,7 +149,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       role="status"
       aria-live="polite"
     >
-      {prefersReducedMotion ? (
+      {showStaticPreview ? (
         <div className="h-48 w-48 rounded-full bg-fg/10" aria-hidden />
       ) : (
         <Suspense
