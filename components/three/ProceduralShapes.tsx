@@ -63,12 +63,17 @@ type ProceduralShapesProps = {
    * containers.
    */
   parallax?: boolean;
+  /**
+   * Signals the first stable frame render to external consumers (e.g. preloaders).
+   */
+  onStableFrame?: () => void;
 };
 
 export default function ProceduralShapes({
   variantOverride,
   palette,
   parallax = true,
+  onStableFrame,
 }: ProceduralShapesProps) {
   const { theme } = useTheme();
   // Lê as variantes já usadas pelas suas páginas (home/work/about)
@@ -247,6 +252,14 @@ export default function ProceduralShapes({
     []
   );
 
+  const stableFrameTimerRef = useRef(0);
+  const stableFrameTriggeredRef = useRef(false);
+  const stableFrameCallbackRef = useRef(onStableFrame);
+
+  useEffect(() => {
+    stableFrameCallbackRef.current = onStableFrame;
+  }, [onStableFrame]);
+
   useFrame(({ clock }, dt) => {
     const g = groupRef.current;
     if (!g) return;
@@ -286,6 +299,14 @@ export default function ProceduralShapes({
       material.uniforms.uAmp.value =
         amp * (1 + 0.22 * Math.sin(time * 0.65 + index * 0.2));
     });
+
+    if (!stableFrameTriggeredRef.current) {
+      stableFrameTimerRef.current += dt;
+      if (stableFrameTimerRef.current > 0.1) {
+        stableFrameTriggeredRef.current = true;
+        stableFrameCallbackRef.current?.();
+      }
+    }
   });
 
   if (

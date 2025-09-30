@@ -68,7 +68,13 @@
   },
   "preloader": {
     "title": "Materializando formas…",
-    "progress": "Carregando {{value}}%"
+    "progress": "Carregando {{value}}%",
+    "status": {
+      "fonts": "Preparando tipografia…",
+      "scene": "Aquecendo a prévia 3D…",
+      "idle": "Estabilizando o movimento…",
+      "ready": "Pronto para começar!"
+    }
   },
   "experience": {
     "loadingFallback": "Materializando formas…"
