@@ -52,11 +52,11 @@ lighting effect, matching the glossy “blob” aesthetic of the original site.
 
 4. **Changing the material**
 
-   The custom shader material lives in `materials/GradientMat.tsx`.  It
-   supports two colour uniforms (`colorA` and `colorB`) and a
-   `fresnelStrength` uniform controlling the intensity of the rim light.
-   Feel free to adjust these values or replace the shader with any
-   other `THREE.Material`.
+  The custom shader material lives in `materials/GradientMat.tsx`.  It
+  exposes four gradient colour uniforms (`uColor1` – `uColor4`) and
+  animated controls (`uTime`, `uAmp`, `uFreq`) that drive the vertex
+  displacement.  Feel free to tweak these values or replace the shader
+  with any other `THREE.Material`.
 
 5. **Extending the project**
 

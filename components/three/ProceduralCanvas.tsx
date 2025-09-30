@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { Suspense, type ReactNode } from "react";
-import ProceduralShapes from "./ProceduralShapes";
+import ProceduralShapes, { type GradientPalette } from "./ProceduralShapes";
 import type { VariantState } from "../../store/variants";
 
 type CanvasCamera = {
@@ -18,7 +18,7 @@ export type ProceduralCanvasProps = {
   dpr?: number | [number, number];
   lights?: ReactNode;
   variantOverride?: VariantState;
-  palette?: { colorA: string; colorB: string }[];
+  palette?: GradientPalette;
   parallax?: boolean;
 };
 

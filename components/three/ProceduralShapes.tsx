@@ -1,15 +1,40 @@
 "use client";
 
 import * as THREE from "three";
-import React, { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { a, useSpring } from "@react-spring/three";
 import {
   useVariantStore,
   type VariantState,
 } from "../../store/variants";
-import GradientMat from "../../materials/GradientMat";
+import { GradientMaterialImpl, type GradientShaderMaterial } from "../../materials/GradientMat";
 import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
+import { useTheme } from "../../app/theme/ThemeContext";
+
+export type GradientStops = [string, string, string, string];
+export type GradientPalette = GradientStops[];
+
+const LIGHT_THEME_PALETTE: GradientPalette = [
+  ["#f1e8ff", "#e8d9ff", "#d9c4ff", "#ceb5ff"],
+  ["#ffe7f2", "#ffd0e6", "#ffb8d8", "#ff8fbb"],
+  ["#c8fff4", "#a8faea", "#7eeadf", "#3ecfd0"],
+  ["#e8ffc8", "#ccf78f", "#b4ef66", "#9ae752"],
+];
+
+const DARK_THEME_PALETTE: GradientPalette = [
+  ["#2c2150", "#42307d", "#6b3fb8", "#b67bff"],
+  ["#310f27", "#5a1b47", "#99326f", "#ff6fa7"],
+  ["#0b2d32", "#104b52", "#167a7a", "#3fe6d8"],
+  ["#142818", "#1f4427", "#2f703a", "#7fe65e"],
+];
+
+const MATERIAL_CONFIGS = [
+  { amp: 0.085, freq: 1.2, timeOffset: 0 },
+  { amp: 0.095, freq: 1.05, timeOffset: 0.85 },
+  { amp: 0.12, freq: 1.45, timeOffset: 1.6 },
+  { amp: 0.075, freq: 0.9, timeOffset: 2.35 },
+] as const;
 
 // Tupla util p/ react-spring aceitar vetores
 const tuple = (v: [number, number, number]) => v as unknown as THREE.Vector3Tuple;
@@ -29,10 +54,10 @@ type ProceduralShapesProps = {
    */
   variantOverride?: VariantState;
   /**
-   * Custom colours for each mesh.  Pass four pairs for the two torus segments,
-   * the spline and the dot respectively.
+   * Custom colours for each mesh.  Pass four gradient stop arrays for the two
+   * torus segments, the spline and the dot respectively.
    */
-  palette?: { colorA: string; colorB: string }[];
+  palette?: GradientPalette;
   /**
    * Enables pointer based parallax.  Disable for static previews in tight
    * containers.
@@ -45,6 +70,7 @@ export default function ProceduralShapes({
   palette,
   parallax = true,
 }: ProceduralShapesProps) {
+  const { theme } = useTheme();
   // Lê as variantes já usadas pelas suas páginas (home/work/about)
   const storeVariant = useVariantStore((s) => s.variant);
   const variant = variantOverride ?? storeVariant;
@@ -131,6 +157,49 @@ export default function ProceduralShapes({
     };
   }, [dotGeometry]);
 
+  const gradientMaterials = useMemo(
+    () =>
+      MATERIAL_CONFIGS.map((config) => {
+        const material = new GradientMaterialImpl() as GradientShaderMaterial;
+        material.uniforms.uAmp.value = config.amp;
+        material.uniforms.uFreq.value = config.freq;
+        return material;
+      }) as [
+        GradientShaderMaterial,
+        GradientShaderMaterial,
+        GradientShaderMaterial,
+        GradientShaderMaterial,
+      ],
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      gradientMaterials.forEach((material) => material.dispose());
+    };
+  }, [gradientMaterials]);
+
+  const defaultPalette = useMemo<GradientPalette>(
+    () => (theme === "dark" ? DARK_THEME_PALETTE : LIGHT_THEME_PALETTE),
+    [theme]
+  );
+
+  useEffect(() => {
+    const paletteSource = palette ?? defaultPalette;
+    gradientMaterials.forEach((material, index) => {
+      const stops = paletteSource[index] ?? defaultPalette[index];
+      if (!stops) return;
+      const [c1, c2, c3, c4] = stops;
+      material.uniforms.uColor1.value.set(c1);
+      material.uniforms.uColor2.value.set(c2);
+      material.uniforms.uColor3.value.set(c3);
+      material.uniforms.uColor4.value.set(c4);
+    });
+  }, [palette, defaultPalette, gradientMaterials]);
+
+  const [magnetTopMaterial, magnetBottomMaterial, waveMaterial, dotMaterial] =
+    gradientMaterials;
+
   // === Springs por shape (compatível com seu store) ===
   const springCfg = { mass: 5, tension: 320, friction: 50 } as const;
 
@@ -209,20 +278,15 @@ export default function ProceduralShapes({
     const maxY = (isMobile ? 0.14 : 0.22) * (viewport.height / 2);
     g.position.x = clamp(g.position.x, -maxX, maxX);
     g.position.y = clamp(g.position.y, -maxY, maxY);
-  });
 
-  // === Paleta pastel (fixa por shape) — igual vibe do site de referência ===
-  // Usa seu GradientMat para fresnel/iridescência e evita mexer em Tailwind aqui.
-  const mats = useMemo(
-    () =>
-      palette ?? [
-        { colorA: "#f1e8ff", colorB: "#ceb5ff" }, // C top: violeta suave
-        { colorA: "#ffe7f2", colorB: "#ff8fbb" }, // C bottom: magenta pastel
-        { colorA: "#c8fff4", colorB: "#3ecfd0" }, // S: aqua luminoso
-        { colorA: "#e8ffc8", colorB: "#9ae752" }, // dot: verde-lima
-      ],
-    [palette]
-  );
+    gradientMaterials.forEach((material, index) => {
+      const { amp, timeOffset } = MATERIAL_CONFIGS[index];
+      const time = t + timeOffset;
+      material.uniforms.uTime.value = time;
+      material.uniforms.uAmp.value =
+        amp * (1 + 0.22 * Math.sin(time * 0.65 + index * 0.2));
+    });
+  });
 
   if (
     !magnetTopGeometry ||
@@ -242,13 +306,8 @@ export default function ProceduralShapes({
         rotation-x={cTop.rotationX}
         rotation-y={cTop.rotationY}
         rotation-z={cTop.rotationZ}
-      >
-        <GradientMat
-          colorA={mats[0].colorA}
-          colorB={mats[0].colorB}
-          fresnelStrength={1.05}
-        />
-      </a.mesh>
+        material={magnetTopMaterial}
+      />
 
       {/* C de baixo */}
       <a.mesh
@@ -257,13 +316,8 @@ export default function ProceduralShapes({
         rotation-x={cBottom.rotationX}
         rotation-y={cBottom.rotationY}
         rotation-z={cBottom.rotationZ}
-      >
-        <GradientMat
-          colorA={mats[1].colorA}
-          colorB={mats[1].colorB}
-          fresnelStrength={1.05}
-        />
-      </a.mesh>
+        material={magnetBottomMaterial}
+      />
 
       {/* “S” (tube) */}
       <a.mesh
@@ -272,13 +326,8 @@ export default function ProceduralShapes({
         rotation-x={sShape.rotationX}
         rotation-y={sShape.rotationY}
         rotation-z={sShape.rotationZ}
-      >
-        <GradientMat
-          colorA={mats[2].colorA}
-          colorB={mats[2].colorB}
-          fresnelStrength={1.05}
-        />
-      </a.mesh>
+        material={waveMaterial}
+      />
 
       {/* Ponto (dot) */}
       <a.group
@@ -287,20 +336,8 @@ export default function ProceduralShapes({
         rotation-y={dot.rotationY}
         rotation-z={dot.rotationZ}
       >
-        <mesh geometry={openLoopGeometry}>
-          <GradientMat
-            colorA={mats[3].colorA}
-            colorB={mats[3].colorB}
-            fresnelStrength={1.05}
-          />
-        </mesh>
-        <mesh geometry={dotGeometry}>
-          <GradientMat
-            colorA={mats[3].colorA}
-            colorB={mats[3].colorB}
-            fresnelStrength={1.05}
-          />
-        </mesh>
+        <mesh geometry={openLoopGeometry} material={dotMaterial} />
+        <mesh geometry={dotGeometry} material={dotMaterial} />
       </a.group>
     </group>
   );
