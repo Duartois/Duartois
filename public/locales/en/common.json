@@ -50,6 +50,12 @@
       "second": "Within each engagement I mix rapid prototyping with Tailwind, Stripe integrations, API design, and MongoDB modelling to scale expressive products.",
       "third": "Between collaborations I research sound, motion, and generative design — explore my <github>GitHub</github> (@Duartois) to find living prototypes and open tools."
     },
+    "portraitAlt": "Portrait illustration of Duarte Duartois.",
+    "miniplayer": {
+      "track": "Liminal Echoes (Live Session)",
+      "artist": "Duartois",
+      "coverAlt": "Album art for the track Liminal Echoes."
+    },
     "visualCaption": "Animated organic avatar representing Duarte."
   },
   "contact": {
