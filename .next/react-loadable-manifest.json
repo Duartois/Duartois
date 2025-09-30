@@ -1,20 +1,44 @@
 {
-  "app\\page.tsx -> ../components/three/OrganicShape": {
-    "id": "app\\page.tsx -> ../components/three/OrganicShape",
+  "app\\about\\page.tsx -> ../../components/three/AvatarOrb": {
+    "id": "app\\about\\page.tsx -> ../../components/three/AvatarOrb",
     "files": [
-      "static/chunks/_app-pages-browser_components_three_OrganicShape_tsx.js"
+      "static/chunks/_app-pages-browser_components_three_AvatarOrb_tsx.js"
     ]
   },
-  "components\\NavOverlay.tsx -> ./three/OrganicShape": {
-    "id": "components\\NavOverlay.tsx -> ./three/OrganicShape",
+  "app\\about\\page.tsx -> ../../components/three/Experience": {
+    "id": "app\\about\\page.tsx -> ../../components/three/Experience",
     "files": [
-      "static/chunks/_app-pages-browser_components_three_OrganicShape_tsx.js"
+      "static/chunks/_app-pages-browser_components_three_Experience_tsx-_2b4a0.js"
     ]
   },
-  "components\\Preloader.tsx -> ./three/MetaballsCanvas": {
-    "id": "components\\Preloader.tsx -> ./three/MetaballsCanvas",
+  "app\\page.tsx -> ../components/three/Experience": {
+    "id": "app\\page.tsx -> ../components/three/Experience",
     "files": [
-      "static/chunks/_app-pages-browser_components_three_MetaballsCanvas_tsx.js"
+      "static/chunks/_app-pages-browser_components_three_Experience_tsx-_2b4a0.js"
+    ]
+  },
+  "app\\work\\page.tsx -> ../../components/three/Experience": {
+    "id": "app\\work\\page.tsx -> ../../components/three/Experience",
+    "files": [
+      "static/chunks/_app-pages-browser_components_three_Experience_tsx-_2b4a1.js"
+    ]
+  },
+  "app\\work\\page.tsx -> ../../components/three/ProceduralShapes": {
+    "id": "app\\work\\page.tsx -> ../../components/three/ProceduralShapes",
+    "files": [
+      "static/chunks/_app-pages-browser_components_three_ProceduralShapes_tsx.js"
+    ]
+  },
+  "components\\NavOverlay.tsx -> ./three/ProceduralCanvas": {
+    "id": "components\\NavOverlay.tsx -> ./three/ProceduralCanvas",
+    "files": [
+      "static/chunks/_app-pages-browser_components_three_ProceduralCanvas_tsx-_ba290.js"
+    ]
+  },
+  "components\\Preloader.tsx -> ./three/ProceduralCanvas": {
+    "id": "components\\Preloader.tsx -> ./three/ProceduralCanvas",
+    "files": [
+      "static/chunks/_app-pages-browser_components_three_ProceduralCanvas_tsx-_ba291.js"
     ]
   },
   "node_modules\\@react-three\\drei\\core\\VideoTexture.js -> hls.js": {
