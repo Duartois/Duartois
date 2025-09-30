@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useProgress } from "@react-three/drei";
 import { useReducedMotion } from "framer-motion";
@@ -40,23 +40,92 @@ const PRELOADER_PALETTE: GradientPalette = [
   ["#f3ffe3", "#d8f8a8", "#c1f27d", "#baf775"],
 ];
 
+type PreloaderStatus = "fonts" | "scene" | "idle" | "ready";
+
 interface PreloaderProps {
   onComplete?: () => void;
 }
 
 export default function Preloader({ onComplete }: PreloaderProps) {
-  const { progress, active } = useProgress();
+  const { progress } = useProgress();
   const hasCompletedRef = useRef(false);
+  const stableFrameResolverRef = useRef<(() => void) | null>(null);
+  const idleTimeoutRef = useRef<number>();
+  const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
   const formattedProgress = Math.round(progress);
   const prefersReducedMotion = useReducedMotion();
   const { t } = useTranslation("common");
 
   useEffect(() => {
-    if (!active && !hasCompletedRef.current) {
-      hasCompletedRef.current = true;
-      onComplete?.();
+    let isCancelled = false;
+
+    const fontsReadyPromise = (typeof document !== "undefined" && "fonts" in document
+      ? document.fonts.ready.catch(() => undefined)
+      : Promise.resolve()
+    ).then(() => {
+      if (!isCancelled) {
+        setStatusKey("scene");
+      }
+    });
+
+    const stableFramePromise = new Promise<void>((resolve) => {
+      stableFrameResolverRef.current = () => {
+        resolve();
+        stableFrameResolverRef.current = null;
+      };
+    }).then(() => {
+      if (!isCancelled) {
+        setStatusKey("idle");
+      }
+    });
+
+    const idlePromise = Promise.all([fontsReadyPromise, stableFramePromise])
+      .then(() => {
+        if (isCancelled) {
+          return;
+        }
+        return new Promise<void>((resolve) => {
+          idleTimeoutRef.current = window.setTimeout(() => {
+            idleTimeoutRef.current = undefined;
+            resolve();
+          }, 250);
+        });
+      })
+      .then(() => {
+        if (!isCancelled) {
+          setStatusKey("ready");
+        }
+      });
+
+    if (prefersReducedMotion) {
+      stableFrameResolverRef.current?.();
     }
-  }, [active, onComplete]);
+
+    Promise.all([fontsReadyPromise, stableFramePromise, idlePromise]).then(() => {
+      if (isCancelled || hasCompletedRef.current) {
+        return;
+      }
+      hasCompletedRef.current = true;
+      window.setTimeout(() => {
+        if (!isCancelled) {
+          onComplete?.();
+        }
+      }, 350);
+    });
+
+    return () => {
+      isCancelled = true;
+      if (idleTimeoutRef.current !== undefined) {
+        window.clearTimeout(idleTimeoutRef.current);
+        idleTimeoutRef.current = undefined;
+      }
+      stableFrameResolverRef.current = null;
+    };
+  }, [onComplete, prefersReducedMotion]);
+
+  const handleStableFrame = useCallback(() => {
+    stableFrameResolverRef.current?.();
+  }, []);
 
   return (
     <div
@@ -79,6 +148,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               palette={PRELOADER_PALETTE}
               parallax={false}
               dpr={[1, 1.5]}
+              onStableFrame={handleStableFrame}
             />
           </div>
         </Suspense>
@@ -86,6 +156,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       <div className="text-center text-fg">
         <p className="text-lg font-semibold tracking-wide">{t("preloader.title")}</p>
         <p className="mt-1 text-sm font-medium text-fg/70" aria-live="polite">
+          {t(`preloader.status.${statusKey}`)}
+        </p>
+        <p className="mt-1 text-xs font-medium text-fg/60" aria-live="polite">
           {t("preloader.progress", { value: formattedProgress })}
         </p>
       </div>

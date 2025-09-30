@@ -20,6 +20,7 @@ export type ProceduralCanvasProps = {
   variantOverride?: VariantState;
   palette?: GradientPalette;
   parallax?: boolean;
+  onStableFrame?: () => void;
 };
 
 const defaultCamera: CanvasCamera = {
@@ -43,6 +44,7 @@ export default function ProceduralCanvas({
   variantOverride,
   palette,
   parallax,
+  onStableFrame,
 }: ProceduralCanvasProps) {
   return (
     <Canvas
@@ -57,6 +59,7 @@ export default function ProceduralCanvas({
           variantOverride={variantOverride}
           palette={palette}
           parallax={parallax}
+          onStableFrame={onStableFrame}
         />
       </Suspense>
     </Canvas>
