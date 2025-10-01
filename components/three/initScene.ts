@@ -185,8 +185,7 @@ export const initScene = async ({
 
     shapesGroup.position.x += (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
     shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
-    const targetRotX = pointer.y * (mobile ? 0.15 : 0.28) + breathe;
-    const targetRotY = -pointer.x * (mobile ? 0.22 : 0.35);
+  
 
     const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);

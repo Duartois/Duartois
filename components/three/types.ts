@@ -28,8 +28,8 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [-1.85, 0.58, 0.2],
-    rotation: [0.36, 0.92, -0.2],
+    position: [0.55, -0.58, -0.2],
+    rotation: [-1.36, 0.92, -0.2],
   },
   waveSpringLime: {
     position: [0.12, 1.35, -0.35],
