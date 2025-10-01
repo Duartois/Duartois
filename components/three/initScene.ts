@@ -22,7 +22,7 @@ import {
   createCamera,
   ensurePalette,
 } from "./factories";
-import { addSharleeLikeShapes } from "@/components/three/addShapes";
+import { addDuartoisSignatureShapes } from "@/components/three/addShapes";
 
 export type InitSceneOptions = {
   canvas: HTMLCanvasElement;
@@ -54,10 +54,9 @@ export const initScene = async ({
   scene.add(camera);
 
   const effectivePalette = ensurePalette(palette, theme);
-  const shapes = await addSharleeLikeShapes(scene);
-  const shapeMeshes = shapes.group.children.filter(
-    (child): child is THREE.Mesh => child instanceof THREE.Mesh,
-  );
+  const baseVariant = cloneVariant(variantMapping[initialVariant]);
+  const shapes = await addDuartoisSignatureShapes(scene, baseVariant);
+  const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
   const updateMeshesOpacity = (opacity: number) => {
     shapeMeshes.forEach((mesh) => {
@@ -77,29 +76,9 @@ export const initScene = async ({
       }
     });
   };
-  const disposeShapes = () => {
-    shapesGroup.parent?.remove(shapesGroup);
-    shapesGroup.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        object.geometry.dispose();
-        const material = object.material;
-        const disposeMaterial = (mat: THREE.Material) => {
-          if (mat instanceof THREE.MeshMatcapMaterial && mat.matcap) {
-            mat.matcap.dispose();
-          }
-          mat.dispose();
-        };
-        if (Array.isArray(material)) {
-          material.forEach(disposeMaterial);
-        } else {
-          disposeMaterial(material);
-        }
-      }
-    });
-  };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
-    variant: cloneVariant(variantMapping[initialVariant]),
+    variant: cloneVariant(baseVariant),
     palette: effectivePalette,
     theme,
     parallax,
@@ -137,7 +116,7 @@ export const initScene = async ({
       : false;
 
   const resize = () => {
-  const width = canvas.clientWidth;
+    const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
     if (canvas.width !== width || canvas.height !== height) {
@@ -242,6 +221,7 @@ export const initScene = async ({
         variant: cloneVariant(mapped),
       };
       changed = true;
+      shapes.applyVariant(nextState.variant);
     }
 
     if (partial.palette) {
@@ -313,6 +293,12 @@ export const initScene = async ({
       }
     }
 
+    if (partial.variant) {
+      nextState = { ...nextState, variant: cloneVariant(partial.variant) };
+      shapes.applyVariant(nextState.variant);
+      changed = true;
+    }
+
     state = nextState;
 
     if (changed) {
@@ -329,7 +315,7 @@ export const initScene = async ({
     window.removeEventListener("pointermove", pointerMove);
     window.removeEventListener("pointerenter", pointerEnter);
     window.removeEventListener("pointerleave", pointerLeave);
-    disposeShapes();
+    shapes.dispose();
     renderer.dispose();
     detachFromWindow(handle);
   };
