@@ -1,86 +1,121 @@
 import * as THREE from "three";
+
 import { loadMatcap } from "../../app/helpers/matcap";
+import type { ShapeId, VariantState } from "./types";
 
 export type ShapesHandle = {
   group: THREE.Group;
+  meshes: Record<ShapeId, THREE.Mesh>;
   update: (elapsed: number) => void;
+  applyVariant: (variant: VariantState) => void;
+  dispose: () => void;
 };
 
-export async function addSharleeLikeShapes(
+const SHAPE_ORDER: ShapeId[] = [
+  "torus",
+  "capsule",
+  "sphere",
+  "torusKnot",
+  "octahedron",
+];
+
+const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
+  torus: { x: 0.0035, y: 0.0042 },
+  capsule: { x: 0.00395, y: 0.0046 },
+  sphere: { x: 0.0032, y: 0.0036 },
+  torusKnot: { x: 0.0044, y: 0.0049 },
+  octahedron: { x: 0.0038, y: 0.0041 },
+};
+
+export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
+  initialVariant: VariantState,
 ): Promise<ShapesHandle> {
-  const [mc1, mc2, mc3, mc4, mc5] = await Promise.all([
+  const [mcPrimary, mcSecondary, mcAccent, mcHighlight, mcShadow] = await Promise.all([
+    loadMatcap("/matcaps/aqua.png"),
+    loadMatcap("/matcaps/mint.png"),
     loadMatcap("/matcaps/pink.png"),
     loadMatcap("/matcaps/lilac.png"),
-    loadMatcap("/matcaps/mint.png"),
-    loadMatcap("/matcaps/aqua.png"),
     loadMatcap("/matcaps/peach.png"),
   ]);
 
   const group = new THREE.Group();
   scene.add(group);
 
-  const meshes: THREE.Mesh[] = [];
-
-  meshes.push(
-    new THREE.Mesh(
-      new THREE.TorusGeometry(1.25, 0.38, 64, 96),
-      new THREE.MeshMatcapMaterial({ matcap: mc1, transparent: true, opacity: 1 }),
+  const meshes: Record<ShapeId, THREE.Mesh> = {
+    torus: new THREE.Mesh(
+      new THREE.TorusGeometry(1.35, 0.32, 64, 96),
+      new THREE.MeshMatcapMaterial({ matcap: mcPrimary, transparent: true, opacity: 0.95 }),
     ),
-  );
-
-  meshes.push(
-    new THREE.Mesh(
-      new THREE.SphereGeometry(0.95, 48, 48),
-      new THREE.MeshMatcapMaterial({ matcap: mc2, transparent: true, opacity: 1 }),
+    capsule: new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.65, 1.8, 32, 48),
+      new THREE.MeshMatcapMaterial({ matcap: mcSecondary, transparent: true, opacity: 0.9 }),
     ),
-  );
-
-  meshes.push(
-    new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.05, 1),
-      new THREE.MeshMatcapMaterial({ matcap: mc3, transparent: true, opacity: 1 }),
+    sphere: new THREE.Mesh(
+      new THREE.SphereGeometry(0.85, 48, 48),
+      new THREE.MeshMatcapMaterial({ matcap: mcAccent, transparent: true, opacity: 0.88 }),
     ),
-  );
-
-  meshes.push(
-    new THREE.Mesh(
-      new THREE.TorusKnotGeometry(1.0, 0.3, 128, 16, 2, 3),
-      new THREE.MeshMatcapMaterial({ matcap: mc4, transparent: true, opacity: 1 }),
+    torusKnot: new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.95, 0.28, 128, 16, 2, 5),
+      new THREE.MeshMatcapMaterial({ matcap: mcHighlight, transparent: true, opacity: 0.9 }),
     ),
-  );
-
-  meshes.push(
-    new THREE.Mesh(
-      new THREE.BoxGeometry(1.1, 1.1, 1.1, 3, 3, 3),
-      new THREE.MeshMatcapMaterial({ matcap: mc5, transparent: true, opacity: 1 }),
+    octahedron: new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.75, 1),
+      new THREE.MeshMatcapMaterial({ matcap: mcShadow, transparent: true, opacity: 0.92 }),
     ),
-  );
+  };
 
-  const P: [number, number, number][] = [
-    [-2.0, 0.2, 0.0],
-    [1.2, 0.6, -0.6],
-    [0.0, -0.8, 1.2],
-    [2.0, 0.1, 0.8],
-    [-1.1, -0.5, -1.2],
-  ];
+  const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
 
-  meshes.forEach((m, i) => {
-    m.position.set(...P[i]);
-    m.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
-    m.castShadow = false;
-    m.receiveShadow = false;
-    group.add(m);
+  orderedMeshes.forEach((mesh) => {
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    group.add(mesh);
   });
 
-  const update = (elapsed: number) => {
-    meshes.forEach((m, i) => {
-      m.rotation.x += 0.003 + i * 0.0004;
-      m.rotation.y += 0.004 + i * 0.0003;
-      const s = 1 + 0.03 * Math.sin(elapsed * 0.8 + i);
-      m.scale.setScalar(s);
+  const applyVariant = (variant: VariantState) => {
+    SHAPE_ORDER.forEach((id) => {
+      const mesh = meshes[id];
+      const target = variant[id];
+      if (!target) {
+        return;
+      }
+      mesh.position.set(...target.position);
+      mesh.rotation.set(...target.rotation);
     });
   };
 
-  return { group, update };
+  applyVariant(initialVariant);
+
+  const update = (elapsed: number) => {
+    orderedMeshes.forEach((mesh, index) => {
+      const id = SHAPE_ORDER[index];
+      const speeds = ROTATION_SPEEDS[id];
+      mesh.rotation.x += speeds.x;
+      mesh.rotation.y += speeds.y;
+      const wobble = 1 + 0.035 * Math.sin(elapsed * 0.78 + index * 0.6);
+      mesh.scale.setScalar(wobble);
+    });
+  };
+
+  const dispose = () => {
+    group.parent?.remove(group);
+    orderedMeshes.forEach((mesh) => {
+      mesh.geometry.dispose();
+      const material = mesh.material;
+      const disposeMaterial = (mat: THREE.Material) => {
+        if (mat instanceof THREE.MeshMatcapMaterial && mat.matcap) {
+          mat.matcap.dispose();
+        }
+        mat.dispose();
+      };
+      if (Array.isArray(material)) {
+        material.forEach(disposeMaterial);
+      } else {
+        disposeMaterial(material);
+      }
+    });
+  };
+
+  return { group, meshes, update, applyVariant, dispose };
 }

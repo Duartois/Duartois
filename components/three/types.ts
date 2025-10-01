@@ -4,10 +4,10 @@ export type Vector3Tuple = [number, number, number];
 
 export type ShapeId =
   | "torus"
+  | "capsule"
   | "sphere"
-  | "icosahedron"
   | "torusKnot"
-  | "box";
+  | "octahedron";
 
 export type GradientStops = [string, string, string, string];
 export type GradientPalette = readonly GradientStops[];
@@ -26,60 +26,27 @@ export type ShapeTransform = {
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
-<<<<<<< HEAD
   torus: {
-    position: [-2.0, 0.2, 0.0],
-    rotation: [0.0, 0.0, 0.0],
+    position: [-1.9, 0.35, 0.0],
+    rotation: [0.12, 0.48, 0.28],
+  },
+  capsule: {
+    position: [1.4, 0.8, -0.5],
+    rotation: [-0.2, 0.35, 0.52],
   },
   sphere: {
-    position: [1.2, 0.6, -0.6],
-    rotation: [0.0, 0.0, 0.0],
-  },
-  icosahedron: {
-    position: [0.0, -0.8, 1.2],
+    position: [-0.2, -0.85, 1.1],
     rotation: [0.0, 0.0, 0.0],
   },
   torusKnot: {
-    position: [2.0, 0.1, 0.8],
-    rotation: [0.0, 0.0, 0.0],
+    position: [2.2, -0.15, 0.9],
+    rotation: [0.26, -0.18, 0.38],
   },
-  box: {
-    position: [-1.1, -0.5, -1.2],
-    rotation: [0.0, 0.0, 0.0],
-=======
-  // 3) C-torus grande (direita)
-  torus270A: {
-    position: [ 1.18,  0.32,  0.00],
-    rotation: [ 0.00,  0.00, -0.18],
-  },
-  // 6) Arco inferior grande (centro)
-  torus270B: {
-    position: [ 0.04, -1.08,  0.00],
-    rotation: [ 0.00,  0.00,  0.06],
-  },
-  // 5) C-torus médio (centro-esquerda)
-  semi180A: {
-    position: [ 0.10, -0.16,  0.00],
-    rotation: [ 0.00,  0.00,  0.18],
-  },
-  // 4) Crescente/feijão (esquerda)
-  semi180B: {
-    position: [-0.54,  0.02,  0.00],
-    rotation: [ 0.00,  0.00, -0.06],
-  },
-  // 1) S-worm superior esquerdo
-  wave: {
-    position: [-1.18,  1.10,  0.00],
-    rotation: [ 0.00,  0.00, -0.06],
-  },
-  // 2) Esfera pequena
-  sphere: {
-    position: [ 0.04,  0.98,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
->>>>>>> b2054ea5e1c2b985ba486d7dce3322416ea89f15
+  octahedron: {
+    position: [-1.2, -0.45, -1.3],
+    rotation: [-0.22, 0.18, -0.42],
   },
 });
-
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
@@ -95,12 +62,9 @@ export const LIGHT_THEME_PALETTE: GradientPalette = [
   ["#5b8cff", "#8a7bff", "#b879ff", "#ff9bcc"],
   ["#00d5c0", "#38e1b4", "#77eea6", "#c2f6a2"],
   ["#3ad986", "#b7e867", "#ffe08a", "#ffc09f"],
-  ["#a6ffd7", "#c1ffe6", "#ffb3df", "#ff89c6"],
 ];
 
-
 export const DARK_THEME_PALETTE: GradientPalette = [
-  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
   ["#2f3039", "#3a3b45", "#454651", "#52535f"],
   ["#2f3039", "#3a3b45", "#454651", "#52535f"],
   ["#2f3039", "#3a3b45", "#454651", "#52535f"],
@@ -153,21 +117,21 @@ export const createVariantState = (variant: VariantState): VariantState => ({
     position: [...variant.torus.position] as Vector3Tuple,
     rotation: [...variant.torus.rotation] as Vector3Tuple,
   },
+  capsule: {
+    position: [...variant.capsule.position] as Vector3Tuple,
+    rotation: [...variant.capsule.rotation] as Vector3Tuple,
+  },
   sphere: {
     position: [...variant.sphere.position] as Vector3Tuple,
     rotation: [...variant.sphere.rotation] as Vector3Tuple,
-  },
-  icosahedron: {
-    position: [...variant.icosahedron.position] as Vector3Tuple,
-    rotation: [...variant.icosahedron.rotation] as Vector3Tuple,
   },
   torusKnot: {
     position: [...variant.torusKnot.position] as Vector3Tuple,
     rotation: [...variant.torusKnot.rotation] as Vector3Tuple,
   },
-  box: {
-    position: [...variant.box.position] as Vector3Tuple,
-    rotation: [...variant.box.rotation] as Vector3Tuple,
+  octahedron: {
+    position: [...variant.octahedron.position] as Vector3Tuple,
+    rotation: [...variant.octahedron.rotation] as Vector3Tuple,
   },
 });
 
