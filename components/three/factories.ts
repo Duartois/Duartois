@@ -27,6 +27,7 @@ export type GradientMaterialUniforms = {
   uColor2: { value: Color };
   uColor3: { value: Color };
   uColor4: { value: Color };
+  uOpacity: { value: number };
   uTime: { value: number };
   uAmp: { value: number };
   uFreq: { value: number };
@@ -42,6 +43,7 @@ const vertexShader = /* glsl */ `
   uniform float uAmp;
   uniform float uFreq;
   uniform float uNoiseScale;
+  uniform float uOpacity;
 
   varying vec3 vWorldPos;
   varying vec3 vNormal;
@@ -139,6 +141,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uColor2;
   uniform vec3 uColor3;
   uniform vec3 uColor4;
+  uniform float uOpacity;
 
   varying vec3 vWorldPos;
   varying vec3 vNormal;
@@ -167,35 +170,33 @@ const fragmentShader = /* glsl */ `
     float rim = pow(1.0 - max(dot(normal, viewDir), 0.0), 2.2) * 0.35;
 
     vec3 colour = diffuseColor + specular * 0.12 + rim;
-    gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
+    gl_FragColor = vec4(clamp(colour, 0.0, 1.0), clamp(uOpacity, 0.0, 1.0));
   }
 `;
 
 const createGradientMaterial = () => {
   const material = new ShaderMaterial({
-  uniforms: {
-    uColor1: { value: new Color("#f9d7fb") },
-    uColor2: { value: new Color("#f3f6c8") },
-    uColor3: { value: new Color("#a8f0d6") },
-    uColor4: { value: new Color("#a1c8ff") },
-    uTime: { value: 0 },
-    uAmp: { value: 0 },
-    uFreq: { value: 1.25 },
-    uNoiseScale: { value: 0 },
-  },
-  vertexShader,
-  fragmentShader,
-}) as GradientMaterial;
+    uniforms: {
+      uColor1: { value: new Color("#f9d7fb") },
+      uColor2: { value: new Color("#f3f6c8") },
+      uColor3: { value: new Color("#a8f0d6") },
+      uColor4: { value: new Color("#a1c8ff") },
+      uOpacity: { value: 1 },
+      uTime: { value: 0 },
+      uAmp: { value: 0 },
+      uFreq: { value: 1.25 },
+      uNoiseScale: { value: 0 },
+    },
+    vertexShader,
+    fragmentShader,
+    transparent: true,
+    depthWrite: false,
+  }) as GradientMaterial;
 
-// ---- aliases de compatibilidade (evita crash quando trocar nomes) ----
-const u: any = material.uniforms;
-if (!u.uNoiseAmp && u.uAmp) u.uNoiseAmp = u.uAmp;
-if (!u.uNoiseFreq && u.uFreq) u.uNoiseFreq = u.uFreq;
-
-
-
-  material.transparent = false;
-  material.depthWrite = true;
+  // ---- aliases de compatibilidade (evita crash quando trocar nomes) ----
+  const u: any = material.uniforms;
+  if (!u.uNoiseAmp && u.uAmp) u.uNoiseAmp = u.uAmp;
+  if (!u.uNoiseFreq && u.uFreq) u.uNoiseFreq = u.uFreq;
 
   return material;
 };

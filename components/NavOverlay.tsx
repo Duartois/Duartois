@@ -107,6 +107,7 @@ export default function NavOverlay({
         cursorBoost: 0.08,
         pointerDriver: "manual",
         manualPointer: pointerTarget,
+        opacity: 1,
       });
     } else if (!isOpen && wasOpenRef.current) {
       const snapshot = initialSceneStateRef.current;
@@ -119,6 +120,7 @@ export default function NavOverlay({
           cursorBoost: snapshot.cursorBoost,
           pointerDriver: snapshot.pointerDriver,
           manualPointer: snapshot.manualPointer,
+          opacity: snapshot.opacity,
         }));
       } else {
         const current = app.bundle.getState();
@@ -129,6 +131,7 @@ export default function NavOverlay({
           cursorBoost: 0,
           pointerDriver: "device",
           manualPointer: { x: 0, y: 0 },
+          opacity: 1,
         });
       }
       initialSceneStateRef.current = null;
