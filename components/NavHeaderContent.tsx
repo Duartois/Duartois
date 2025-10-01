@@ -41,7 +41,7 @@ export default function NavHeaderContent({
     <div className={variantStyles.container}>
       <Link
         href={brandHref}
-        aria-label="Sharlee Studio"
+        aria-label="Duartois Studio"
         onClick={onBrandClick}
         className={variantStyles.brandLink}
       >
