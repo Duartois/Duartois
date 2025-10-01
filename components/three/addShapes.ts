@@ -41,6 +41,8 @@ const COLOR_AZURE = "#85b9ff";
 const COLOR_LIME = "#f0ff66";
 const COLOR_FLAMINGO = "#ff5c82";
 const DARK_THEME_COLOR = "#2b2b33";
+const PASTEL_TARGET = new THREE.Color("#ffffff");
+const PASTEL_INTENSITY = 0.35;
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
   torusSpringAzure: [COLOR_AZURE, COLOR_SPRING],
@@ -118,7 +120,7 @@ const applyGradientToGeometry = (
     const localT = scaled - index;
     const from = stopColors[index];
     const to = stopColors[nextIndex];
-    const color = from.clone().lerp(to, localT);
+    const color = from.clone().lerp(to, localT).lerp(PASTEL_TARGET, PASTEL_INTENSITY);
     colors[i * 3] = color.r;
     colors[i * 3 + 1] = color.g;
     colors[i * 3 + 2] = color.b;
