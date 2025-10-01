@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { getDefaultPalette } from "@/components/three/types";
+
 export type Theme = "light" | "dark";
 
 interface ThemeContextValue {
@@ -44,6 +46,22 @@ function resolveInitialTheme(): Theme {
   return getSystemTheme();
 }
 
+function syncThreeTheme(next: Theme) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const palette = getDefaultPalette(next);
+  window.__THREE_APP__?.setState({ theme: next, palette });
+}
+
+function persistTheme(next: Theme) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("theme", next);
+  }
+  syncThreeTheme(next);
+}
+
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
   root.setAttribute("data-theme", theme);
@@ -55,6 +73,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     applyTheme(theme);
+    syncThreeTheme(theme);
   }, [theme]);
 
   useEffect(() => {
@@ -72,9 +91,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(() => {
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("theme", next);
-      }
+      persistTheme(next);
       return next;
     });
   }, []);
@@ -82,9 +99,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const toggle = useCallback(() => {
     setThemeState((current) => {
       const next = current === "dark" ? "light" : "dark";
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem("theme", next);
-      }
+      persistTheme(next);
       return next;
     });
   }, []);
