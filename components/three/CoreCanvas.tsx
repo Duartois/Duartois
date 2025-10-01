@@ -17,12 +17,22 @@ export default function CoreCanvas() {
       return;
     }
 
-    const handle = initScene({ canvas, theme });
-    handleRef.current = handle;
+    let cancelled = false;
+
+    void initScene({ canvas, theme }).then((handle) => {
+      if (cancelled) {
+        handle.dispose();
+        return;
+      }
+      handleRef.current = handle;
+    });
 
     return () => {
-      handle.dispose();
-      handleRef.current = null;
+      cancelled = true;
+      if (handleRef.current) {
+        handleRef.current.dispose();
+        handleRef.current = null;
+      }
     };
   }, []);
 

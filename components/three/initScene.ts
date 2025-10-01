@@ -1,4 +1,4 @@
-import { Clock, Scene, Vector2, WebGLRenderer, Color } from "three";
+import { Clock, Color, Scene, Vector2, WebGLRenderer } from "three";
 import * as THREE from "three";
 import {
   attachToWindow,
@@ -14,18 +14,15 @@ import {
   type ThreeAppState,
   type ThemeName,
   type VariantName,
-  createVariantState,
   getDefaultPalette,
   variantMapping,
 } from "./types";
 import {
-  MATERIAL_CONFIGS,
-  applyPaletteToMaterials,
   cloneVariant,
   createCamera,
-  createSceneObjects,
   ensurePalette,
 } from "./factories";
+import { addSharleeLikeShapes } from "@/components/three/addShapes";
 
 export type InitSceneOptions = {
   canvas: HTMLCanvasElement;
@@ -38,13 +35,13 @@ export type InitSceneOptions = {
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
-export const initScene = ({
+export const initScene = async ({
   canvas,
   initialVariant = "home",
   theme,
   palette,
   parallax = true,
-}: InitSceneOptions): ThreeAppHandle => {
+}: InitSceneOptions): Promise<ThreeAppHandle> => {
   const renderer = new WebGLRenderer({
     canvas,
     antialias: true,
@@ -57,26 +54,49 @@ export const initScene = ({
   scene.add(camera);
 
   const effectivePalette = ensurePalette(palette, theme);
-  const sceneObjects = createSceneObjects(effectivePalette);
-  // Garante que todos os materiais tenham uTime/uAmp/uFreq, mesmo após HMR
-sceneObjects.materials.forEach((m) => {
-  const u: any = m.uniforms;
-
-  // sempre existir
-  if (!u.uTime) u.uTime = { value: 0 };
-
-  // alias para versões antigas/alternativas
-  if (!u.uAmp && u.uNoiseAmp) u.uAmp = u.uNoiseAmp;
-  if (!u.uFreq && u.uNoiseFreq) u.uFreq = u.uNoiseFreq;
-
-  // se ainda não existir, cria com defaults
-  if (!u.uAmp) u.uAmp = { value: 0 };
-  if (!u.uFreq) u.uFreq = { value: 1.0 };
-  if (!u.uOpacity) u.uOpacity = { value: 1 };
-});
-
-  scene.add(sceneObjects.group);
-
+  const shapes = await addSharleeLikeShapes(scene);
+  const shapeMeshes = shapes.group.children.filter(
+    (child): child is THREE.Mesh => child instanceof THREE.Mesh,
+  );
+  const shapesGroup = shapes.group;
+  const updateMeshesOpacity = (opacity: number) => {
+    shapeMeshes.forEach((mesh) => {
+      const material = mesh.material;
+      if (Array.isArray(material)) {
+        material.forEach((mat) => {
+          if (mat instanceof THREE.MeshMatcapMaterial) {
+            mat.opacity = opacity;
+            mat.transparent = opacity < 1 ? true : mat.transparent;
+            mat.needsUpdate = true;
+          }
+        });
+      } else if (material instanceof THREE.MeshMatcapMaterial) {
+        material.opacity = opacity;
+        material.transparent = opacity < 1 ? true : material.transparent;
+        material.needsUpdate = true;
+      }
+    });
+  };
+  const disposeShapes = () => {
+    shapesGroup.parent?.remove(shapesGroup);
+    shapesGroup.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        object.geometry.dispose();
+        const material = object.material;
+        const disposeMaterial = (mat: THREE.Material) => {
+          if (mat instanceof THREE.MeshMatcapMaterial && mat.matcap) {
+            mat.matcap.dispose();
+          }
+          mat.dispose();
+        };
+        if (Array.isArray(material)) {
+          material.forEach(disposeMaterial);
+        } else {
+          disposeMaterial(material);
+        }
+      }
+    });
+  };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
     variant: cloneVariant(variantMapping[initialVariant]),
@@ -92,14 +112,11 @@ sceneObjects.materials.forEach((m) => {
     ready: false,
   };
 
-  sceneObjects.materials.forEach((material) => {
-    material.uniforms.uOpacity.value = initialState.opacity;
-  });
+  updateMeshesOpacity(initialState.opacity);
 
   const eventTarget = new EventTarget();
 
   let state = initialState;
-  const currentTransforms = createVariantState(state.variant);
   const pointer = new Vector2();
   const devicePointerTarget = new Vector2();
   const manualPointerTarget = new Vector2();
@@ -121,22 +138,22 @@ sceneObjects.materials.forEach((m) => {
 
   const resize = () => {
   const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+    const height = canvas.clientHeight;
 
-  if (canvas.width !== width || canvas.height !== height) {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
-    renderer.setSize(width, height, false);
-  }
+    if (canvas.width !== width || canvas.height !== height) {
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+      renderer.setSize(width, height, false);
+    }
 
-  // ortho frustum: top/bottom fixos e left/right por aspecto
-  const aspect = width / height;
-  const ortho = camera as unknown as THREE.OrthographicCamera;
-  ortho.left = -aspect;
-  ortho.right = aspect;
-  ortho.top = 1;
-  ortho.bottom = -1;
-  ortho.updateProjectionMatrix();
-};
+    // ortho frustum: top/bottom fixos e left/right por aspecto
+    const aspect = width / height;
+    const ortho = camera as unknown as THREE.OrthographicCamera;
+    ortho.left = -aspect;
+    ortho.right = aspect;
+    ortho.top = 1;
+    ortho.bottom = -1;
+    ortho.updateProjectionMatrix();
+  };
 
 
   const pointerMove = (event: PointerEvent) => {
@@ -179,62 +196,23 @@ sceneObjects.materials.forEach((m) => {
     const targetPosX = pointer.x * parallaxStrength;
     const targetPosY = pointer.y * parallaxStrength * 0.75;
 
-    sceneObjects.group.position.x +=
-      (targetPosX - sceneObjects.group.position.x) * clamp(delta * 6, 0, 1);
-    sceneObjects.group.position.y +=
-      (targetPosY - sceneObjects.group.position.y) * clamp(delta * 6, 0, 1);
-
+    shapesGroup.position.x += (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
+    shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
     const targetRotX = pointer.y * (mobile ? 0.15 : 0.28) + breathe;
     const targetRotY = -pointer.x * (mobile ? 0.22 : 0.35);
 
-    sceneObjects.group.rotation.x +=
-      (targetRotX - sceneObjects.group.rotation.x) * clamp(delta * 5, 0, 1);
-    sceneObjects.group.rotation.y +=
-      (targetRotY - sceneObjects.group.rotation.y) * clamp(delta * 5, 0, 1);
-
     const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);
-    const currentScale = sceneObjects.group.scale.x;
+    const currentScale = shapesGroup.scale.x;
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
-    sceneObjects.group.scale.setScalar(nextScale);
+    shapesGroup.scale.setScalar(nextScale);
 
     const maxX = (mobile ? 0.22 : 0.32) * (window.innerWidth / 2) * 0.01;
     const maxY = (mobile ? 0.18 : 0.26) * (window.innerHeight / 2) * 0.01;
-    sceneObjects.group.position.x = clamp(
-      sceneObjects.group.position.x,
-      -maxX,
-      maxX,
-    );
-    sceneObjects.group.position.y = clamp(
-      sceneObjects.group.position.y,
-      -maxY,
-      maxY,
-    );
+    shapesGroup.position.x = clamp(shapesGroup.position.x, -maxX, maxX);
+    shapesGroup.position.y = clamp(shapesGroup.position.y, -maxY, maxY);
 
-    (Object.keys(currentTransforms) as (keyof typeof currentTransforms)[]).forEach(
-      (key, index) => {
-        const mesh = sceneObjects.meshes[key];
-        const current = currentTransforms[key];
-        const target = state.variant[key];
-        const lerpAmount = clamp(delta * 4.5, 0, 1);
-        current.position = current.position.map((value, axis) =>
-          value + (target.position[axis] - value) * lerpAmount,
-        ) as typeof current.position;
-        current.rotation = current.rotation.map((value, axis) =>
-          value + (target.rotation[axis] - value) * lerpAmount,
-        ) as typeof current.rotation;
-        mesh.position.set(...current.position);
-        mesh.rotation.set(...current.rotation);
-
-        const material = sceneObjects.materials[index];
-        const config = MATERIAL_CONFIGS[index];
-        const time = elapsed + config.timeOffset;
-        material.uniforms.uTime.value = time;
-        material.uniforms.uAmp.value =
-          config.amp * (1 + 0.22 * Math.sin(time * 0.65 + index * 0.2));
-        material.uniforms.uFreq.value = config.freq;
-      },
-    );
+    shapes.update(elapsed);
 
     renderer.render(scene, camera);
 
@@ -268,7 +246,6 @@ sceneObjects.materials.forEach((m) => {
 
     if (partial.palette) {
       nextState = { ...nextState, palette: partial.palette };
-      applyPaletteToMaterials(sceneObjects.materials, partial.palette);
       changed = true;
     }
 
@@ -279,7 +256,6 @@ sceneObjects.materials.forEach((m) => {
         theme: partial.theme,
         palette: nextPalette,
       };
-      applyPaletteToMaterials(sceneObjects.materials, nextPalette);
       changed = true;
     }
 
@@ -332,9 +308,7 @@ sceneObjects.materials.forEach((m) => {
       const nextOpacity = clamp(partial.opacity, 0, 1);
       if (nextOpacity !== state.opacity) {
         nextState = { ...nextState, opacity: nextOpacity };
-        sceneObjects.materials.forEach((material) => {
-          material.uniforms.uOpacity.value = nextOpacity;
-        });
+        updateMeshesOpacity(nextOpacity);
         changed = true;
       }
     }
@@ -355,7 +329,7 @@ sceneObjects.materials.forEach((m) => {
     window.removeEventListener("pointermove", pointerMove);
     window.removeEventListener("pointerenter", pointerEnter);
     window.removeEventListener("pointerleave", pointerLeave);
-    sceneObjects.dispose();
+    disposeShapes();
     renderer.dispose();
     detachFromWindow(handle);
   };

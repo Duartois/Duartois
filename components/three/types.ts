@@ -3,12 +3,11 @@ import type { OrthographicCamera, Scene, WebGLRenderer } from "three";
 export type Vector3Tuple = [number, number, number];
 
 export type ShapeId =
-  | "torus270A"
-  | "torus270B"
-  | "semi180A"
-  | "semi180B"
-  | "wave"
-  | "sphere";
+  | "torus"
+  | "sphere"
+  | "icosahedron"
+  | "torusKnot"
+  | "box";
 
 export type GradientStops = [string, string, string, string];
 export type GradientPalette = readonly GradientStops[];
@@ -27,35 +26,25 @@ export type ShapeTransform = {
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
-  // 3) C-torus grande (direita)
-  torus270A: {
-    position: [ 1.05,  0.22,  0.00],
-    rotation: [ 0.00,  0.00, -0.10],
+  torus: {
+    position: [-2.0, 0.2, 0.0],
+    rotation: [0.0, 0.0, 0.0],
   },
-  // 6) Arco inferior grande (centro)
-  torus270B: {
-    position: [ 0.00, -0.92,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
-  },
-  // 5) C-torus médio (centro-esquerda)
-  semi180A: {
-    position: [ 0.23, -0.02,  0.00],
-    rotation: [ 0.00,  0.00,  0.10],
-  },
-  // 4) Crescente/feijão (esquerda)
-  semi180B: {
-    position: [-0.42,  0.08,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
-  },
-  // 1) S-worm superior esquerdo
-  wave: {
-    position: [-0.96,  0.58,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
-  },
-  // 2) Esfera pequena
   sphere: {
-    position: [ 0.18,  0.74,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
+    position: [1.2, 0.6, -0.6],
+    rotation: [0.0, 0.0, 0.0],
+  },
+  icosahedron: {
+    position: [0.0, -0.8, 1.2],
+    rotation: [0.0, 0.0, 0.0],
+  },
+  torusKnot: {
+    position: [2.0, 0.1, 0.8],
+    rotation: [0.0, 0.0, 0.0],
+  },
+  box: {
+    position: [-1.1, -0.5, -1.2],
+    rotation: [0.0, 0.0, 0.0],
   },
 });
 
@@ -128,29 +117,25 @@ declare global {
 }
 
 export const createVariantState = (variant: VariantState): VariantState => ({
-  torus270A: {
-    position: [...variant.torus270A.position] as Vector3Tuple,
-    rotation: [...variant.torus270A.rotation] as Vector3Tuple,
-  },
-  torus270B: {
-    position: [...variant.torus270B.position] as Vector3Tuple,
-    rotation: [...variant.torus270B.rotation] as Vector3Tuple,
-  },
-  semi180A: {
-    position: [...variant.semi180A.position] as Vector3Tuple,
-    rotation: [...variant.semi180A.rotation] as Vector3Tuple,
-  },
-  semi180B: {
-    position: [...variant.semi180B.position] as Vector3Tuple,
-    rotation: [...variant.semi180B.rotation] as Vector3Tuple,
-  },
-  wave: {
-    position: [...variant.wave.position] as Vector3Tuple,
-    rotation: [...variant.wave.rotation] as Vector3Tuple,
+  torus: {
+    position: [...variant.torus.position] as Vector3Tuple,
+    rotation: [...variant.torus.rotation] as Vector3Tuple,
   },
   sphere: {
     position: [...variant.sphere.position] as Vector3Tuple,
     rotation: [...variant.sphere.rotation] as Vector3Tuple,
+  },
+  icosahedron: {
+    position: [...variant.icosahedron.position] as Vector3Tuple,
+    rotation: [...variant.icosahedron.rotation] as Vector3Tuple,
+  },
+  torusKnot: {
+    position: [...variant.torusKnot.position] as Vector3Tuple,
+    rotation: [...variant.torusKnot.rotation] as Vector3Tuple,
+  },
+  box: {
+    position: [...variant.box.position] as Vector3Tuple,
+    rotation: [...variant.box.rotation] as Vector3Tuple,
   },
 });
 
