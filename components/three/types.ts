@@ -69,12 +69,12 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
-  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
-  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
-  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
-  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
-  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
+  ["#ff7fbd", "#ff9ccd", "#ffd6a3", "#fff3b3"],
+  ["#f7f7f9", "#ededf0", "#e3e3e7", "#d8d8dd"],
+  ["#5b8cff", "#8a7bff", "#b879ff", "#ff9bcc"],
+  ["#00d5c0", "#38e1b4", "#77eea6", "#c2f6a2"],
+  ["#3ad986", "#b7e867", "#ffe08a", "#ffc09f"],
+  ["#a6ffd7", "#c1ffe6", "#ffb3df", "#ff89c6"],
 ];
 
 
