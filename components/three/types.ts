@@ -27,24 +27,24 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torus: {
-    position: [-2.9, 0.35, 0.0],
-    rotation: [0.12, 0.48, 0.28],
+    position: [-2.35, -0.85, 0.1],
+    rotation: [0.22, 0.58, 0.34],
   },
   capsule: {
-    position: [0.4, 0.8, -1.5],
-    rotation: [-0.2, 0.35, 0.52],
+    position: [1.15, 1.05, -1.1],
+    rotation: [-0.28, 0.46, 0.72],
   },
   sphere: {
-    position: [-1.2, -0.85, 1.1],
+    position: [-0.2, 0.1, 1.2],
     rotation: [0.0, 0.0, 0.0],
   },
   torusKnot: {
-    position: [2.2, -0.15, 0.9],
-    rotation: [0.26, -0.18, 0.38],
+    position: [-1.05, 0.78, 0.65],
+    rotation: [0.45, -0.24, 0.36],
   },
   octahedron: {
-    position: [-1.2, -0.45, -1.3],
-    rotation: [-0.22, 0.18, -0.42],
+    position: [1.85, -0.52, -0.45],
+    rotation: [-0.38, 0.26, -0.48],
   },
 });
 
@@ -57,19 +57,19 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#ff7fbd", "#ff9ccd", "#ffd6a3", "#fff3b3"],
-  ["#f7f7f9", "#ededf0", "#e3e3e7", "#d8d8dd"],
-  ["#5b8cff", "#8a7bff", "#b879ff", "#ff9bcc"],
-  ["#00d5c0", "#38e1b4", "#77eea6", "#c2f6a2"],
-  ["#3ad986", "#b7e867", "#ffe08a", "#ffc09f"],
+  ["#ff6bc2", "#ff93da", "#ffbef1", "#ffe8ff"],
+  ["#89d9ff", "#a2e4ff", "#c2edff", "#ddf7ff"],
+  ["#78ff81", "#90ff98", "#abffb5", "#c8ffd2"],
+  ["#f1ff6b", "#f6ff8f", "#fbffb4", "#ffffd8"],
+  ["#ff6bc2", "#89d9ff", "#78ff81", "#f1ff6b"],
 ];
 
 export const DARK_THEME_PALETTE: GradientPalette = [
-  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
-  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
-  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
-  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
-  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
+  ["#5a2d4d", "#783864", "#96417c", "#b94f97"],
+  ["#1d3a5a", "#214569", "#285580", "#306896"],
+  ["#194f36", "#1f6043", "#277553", "#318865"],
+  ["#4c4f26", "#5d632d", "#6f7836", "#849044"],
+  ["#5a2d4d", "#1d3a5a", "#194f36", "#4c4f26"],
 ];
 
 export type ThemeName = "light" | "dark";

@@ -54,12 +54,12 @@ export default function NavOverlay({
   const { t } = useTranslation("common");
   const overlayPalette = useMemo<GradientPalette>(
     () => [
-      ["#f6ecff", "#e2d2ff", "#cab3ff", "#b699ff"],
-      ["#ffe4f5", "#ffc8e6", "#ffa6d3", "#ff8cc3"],
-      ["#c9f8f5", "#9beee6", "#6dded6", "#42d0c6"],
-      ["#e7ffd8", "#c9f4a8", "#a9ea7c", "#8ede60"],
-      ["#fff1de", "#ffd7b0", "#ffb782", "#ff9556"],
-      ["#e5ecff", "#cdd9ff", "#aebeff", "#8ca0ff"],
+      ["#ff6bc2", "#ff92d8", "#ffbdf0", "#ffe8ff"],
+      ["#89d9ff", "#a2e3ff", "#c0edff", "#dcf7ff"],
+      ["#78ff81", "#8eff97", "#aaffb4", "#c8ffd2"],
+      ["#f1ff6b", "#f6ff8e", "#fbffb4", "#ffffd8"],
+      ["#ff6bc2", "#89d9ff", "#78ff81", "#f1ff6b"],
+      ["#ffe9ff", "#e2f7ff", "#e2ffe8", "#ffffdf"],
     ],
     [],
   );

@@ -58,21 +58,29 @@ export const initScene = async ({
   const shapes = await addDuartoisSignatureShapes(scene, baseVariant, theme);
   const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
+  type MaterialWithOpacity = THREE.Material & {
+    opacity: number;
+    transparent: boolean;
+  };
+
+  const hasOpacity = (material: THREE.Material): material is MaterialWithOpacity =>
+    "opacity" in material && "transparent" in material;
+
   const updateMeshesOpacity = (opacity: number) => {
     shapeMeshes.forEach((mesh) => {
       const material = mesh.material;
+      const updateMaterial = (mat: THREE.Material) => {
+        if (hasOpacity(mat)) {
+          mat.opacity = opacity;
+          mat.transparent = opacity < 1 ? true : mat.transparent;
+          mat.needsUpdate = true;
+        }
+      };
+
       if (Array.isArray(material)) {
-        material.forEach((mat) => {
-          if (mat instanceof THREE.MeshMatcapMaterial) {
-            mat.opacity = opacity;
-            mat.transparent = opacity < 1 ? true : mat.transparent;
-            mat.needsUpdate = true;
-          }
-        });
-      } else if (material instanceof THREE.MeshMatcapMaterial) {
-        material.opacity = opacity;
-        material.transparent = opacity < 1 ? true : material.transparent;
-        material.needsUpdate = true;
+        material.forEach(updateMaterial);
+      } else {
+        updateMaterial(material);
       }
     });
   };

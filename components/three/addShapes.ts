@@ -1,6 +1,5 @@
 import * as THREE from "three";
 
-import { loadMatcap } from "../../app/helpers/matcap";
 import type { ShapeId, ThemeName, VariantState } from "./types";
 
 export type ShapesHandle = {
@@ -28,95 +27,141 @@ const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
   octahedron: { x: 0.0038, y: 0.0041 },
 };
 
+const DUARTOIS_GRADIENT = ["#ff6bc2", "#89d9ff", "#78ff81", "#f1ff6b"] as const;
+
+type GradientAxis = "x" | "y" | "z";
+
+const applyGradientToGeometry = (
+  geometry: THREE.BufferGeometry,
+  stops: readonly string[],
+  axis: GradientAxis,
+): THREE.BufferGeometry => {
+  const nonIndexed = geometry.index ? geometry.toNonIndexed() : geometry;
+  if (nonIndexed !== geometry) {
+    geometry.dispose();
+  }
+  const position = nonIndexed.getAttribute("position");
+
+  if (!position) {
+    return nonIndexed;
+  }
+
+  const axisIndex = axis === "x" ? 0 : axis === "y" ? 1 : 2;
+  let min = Infinity;
+  let max = -Infinity;
+
+  const readComponent = (attribute: THREE.BufferAttribute, index: number) => {
+    switch (axisIndex) {
+      case 0:
+        return attribute.getX(index);
+      case 1:
+        return attribute.getY(index);
+      default:
+        return attribute.getZ(index);
+    }
+  };
+
+  for (let i = 0; i < position.count; i += 1) {
+    const value = readComponent(position, i);
+    min = Math.min(min, value);
+    max = Math.max(max, value);
+  }
+
+  const range = max - min || 1;
+  const stopColors = stops.map((hex) => new THREE.Color(hex));
+  const colors = new Float32Array(position.count * 3);
+
+  for (let i = 0; i < position.count; i += 1) {
+    const value = readComponent(position, i);
+    const t = (value - min) / range;
+    const scaled = t * (stopColors.length - 1);
+    const index = Math.floor(scaled);
+    const nextIndex = Math.min(stopColors.length - 1, index + 1);
+    const localT = scaled - index;
+    const from = stopColors[index];
+    const to = stopColors[nextIndex];
+    const color = from.clone().lerp(to, localT);
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  }
+
+  nonIndexed.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  return nonIndexed;
+};
+
+const createGradientMaterial = (opacity: number) =>
+  new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity,
+    vertexColors: true,
+  });
+
 export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
   initialVariant: VariantState,
   initialTheme: ThemeName,
 ): Promise<ShapesHandle> {
-  const [
-    mcPrimary,
-    mcSecondary,
-    mcAccent,
-    mcHighlight,
-    mcShadow,
-    mcBlack,
-  ] = await Promise.all([
-    loadMatcap("/matcaps/aqua.png"),
-    loadMatcap("/matcaps/mint.png"),
-    loadMatcap("/matcaps/pink.png"),
-    loadMatcap("/matcaps/lilac.png"),
-    loadMatcap("/matcaps/peach.png"),
-    loadMatcap("/matcaps/black.png"),
-  ]);
-
-  const lightMatcaps: Record<ShapeId, THREE.Texture> = {
-    torus: mcPrimary,
-    capsule: mcSecondary,
-    sphere: mcAccent,
-    torusKnot: mcHighlight,
-    octahedron: mcShadow,
-  };
-
   const group = new THREE.Group();
   scene.add(group);
 
   const meshes: Record<ShapeId, THREE.Mesh> = {
     torus: new THREE.Mesh(
-      new THREE.TorusGeometry(1.35, 0.32, 64, 96),
-      new THREE.MeshMatcapMaterial({
-        matcap: lightMatcaps.torus,
-        transparent: true,
-        opacity: 0.95,
-      }),
+      applyGradientToGeometry(
+        new THREE.TorusGeometry(1.55, 0.42, 96, 128),
+        DUARTOIS_GRADIENT,
+        "x",
+      ),
+      createGradientMaterial(0.94),
     ),
     capsule: new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.65, 1.8, 32, 48),
-      new THREE.MeshMatcapMaterial({
-        matcap: lightMatcaps.capsule,
-        transparent: true,
-        opacity: 0.9,
-      }),
+      applyGradientToGeometry(
+        new THREE.CapsuleGeometry(0.78, 2.1, 48, 64),
+        DUARTOIS_GRADIENT,
+        "y",
+      ),
+      createGradientMaterial(0.9),
     ),
     sphere: new THREE.Mesh(
-      new THREE.SphereGeometry(0.85, 48, 48),
-      new THREE.MeshMatcapMaterial({
-        matcap: lightMatcaps.sphere,
-        transparent: true,
-        opacity: 0.88,
-      }),
+      applyGradientToGeometry(
+        new THREE.SphereGeometry(1.0, 64, 64),
+        DUARTOIS_GRADIENT,
+        "y",
+      ),
+      createGradientMaterial(0.92),
     ),
     torusKnot: new THREE.Mesh(
-      new THREE.TorusKnotGeometry(0.95, 0.28, 128, 16, 2, 5),
-      new THREE.MeshMatcapMaterial({
-        matcap: lightMatcaps.torusKnot,
-        transparent: true,
-        opacity: 0.9,
-      }),
+      applyGradientToGeometry(
+        new THREE.TorusKnotGeometry(1.1, 0.33, 160, 24, 2, 5),
+        DUARTOIS_GRADIENT,
+        "x",
+      ),
+      createGradientMaterial(0.92),
     ),
     octahedron: new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.75, 1),
-      new THREE.MeshMatcapMaterial({
-        matcap: lightMatcaps.octahedron,
-        transparent: true,
-        opacity: 0.92,
-      }),
+      applyGradientToGeometry(
+        new THREE.OctahedronGeometry(0.92, 2),
+        DUARTOIS_GRADIENT,
+        "y",
+      ),
+      createGradientMaterial(0.9),
     ),
   };
 
-  const getMatcapMaterial = (mesh: THREE.Mesh) => {
-    const { material } = mesh;
-    if (!(material instanceof THREE.MeshMatcapMaterial)) {
-      throw new Error("Expected MeshMatcapMaterial for Duartois signature shapes");
-    }
-    return material;
+  const materials: Record<ShapeId, THREE.MeshBasicMaterial> = {
+    torus: meshes.torus.material as THREE.MeshBasicMaterial,
+    capsule: meshes.capsule.material as THREE.MeshBasicMaterial,
+    sphere: meshes.sphere.material as THREE.MeshBasicMaterial,
+    torusKnot: meshes.torusKnot.material as THREE.MeshBasicMaterial,
+    octahedron: meshes.octahedron.material as THREE.MeshBasicMaterial,
   };
 
-  const materials: Record<ShapeId, THREE.MeshMatcapMaterial> = {
-    torus: getMatcapMaterial(meshes.torus),
-    capsule: getMatcapMaterial(meshes.capsule),
-    sphere: getMatcapMaterial(meshes.sphere),
-    torusKnot: getMatcapMaterial(meshes.torusKnot),
-    octahedron: getMatcapMaterial(meshes.octahedron),
+  const baseOpacities: Record<ShapeId, number> = {
+    torus: 0.94,
+    capsule: 0.9,
+    sphere: 0.92,
+    torusKnot: 0.92,
+    octahedron: 0.9,
   };
 
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
@@ -140,16 +185,13 @@ export async function addDuartoisSignatureShapes(
   };
 
   const applyTheme = (theme: ThemeName) => {
-    const resolveMatcap = (id: ShapeId) =>
-      theme === "dark" ? mcBlack : lightMatcaps[id];
-
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
-      const nextMatcap = resolveMatcap(id);
-      if (material.matcap !== nextMatcap) {
-        material.matcap = nextMatcap;
-        material.needsUpdate = true;
-      }
+      const base = baseOpacities[id];
+      const targetOpacity = theme === "dark" ? Math.min(1, base + 0.05) : base;
+      material.opacity = targetOpacity;
+      material.transparent = targetOpacity < 1;
+      material.needsUpdate = true;
     });
   };
 
