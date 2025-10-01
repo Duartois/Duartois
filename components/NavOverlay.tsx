@@ -201,14 +201,6 @@ export default function NavOverlay({
               <span id="main-navigation-title" className="sr-only">
                 {t("navbar.menu")}
               </span>
-              <motion.span
-                initial={{ y: -8, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-                className="text-[0.7rem] font-medium uppercase tracking-[0.42em] text-fg/60 dark:text-fg/70"
-              >
-                {t("navbar.menu")}
-              </motion.span>
               <motion.div
                 initial={{ y: -8, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
