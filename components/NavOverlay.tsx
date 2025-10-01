@@ -167,7 +167,7 @@ export default function NavOverlay({
           transition={{ duration: 0.25, ease: "easeInOut" }}
         >
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-[#F5F0FF] via-[#FDF4FF] to-[#EDF7FF]"
+            className="absolute inset-0 bg-gradient-to-br from-[#F3EBFF] via-[#FFE9F6] to-[#E6F7FF]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -177,9 +177,9 @@ export default function NavOverlay({
             className="pointer-events-none absolute inset-0"
             aria-hidden
           >
-            <div className="absolute -left-32 top-8 h-80 w-80 rounded-full bg-[radial-gradient(circle,#f1dbff_0%,rgba(241,219,255,0)_68%)] blur-3xl" />
-            <div className="absolute bottom-[-6rem] left-1/3 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,#d0fff6_0%,rgba(208,255,246,0)_70%)] blur-3xl" />
-            <div className="absolute -right-20 top-1/5 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,#dce7ff_0%,rgba(220,231,255,0)_72%)] blur-3xl" />
+            <div className="absolute -left-32 top-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,#D3B8FF_0%,rgba(211,184,255,0)_70%)] blur-3xl" />
+            <div className="absolute bottom-[-6rem] left-1/3 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,#99F0E5_0%,rgba(153,240,229,0)_72%)] blur-3xl" />
+            <div className="absolute -right-20 top-[18%] h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,#FFB3DF_0%,rgba(255,179,223,0)_74%)] blur-3xl" />
           </div>
 
           <motion.div
@@ -222,29 +222,29 @@ export default function NavOverlay({
               </motion.div>
             </motion.header>
 
-            <div className="relative flex flex-1 flex-col gap-12 px-6 pb-20 pt-10 md:flex-row md:items-stretch md:justify-between md:px-12">
+            <div className="relative flex flex-1 flex-col gap-12 px-6 pb-20 pt-10 md:flex-row md:px-12">
               <motion.div
-                className="pointer-events-none flex flex-col justify-between text-left text-sm uppercase tracking-[0.42em] text-fg/60 md:w-[42%]"
+                className="pointer-events-none flex flex-col justify-between text-left text-sm uppercase tracking-[0.42em] text-fg/70 md:w-[45%]"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25, duration: 0.4, ease: "easeOut" }}
               >
-                <div className="flex flex-col gap-6">
-                  <span className="text-[0.65rem] font-medium text-fg/50">
+                <div className="flex flex-col gap-8">
+                  <span className="text-[0.65rem] font-medium tracking-[0.48em] text-fg/60">
                     {t("navbar.menu")}
                   </span>
-                  <p className="max-w-xs text-pretty text-[0.72rem] font-light leading-relaxed tracking-[0.28em] text-fg/45">
+                  <p className="max-w-xs text-pretty text-[0.72rem] font-light leading-relaxed tracking-[0.28em] text-fg/70">
                     immersions in light, sound, and code — follow the path or jump to a collaboration.
                   </p>
                 </div>
-                <div className="hidden h-px w-24 bg-fg/20 md:block" />
+                <div className="hidden h-px w-24 bg-fg/15 md:block" />
               </motion.div>
 
-              <div className="flex w-full flex-1 flex-col items-end justify-center md:w-[58%]">
+              <div className="flex w-full flex-1 flex-col items-end justify-center md:w-[55%]">
                 <nav aria-label={t("navbar.menu")} className="w-full">
                   <motion.ul
                     ref={navListRef}
-                    className="flex w-full flex-col items-end gap-4 text-right text-[clamp(3.1rem,6.4vw,4.8rem)] font-extralight uppercase tracking-[0.14em] text-fg/90"
+                    className="flex w-full flex-col items-end gap-4 text-right text-[clamp(3.1rem,6.4vw,4.8rem)] font-light uppercase tracking-[0.14em] text-fg"
                     initial="hidden"
                     animate="visible"
                     variants={{
@@ -270,16 +270,16 @@ export default function NavOverlay({
                           onMouseEnter={handleLinkFocus(name as VariantName)}
                           onFocus={handleLinkFocus(name as VariantName)}
                           onBlur={handleLinkBlur}
-                          className="group relative inline-flex w-full items-baseline justify-end gap-4 px-2 py-1 text-right font-light text-fg/80 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
+                          className="group relative inline-flex w-full items-baseline justify-end gap-6 px-2 py-1 text-right font-light text-fg/90 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
                         >
-                          <span className="text-[clamp(0.75rem,1.4vw,0.95rem)] font-normal tracking-[0.32em] text-fg/40">
-                            {index < 9 ? `0${index + 1}` : index + 1}
+                          <span className="text-[clamp(0.75rem,1.4vw,0.95rem)] font-normal tracking-[0.32em] text-fg/45">
+                            {String(index + 1).padStart(2, "0")}
                           </span>
-                          <span className="relative inline-block overflow-hidden text-[clamp(2.5rem,4.8vw,3.9rem)] uppercase tracking-[0.2em] text-fg/85">
+                          <span className="relative inline-block overflow-hidden text-[clamp(2.5rem,4.8vw,3.9rem)] uppercase tracking-[0.2em] text-fg/90">
                             <span className="block translate-y-0 transition-transform duration-300 ease-out group-hover:-translate-y-1">
                               {name}
                             </span>
-                            <span className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                            <span className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
                           </span>
                         </Link>
                       </motion.li>
@@ -288,16 +288,16 @@ export default function NavOverlay({
                 </nav>
 
                 <motion.div
-                  className="pointer-events-auto mt-10 flex flex-col items-end gap-4 text-right"
+                  className="pointer-events-auto mt-16 flex w-full flex-col items-end gap-4 text-right"
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.45, duration: 0.35 }}
                 >
-                  <span className="flex items-center gap-3 text-[0.58rem] uppercase tracking-[0.38em] text-fg/50">
-                    <span className="hidden h-px w-10 bg-fg/30 md:block" />
+                  <span className="flex items-center gap-3 text-[0.58rem] uppercase tracking-[0.38em] text-fg/60">
+                    <span className="hidden h-px w-10 bg-fg/20 md:block" />
                     {t("navOverlay.socialHeading")}
                   </span>
-                  <ul className="flex flex-col items-end gap-2 text-[0.78rem] font-light uppercase tracking-[0.32em] text-fg/65">
+                  <ul className="flex flex-col items-end gap-3 text-[0.84rem] font-light uppercase tracking-[0.32em] text-fg/75">
                     {socialLinks.map(({ label, href }) => (
                       <li key={label}>
                         <Link
@@ -307,14 +307,14 @@ export default function NavOverlay({
                           prefetch={false}
                           className="group relative inline-flex items-center gap-3 text-fg/70 transition-colors duration-200 ease-out hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
                         >
+                          <span aria-hidden className="text-fg/45 transition-colors duration-200 ease-out group-hover:text-fg">
+                            &gt;
+                          </span>
                           <span className="relative block overflow-hidden">
                             <span className="block translate-y-0 transition-transform duration-200 ease-out group-hover:-translate-y-[2px]">
                               {label}
                             </span>
-                            <span className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-fg/70 transition-transform duration-200 ease-out group-hover:scale-x-100" />
-                          </span>
-                          <span aria-hidden className="text-fg/50 transition-colors duration-200 ease-out group-hover:text-fg">
-                            &gt;
+                            <span className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-fg/60 transition-transform duration-200 ease-out group-hover:scale-x-100" />
                           </span>
                         </Link>
                       </li>
