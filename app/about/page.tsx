@@ -24,9 +24,8 @@ export default function AboutPage() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-accent2-200/55 via-bg/75 to-bg dark:from-accent1-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-16 px-6 py-24 lg:flex-row lg:items-center lg:gap-24">
+      <main className="relative z-10 flex min-h-screen w-full flex-col">
+        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-24 lg:flex-row lg:items-center lg:gap-24 bg-bg/70 backdrop-blur">
           <section className="flex-1 space-y-6">
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
               {t("about.kicker")}

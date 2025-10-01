@@ -112,9 +112,8 @@ export default function WorkPage() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-20 bg-gradient-to-b from-accent3-200/55 via-bg/70 to-bg dark:from-accent2-800/35 dark:via-bg/85 dark:to-bg" aria-hidden />
-        <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20">
+      <main className="relative z-10 flex min-h-screen w-full flex-col">
+        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20 bg-bg/70 backdrop-blur">
           <section className="lg:w-1/2">
             <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
               {t("work.previewHint")}
