@@ -52,10 +52,10 @@ const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
-  torusSpringAzure: "x",
-  waveSpringLime: "x",
+  torusSpringAzure: "y",
+  waveSpringLime: "z",
   semiLimeFlamingo: "y",
-  torusFlamingoLime: "x",
+  torusFlamingoLime: "y",
   semiFlamingoAzure: "y",
   sphereFlamingoSpring: "y",
 };
