@@ -7,7 +7,13 @@
     "prebuild": "npm run verify:three",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "classnames": "^2.5.1",
@@ -23,14 +29,20 @@
     "three-mesh-bvh": "0.8.0"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^14.2.13",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "20.11.30",
     "@types/react": "18.2.66",
     "@types/three": "^0.180.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "autoprefixer": "^10.4.21",
+    "jsdom": "^24.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "tsx": "^4.20.6",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "vitest": "^1.6.0"
   }
 }
