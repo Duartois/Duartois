@@ -45,20 +45,47 @@ gradient fresnel rim with animated noise for the glossy “blob” aesthetic.
    while the preloader listens for the scene’s `ready` event before
    revealing the UI.
 
-4. **Editing shapes**
+4. **Quality checks and tests**
+
+   Run linting, type-checking, unit tests and coverage locally before pushing:
+
+   ```bash
+   npm run lint         # Next.js ESLint rules
+   npm run type-check   # Strict TypeScript project check
+   npm run test         # Vitest in single-run mode
+   npm run test:watch   # Vitest watch mode for local development
+   npm run coverage     # Collect coverage reports (text, lcov, html)
+   ```
+
+   The test setup uses Vitest with Testing Library (`@testing-library/react`
+   and `@testing-library/jest-dom`).  Common helpers are initialised in
+   `setupTests.ts` which runs automatically before each test file.
+
+5. **Bundle analysis**
+
+   To inspect bundle size locally, enable the analyzer during a build:
+
+   ```bash
+   npm run analyze
+   ```
+
+   This wraps `next build` with `@next/bundle-analyzer`, generating an
+   interactive treemap to help spot large dependencies.
+
+6. **Editing shapes**
 
    The factories in `components/three/factories.ts` create the
    geometries and gradient materials.  Adjust the torus radii, the
    Catmull–Rom control points or the shader uniforms to explore new
    looks.  Variant transforms are defined in `components/three/types.ts`.
 
-5. **Changing the material**
+7. **Changing the material**
 
    The gradient shader is defined inline in `components/three/factories.ts`.
    It exposes colour stops plus animated amplitude/frequency uniforms.
    You can tweak them or swap the shader for any other `THREE.Material`.
 
-6. **Extending the project**
+8. **Extending the project**
 
    The singleton canvas avoids layout thrashing: it mounts once in
    `CanvasRoot` and reacts to state changes.  Use
