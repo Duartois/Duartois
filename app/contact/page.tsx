@@ -18,6 +18,7 @@ export default function ContactPage() {
       palette: getDefaultPalette(previous.theme),
       parallax: true,
       hovered: false,
+      opacity: 0.3,
     }));
   }, []);
 

@@ -44,6 +44,7 @@ export default function WorkPage() {
       palette: getDefaultPalette(previous.theme),
       parallax: true,
       hovered: false,
+      opacity: 0.3,
     }));
   }, []);
 
@@ -53,6 +54,7 @@ export default function WorkPage() {
       variantName: preview.variantName,
       parallax: false,
       hovered: true,
+      opacity: 0.3,
     });
   }, [activePreview]);
 
@@ -63,6 +65,7 @@ export default function WorkPage() {
         palette: getDefaultPalette(previous.theme),
         parallax: true,
         hovered: false,
+        opacity: 0.3,
       }));
     };
   }, []);

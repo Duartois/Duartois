@@ -19,6 +19,7 @@ export default function AboutPage() {
       palette: getDefaultPalette(previous.theme),
       parallax: true,
       hovered: false,
+      opacity: 0.3,
     }));
   }, []);
 

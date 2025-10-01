@@ -72,6 +72,7 @@ sceneObjects.materials.forEach((m) => {
   // se ainda não existir, cria com defaults
   if (!u.uAmp) u.uAmp = { value: 0 };
   if (!u.uFreq) u.uFreq = { value: 1.0 };
+  if (!u.uOpacity) u.uOpacity = { value: 1 };
 });
 
   scene.add(sceneObjects.group);
@@ -87,8 +88,13 @@ sceneObjects.materials.forEach((m) => {
     pointer: { x: 0, y: 0 },
     pointerDriver: "device",
     manualPointer: { x: 0, y: 0 },
+    opacity: 1,
     ready: false,
   };
+
+  sceneObjects.materials.forEach((material) => {
+    material.uniforms.uOpacity.value = initialState.opacity;
+  });
 
   const eventTarget = new EventTarget();
 
@@ -320,6 +326,17 @@ sceneObjects.materials.forEach((m) => {
         pointer: { x: source.x, y: source.y },
       };
       changed = true;
+    }
+
+    if (typeof partial.opacity === "number") {
+      const nextOpacity = clamp(partial.opacity, 0, 1);
+      if (nextOpacity !== state.opacity) {
+        nextState = { ...nextState, opacity: nextOpacity };
+        sceneObjects.materials.forEach((material) => {
+          material.uniforms.uOpacity.value = nextOpacity;
+        });
+        changed = true;
+      }
     }
 
     state = nextState;

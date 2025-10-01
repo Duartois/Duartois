@@ -100,6 +100,7 @@ export type ThreeAppState = {
   pointer: PointerTarget;
   pointerDriver: PointerDriver;
   manualPointer: PointerTarget;
+  opacity: number;
   ready: boolean;
 };
 
