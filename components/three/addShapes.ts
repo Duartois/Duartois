@@ -43,9 +43,9 @@ const COLOR_FLAMINGO = "#ff5c82";
 const DARK_THEME_COLOR = "#2b2b33";
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
-  torusSpringAzure: [COLOR_SPRING, COLOR_AZURE],
-  waveSpringLime: [COLOR_SPRING, COLOR_LIME],
-  semiLimeFlamingo: [COLOR_LIME, COLOR_FLAMINGO],
+  torusSpringAzure: [COLOR_AZURE, COLOR_SPRING],
+  waveSpringLime: [COLOR_LIME, COLOR_SPRING],
+  semiLimeFlamingo: [COLOR_FLAMINGO, COLOR_LIME],
   torusFlamingoLime: [COLOR_FLAMINGO, COLOR_LIME],
   semiFlamingoAzure: [COLOR_FLAMINGO, COLOR_AZURE],
   sphereFlamingoSpring: [COLOR_FLAMINGO, COLOR_SPRING],
@@ -53,10 +53,10 @@ const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
   torusSpringAzure: "radial",
-  waveSpringLime: "z",
-  semiLimeFlamingo: "y",
+  waveSpringLime: "y",
+  semiLimeFlamingo: "radial",
   torusFlamingoLime: "radial",
-  semiFlamingoAzure: "y",
+  semiFlamingoAzure: "radial",
   sphereFlamingoSpring: "y",
 };
 
