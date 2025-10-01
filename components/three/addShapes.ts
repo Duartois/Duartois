@@ -21,6 +21,32 @@ const SHAPE_ORDER: ShapeId[] = [
   "sphereFlamingoSpring",
 ];
 
+
+const COLOR_SPRING = "#78ffd1";
+const COLOR_AZURE = "#99b9ff";
+const COLOR_LIME = "#f0ffa6";
+const COLOR_FLAMINGO = "#ffb3f2";
+const DARK_THEME_COLOR = "#2b2b33";
+
+const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
+  torusSpringAzure: [COLOR_SPRING, COLOR_AZURE],
+  waveSpringLime: [COLOR_SPRING, COLOR_LIME],
+  semiLimeFlamingo: [COLOR_LIME, COLOR_FLAMINGO],
+  torusFlamingoLime: [COLOR_FLAMINGO, COLOR_LIME],
+  semiFlamingoAzure: [COLOR_FLAMINGO, COLOR_AZURE],
+  sphereFlamingoSpring: [COLOR_FLAMINGO, COLOR_SPRING],
+};
+
+
+const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
+  torusSpringAzure: { x: 0.0035, y: 0.0042 },
+  waveSpringLime: { x: 0.0026, y: 0.0034 },
+  semiLimeFlamingo: { x: 0.0032, y: 0.0039 },
+  torusFlamingoLime: { x: 0.0037, y: 0.0044 },
+  semiFlamingoAzure: { x: 0.0031, y: 0.0038 },
+  sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
+};
+
 const COLOR_SPRING = "#78ffd1";
 const COLOR_AZURE = "#99b9ff";
 const COLOR_LIME = "#f0ffa6";
@@ -142,6 +168,12 @@ class CircularArcCurve extends THREE.Curve<THREE.Vector3> {
   }
 }
 
+const THICKNESS = 0.46;
+const TORUS_RADIUS = 1.72;
+const TORUS_RADIAL_SEGMENTS = 128;
+const TORUS_TUBULAR_SEGMENTS = 192;
+
+
 class WaveCurve extends THREE.Curve<THREE.Vector3> {
   private readonly halfLength: number;
 
@@ -159,6 +191,7 @@ class WaveCurve extends THREE.Curve<THREE.Vector3> {
     return target;
   }
 }
+
 
 const createRoundedTubeGeometry = (
   curve: THREE.Curve<THREE.Vector3>,
@@ -201,6 +234,10 @@ const createPartialTorusGeometry = (arc: number) =>
     TORUS_RADIAL_SEGMENTS,
   );
 
+const createPartialTorusGeometry = (arc: number) =>
+  new THREE.TorusGeometry(TORUS_RADIUS, THICKNESS, TORUS_RADIAL_SEGMENTS, TORUS_TUBULAR_SEGMENTS, arc);
+
+
 export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
   initialVariant: VariantState,
@@ -211,6 +248,8 @@ export async function addDuartoisSignatureShapes(
   group.scale.setScalar(0.82);
 
   const waveCurve = new WaveCurve(3.8, 0.74);
+
+  const waveCurve = new WaveCurve(5, 1.12);
 
   const meshes: Record<ShapeId, THREE.Mesh> = {
     torusSpringAzure: new THREE.Mesh(
@@ -223,7 +262,11 @@ export async function addDuartoisSignatureShapes(
     ),
     waveSpringLime: new THREE.Mesh(
       applyGradientToGeometry(
+
         createRoundedTubeGeometry(waveCurve, 280, 88),
+
+        new THREE.TubeGeometry(waveCurve, 320, THICKNESS, 72, false),
+
         GRADIENT_STOPS.waveSpringLime,
         GRADIENT_AXES.waveSpringLime,
       ),
