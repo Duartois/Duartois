@@ -52,15 +52,15 @@ const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
-  torusSpringAzure: "y",
+  torusSpringAzure: "radial",
   waveSpringLime: "z",
   semiLimeFlamingo: "y",
-  torusFlamingoLime: "y",
+  torusFlamingoLime: "radial",
   semiFlamingoAzure: "y",
   sphereFlamingoSpring: "y",
 };
 
-type GradientAxis = "x" | "y" | "z";
+type GradientAxis = "x" | "y" | "z" | "radial";
 
 const applyGradientToGeometry = (
   geometry: THREE.BufferGeometry,
@@ -77,7 +77,6 @@ const applyGradientToGeometry = (
     return nonIndexed;
   }
 
-  const axisIndex = axis === "x" ? 0 : axis === "y" ? 1 : 2;
   let min = Infinity;
   let max = -Infinity;
 
@@ -85,14 +84,19 @@ const applyGradientToGeometry = (
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
     index: number,
   ) => {
-    switch (axisIndex) {
-      case 0:
-        return attribute.getX(index);
-      case 1:
-        return attribute.getY(index);
-      default:
-        return attribute.getZ(index);
+    if (axis === "x") {
+      return attribute.getX(index);
     }
+    if (axis === "y") {
+      return attribute.getY(index);
+    }
+    if (axis === "z") {
+      return attribute.getZ(index);
+    }
+
+    const x = attribute.getX(index);
+    const z = attribute.getZ(index);
+    return Math.hypot(x, z);
   };
 
   for (let i = 0; i < position.count; i += 1) {
