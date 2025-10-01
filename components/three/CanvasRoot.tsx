@@ -49,7 +49,9 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
           className="pointer-events-none absolute inset-0 z-10 bg-repeat bg-center [background-size:220px] opacity-40 mix-blend-soft-light dark:opacity-30"
           style={{ backgroundImage: `url(${noiseUrl.src})` }}
         />
-        <CoreCanvas />
+        <div className="absolute inset-0 z-0">
+          <CoreCanvas />
+        </div>
       </div>
     </div>
   );
