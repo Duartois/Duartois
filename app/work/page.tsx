@@ -74,7 +74,7 @@ export default function WorkPage() {
     <>
       <Navbar />
       <main className="relative z-10 flex min-h-screen w-full flex-col">
-        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20 bg-bg/70 backdrop-blur">
+        <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20 bg-bg/70">
           <section className="lg:w-1/2">
             <AnimatedText
               as="p"
@@ -131,7 +131,7 @@ export default function WorkPage() {
           </section>
           <section className="relative flex w-full flex-1 items-center justify-center">
             <div
-              className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-3xl border border-fg/15 bg-bg/80 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur"
+              className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-3xl border border-fg/15 bg-bg/80 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]"
               role="img"
               aria-label={t(`work.projects.${activeProject}.previewAlt`)}
             >
