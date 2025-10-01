@@ -21,16 +21,6 @@ import {
   type VariantName,
 } from "./three/types";
 
-import ArrowLaunchIcon from "./icons/ArrowLaunchIcon";
-
-import {
-  BehanceIcon,
-  DribbbleIcon,
-  InstagramIcon,
-  LinkedInIcon,
-} from "./icons/SocialIcons";
-
-
 type NavigationLink = {
   name: string;
   href: string;
@@ -61,12 +51,12 @@ export default function NavOverlay({
   const { t } = useTranslation("common");
   const overlayPalette = useMemo<GradientPalette>(
     () => [
-      ["#f5eaff", "#e4d5ff", "#d4bfff", "#d1b8ff"],
-      ["#ffe1f1", "#ffc9e4", "#ffadd4", "#f57bb8"],
-      ["#c7fbf3", "#9df3e5", "#6fe4d6", "#4dd8cf"],
-      ["#e9ffd6", "#c8f6a0", "#aeee78", "#9be26a"],
-      ["#fff2de", "#ffd9b3", "#ffbb87", "#ff9a58"],
-      ["#e3eaff", "#c7d8ff", "#a6c0ff", "#7da1ff"],
+      ["#f6ecff", "#e2d2ff", "#cab3ff", "#b699ff"],
+      ["#ffe4f5", "#ffc8e6", "#ffa6d3", "#ff8cc3"],
+      ["#c9f8f5", "#9beee6", "#6dded6", "#42d0c6"],
+      ["#e7ffd8", "#c9f4a8", "#a9ea7c", "#8ede60"],
+      ["#fff1de", "#ffd7b0", "#ffb782", "#ff9556"],
+      ["#e5ecff", "#cdd9ff", "#aebeff", "#8ca0ff"],
     ],
     [],
   );
@@ -177,7 +167,7 @@ export default function NavOverlay({
           transition={{ duration: 0.25, ease: "easeInOut" }}
         >
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-[#F9F5FF] via-[#FDF8F4] to-[#F0FBFF]"
+            className="absolute inset-0 bg-gradient-to-br from-[#F5F0FF] via-[#FDF4FF] to-[#EDF7FF]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -187,9 +177,9 @@ export default function NavOverlay({
             className="pointer-events-none absolute inset-0"
             aria-hidden
           >
-            <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-[radial-gradient(circle,#F7E7FF_0%,rgba(255,246,233,0)_70%)] blur-3xl" />
-            <div className="absolute bottom-0 left-1/2 h-[22rem] w-[22rem] -translate-x-1/2 translate-y-1/3 rounded-full bg-[radial-gradient(circle,#E8FFF6_0%,rgba(232,255,246,0)_70%)] blur-3xl" />
-            <div className="absolute -right-16 top-1/4 h-80 w-80 rounded-full bg-[radial-gradient(circle,#E2F1FF_0%,rgba(226,241,255,0)_70%)] blur-3xl" />
+            <div className="absolute -left-32 top-8 h-80 w-80 rounded-full bg-[radial-gradient(circle,#f1dbff_0%,rgba(241,219,255,0)_68%)] blur-3xl" />
+            <div className="absolute bottom-[-6rem] left-1/3 h-[24rem] w-[24rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,#d0fff6_0%,rgba(208,255,246,0)_70%)] blur-3xl" />
+            <div className="absolute -right-20 top-1/5 h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,#dce7ff_0%,rgba(220,231,255,0)_72%)] blur-3xl" />
           </div>
 
           <motion.div
@@ -232,88 +222,106 @@ export default function NavOverlay({
               </motion.div>
             </motion.header>
 
-            <div className="relative flex flex-1 items-center justify-center px-6 pb-24 pt-12 md:px-12">
-              <nav aria-label={t("navbar.menu")} className="w-full max-w-4xl">
-                <motion.ul
-                  ref={navListRef}
-                  className="flex flex-col items-start gap-4 text-left text-[clamp(3.25rem,7vw,5rem)] font-extralight uppercase tracking-[0.14em] text-fg/90"
+            <div className="relative flex flex-1 flex-col gap-12 px-6 pb-20 pt-10 md:flex-row md:items-stretch md:justify-between md:px-12">
+              <motion.div
+                className="pointer-events-none flex flex-col justify-between text-left text-sm uppercase tracking-[0.42em] text-fg/60 md:w-[42%]"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25, duration: 0.4, ease: "easeOut" }}
+              >
+                <div className="flex flex-col gap-6">
+                  <span className="text-[0.65rem] font-medium text-fg/50">
+                    {t("navbar.menu")}
+                  </span>
+                  <p className="max-w-xs text-pretty text-[0.72rem] font-light leading-relaxed tracking-[0.28em] text-fg/45">
+                    immersions in light, sound, and code — follow the path or jump to a collaboration.
+                  </p>
+                </div>
+                <div className="hidden h-px w-24 bg-fg/20 md:block" />
+              </motion.div>
 
-                  initial="hidden"
-                  animate="visible"
-                  variants={{
-                    hidden: {},
-                    visible: {
-                      transition: { staggerChildren: 0.08, delayChildren: 0.18 },
-                    },
-                  }}
-                  onMouseLeave={restoreInitialVariant}
-                >
-                  {navigationLinks.map(({ name, href }, index) => (
-                    <motion.li
-                      key={href}
-                      variants={{
-                        hidden: { opacity: 0, y: 20 },
-                        visible: { opacity: 1, y: 0 },
-                      }}
-                    >
-                      <Link
-                        ref={index === 0 ? firstLinkRef : undefined}
-                        href={href}
-                        onClick={onClose}
-                        onMouseEnter={handleLinkFocus(name as VariantName)}
-                        onFocus={handleLinkFocus(name as VariantName)}
-                        onBlur={handleLinkBlur}
-                        className="group relative inline-flex items-center px-2 py-1 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
+              <div className="flex w-full flex-1 flex-col items-end justify-center md:w-[58%]">
+                <nav aria-label={t("navbar.menu")} className="w-full">
+                  <motion.ul
+                    ref={navListRef}
+                    className="flex w-full flex-col items-end gap-4 text-right text-[clamp(3.1rem,6.4vw,4.8rem)] font-extralight uppercase tracking-[0.14em] text-fg/90"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: {
+                        transition: { staggerChildren: 0.08, delayChildren: 0.18 },
+                      },
+                    }}
+                    onMouseLeave={restoreInitialVariant}
+                  >
+                    {navigationLinks.map(({ name, href }, index) => (
+                      <motion.li
+                        key={href}
+                        variants={{
+                          hidden: { opacity: 0, y: 20 },
+                          visible: { opacity: 1, y: 0 },
+                        }}
                       >
-                        <span className="relative inline-flex items-center gap-6 text-[clamp(2.75rem,5vw,4rem)] uppercase tracking-[0.2em] text-fg/90">
-                          <span className="relative inline-block overflow-hidden">
+                        <Link
+                          ref={index === 0 ? firstLinkRef : undefined}
+                          href={href}
+                          onClick={onClose}
+                          onMouseEnter={handleLinkFocus(name as VariantName)}
+                          onFocus={handleLinkFocus(name as VariantName)}
+                          onBlur={handleLinkBlur}
+                          className="group relative inline-flex w-full items-baseline justify-end gap-4 px-2 py-1 text-right font-light text-fg/80 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-fg"
+                        >
+                          <span className="text-[clamp(0.75rem,1.4vw,0.95rem)] font-normal tracking-[0.32em] text-fg/40">
+                            {index < 9 ? `0${index + 1}` : index + 1}
+                          </span>
+                          <span className="relative inline-block overflow-hidden text-[clamp(2.5rem,4.8vw,3.9rem)] uppercase tracking-[0.2em] text-fg/85">
                             <span className="block translate-y-0 transition-transform duration-300 ease-out group-hover:-translate-y-1">
                               {name}
                             </span>
-                            <span className="absolute inset-x-0 bottom-0 h-px origin-center scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                            <span className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-fg/70 transition-transform duration-300 ease-out group-hover:scale-x-100" />
                           </span>
-                        </span>
-                      </Link>
-                    </motion.li>
-                  ))}
-                </motion.ul>
-              </nav>
+                        </Link>
+                      </motion.li>
+                    ))}
+                  </motion.ul>
+                </nav>
 
-              <motion.div
-                className="pointer-events-auto absolute bottom-12 right-10 hidden flex-col items-end gap-4 text-[0.62rem] uppercase tracking-[0.38em] text-fg/60 md:flex"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45, duration: 0.35 }}
-              >
-                <span className="flex items-center gap-3 text-fg/45">
-                  <span className="hidden h-px w-10 bg-fg/30 md:block" />
-                  {t("navOverlay.socialHeading")}
-                </span>
-                <div className="flex flex-col gap-2 text-fg/80">
-                  {socialLinks.map(({ label, href }) => {
-                    const IconComponent = socialIcons[label as keyof typeof socialIcons] ?? LinkedInIcon;
-
-                    return (
-                      <Link
-                        key={label}
-                        href={href}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        prefetch={false}
-                        className="group flex items-center gap-4 rounded-full border border-fg/12 bg-white/70 px-4 py-1.5 text-[0.6rem] tracking-[0.32em] text-inherit shadow-soft backdrop-blur transition hover:-translate-y-0.5 hover:border-fg/35 hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                      >
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-fg/10 text-fg/80 transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
-                          <IconComponent className="h-3.5 w-3.5" />
-                        </span>
-                        <span className="text-[0.58rem] tracking-[0.28em] text-current">{label}</span>
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-fg/10 text-fg/70 transition duration-300 ease-out group-hover:bg-fg group-hover:text-bg">
-                          <ArrowLaunchIcon className="h-3.5 w-3.5" aria-hidden />
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </motion.div>
+                <motion.div
+                  className="pointer-events-auto mt-10 flex flex-col items-end gap-4 text-right"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45, duration: 0.35 }}
+                >
+                  <span className="flex items-center gap-3 text-[0.58rem] uppercase tracking-[0.38em] text-fg/50">
+                    <span className="hidden h-px w-10 bg-fg/30 md:block" />
+                    {t("navOverlay.socialHeading")}
+                  </span>
+                  <ul className="flex flex-col items-end gap-2 text-[0.78rem] font-light uppercase tracking-[0.32em] text-fg/65">
+                    {socialLinks.map(({ label, href }) => (
+                      <li key={label}>
+                        <Link
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          prefetch={false}
+                          className="group relative inline-flex items-center gap-3 text-fg/70 transition-colors duration-200 ease-out hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+                        >
+                          <span className="relative block overflow-hidden">
+                            <span className="block translate-y-0 transition-transform duration-200 ease-out group-hover:-translate-y-[2px]">
+                              {label}
+                            </span>
+                            <span className="absolute inset-x-0 bottom-0 h-px origin-right scale-x-0 bg-fg/70 transition-transform duration-200 ease-out group-hover:scale-x-100" />
+                          </span>
+                          <span aria-hidden className="text-fg/50 transition-colors duration-200 ease-out group-hover:text-fg">
+                            &gt;
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              </div>
             </div>
           </motion.div>
         </motion.div>
@@ -322,11 +330,4 @@ export default function NavOverlay({
   );
 }
 
-
-const socialIcons = {
-  LinkedIn: LinkedInIcon,
-  Behance: BehanceIcon,
-  Dribbble: DribbbleIcon,
-  Instagram: InstagramIcon,
-} as const;
 
