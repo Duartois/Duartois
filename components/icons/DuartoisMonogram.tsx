@@ -25,9 +25,9 @@ export default function DuartoisMonogramIcon({
             y2="58"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0" stopColor="#0D1B2A" />
-            <stop offset="0.5" stopColor="#1B2A41" />
-            <stop offset="1" stopColor="#3F5B85" />
+            <stop offset="0" stopColor="#ff6bc2" />
+            <stop offset="0.45" stopColor="#89d9ff" />
+            <stop offset="1" stopColor="#f1ff6b" />
           </linearGradient>
           <linearGradient
             id="duartoisAccent"
@@ -37,19 +37,20 @@ export default function DuartoisMonogramIcon({
             y2="48"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0" stopColor="#5DF2FF" />
-            <stop offset="1" stopColor="#4C7DFF" />
+            <stop offset="0" stopColor="#ff6bc2" />
+            <stop offset="0.5" stopColor="#89d9ff" />
+            <stop offset="1" stopColor="#78ff81" />
           </linearGradient>
         </defs>
-        <rect x="2" y="2" width="60" height="60" rx="18" fill="#0B1120" stroke="url(#duartoisOuterGlow)" strokeWidth="2" />
+        <rect x="2" y="2" width="60" height="60" rx="18" fill="#10131f" stroke="url(#duartoisOuterGlow)" strokeWidth="2" />
         <rect
           x="8.5"
           y="8.5"
           width="47"
           height="47"
           rx="14"
-          stroke="#5DF2FF"
-          strokeOpacity="0.22"
+          stroke="#ff6bc2"
+          strokeOpacity="0.24"
         />
         <path
           d="M20 18h12.5c7.18 0 13 5.82 13 13s-5.82 13-13 13H26"
@@ -58,9 +59,9 @@ export default function DuartoisMonogramIcon({
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <path d="M20 18v28" stroke="#A8B7FF" strokeWidth="6" strokeLinecap="round" />
-        <circle cx="44" cy="22" r="3" fill="#5DF2FF" />
-        <circle cx="22" cy="44" r="3" fill="#4C7DFF" />
+        <path d="M20 18v28" stroke="#89d9ff" strokeWidth="6" strokeLinecap="round" />
+        <circle cx="44" cy="22" r="3" fill="#f1ff6b" />
+        <circle cx="22" cy="44" r="3" fill="#78ff81" />
       </svg>
     </span>
   );
