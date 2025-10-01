@@ -13,32 +13,26 @@ interface CanvasRootProps {
 
 export default function CanvasRoot({ isReady }: CanvasRootProps) {
   const [hasMounted, setHasMounted] = useState(false);
-  const [shouldRender, setShouldRender] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+    setIsVisible(false);
   }, []);
 
   useEffect(() => {
-    if (isReady) {
-      setShouldRender(true);
-    }
-  }, [isReady]);
-
-  useEffect(() => {
-    if (!shouldRender) {
+    if (!hasMounted) {
       return;
     }
 
     const frame = requestAnimationFrame(() => {
-      setIsVisible(true);
+      setIsVisible(isReady);
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [shouldRender]);
+  }, [hasMounted, isReady]);
 
-  if (!hasMounted || !shouldRender) {
+  if (!hasMounted) {
     return null;
   }
 

@@ -36,7 +36,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <>
       {!isReady && <Preloader onComplete={handleComplete} />}
-      {isReady ? <CanvasRoot isReady={isReady} /> : null}
+      <CanvasRoot isReady={isReady} />
       {canRenderContent ? (
         <div
           className={`transition-opacity duration-700 ${
