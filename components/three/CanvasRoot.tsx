@@ -39,7 +39,7 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
   return (
     <div
       className={classNames(
-        "pointer-events-none fixed inset-0 -z-5 overflow-visible transition-opacity duration-700",
+        "pointer-events-none fixed inset-0 -z-50 overflow-visible transition-opacity duration-700",
         isVisible ? "opacity-100" : "opacity-0",
       )}
       aria-hidden={!isVisible}

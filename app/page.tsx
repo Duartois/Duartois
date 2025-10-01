@@ -23,11 +23,8 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.48),_transparent_55%),_linear-gradient(140deg,_rgba(218,184,255,0.55),_rgba(140,255,216,0.4))] dark:bg-[radial-gradient(circle_at_top,_rgba(46,20,64,0.65),_transparent_55%),_linear-gradient(140deg,_rgba(77,32,104,0.7),_rgba(23,94,87,0.55))]" aria-hidden
-        />
-        <section className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center sm:px-10 md:py-32">
+      <main className="relative z-10 flex min-h-screen w-full flex-col">
+        <section className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center sm:px-10 md:py-32 bg-bg/70 backdrop-blur">
           <div className="flex w-full max-w-3xl flex-col items-center gap-8 sm:gap-10">
             <span className="hero-animate text-sm font-light lowercase tracking-[0.28em] text-muted/80 sm:text-base" data-hero-index="0">
               {t("home.hero.kicker")}

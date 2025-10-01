@@ -34,15 +34,15 @@ export default function AppShell({ children }: AppShellProps) {
   }, [isReady]);
 
   return (
-    <>
+    <div className="relative min-h-screen w-full overflow-hidden">
       {!isReady && <Preloader onComplete={handleComplete} />}
       <CanvasRoot isReady={isReady} />
       {canRenderContent ? (
         <div
-          className={`transition-opacity duration-700 ${
+          className={`relative z-10 flex min-h-screen w-full flex-col transition-opacity duration-700 ${
             isContentVisible
               ? "visible opacity-100"
-              : "pointer-events-none opacity-0 invisible"
+              : "pointer-events-none invisible opacity-0"
           }`}
           aria-hidden={!isContentVisible}
           aria-busy={!isContentVisible}
@@ -50,6 +50,6 @@ export default function AppShell({ children }: AppShellProps) {
           {children}
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
