@@ -153,16 +153,13 @@ export default function WorkPage() {
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 >
-                  <div
-                    className="absolute inset-0 bg-gradient-to-br from-fg/25 via-fg/10 to-transparent"
-                    aria-hidden
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-bg/20 to-bg/40" aria-hidden />
+                  <div className="absolute inset-0 bg-fg/10" aria-hidden />
+                  <div className="absolute inset-0 bg-bg/40" aria-hidden />
                   <AnimatePresence initial={false}>
                     {activePreview.showDescription ? (
                       <motion.div
                         key={`${activeProject}-description`}
-                        className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg/85 via-bg/65 to-transparent p-8"
+                        className="pointer-events-none absolute inset-x-0 bottom-0 bg-bg/80 p-8"
                         initial={{
                           opacity: shouldReduceMotion ? 1 : 0,
                           y: shouldReduceMotion ? 0 : 12,

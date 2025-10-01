@@ -3,11 +3,12 @@ import type { OrthographicCamera, Scene, WebGLRenderer } from "three";
 export type Vector3Tuple = [number, number, number];
 
 export type ShapeId =
-  | "torus"
-  | "capsule"
-  | "sphere"
-  | "torusKnot"
-  | "octahedron";
+  | "torusSpringAzure"
+  | "waveSpringLime"
+  | "semiLimeFlamingo"
+  | "torusFlamingoLime"
+  | "semiFlamingoAzure"
+  | "sphereFlamingoSpring";
 
 export type GradientStops = [string, string, string, string];
 export type GradientPalette = readonly GradientStops[];
@@ -26,25 +27,29 @@ export type ShapeTransform = {
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
-  torus: {
-    position: [-2.35, -0.85, 0.1],
-    rotation: [0.22, 0.58, 0.34],
+  torusSpringAzure: {
+    position: [-1.85, 0.58, 0.2],
+    rotation: [0.36, 0.92, -0.2],
   },
-  capsule: {
-    position: [1.15, 1.05, -1.1],
-    rotation: [-0.28, 0.46, 0.72],
+  waveSpringLime: {
+    position: [0.12, 1.35, -0.35],
+    rotation: [-0.14, 0.32, 0.12],
   },
-  sphere: {
-    position: [-0.2, 0.1, 1.2],
-    rotation: [0.0, 0.0, 0.0],
+  semiLimeFlamingo: {
+    position: [1.68, 0.15, 0.55],
+    rotation: [0.14, -0.82, -0.05],
   },
-  torusKnot: {
-    position: [-1.05, 0.78, 0.65],
-    rotation: [0.45, -0.24, 0.36],
+  torusFlamingoLime: {
+    position: [-0.64, -0.62, -0.58],
+    rotation: [-0.28, 0.44, 0.92],
   },
-  octahedron: {
-    position: [1.85, -0.52, -0.45],
-    rotation: [-0.38, 0.26, -0.48],
+  semiFlamingoAzure: {
+    position: [1.42, -1.02, -0.8],
+    rotation: [0.18, -0.54, 0.66],
+  },
+  sphereFlamingoSpring: {
+    position: [0.28, -1.68, 0.72],
+    rotation: [0, 0, 0],
   },
 });
 
@@ -57,19 +62,19 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#ff6bc2", "#ff93da", "#ffbef1", "#ffe8ff"],
-  ["#89d9ff", "#a2e4ff", "#c2edff", "#ddf7ff"],
-  ["#78ff81", "#90ff98", "#abffb5", "#c8ffd2"],
-  ["#f1ff6b", "#f6ff8f", "#fbffb4", "#ffffd8"],
-  ["#ff6bc2", "#89d9ff", "#78ff81", "#f1ff6b"],
+  ["#78ffd1", "#89ffd8", "#93ffe0", "#99ffea"],
+  ["#99b9ff", "#a4c3ff", "#b4d2ff", "#c4e0ff"],
+  ["#f0ffa6", "#f3ffb5", "#f6ffc6", "#f9ffd7"],
+  ["#ffb3f2", "#ffc0f4", "#ffd2f8", "#ffe3fb"],
+  ["#78ffd1", "#99b9ff", "#f0ffa6", "#ffb3f2"],
 ];
 
 export const DARK_THEME_PALETTE: GradientPalette = [
-  ["#5a2d4d", "#783864", "#96417c", "#b94f97"],
-  ["#1d3a5a", "#214569", "#285580", "#306896"],
-  ["#194f36", "#1f6043", "#277553", "#318865"],
-  ["#4c4f26", "#5d632d", "#6f7836", "#849044"],
-  ["#5a2d4d", "#1d3a5a", "#194f36", "#4c4f26"],
+  ["#1b4036", "#235342", "#2d6851", "#377b5f"],
+  ["#1d2947", "#233155", "#2a3a66", "#314378"],
+  ["#3c3f21", "#474a27", "#545730", "#626638"],
+  ["#3f2a39", "#4c3143", "#5b3a4f", "#6c455d"],
+  ["#2b2b33", "#2b2b33", "#2b2b33", "#2b2b33"],
 ];
 
 export type ThemeName = "light" | "dark";
@@ -113,25 +118,29 @@ declare global {
 }
 
 export const createVariantState = (variant: VariantState): VariantState => ({
-  torus: {
-    position: [...variant.torus.position] as Vector3Tuple,
-    rotation: [...variant.torus.rotation] as Vector3Tuple,
+  torusSpringAzure: {
+    position: [...variant.torusSpringAzure.position] as Vector3Tuple,
+    rotation: [...variant.torusSpringAzure.rotation] as Vector3Tuple,
   },
-  capsule: {
-    position: [...variant.capsule.position] as Vector3Tuple,
-    rotation: [...variant.capsule.rotation] as Vector3Tuple,
+  waveSpringLime: {
+    position: [...variant.waveSpringLime.position] as Vector3Tuple,
+    rotation: [...variant.waveSpringLime.rotation] as Vector3Tuple,
   },
-  sphere: {
-    position: [...variant.sphere.position] as Vector3Tuple,
-    rotation: [...variant.sphere.rotation] as Vector3Tuple,
+  semiLimeFlamingo: {
+    position: [...variant.semiLimeFlamingo.position] as Vector3Tuple,
+    rotation: [...variant.semiLimeFlamingo.rotation] as Vector3Tuple,
   },
-  torusKnot: {
-    position: [...variant.torusKnot.position] as Vector3Tuple,
-    rotation: [...variant.torusKnot.rotation] as Vector3Tuple,
+  torusFlamingoLime: {
+    position: [...variant.torusFlamingoLime.position] as Vector3Tuple,
+    rotation: [...variant.torusFlamingoLime.rotation] as Vector3Tuple,
   },
-  octahedron: {
-    position: [...variant.octahedron.position] as Vector3Tuple,
-    rotation: [...variant.octahedron.rotation] as Vector3Tuple,
+  semiFlamingoAzure: {
+    position: [...variant.semiFlamingoAzure.position] as Vector3Tuple,
+    rotation: [...variant.semiFlamingoAzure.rotation] as Vector3Tuple,
+  },
+  sphereFlamingoSpring: {
+    position: [...variant.sphereFlamingoSpring.position] as Vector3Tuple,
+    rotation: [...variant.sphereFlamingoSpring.rotation] as Vector3Tuple,
   },
 });
 
