@@ -3,8 +3,6 @@
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 
-import noiseUrl from "@/public/noise.png";
-
 import CoreCanvas from "./CoreCanvas";
 
 interface CanvasRootProps {
@@ -45,10 +43,6 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
       aria-hidden={!isVisible}
     >
       <div className="relative h-full w-full">
-        <div
-          className="pointer-events-none absolute inset-0 z-10 bg-repeat bg-center [background-size:220px] opacity-40 mix-blend-soft-light dark:opacity-30"
-          style={{ backgroundImage: `url(${noiseUrl.src})` }}
-        />
         <div className="absolute inset-0 z-0">
           <CoreCanvas />
         </div>
