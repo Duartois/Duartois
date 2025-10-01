@@ -62,7 +62,7 @@ export default function NavHeaderContent({
           {...restButtonProps}
           className={clsx(variantStyles.button, buttonClassName)}
         >
-          <span>{isOpen ? labels.close : labels.open}</span>
+          <span className="sr-only">{isOpen ? labels.close : labels.open}</span>
           <span className={variantStyles.buttonIconWrapper}>
             <MenuToggleIcon
               aria-hidden="true"
