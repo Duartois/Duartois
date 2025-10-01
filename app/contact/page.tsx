@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
+import AnimatedText from "../../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
@@ -33,12 +34,22 @@ export default function ContactPage() {
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left bg-bg/70 backdrop-blur">
           <div className="space-y-4">
-            <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
+            <AnimatedText
+              as="h1"
+              underline={false}
+              trigger="none"
+              className="block text-4xl font-semibold text-fg sm:text-5xl"
+            >
               {t("contact.title")}
-            </h1>
-            <p className="text-base text-fg/80 sm:text-lg">
+            </AnimatedText>
+            <AnimatedText
+              as="p"
+              underline={false}
+              trigger="none"
+              className="block text-base text-fg/80 sm:text-lg"
+            >
               {t("contact.subtitle")}
-            </p>
+            </AnimatedText>
           </div>
           <form
             onSubmit={handleSubmit}
