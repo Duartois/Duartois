@@ -29,32 +29,32 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 const createFramedVariant = (): VariantState => ({
   // 3) C-torus grande (direita)
   torus270A: {
-    position: [ 1.05,  0.22,  0.00],
-    rotation: [ 0.00,  0.00, -0.10],
+    position: [ 1.18,  0.32,  0.00],
+    rotation: [ 0.00,  0.00, -0.18],
   },
   // 6) Arco inferior grande (centro)
   torus270B: {
-    position: [ 0.00, -0.92,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
+    position: [ 0.04, -1.08,  0.00],
+    rotation: [ 0.00,  0.00,  0.06],
   },
   // 5) C-torus médio (centro-esquerda)
   semi180A: {
-    position: [ 0.23, -0.02,  0.00],
-    rotation: [ 0.00,  0.00,  0.10],
+    position: [ 0.10, -0.16,  0.00],
+    rotation: [ 0.00,  0.00,  0.18],
   },
   // 4) Crescente/feijão (esquerda)
   semi180B: {
-    position: [-0.42,  0.08,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
+    position: [-0.54,  0.02,  0.00],
+    rotation: [ 0.00,  0.00, -0.06],
   },
   // 1) S-worm superior esquerdo
   wave: {
-    position: [-0.96,  0.58,  0.00],
-    rotation: [ 0.00,  0.00,  0.00],
+    position: [-1.18,  1.10,  0.00],
+    rotation: [ 0.00,  0.00, -0.06],
   },
   // 2) Esfera pequena
   sphere: {
-    position: [ 0.18,  0.74,  0.00],
+    position: [ 0.04,  0.98,  0.00],
     rotation: [ 0.00,  0.00,  0.00],
   },
 });
