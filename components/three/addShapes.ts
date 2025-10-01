@@ -12,22 +12,46 @@ export type ShapesHandle = {
 };
 
 const SHAPE_ORDER: ShapeId[] = [
-  "torus",
-  "capsule",
-  "sphere",
-  "torusKnot",
-  "octahedron",
+  "torusSpringAzure",
+  "waveSpringLime",
+  "semiLimeFlamingo",
+  "torusFlamingoLime",
+  "semiFlamingoAzure",
+  "sphereFlamingoSpring",
 ];
 
 const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
-  torus: { x: 0.0035, y: 0.0042 },
-  capsule: { x: 0.00395, y: 0.0046 },
-  sphere: { x: 0.0032, y: 0.0036 },
-  torusKnot: { x: 0.0044, y: 0.0049 },
-  octahedron: { x: 0.0038, y: 0.0041 },
+  torusSpringAzure: { x: 0.0035, y: 0.0042 },
+  waveSpringLime: { x: 0.0026, y: 0.0034 },
+  semiLimeFlamingo: { x: 0.0032, y: 0.0039 },
+  torusFlamingoLime: { x: 0.0037, y: 0.0044 },
+  semiFlamingoAzure: { x: 0.0031, y: 0.0038 },
+  sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
 };
 
-const DUARTOIS_GRADIENT = ["#ff6bc2", "#89d9ff", "#78ff81", "#f1ff6b"] as const;
+const COLOR_SPRING = "#78ffd1";
+const COLOR_AZURE = "#99b9ff";
+const COLOR_LIME = "#f0ffa6";
+const COLOR_FLAMINGO = "#ffb3f2";
+const DARK_THEME_COLOR = "#2b2b33";
+
+const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
+  torusSpringAzure: [COLOR_SPRING, COLOR_AZURE],
+  waveSpringLime: [COLOR_SPRING, COLOR_LIME],
+  semiLimeFlamingo: [COLOR_LIME, COLOR_FLAMINGO],
+  torusFlamingoLime: [COLOR_FLAMINGO, COLOR_LIME],
+  semiFlamingoAzure: [COLOR_FLAMINGO, COLOR_AZURE],
+  sphereFlamingoSpring: [COLOR_FLAMINGO, COLOR_SPRING],
+};
+
+const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
+  torusSpringAzure: "x",
+  waveSpringLime: "x",
+  semiLimeFlamingo: "y",
+  torusFlamingoLime: "x",
+  semiFlamingoAzure: "y",
+  sphereFlamingoSpring: "y",
+};
 
 type GradientAxis = "x" | "y" | "z";
 
@@ -50,7 +74,10 @@ const applyGradientToGeometry = (
   let min = Infinity;
   let max = -Infinity;
 
-  const readComponent = (attribute: THREE.BufferAttribute, index: number) => {
+  const readComponent = (
+    attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+    index: number,
+  ) => {
     switch (axisIndex) {
       case 0:
         return attribute.getX(index);
@@ -90,12 +117,40 @@ const applyGradientToGeometry = (
   return nonIndexed;
 };
 
-const createGradientMaterial = (opacity: number) =>
-  new THREE.MeshBasicMaterial({
-    transparent: true,
-    opacity,
+const createGlossyMaterial = () =>
+  new THREE.MeshPhysicalMaterial({
     vertexColors: true,
+    roughness: 0.24,
+    metalness: 0.14,
+    clearcoat: 0.65,
+    clearcoatRoughness: 0.18,
   });
+
+const THICKNESS = 0.46;
+const TORUS_RADIUS = 1.72;
+const TORUS_RADIAL_SEGMENTS = 128;
+const TORUS_TUBULAR_SEGMENTS = 192;
+
+class WaveCurve extends THREE.Curve<THREE.Vector3> {
+  private readonly halfLength: number;
+
+  public constructor(private readonly length: number, private readonly amplitude: number) {
+    super();
+    this.halfLength = length / 2;
+  }
+
+  override getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
+    const x = THREE.MathUtils.lerp(-this.halfLength, this.halfLength, t);
+    const waveT = (t - 0.5) * Math.PI * 2;
+    const y = Math.sin(waveT) * this.amplitude;
+    const z = Math.cos(waveT) * this.amplitude * 0.4;
+    target.set(x, y, z);
+    return target;
+  }
+}
+
+const createPartialTorusGeometry = (arc: number) =>
+  new THREE.TorusGeometry(TORUS_RADIUS, THICKNESS, TORUS_RADIAL_SEGMENTS, TORUS_TUBULAR_SEGMENTS, arc);
 
 export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
@@ -105,71 +160,96 @@ export async function addDuartoisSignatureShapes(
   const group = new THREE.Group();
   scene.add(group);
 
+  const waveCurve = new WaveCurve(5, 1.12);
+
   const meshes: Record<ShapeId, THREE.Mesh> = {
-    torus: new THREE.Mesh(
+    torusSpringAzure: new THREE.Mesh(
       applyGradientToGeometry(
-        new THREE.TorusGeometry(1.55, 0.42, 96, 128),
-        DUARTOIS_GRADIENT,
-        "x",
+        createPartialTorusGeometry((3 * Math.PI) / 2),
+        GRADIENT_STOPS.torusSpringAzure,
+        GRADIENT_AXES.torusSpringAzure,
       ),
-      createGradientMaterial(0.94),
+      createGlossyMaterial(),
     ),
-    capsule: new THREE.Mesh(
+    waveSpringLime: new THREE.Mesh(
       applyGradientToGeometry(
-        new THREE.CapsuleGeometry(0.78, 2.1, 48, 64),
-        DUARTOIS_GRADIENT,
-        "y",
+        new THREE.TubeGeometry(waveCurve, 320, THICKNESS, 72, false),
+        GRADIENT_STOPS.waveSpringLime,
+        GRADIENT_AXES.waveSpringLime,
       ),
-      createGradientMaterial(0.9),
+      createGlossyMaterial(),
     ),
-    sphere: new THREE.Mesh(
+    semiLimeFlamingo: new THREE.Mesh(
       applyGradientToGeometry(
-        new THREE.SphereGeometry(1.0, 64, 64),
-        DUARTOIS_GRADIENT,
-        "y",
+        createPartialTorusGeometry(Math.PI),
+        GRADIENT_STOPS.semiLimeFlamingo,
+        GRADIENT_AXES.semiLimeFlamingo,
       ),
-      createGradientMaterial(0.92),
+      createGlossyMaterial(),
     ),
-    torusKnot: new THREE.Mesh(
+    torusFlamingoLime: new THREE.Mesh(
       applyGradientToGeometry(
-        new THREE.TorusKnotGeometry(1.1, 0.33, 160, 24, 2, 5),
-        DUARTOIS_GRADIENT,
-        "x",
+        createPartialTorusGeometry((3 * Math.PI) / 2),
+        GRADIENT_STOPS.torusFlamingoLime,
+        GRADIENT_AXES.torusFlamingoLime,
       ),
-      createGradientMaterial(0.92),
+      createGlossyMaterial(),
     ),
-    octahedron: new THREE.Mesh(
+    semiFlamingoAzure: new THREE.Mesh(
       applyGradientToGeometry(
-        new THREE.OctahedronGeometry(0.92, 2),
-        DUARTOIS_GRADIENT,
-        "y",
+        createPartialTorusGeometry(Math.PI),
+        GRADIENT_STOPS.semiFlamingoAzure,
+        GRADIENT_AXES.semiFlamingoAzure,
       ),
-      createGradientMaterial(0.9),
+      createGlossyMaterial(),
+    ),
+    sphereFlamingoSpring: new THREE.Mesh(
+      applyGradientToGeometry(
+        new THREE.SphereGeometry(THICKNESS, 96, 96),
+        GRADIENT_STOPS.sphereFlamingoSpring,
+        GRADIENT_AXES.sphereFlamingoSpring,
+      ),
+      createGlossyMaterial(),
     ),
   };
 
-  const materials: Record<ShapeId, THREE.MeshBasicMaterial> = {
-    torus: meshes.torus.material as THREE.MeshBasicMaterial,
-    capsule: meshes.capsule.material as THREE.MeshBasicMaterial,
-    sphere: meshes.sphere.material as THREE.MeshBasicMaterial,
-    torusKnot: meshes.torusKnot.material as THREE.MeshBasicMaterial,
-    octahedron: meshes.octahedron.material as THREE.MeshBasicMaterial,
-  };
-
-  const baseOpacities: Record<ShapeId, number> = {
-    torus: 0.94,
-    capsule: 0.9,
-    sphere: 0.92,
-    torusKnot: 0.92,
-    octahedron: 0.9,
+  const materials: Record<ShapeId, THREE.MeshPhysicalMaterial> = {
+    torusSpringAzure: meshes.torusSpringAzure
+      .material as THREE.MeshPhysicalMaterial,
+    waveSpringLime: meshes.waveSpringLime.material as THREE.MeshPhysicalMaterial,
+    semiLimeFlamingo: meshes.semiLimeFlamingo
+      .material as THREE.MeshPhysicalMaterial,
+    torusFlamingoLime: meshes.torusFlamingoLime
+      .material as THREE.MeshPhysicalMaterial,
+    semiFlamingoAzure: meshes.semiFlamingoAzure
+      .material as THREE.MeshPhysicalMaterial,
+    sphereFlamingoSpring: meshes.sphereFlamingoSpring
+      .material as THREE.MeshPhysicalMaterial,
   };
 
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
+  keyLight.position.set(3.6, 4.2, 5.4);
+
+  const fillLight = new THREE.PointLight(0xfff1d6, 0.8, 18);
+  fillLight.position.set(-4.2, 2.1, 3.8);
+
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  rimLight.position.set(-3.4, -2.8, -4.6);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.58);
+
+  const lights: THREE.Light[] = [keyLight, fillLight, rimLight, ambient];
 
   orderedMeshes.forEach((mesh) => {
     mesh.castShadow = false;
     mesh.receiveShadow = false;
     group.add(mesh);
+  });
+
+  lights.forEach((light) => {
+    group.add(light);
   });
 
   const applyVariant = (variant: VariantState) => {
@@ -185,14 +265,34 @@ export async function addDuartoisSignatureShapes(
   };
 
   const applyTheme = (theme: ThemeName) => {
+    const isDark = theme === "dark";
+
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
-      const base = baseOpacities[id];
-      const targetOpacity = theme === "dark" ? Math.min(1, base + 0.05) : base;
-      material.opacity = targetOpacity;
-      material.transparent = targetOpacity < 1;
+      material.vertexColors = !isDark;
+      material.color.set(isDark ? DARK_THEME_COLOR : 0xffffff);
+      material.opacity = 1;
+      material.transparent = false;
+      material.metalness = isDark ? 0.1 : 0.14;
+      material.roughness = isDark ? 0.32 : 0.24;
+      material.clearcoat = isDark ? 0.5 : 0.65;
+      material.clearcoatRoughness = isDark ? 0.22 : 0.18;
+      material.emissive.set(isDark ? "#1a1a23" : "#0d1010");
+      material.emissiveIntensity = isDark ? 0.22 : 0.08;
       material.needsUpdate = true;
     });
+
+    keyLight.color.set(isDark ? "#e1e7ff" : "#ffffff");
+    keyLight.intensity = isDark ? 2.15 : 1.6;
+
+    fillLight.color.set(isDark ? "#7cb8ff" : "#fff1d6");
+    fillLight.intensity = isDark ? 1.05 : 0.8;
+
+    rimLight.color.set(isDark ? "#8ae2ff" : "#ffffff");
+    rimLight.intensity = isDark ? 1.35 : 0.9;
+
+    ambient.color.set(isDark ? "#262630" : "#ffffff");
+    ambient.intensity = isDark ? 0.44 : 0.58;
   };
 
   applyVariant(initialVariant);
@@ -221,6 +321,13 @@ export async function addDuartoisSignatureShapes(
         material.forEach(disposeMaterial);
       } else {
         disposeMaterial(material);
+      }
+    });
+
+    lights.forEach((light) => {
+      group.remove(light);
+      if (typeof light.dispose === "function") {
+        light.dispose();
       }
     });
   };
