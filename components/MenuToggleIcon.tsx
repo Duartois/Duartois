@@ -1,62 +1,132 @@
 "use client";
 
-import { motion, type SVGMotionProps } from "framer-motion";
+import type { SVGProps } from "react";
 
 type MenuToggleIconProps = {
   isOpen: boolean;
-} & Omit<SVGMotionProps<SVGSVGElement>, "animate" | "initial">;
+} & Omit<SVGProps<SVGSVGElement>, "children">;
 
-export default function MenuToggleIcon({ isOpen, className, ...rest }: MenuToggleIconProps) {
-  const state = isOpen ? "open" : "closed";
-
+export default function MenuToggleIcon({
+  className,
+  isOpen: _isOpen,
+  ...rest
+}: MenuToggleIconProps) {
   return (
-    <motion.svg
-      viewBox="0 0 24 24"
-      width={24}
-      height={24}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 48"
+      width={32}
+      height={32}
       className={className}
-      initial={false}
-      animate={state}
       {...rest}
     >
-      <motion.line
-        x1={5}
-        x2={19}
-        stroke="currentColor"
-        strokeWidth={1.4}
-        strokeLinecap="round"
-        style={{ transformOrigin: "12px 12px" }}
-        variants={{
-          closed: { y1: 7, y2: 7, rotate: 0 },
-          open: { y1: 12, y2: 12, rotate: 45 },
+      <title>Menu</title>
+      <circle
+        cx={12}
+        cy={12}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(-24px) translateY(-24px)",
+          transformOrigin: "0px 0px",
         }}
-        transition={{ duration: 0.35, ease: [0.32, 0, 0.2, 1] }}
       />
-      <motion.line
-        x1={5}
-        x2={19}
-        stroke="currentColor"
-        strokeWidth={1.4}
-        strokeLinecap="round"
-        variants={{
-          closed: { y1: 12, y2: 12, opacity: 1 },
-          open: { y1: 12, y2: 12, opacity: 0 },
+      <circle
+        cx={24}
+        cy={12}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(0px) translateY(-24px)",
+          transformOrigin: "0px 0px",
         }}
-        transition={{ duration: 0.25, ease: [0.32, 0, 0.2, 1] }}
       />
-      <motion.line
-        x1={5}
-        x2={19}
-        stroke="currentColor"
-        strokeWidth={1.4}
-        strokeLinecap="round"
-        style={{ transformOrigin: "12px 12px" }}
-        variants={{
-          closed: { y1: 17, y2: 17, rotate: 0 },
-          open: { y1: 12, y2: 12, rotate: -45 },
+      <circle
+        cx={36}
+        cy={12}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(24px) translateY(-24px)",
+          transformOrigin: "0px 0px",
         }}
-        transition={{ duration: 0.35, ease: [0.32, 0, 0.2, 1] }}
       />
-    </motion.svg>
+      <circle
+        cx={36}
+        cy={24}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(24px) translateY(0px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+      <circle
+        cx={36}
+        cy={36}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(24px) translateY(24px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+      <circle
+        cx={24}
+        cy={36}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(0px) translateY(24px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+      <circle
+        cx={12}
+        cy={36}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(-24px) translateY(24px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+      <circle
+        cx={12}
+        cy={24}
+        r={3}
+        opacity={0}
+        style={{
+          transform: "translateX(-24px) translateY(0px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+      <rect
+        x={21}
+        y={21}
+        width={39.94}
+        height={6}
+        rx={3}
+        ry={3}
+        opacity={1}
+        style={{
+          transform: "translateX(-16.97px) translateY(0px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+      <rect
+        x={21}
+        y={21}
+        width={6}
+        height={39.94}
+        rx={3}
+        ry={3}
+        opacity={1}
+        style={{
+          transform: "translateX(0px) translateY(-16.97px)",
+          transformOrigin: "0px 0px",
+        }}
+      />
+    </svg>
   );
 }
