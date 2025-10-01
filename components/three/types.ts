@@ -31,34 +31,34 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [2.55, -2.58, -0.2],
+    position: [2.55, -1.58, -0.2],
     rotation: [-1.36, 0.92, -0.2],
-    scale: 1,
+    scale: [0.75, 0.75, 0.75],
   },
   waveSpringLime: {
-    position: [-2.52, 1.35, -0.35],
+    position: [-3, 1.5, -1],
     rotation: [-0.14, 0.32, -0.12],
-    scale: 1,
+    scale: [0.75, 0.75, 0.75],
   },
   semiLimeFlamingo: {
-    position: [3.68, 2.15, 0.55],
+    position: [2, 1.5, -0.4],
     rotation: [1.14, -0.42, -0.05],
-    scale: 1,
+    scale: [0.75, 0.75, 0.75],
   },
   torusFlamingoLime: {
     position: [-100.64, -0.62, -0.58],
     rotation: [-0.28, 0.44, 0.92],
-    scale: 1,
+    scale: [0.75, 0.75, 0.75],
   },
   semiFlamingoAzure: {
-    position: [-3.42, -2.58, -0.8],
+    position: [-2.42, -1.58, -0.8],
     rotation: [1.36, 0, -0.2],
-    scale: 1,
+    scale: [0.75, 0.75, 0.75],
   },
   sphereFlamingoSpring: {
-    position: [0.08, 2.58, 0.72],
+    position: [0, 1.5, 0],
     rotation: [0, 0, 0],
-    scale: 1,
+    scale: [0.75, 0.75, 0.75],
   },
 });
 
