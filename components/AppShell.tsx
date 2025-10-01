@@ -39,7 +39,7 @@ export default function AppShell({ children }: AppShellProps) {
       {!isReady && <Preloader onComplete={handleComplete} />}
       <CanvasRoot isReady={isReady} />
       <div
-        className="pointer-events-none fixed inset-0 z-10 bg-repeat bg-center opacity-40 mix-blend-soft-light [background-size:220px] dark:opacity-30"
+        className="pointer-events-none fixed inset-0 z-[9999] bg-repeat bg-center opacity-40 mix-blend-soft-light [background-size:220px] dark:opacity-30"
         style={{ backgroundImage: `url(${noiseUrl.src})` }}
         aria-hidden
       />
