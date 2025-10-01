@@ -2,7 +2,6 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import classNames from "classnames";
 import AppShell from "@/components/AppShell";
-import CanvasRoot from "@/components/three/CanvasRoot";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
 import { neueMontreal } from "./fonts/fonts";
@@ -21,7 +20,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         )}
       >
         <ThemeProvider>
-          <CanvasRoot />
           <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>
