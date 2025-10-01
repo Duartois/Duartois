@@ -88,6 +88,8 @@ export const DARK_THEME_PALETTE: GradientPalette = [
 
 export type ThemeName = "light" | "dark";
 
+export const DEFAULT_BRIGHTNESS = 1.2;
+
 export type ThreeAppState = {
   variantName: VariantName;
   variant: VariantState;
@@ -100,6 +102,7 @@ export type ThreeAppState = {
   pointerDriver: PointerDriver;
   manualPointer: PointerTarget;
   opacity: number;
+  brightness: number;
   ready: boolean;
 };
 

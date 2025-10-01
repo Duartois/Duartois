@@ -1,7 +1,11 @@
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import type { ShapeId, ThemeName, VariantState } from "./types";
+import type {
+  ShapeId,
+  ThemeName,
+  VariantState,
+} from "./types";
 
 export type ShapesHandle = {
   group: THREE.Group;
@@ -9,6 +13,7 @@ export type ShapesHandle = {
   update: (elapsed: number) => void;
   applyVariant: (variant: VariantState) => void;
   applyTheme: (theme: ThemeName) => void;
+  setBrightness: (value: number) => void;
   dispose: () => void;
 };
 
@@ -331,8 +336,18 @@ export async function addDuartoisSignatureShapes(
     });
   };
 
+  let currentTheme: ThemeName = initialTheme;
+  let currentBrightness = 1;
+
   const applyTheme = (theme: ThemeName) => {
+    currentTheme = theme;
     const isDark = theme === "dark";
+
+    const baseKey = isDark ? 2.4 : 1.8;
+    const baseFill = isDark ? 1.25 : 1.0;
+    const baseRim = isDark ? 1.5 : 1.1;
+    const baseAmbient = isDark ? 0.5 : 0.66;
+    const baseEmissive = isDark ? 0.26 : 0.12;
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -345,21 +360,29 @@ export async function addDuartoisSignatureShapes(
       material.clearcoat = isDark ? 0.5 : 0.65;
       material.clearcoatRoughness = isDark ? 0.22 : 0.18;
       material.emissive.set(isDark ? "#1a1a23" : "#0d1010");
-      material.emissiveIntensity = isDark ? 0.22 : 0.08;
+      material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
 
     keyLight.color.set(isDark ? "#e1e7ff" : "#ffffff");
-    keyLight.intensity = isDark ? 2.15 : 1.6;
+    keyLight.intensity = baseKey * currentBrightness;
 
     fillLight.color.set(isDark ? "#7cb8ff" : "#fff1d6");
-    fillLight.intensity = isDark ? 1.05 : 0.8;
+    fillLight.intensity = baseFill * currentBrightness;
 
     rimLight.color.set(isDark ? "#8ae2ff" : "#ffffff");
-    rimLight.intensity = isDark ? 1.35 : 0.9;
+    rimLight.intensity = baseRim * currentBrightness;
 
     ambient.color.set(isDark ? "#262630" : "#ffffff");
-    ambient.intensity = isDark ? 0.44 : 0.58;
+    ambient.intensity = baseAmbient * currentBrightness;
+  };
+
+  const setBrightness = (value: number) => {
+    if (value === currentBrightness) {
+      return;
+    }
+    currentBrightness = value;
+    applyTheme(currentTheme);
   };
 
   applyVariant(initialVariant);
@@ -390,5 +413,13 @@ export async function addDuartoisSignatureShapes(
     });
   };
 
-  return { group, meshes, update, applyVariant, applyTheme, dispose };
+  return {
+    group,
+    meshes,
+    update,
+    applyVariant,
+    applyTheme,
+    setBrightness,
+    dispose,
+  };
 }

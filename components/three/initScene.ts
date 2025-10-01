@@ -8,6 +8,7 @@ import {
   createStateSnapshot,
 } from "./debug-helpers";
 import {
+  DEFAULT_BRIGHTNESS,
   type GradientPalette,
   type StateUpdater,
   type ThreeAppHandle,
@@ -56,6 +57,7 @@ export const initScene = async ({
   const effectivePalette = ensurePalette(palette, theme);
   const baseVariant = cloneVariant(variantMapping[initialVariant]);
   const shapes = await addDuartoisSignatureShapes(scene, baseVariant, theme);
+  shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
   type MaterialWithOpacity = THREE.Material & {
@@ -96,6 +98,7 @@ export const initScene = async ({
     pointerDriver: "device",
     manualPointer: { x: 0, y: 0 },
     opacity: 1,
+    brightness: DEFAULT_BRIGHTNESS,
     ready: false,
   };
 
@@ -245,6 +248,15 @@ export const initScene = async ({
         palette: nextPalette,
       };
       changed = true;
+    }
+
+    if (typeof partial.brightness === "number") {
+      const nextBrightness = clamp(partial.brightness, 0.5, 2);
+      if (nextBrightness !== state.brightness) {
+        shapes.setBrightness(nextBrightness);
+        nextState = { ...nextState, brightness: nextBrightness };
+        changed = true;
+      }
     }
 
     if (typeof partial.parallax === "boolean" && partial.parallax !== state.parallax) {
