@@ -323,6 +323,11 @@ export async function addDuartoisSignatureShapes(
       }
       mesh.position.set(...target.position);
       mesh.rotation.set(...target.rotation);
+      if (Array.isArray(target.scale)) {
+        mesh.scale.set(...target.scale);
+      } else {
+        mesh.scale.setScalar(target.scale ?? 1);
+      }
     });
   };
 

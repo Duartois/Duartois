@@ -19,9 +19,12 @@ export type PointerTarget = { x: number; y: number };
 
 export type VariantName = "home" | "about" | "work" | "contact" | "avatar";
 
+export type ShapeScale = number | Vector3Tuple;
+
 export type ShapeTransform = {
   position: Vector3Tuple;
   rotation: Vector3Tuple;
+  scale: ShapeScale;
 };
 
 export type VariantState = Record<ShapeId, ShapeTransform>;
@@ -30,26 +33,32 @@ const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [2.55, -2.58, -0.2],
     rotation: [-1.36, 0.92, -0.2],
+    scale: 1,
   },
   waveSpringLime: {
     position: [-2.52, 1.35, -0.35],
     rotation: [-0.14, 0.32, -0.12],
+    scale: 1,
   },
   semiLimeFlamingo: {
     position: [3.68, 2.15, 0.55],
     rotation: [1.14, -0.42, -0.05],
+    scale: 1,
   },
   torusFlamingoLime: {
     position: [-100.64, -0.62, -0.58],
     rotation: [-0.28, 0.44, 0.92],
+    scale: 1,
   },
   semiFlamingoAzure: {
     position: [-3.42, -2.58, -0.8],
     rotation: [1.36, 0, -0.2],
+    scale: 1,
   },
   sphereFlamingoSpring: {
     position: [0.08, 2.58, 0.72],
     rotation: [0, 0, 0],
+    scale: 1,
   },
 });
 
@@ -117,30 +126,39 @@ declare global {
   }
 }
 
+const cloneScale = (scale: ShapeScale): ShapeScale =>
+  Array.isArray(scale) ? ([...scale] as Vector3Tuple) : scale;
+
 export const createVariantState = (variant: VariantState): VariantState => ({
   torusSpringAzure: {
     position: [...variant.torusSpringAzure.position] as Vector3Tuple,
     rotation: [...variant.torusSpringAzure.rotation] as Vector3Tuple,
+    scale: cloneScale(variant.torusSpringAzure.scale),
   },
   waveSpringLime: {
     position: [...variant.waveSpringLime.position] as Vector3Tuple,
     rotation: [...variant.waveSpringLime.rotation] as Vector3Tuple,
+    scale: cloneScale(variant.waveSpringLime.scale),
   },
   semiLimeFlamingo: {
     position: [...variant.semiLimeFlamingo.position] as Vector3Tuple,
     rotation: [...variant.semiLimeFlamingo.rotation] as Vector3Tuple,
+    scale: cloneScale(variant.semiLimeFlamingo.scale),
   },
   torusFlamingoLime: {
     position: [...variant.torusFlamingoLime.position] as Vector3Tuple,
     rotation: [...variant.torusFlamingoLime.rotation] as Vector3Tuple,
+    scale: cloneScale(variant.torusFlamingoLime.scale),
   },
   semiFlamingoAzure: {
     position: [...variant.semiFlamingoAzure.position] as Vector3Tuple,
     rotation: [...variant.semiFlamingoAzure.rotation] as Vector3Tuple,
+    scale: cloneScale(variant.semiFlamingoAzure.scale),
   },
   sphereFlamingoSpring: {
     position: [...variant.sphereFlamingoSpring.position] as Vector3Tuple,
     rotation: [...variant.sphereFlamingoSpring.rotation] as Vector3Tuple,
+    scale: cloneScale(variant.sphereFlamingoSpring.scale),
   },
 });
 
