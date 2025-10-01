@@ -309,7 +309,7 @@ const createRibbonGeometry = () => {
 };
 
 const createRippleSphereGeometry = () => {
-  const geometry = new SphereGeometry(0.64, 6);
+  const geometry = new SphereGeometry(0.64, 96, 96);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
@@ -361,27 +361,10 @@ export const createGeometries = () => {
   });
 
   // 1) S-worm superior esquerdo (curva Catmull)
-  const wave = new TubeGeometry(
-    new CatmullRomCurve3(
-      [
-        new Vector3(-1.35,  0.98, 0.00),
-        new Vector3(-0.78,  0.98, 0.00),
-        new Vector3(-0.38,  0.72, 0.00),
-        new Vector3(-0.92,  0.38, 0.00),
-        new Vector3(-1.48,  0.12, 0.00),
-      ],
-      false,
-      "centripetal",
-      0.52
-    ),
-    540,       // tubularSegments
-    0.12,      // tube radius (espessura)
-    64,        // radialSegments
-    false
-  );
+  const wave = createRibbonGeometry();
 
   // 2) Esfera pequena superior
-  const sphere = new SphereGeometry(0.16, 96, 96);
+  const sphere = createRippleSphereGeometry();
 
   return {
     torus270A,
