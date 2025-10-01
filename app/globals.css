@@ -6,6 +6,14 @@
   --color-muted: 132 124 174;
   --glow-lilac: 218 184 255;
   --glow-mint: 158 255 210;
+  --nav-overlay-gradient:
+    radial-gradient(circle at 15% 10%, rgb(var(--glow-lilac) / 0.45), transparent 58%),
+    radial-gradient(circle at 80% 25%, rgb(var(--glow-mint) / 0.4), transparent 62%),
+    linear-gradient(135deg, rgb(var(--color-bg) / 0.96), rgb(var(--glow-lilac) / 0.42),
+        rgb(var(--glow-mint) / 0.38));
+  --nav-overlay-blob-a: radial-gradient(circle, rgb(var(--glow-lilac) / 0.85) 0%, rgb(var(--glow-lilac) / 0) 70%);
+  --nav-overlay-blob-b: radial-gradient(circle, rgb(var(--glow-mint) / 0.85) 0%, rgb(var(--glow-mint) / 0) 72%);
+  --nav-overlay-blob-c: radial-gradient(circle, rgb(var(--glow-lilac) / 0.65) 0%, rgb(var(--glow-lilac) / 0) 74%);
 }
 
 /* Modo claro */
@@ -15,6 +23,14 @@
   --color-muted: 132 124 174;
   --glow-lilac: 218 184 255;
   --glow-mint: 158 255 210;
+  --nav-overlay-gradient:
+    radial-gradient(circle at 15% 10%, rgb(var(--glow-lilac) / 0.45), transparent 58%),
+    radial-gradient(circle at 80% 25%, rgb(var(--glow-mint) / 0.4), transparent 62%),
+    linear-gradient(135deg, rgb(var(--color-bg) / 0.96), rgb(var(--glow-lilac) / 0.42),
+        rgb(var(--glow-mint) / 0.38));
+  --nav-overlay-blob-a: radial-gradient(circle, rgb(var(--glow-lilac) / 0.85) 0%, rgb(var(--glow-lilac) / 0) 70%);
+  --nav-overlay-blob-b: radial-gradient(circle, rgb(var(--glow-mint) / 0.85) 0%, rgb(var(--glow-mint) / 0) 72%);
+  --nav-overlay-blob-c: radial-gradient(circle, rgb(var(--glow-lilac) / 0.65) 0%, rgb(var(--glow-lilac) / 0) 74%);
 }
 
 /* Modo escuro */
@@ -24,6 +40,14 @@
   --color-muted: 164 158 210;
   --glow-lilac: 120 78 180;
   --glow-mint: 68 172 156;
+  --nav-overlay-gradient:
+    radial-gradient(circle at 18% 12%, rgb(var(--glow-lilac) / 0.42), transparent 60%),
+    radial-gradient(circle at 78% 28%, rgb(var(--glow-mint) / 0.38), transparent 65%),
+    linear-gradient(140deg, rgb(var(--color-bg) / 0.94), rgb(var(--glow-lilac) / 0.32),
+        rgb(var(--glow-mint) / 0.3));
+  --nav-overlay-blob-a: radial-gradient(circle, rgb(var(--glow-lilac) / 0.55) 0%, rgb(var(--glow-lilac) / 0) 72%);
+  --nav-overlay-blob-b: radial-gradient(circle, rgb(var(--glow-mint) / 0.6) 0%, rgb(var(--glow-mint) / 0) 74%);
+  --nav-overlay-blob-c: radial-gradient(circle, rgb(var(--glow-lilac) / 0.5) 0%, rgb(var(--glow-lilac) / 0) 76%);
 }
 
 /* 2) Reset & base */
@@ -35,6 +59,22 @@ html, body {
   color: rgb(var(--color-fg));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+.nav-overlay-surface {
+  background-image: var(--nav-overlay-gradient);
+}
+
+.nav-overlay-blob-a {
+  background-image: var(--nav-overlay-blob-a);
+}
+
+.nav-overlay-blob-b {
+  background-image: var(--nav-overlay-blob-b);
+}
+
+.nav-overlay-blob-c {
+  background-image: var(--nav-overlay-blob-c);
 }
 
 .btn {

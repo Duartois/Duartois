@@ -8,7 +8,7 @@ export default function LanguageSwitcher() {
 
   return (
     <span
-      className="inline-flex items-center rounded-full border border-fg/12 bg-white/70 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.32em] text-fg/70 shadow-soft backdrop-blur"
+      className="inline-flex items-center rounded-full border border-fg/12 bg-bg/80 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.32em] text-fg/70 shadow-soft backdrop-blur transition-colors duration-300 ease-pleasant dark:border-fg/20 dark:bg-bg/40 dark:text-fg/75"
       aria-label={t("languageSwitcher.ariaLabel")}
     >
       EN

@@ -24,11 +24,11 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       className={clsx(
-        "group relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-accent3-400/50 bg-white/80 text-accent3-600 shadow-[0_14px_34px_-18px_rgba(31,176,186,0.85)] backdrop-blur transition-[transform,box-shadow,border-color,background-color,color] duration-300 ease-pleasant",
-        "hover:-translate-y-0.5 hover:border-accent3-300 hover:bg-accent3-400/10 hover:text-accent3-200 hover:shadow-[0_18px_40px_-18px_rgba(31,176,186,0.9)]",
-        "active:translate-y-0 active:scale-95 active:border-accent3-300/80 active:bg-accent3-400/15 active:text-accent3-100 active:shadow-[0_10px_26px_-18px_rgba(31,176,186,0.95)]",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent3-200",
-        "dark:border-accent3-300/60 dark:bg-accent3-500/10 dark:text-accent3-200",
+        "group relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-fg/15 bg-bg/85 text-fg shadow-[0_14px_34px_-18px_rgb(var(--color-fg)_/_0.18)] backdrop-blur transition-[transform,box-shadow,border-color,background-color,color] duration-300 ease-pleasant",
+        "hover:-translate-y-0.5 hover:border-fg/25 hover:bg-bg hover:text-fg hover:shadow-[0_18px_40px_-18px_rgb(var(--color-fg)_/_0.22)]",
+        "active:translate-y-0 active:scale-95 active:border-fg/30 active:bg-bg/80 active:shadow-[0_10px_26px_-18px_rgb(var(--color-fg)_/_0.26)]",
+        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
+        "dark:border-fg/25 dark:bg-bg/40 dark:text-fg dark:hover:bg-bg/35 dark:active:bg-bg/30",
       )}
       aria-label={t("themeToggle.ariaLabel", { theme: nextThemeLabel })}
       aria-pressed={theme === "dark"}
