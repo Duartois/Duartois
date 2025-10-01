@@ -55,7 +55,7 @@ export const initScene = async ({
 
   const effectivePalette = ensurePalette(palette, theme);
   const baseVariant = cloneVariant(variantMapping[initialVariant]);
-  const shapes = await addDuartoisSignatureShapes(scene, baseVariant);
+  const shapes = await addDuartoisSignatureShapes(scene, baseVariant, theme);
   const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
   const updateMeshesOpacity = (opacity: number) => {
@@ -231,6 +231,7 @@ export const initScene = async ({
 
     if (partial.theme && partial.theme !== state.theme) {
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
+      shapes.applyTheme(partial.theme);
       nextState = {
         ...nextState,
         theme: partial.theme,
