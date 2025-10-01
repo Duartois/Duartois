@@ -27,15 +27,15 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torus: {
-    position: [-1.9, 0.35, 0.0],
+    position: [-2.9, 0.35, 0.0],
     rotation: [0.12, 0.48, 0.28],
   },
   capsule: {
-    position: [1.4, 0.8, -0.5],
+    position: [0.4, 0.8, -1.5],
     rotation: [-0.2, 0.35, 0.52],
   },
   sphere: {
-    position: [-0.2, -0.85, 1.1],
+    position: [-1.2, -0.85, 1.1],
     rotation: [0.0, 0.0, 0.0],
   },
   torusKnot: {
