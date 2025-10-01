@@ -94,19 +94,21 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-5 z-50 px-6 md:px-10">
-        <NavHeaderContent
-          isOpen={isOpen}
-          onToggle={() => setIsOpen((open) => !open)}
-          triggerRef={triggerRef}
-          labels={{ open: t("navbar.open"), close: t("navbar.close") }}
-          buttonProps={{
-            "aria-haspopup": "dialog",
-            "aria-expanded": isOpen,
-            "aria-controls": "main-navigation-overlay",
-          }}
-        />
-      </div>
+      {!isOpen && (
+        <div className="fixed inset-x-0 top-5 z-50 px-6 md:px-10">
+          <NavHeaderContent
+            isOpen={isOpen}
+            onToggle={() => setIsOpen((open) => !open)}
+            triggerRef={triggerRef}
+            labels={{ open: t("navbar.open"), close: t("navbar.close") }}
+            buttonProps={{
+              "aria-haspopup": "dialog",
+              "aria-expanded": isOpen,
+              "aria-controls": "main-navigation-overlay",
+            }}
+          />
+        </div>
+      )}
 
       <NavOverlay
         isOpen={isOpen}
@@ -115,6 +117,7 @@ export default function Navbar() {
         navigationLinks={navigationLinks}
         socialLinks={socialLinks}
         overlayRef={overlayRef}
+        triggerRef={triggerRef}
       />
     </>
   );

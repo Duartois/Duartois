@@ -38,6 +38,7 @@ type NavOverlayProps = {
   navigationLinks: readonly NavigationLink[];
   socialLinks: readonly SocialLink[];
   overlayRef: RefObject<HTMLDivElement>;
+  triggerRef?: RefObject<HTMLButtonElement>;
 };
 
 export default function NavOverlay({
@@ -47,6 +48,7 @@ export default function NavOverlay({
   navigationLinks,
   socialLinks,
   overlayRef,
+  triggerRef,
 }: NavOverlayProps) {
   const { t } = useTranslation("common");
   const overlayPalette = useMemo<GradientPalette>(
@@ -218,6 +220,7 @@ export default function NavOverlay({
                   onToggle={onClose}
                   labels={{ open: t("navbar.open"), close: t("navbar.close") }}
                   onBrandClick={onClose}
+                  triggerRef={triggerRef}
                 />
               </motion.div>
             </motion.header>
