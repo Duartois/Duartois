@@ -28,27 +28,27 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torus270A: {
-    position: [-1.68, 1.58, 0.16],
-    rotation: [0.08, -0.1, 0.04],
+    position: [-0.48, 0.88, 0.18],
+    rotation: [0.16, 0.18, 0.42],
   },
   torus270B: {
-    position: [-1.86, -1.24, -0.36],
-    rotation: [-0.12, 0.18, 0.28],
+    position: [-0.52, -0.96, -0.2],
+    rotation: [-0.12, 0.22, -0.36],
   },
   semi180A: {
-    position: [1.74, 1.36, 0.18],
-    rotation: [-0.05, 0.06, -0.08],
+    position: [0.78, 0.36, 0.16],
+    rotation: [-0.08, 0.26, -0.22],
   },
   semi180B: {
-    position: [2.04, -0.92, -0.28],
-    rotation: [0.07, -0.05, -0.22],
+    position: [0.92, -1.42, 0.1],
+    rotation: [0.14, -0.14, -0.28],
   },
   wave: {
-    position: [0.08, 0.18, 0.42],
-    rotation: [0, 0, 0.08],
+    position: [-0.24, 1.98, 0.3],
+    rotation: [0.38, -0.22, 0.56],
   },
   sphere: {
-    position: [0.96, -1.4, 0.54],
+    position: [1.24, 1.64, 0.44],
     rotation: [0, 0, 0],
   },
 });
@@ -62,21 +62,21 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#f9e9ff", "#e6c7ff", "#d0a4ff", "#b67cff"],
-  ["#ffe9fb", "#ffc4ef", "#ffa1e3", "#ff77d2"],
-  ["#e8fff6", "#c2ffe6", "#99f7d6", "#64e8c2"],
-  ["#f3ffe6", "#d8ffb8", "#baff85", "#8af55d"],
-  ["#fff4e5", "#ffd5b5", "#ffb886", "#ff9362"],
-  ["#e9f6ff", "#c3e4ff", "#9accff", "#6faeff"],
+  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
+  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
+  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
+  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
+  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
+  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
 ];
 
 export const DARK_THEME_PALETTE: GradientPalette = [
-  ["#2b1a44", "#3c2b63", "#5b3f96", "#8e63e6"],
-  ["#3b1031", "#5a1f50", "#872c77", "#ff63c5"],
-  ["#0a2c25", "#11433a", "#146259", "#21d7a8"],
-  ["#12240f", "#1d3a18", "#2a5927", "#6dff63"],
-  ["#331d0f", "#4d2a16", "#72401f", "#ffa564"],
-  ["#12203c", "#1c3056", "#2f4f8b", "#6aa7ff"],
+  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
+  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
+  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
+  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
+  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
+  ["#2f3039", "#3a3b45", "#454651", "#52535f"],
 ];
 
 export type ThemeName = "light" | "dark";
