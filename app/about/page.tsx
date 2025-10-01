@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Navbar from "../../components/Navbar";
+import AnimatedText from "../../components/AnimatedText";
 import Link from "next/link";
 import { Trans, useTranslation } from "react-i18next";
 import Image from "next/image";
@@ -27,17 +28,55 @@ export default function AboutPage() {
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-24 lg:flex-row lg:items-center lg:gap-24 bg-bg/70 backdrop-blur">
           <section className="flex-1 space-y-6">
-            <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
+            <AnimatedText
+              as="p"
+              underline={false}
+              trigger="none"
+              className="block text-xs font-medium uppercase tracking-[0.42em] text-fg/65"
+            >
               {t("about.kicker")}
-            </p>
+            </AnimatedText>
             <div className="space-y-4">
-              <h1 className="text-5xl font-semibold text-fg sm:text-6xl">{t("about.title")}</h1>
-              <p className="text-lg text-fg/70 sm:text-xl">{t("about.subtitle")}</p>
+              <AnimatedText
+                as="h1"
+                underline={false}
+                trigger="none"
+                className="block text-5xl font-semibold text-fg sm:text-6xl"
+              >
+                {t("about.title")}
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                underline={false}
+                trigger="none"
+                className="block text-lg text-fg/70 sm:text-xl"
+              >
+                {t("about.subtitle")}
+              </AnimatedText>
             </div>
             <div className="space-y-4 text-base leading-relaxed text-fg/80 sm:text-lg">
-              <p className="lowercase">{t("about.paragraphs.first")}</p>
-              <p className="lowercase">{t("about.paragraphs.second")}</p>
-              <p className="lowercase">
+              <AnimatedText
+                as="p"
+                underline={false}
+                trigger="none"
+                className="block lowercase"
+              >
+                {t("about.paragraphs.first")}
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                underline={false}
+                trigger="none"
+                className="block lowercase"
+              >
+                {t("about.paragraphs.second")}
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                underline={false}
+                trigger="none"
+                className="block lowercase"
+              >
                 <Trans
                   i18nKey="about.paragraphs.third"
                   ns="common"
@@ -52,7 +91,7 @@ export default function AboutPage() {
                     ),
                   }}
                 />
-              </p>
+              </AnimatedText>
             </div>
             <div className="flex flex-wrap gap-3 pt-6">
               <Link

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Navbar from "../../components/Navbar";
+import AnimatedText from "../../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
@@ -115,15 +116,30 @@ export default function WorkPage() {
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-12 px-6 py-24 lg:flex-row lg:items-center lg:gap-20 bg-bg/70 backdrop-blur">
           <section className="lg:w-1/2">
-            <p className="text-xs font-medium uppercase tracking-[0.42em] text-fg/65">
+            <AnimatedText
+              as="p"
+              underline={false}
+              trigger="none"
+              className="block text-xs font-medium uppercase tracking-[0.42em] text-fg/65"
+            >
               {t("work.previewHint")}
-            </p>
-            <h1 className="mt-4 text-4xl font-medium text-fg sm:text-5xl">
+            </AnimatedText>
+            <AnimatedText
+              as="h1"
+              underline={false}
+              trigger="none"
+              className="mt-4 block text-4xl font-medium text-fg sm:text-5xl"
+            >
               {t("work.title")}
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-fg/80 sm:text-lg">
+            </AnimatedText>
+            <AnimatedText
+              as="p"
+              underline={false}
+              trigger="none"
+              className="mt-6 block max-w-xl text-base leading-relaxed text-fg/80 sm:text-lg"
+            >
               {t("work.subtitle")}
-            </p>
+            </AnimatedText>
             <ul className="mt-10 flex flex-col gap-3">
               {projectOrder.map((projectKey) => (
                 <li key={projectKey}>
@@ -137,9 +153,14 @@ export default function WorkPage() {
                         : "border-fg/20 bg-bg/60 hover:border-fg/40 hover:bg-fg/5"
                     }`}
                   >
-                    <span className="text-lg font-medium uppercase tracking-[0.28em] text-fg">
+                    <AnimatedText
+                      as="span"
+                      underline={false}
+                      trigger="self"
+                      className="block text-lg font-medium uppercase tracking-[0.28em] text-fg"
+                    >
                       {t(`work.projects.${projectKey}.title`)}
-                    </span>
+                    </AnimatedText>
                     <span className="text-sm font-medium text-fg/55">
                       {t(`work.projects.${projectKey}.year`)}
                     </span>
