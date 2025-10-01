@@ -1,6 +1,6 @@
 {
   "languageSwitcher": {
-    "ariaLabel": "Switch language to {{label}}"
+    "ariaLabel": "Language set to English"
   },
   "navbar": {
     "open": "Open navigation",
