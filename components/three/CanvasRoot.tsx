@@ -40,16 +40,17 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
     <div
       className={classNames(
         "pointer-events-none fixed inset-0 -z-5 overflow-visible transition-opacity duration-700",
-        "relative",
         isVisible ? "opacity-100" : "opacity-0",
       )}
       aria-hidden={!isVisible}
     >
-      <div
-        className="absolute inset-0 z-10 bg-repeat bg-center [background-size:220px] opacity-40 mix-blend-soft-light pointer-events-none dark:opacity-30"
-        style={{ backgroundImage: `url(${noiseUrl.src})` }}
-      />
-      <CoreCanvas />
+      <div className="relative h-full w-full">
+        <div
+          className="pointer-events-none absolute inset-0 z-10 bg-repeat bg-center [background-size:220px] opacity-40 mix-blend-soft-light dark:opacity-30"
+          style={{ backgroundImage: `url(${noiseUrl.src})` }}
+        />
+        <CoreCanvas />
+      </div>
     </div>
   );
 }
