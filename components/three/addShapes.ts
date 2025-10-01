@@ -128,7 +128,7 @@ const createGlossyMaterial = () =>
     clearcoatRoughness: 0.18,
   });
 
-const THICKNESS = 0.34;
+const THICKNESS = 0.64;
 const TORUS_RADIUS = 1.28;
 const TORUS_RADIAL_SEGMENTS = 128;
 const TORUS_TUBULAR_SEGMENTS = 220;
@@ -220,9 +220,9 @@ export async function addDuartoisSignatureShapes(
 ): Promise<ShapesHandle> {
   const group = new THREE.Group();
   scene.add(group);
-  group.scale.setScalar(0.82);
+  group.scale.setScalar(1.2);
 
-  const waveCurve = new WaveCurve(3.8, 0.74);
+  const waveCurve = new WaveCurve(3.8, 0.4);
 
   const meshes: Record<ShapeId, THREE.Mesh> = {
     torusSpringAzure: new THREE.Mesh(

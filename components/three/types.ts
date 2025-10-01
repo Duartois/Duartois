@@ -28,27 +28,27 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [0.55, -0.58, -0.2],
+    position: [2.55, -2.58, -0.2],
     rotation: [-1.36, 0.92, -0.2],
   },
   waveSpringLime: {
-    position: [0.12, 1.35, -0.35],
-    rotation: [-0.14, 0.32, 0.12],
+    position: [-2.52, 1.35, -0.35],
+    rotation: [-0.14, 0.32, -0.12],
   },
   semiLimeFlamingo: {
-    position: [1.68, 0.15, 0.55],
-    rotation: [0.14, -0.82, -0.05],
+    position: [3.68, 2.15, 0.55],
+    rotation: [1.14, -0.42, -0.05],
   },
   torusFlamingoLime: {
-    position: [-0.64, -0.62, -0.58],
+    position: [-100.64, -0.62, -0.58],
     rotation: [-0.28, 0.44, 0.92],
   },
   semiFlamingoAzure: {
-    position: [1.42, -1.02, -0.8],
-    rotation: [0.18, -0.54, 0.66],
+    position: [-3.42, -2.58, -0.8],
+    rotation: [1.36, 0, -0.2],
   },
   sphereFlamingoSpring: {
-    position: [0.28, -1.68, 0.72],
+    position: [0.08, 2.58, 0.72],
     rotation: [0, 0, 0],
   },
 });
@@ -62,7 +62,7 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#78ffd1", "#89ffd8", "#93ffe0", "#99ffea"],
+  ["#78ffd1", "#78ffd1", "#99ffea", "#99ffea"],
   ["#99b9ff", "#a4c3ff", "#b4d2ff", "#c4e0ff"],
   ["#f0ffa6", "#f3ffb5", "#f6ffc6", "#f9ffd7"],
   ["#ffb3f2", "#ffc0f4", "#ffd2f8", "#ffe3fb"],
