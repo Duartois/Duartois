@@ -251,22 +251,25 @@ const createArcGeometry = ({
   const start = -arc / 2;
   const end = arc / 2;
   const controlPoints: Vector3[] = [];
-  for (let i = 0; i <= 8; i += 1) {
-    const t = i / 8;
+  const steps = 14;
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps;
     const angle = start + (end - start) * t;
-    const bulge = 1 + Math.sin(t * Math.PI) * depth;
+    const eased = Math.sin(t * Math.PI);
+    const bulge = 1 + Math.pow(eased, 1.4) * depth * 0.55;
     const r = radius * bulge;
+    const liftOffset = 1 + Math.pow(eased, 1.8) * lift * 0.65;
     const x = Math.cos(angle) * r;
-    const y = Math.sin(angle) * r * (1 + lift * Math.sin(t * Math.PI));
-    const z = Math.sin(t * Math.PI) * depth * 0.45;
+    const y = Math.sin(angle) * r * liftOffset;
+    const z = eased * depth * 0.28;
     controlPoints.push(new Vector3(x, y, z));
   }
 
   const curve = new CatmullRomCurve3(controlPoints, false, "centripetal", 0.5);
-  const geometry = new TubeGeometry(curve, 420, thickness, 64, false);
+  const geometry = new TubeGeometry(curve, 680, thickness, 96, false);
   geometry.rotateX(Math.PI / 2 + tilt);
   geometry.rotateZ(roll);
-  geometry.scale(1, 0.92, 1.08);
+  geometry.scale(1.02, 0.98, 1.02);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
@@ -312,29 +315,32 @@ const createPetalGeometry = ({
 const createRibbonGeometry = () => {
   const path = new CatmullRomCurve3(
     [
-      new Vector3(-1.95, -0.92, 0.12),
-      new Vector3(-1.25, 0.2, 0.38),
-      new Vector3(-0.25, 0.68, -0.1),
-      new Vector3(0.85, -0.12, 0.42),
-      new Vector3(1.65, 0.58, -0.18),
-      new Vector3(2.35, -0.15, 0.22),
+      new Vector3(-2.2, -1.1, 0.04),
+      new Vector3(-1.72, -0.32, 0.46),
+      new Vector3(-1.22, 0.44, 0.74),
+      new Vector3(-0.58, 0.96, 0.22),
+      new Vector3(0.18, 0.64, -0.28),
+      new Vector3(0.92, 0.02, 0.24),
+      new Vector3(1.58, 0.76, 0.52),
+      new Vector3(2.24, 0.14, -0.2),
+      new Vector3(2.86, 0.86, 0.34),
     ],
     false,
     "centripetal",
-    0.42,
+    0.48,
   );
 
-  const geometry = new TubeGeometry(path, 520, 0.14, 48, false);
-  geometry.scale(1.12, 0.68, 1.18);
-  geometry.rotateZ(Math.PI / 10);
-  geometry.rotateX(Math.PI / 16);
+  const geometry = new TubeGeometry(path, 760, 0.2, 64, false);
+  geometry.scale(1.08, 0.96, 1.1);
+  geometry.rotateZ(Math.PI / 11);
+  geometry.rotateX(Math.PI / 18);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
 };
 
 const createRippleSphereGeometry = () => {
-  const geometry = new IcosahedronGeometry(0.64, 5);
+  const geometry = new IcosahedronGeometry(0.64, 7);
   const positions = geometry.getAttribute("position") as BufferAttribute;
   const scratch = new Vector3();
   for (let i = 0; i < positions.count; i += 1) {
@@ -344,12 +350,12 @@ const createRippleSphereGeometry = () => {
     const longitude = Math.atan2(scratch.z, scratch.x);
     const wave =
       1 +
-      0.18 * Math.sin(radial * 5.8 + longitude * 3.2) +
-      0.1 * Math.cos(latitude * 6.1) -
-      0.06 * Math.sin(longitude * 2.4);
+      0.045 * Math.sin(radial * 5.8 + longitude * 3.2) +
+      0.028 * Math.cos(latitude * 6.1) -
+      0.02 * Math.sin(longitude * 2.4);
     scratch.multiplyScalar(wave);
-    scratch.y *= 1.12;
-    scratch.z *= 0.94;
+    scratch.y *= 1.04;
+    scratch.z *= 0.98;
     positions.setXYZ(i, scratch.x, scratch.y, scratch.z);
   }
   geometry.computeVertexNormals();
@@ -399,12 +405,12 @@ export const createGeometries = () => {
   const wave = createRibbonGeometry();
   const sphere = createRippleSphereGeometry();
 
-  torus270A.scale(1.12, 1.12, 1.12);
+  torus270A.scale(1.05, 1.05, 1.05);
   torus270B.scale(1.05, 1.05, 1.05);
   semi180A.scale(0.96, 0.96, 0.96);
   semi180B.scale(0.9, 0.9, 0.9);
-  wave.scale(1.08, 1.08, 1.08);
-  sphere.scale(0.92, 0.92, 0.92);
+  wave.scale(1.04, 1.04, 1.04);
+  sphere.scale(0.96, 0.96, 0.96);
 
   return { torus270A, torus270B, semi180A, semi180B, wave, sphere };
 };
