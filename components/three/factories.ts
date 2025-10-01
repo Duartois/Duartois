@@ -1,16 +1,13 @@
 import {
-  BufferAttribute,
   CatmullRomCurve3,
   Color,
   DoubleSide,
   Group,
   IcosahedronGeometry,
-  LatheGeometry,
   Mesh,
   PerspectiveCamera,
   ShaderMaterial,
   TubeGeometry,
-  Vector2,
   Vector3,
 } from "three";
 
@@ -47,7 +44,6 @@ const vertexShader = /* glsl */ `
 
   varying vec3 vWorldPos;
   varying vec3 vNormal;
-  varying float vRipple;
 
   vec3 mod289(vec3 x) {
     return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -130,12 +126,9 @@ const vertexShader = /* glsl */ `
 
   void main() {
     vec3 displaced = position;
-    float ripple = 0.0;
-
     vec4 world = modelMatrix * vec4(displaced, 1.0);
     vWorldPos = world.xyz;
     vNormal = normalize(normalMatrix * normal);
-    vRipple = ripple;
     gl_Position = projectionMatrix * viewMatrix * world;
   }
 `;
@@ -148,7 +141,6 @@ const fragmentShader = /* glsl */ `
 
   varying vec3 vWorldPos;
   varying vec3 vNormal;
-  varying float vRipple;
 
   vec3 sampleGradient(float h) {
     vec3 c12 = mix(uColor1, uColor2, smoothstep(0.0, 0.33, h));
@@ -164,11 +156,16 @@ const fragmentShader = /* glsl */ `
 
     vec3 viewDir = normalize(cameraPosition - vWorldPos);
     vec3 normal = normalize(vNormal);
+    vec3 lightDir = normalize(vec3(-0.35, 0.78, 0.42));
 
-    float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.5);
-    float rippleGlow = 0.05;
+    float diffuse = max(dot(normal, lightDir), 0.0);
+    vec3 diffuseColor = gradient * (0.7 + diffuse * 0.65);
 
-    vec3 colour = gradient + fresnel * 0.45 + rippleGlow * 0.18;
+    vec3 halfway = normalize(lightDir + viewDir);
+    float specular = pow(max(dot(normal, halfway), 0.0), 16.0);
+    float rim = pow(1.0 - max(dot(normal, viewDir), 0.0), 2.2) * 0.35;
+
+    vec3 colour = diffuseColor + specular * 0.12 + rim;
     gl_FragColor = vec4(clamp(colour, 0.0, 1.0), 1.0);
   }
 `;
@@ -176,10 +173,10 @@ const fragmentShader = /* glsl */ `
 const createGradientMaterial = () => {
   const material = new ShaderMaterial({
     uniforms: {
-      uColor1: { value: new Color("#f4ebff") },
-      uColor2: { value: new Color("#dcc8ff") },
-      uColor3: { value: new Color("#c1a6ff") },
-      uColor4: { value: new Color("#9d7aff") },
+      uColor1: { value: new Color("#f9d7fb") },
+      uColor2: { value: new Color("#f3f6c8") },
+      uColor3: { value: new Color("#a8f0d6") },
+      uColor4: { value: new Color("#a1c8ff") },
       uTime: { value: 0 },
       uAmp: { value: 0 },
       uFreq: { value: 1.25 },
@@ -256,57 +253,20 @@ const createArcGeometry = ({
     const t = i / steps;
     const angle = start + (end - start) * t;
     const eased = Math.sin(t * Math.PI);
-    const bulge = 1 + Math.pow(eased, 1.4) * depth * 0.55;
+    const bulge = 1 + Math.pow(eased, 1.4) * depth * 0.38;
     const r = radius * bulge;
-    const liftOffset = 1 + Math.pow(eased, 1.8) * lift * 0.65;
+    const liftOffset = 1 + Math.pow(eased, 1.6) * lift * 0.45;
     const x = Math.cos(angle) * r;
     const y = Math.sin(angle) * r * liftOffset;
-    const z = eased * depth * 0.28;
+    const z = eased * depth * 0.18;
     controlPoints.push(new Vector3(x, y, z));
   }
 
   const curve = new CatmullRomCurve3(controlPoints, false, "centripetal", 0.5);
-  const geometry = new TubeGeometry(curve, 680, thickness, 96, false);
+  const geometry = new TubeGeometry(curve, 720, thickness, 96, false);
   geometry.rotateX(Math.PI / 2 + tilt);
   geometry.rotateZ(roll);
-  geometry.scale(1.02, 0.98, 1.02);
-  geometry.computeVertexNormals();
-  geometry.computeBoundingSphere();
-  return geometry;
-};
-
-const createPetalGeometry = ({
-  height,
-  radiusTop,
-  radiusBottom,
-  pinch,
-  flare,
-  twist,
-}: {
-  height: number;
-  radiusTop: number;
-  radiusBottom: number;
-  pinch: number;
-  flare: number;
-  twist: number;
-}) => {
-  const steps = 64;
-  const points: Vector2[] = [];
-  for (let i = 0; i <= steps; i += 1) {
-    const t = i / steps;
-    const eased = Math.pow(t, 0.72);
-    const wave = Math.sin(t * Math.PI);
-    const radius =
-      radiusBottom + (radiusTop - radiusBottom) * eased - pinch * Math.pow(1 - t, 1.1) * wave;
-    const bulge = 1 + flare * Math.pow(wave, 1.6);
-    const y = (t - 0.5) * height;
-    points.push(new Vector2(radius * bulge, y));
-  }
-
-  const geometry = new LatheGeometry(points, 128);
-  geometry.rotateX(Math.PI / 2);
-  geometry.rotateZ(twist);
-  geometry.scale(0.9, 0.9, 0.92);
+  geometry.scale(1.04, 1.0, 1.02);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
@@ -315,24 +275,24 @@ const createPetalGeometry = ({
 const createRibbonGeometry = () => {
   const path = new CatmullRomCurve3(
     [
-      new Vector3(-2.2, -1.1, 0.04),
-      new Vector3(-1.72, -0.32, 0.46),
-      new Vector3(-1.22, 0.44, 0.74),
-      new Vector3(-0.58, 0.96, 0.22),
-      new Vector3(0.18, 0.64, -0.28),
-      new Vector3(0.92, 0.02, 0.24),
-      new Vector3(1.58, 0.76, 0.52),
-      new Vector3(2.24, 0.14, -0.2),
-      new Vector3(2.86, 0.86, 0.34),
+      new Vector3(-1.96, 0.86, 0.18),
+      new Vector3(-1.44, 1.32, 0.52),
+      new Vector3(-0.82, 1.24, 0.64),
+      new Vector3(-0.28, 0.86, 0.36),
+      new Vector3(0.26, 0.42, -0.12),
+      new Vector3(0.86, 0.36, 0.18),
+      new Vector3(1.34, 0.82, 0.54),
+      new Vector3(1.88, 0.96, 0.26),
+      new Vector3(2.32, 0.58, -0.04),
     ],
     false,
     "centripetal",
-    0.48,
+    0.52,
   );
 
-  const geometry = new TubeGeometry(path, 760, 0.2, 64, false);
-  geometry.scale(1.08, 0.96, 1.1);
-  geometry.rotateZ(Math.PI / 11);
+  const geometry = new TubeGeometry(path, 540, 0.24, 64, false);
+  geometry.scale(1.22, 1.18, 1.16);
+  geometry.rotateZ(Math.PI / 14);
   geometry.rotateX(Math.PI / 18);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
@@ -340,24 +300,7 @@ const createRibbonGeometry = () => {
 };
 
 const createRippleSphereGeometry = () => {
-  const geometry = new IcosahedronGeometry(0.64, 7);
-  const positions = geometry.getAttribute("position") as BufferAttribute;
-  const scratch = new Vector3();
-  for (let i = 0; i < positions.count; i += 1) {
-    scratch.set(positions.getX(i), positions.getY(i), positions.getZ(i));
-    const radial = scratch.length();
-    const latitude = Math.atan2(scratch.y, Math.sqrt(scratch.x * scratch.x + scratch.z * scratch.z));
-    const longitude = Math.atan2(scratch.z, scratch.x);
-    const wave =
-      1 +
-      0.045 * Math.sin(radial * 5.8 + longitude * 3.2) +
-      0.028 * Math.cos(latitude * 6.1) -
-      0.02 * Math.sin(longitude * 2.4);
-    scratch.multiplyScalar(wave);
-    scratch.y *= 1.04;
-    scratch.z *= 0.98;
-    positions.setXYZ(i, scratch.x, scratch.y, scratch.z);
-  }
+  const geometry = new IcosahedronGeometry(0.64, 6);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
@@ -365,52 +308,54 @@ const createRippleSphereGeometry = () => {
 
 export const createGeometries = () => {
   const torus270A = createArcGeometry({
-    radius: 1.65,
-    arc: Math.PI * 1.72,
-    thickness: 0.26,
-    depth: 0.18,
-    lift: 0.2,
-    tilt: 0.18,
-    roll: 0.42,
+    radius: 1.52,
+    arc: Math.PI * 1.58,
+    thickness: 0.27,
+    depth: 0.12,
+    lift: 0.14,
+    tilt: 0.2,
+    roll: 0.46,
   });
 
   const torus270B = createArcGeometry({
-    radius: 1.32,
-    arc: Math.PI * 1.6,
-    thickness: 0.22,
-    depth: 0.14,
-    lift: -0.12,
-    tilt: -0.22,
-    roll: -0.56,
+    radius: 1.28,
+    arc: Math.PI * 1.54,
+    thickness: 0.26,
+    depth: 0.1,
+    lift: -0.1,
+    tilt: -0.18,
+    roll: -0.42,
   });
 
-  const semi180A = createPetalGeometry({
-    height: 2.35,
-    radiusTop: 0.48,
-    radiusBottom: 0.88,
-    pinch: 0.26,
-    flare: 0.32,
-    twist: Math.PI / 8,
+  const semi180A = createArcGeometry({
+    radius: 1.04,
+    arc: Math.PI * 1.46,
+    thickness: 0.24,
+    depth: 0.08,
+    lift: 0.08,
+    tilt: -0.12,
+    roll: 0.32,
   });
 
-  const semi180B = createPetalGeometry({
-    height: 2.0,
-    radiusTop: 0.38,
-    radiusBottom: 0.72,
-    pinch: 0.2,
-    flare: 0.26,
-    twist: -Math.PI / 6,
+  const semi180B = createArcGeometry({
+    radius: 0.94,
+    arc: Math.PI * 1.4,
+    thickness: 0.23,
+    depth: 0.08,
+    lift: -0.06,
+    tilt: 0.16,
+    roll: -0.3,
   });
 
   const wave = createRibbonGeometry();
   const sphere = createRippleSphereGeometry();
 
-  torus270A.scale(1.05, 1.05, 1.05);
-  torus270B.scale(1.05, 1.05, 1.05);
-  semi180A.scale(0.96, 0.96, 0.96);
-  semi180B.scale(0.9, 0.9, 0.9);
+  torus270A.scale(1.08, 1.08, 1.08);
+  torus270B.scale(1.14, 1.14, 1.14);
+  semi180A.scale(1.04, 1.04, 1.04);
+  semi180B.scale(1.06, 1.06, 1.06);
   wave.scale(1.04, 1.04, 1.04);
-  sphere.scale(0.96, 0.96, 0.96);
+  sphere.scale(0.84, 0.84, 0.84);
 
   return { torus270A, torus270B, semi180A, semi180B, wave, sphere };
 };
