@@ -26,7 +26,7 @@ export default function HomePage() {
     <>
       <Navbar />
       <main className="relative z-10 flex min-h-screen w-full flex-col">
-        <section className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center sm:px-10 md:py-32 bg-bg/70 backdrop-blur">
+        <section className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center sm:px-10 md:py-32 bg-bg/70">
           <div className="flex w-full max-w-3xl flex-col items-center gap-8 sm:gap-10">
             <AnimatedText
               as="span"
