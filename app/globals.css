@@ -8,14 +8,10 @@
   --glow-mint: 137 217 255;
   --glow-spring: 120 255 129;
   --glow-lime: 241 255 107;
-  --nav-overlay-gradient:
-    radial-gradient(circle at 18% 12%, rgb(var(--glow-lilac) / 0.68), transparent 60%),
-    radial-gradient(circle at 74% 22%, rgb(var(--glow-mint) / 0.6), transparent 64%),
-    radial-gradient(circle at 46% 76%, rgb(var(--glow-spring) / 0.5), transparent 66%),
-    linear-gradient(135deg, rgb(255 255 255 / 0.78), rgb(var(--color-bg)));
-  --nav-overlay-blob-a: radial-gradient(circle, rgb(var(--glow-lilac) / 0.75) 0%, rgb(var(--glow-lilac) / 0) 70%);
-  --nav-overlay-blob-b: radial-gradient(circle, rgb(var(--glow-mint) / 0.78) 0%, rgb(var(--glow-mint) / 0) 72%);
-  --nav-overlay-blob-c: radial-gradient(circle, rgb(var(--glow-spring) / 0.62) 0%, rgb(var(--glow-spring) / 0) 74%);
+  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.94);
+  --nav-overlay-blob-a-color: rgb(var(--color-fg) / 0.08);
+  --nav-overlay-blob-b-color: rgb(var(--color-fg) / 0.06);
+  --nav-overlay-blob-c-color: rgb(var(--color-fg) / 0.04);
 }
 
 /* Modo claro */
@@ -27,14 +23,10 @@
   --glow-mint: 137 217 255;
   --glow-spring: 120 255 129;
   --glow-lime: 241 255 107;
-  --nav-overlay-gradient:
-    radial-gradient(circle at 18% 12%, rgb(var(--glow-lilac) / 0.68), transparent 60%),
-    radial-gradient(circle at 74% 22%, rgb(var(--glow-mint) / 0.6), transparent 64%),
-    radial-gradient(circle at 46% 76%, rgb(var(--glow-spring) / 0.5), transparent 66%),
-    linear-gradient(135deg, rgb(255 255 255 / 0.78), rgb(var(--color-bg)));
-  --nav-overlay-blob-a: radial-gradient(circle, rgb(var(--glow-lilac) / 0.75) 0%, rgb(var(--glow-lilac) / 0) 70%);
-  --nav-overlay-blob-b: radial-gradient(circle, rgb(var(--glow-mint) / 0.78) 0%, rgb(var(--glow-mint) / 0) 72%);
-  --nav-overlay-blob-c: radial-gradient(circle, rgb(var(--glow-spring) / 0.62) 0%, rgb(var(--glow-spring) / 0) 74%);
+  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.94);
+  --nav-overlay-blob-a-color: rgb(var(--color-fg) / 0.08);
+  --nav-overlay-blob-b-color: rgb(var(--color-fg) / 0.06);
+  --nav-overlay-blob-c-color: rgb(var(--color-fg) / 0.04);
 }
 
 /* Modo escuro */
@@ -46,43 +38,35 @@
   --glow-mint: 64 126 179;
   --glow-spring: 64 156 104;
   --glow-lime: 140 143 70;
-  --nav-overlay-gradient:
-    radial-gradient(circle at 22% 14%, rgb(var(--glow-lilac) / 0.55), transparent 62%),
-    radial-gradient(circle at 72% 28%, rgb(var(--glow-mint) / 0.5), transparent 66%),
-    radial-gradient(circle at 48% 82%, rgb(var(--glow-spring) / 0.42), transparent 68%),
-    linear-gradient(140deg, rgb(var(--color-bg) / 1), rgb(var(--color-bg) / 0.92));
-  --nav-overlay-blob-a: radial-gradient(circle, rgb(var(--glow-lilac) / 0.65) 0%, rgb(var(--glow-lilac) / 0) 72%);
-  --nav-overlay-blob-b: radial-gradient(circle, rgb(var(--glow-mint) / 0.68) 0%, rgb(var(--glow-mint) / 0) 74%);
-  --nav-overlay-blob-c: radial-gradient(circle, rgb(var(--glow-spring) / 0.55) 0%, rgb(var(--glow-spring) / 0) 76%);
+  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.92);
+  --nav-overlay-blob-a-color: rgb(var(--color-fg) / 0.12);
+  --nav-overlay-blob-b-color: rgb(var(--color-fg) / 0.1);
+  --nav-overlay-blob-c-color: rgb(var(--color-fg) / 0.08);
 }
 
 /* 2) Reset & base */
 html, body, #__next { height: 100% }
 html, body {
-  background:
-    radial-gradient(circle at 20% 10%, rgb(var(--glow-lilac) / 0.58), transparent 58%),
-    radial-gradient(circle at 78% 24%, rgb(var(--glow-mint) / 0.52), transparent 62%),
-    radial-gradient(circle at 46% 80%, rgb(var(--glow-spring) / 0.46), transparent 66%),
-    linear-gradient(140deg, rgb(var(--color-bg) / 1), rgb(var(--color-bg) / 0.9));
+  background: rgb(var(--color-bg));
   color: rgb(var(--color-fg));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 .nav-overlay-surface {
-  background-image: var(--nav-overlay-gradient);
+  background-color: var(--nav-overlay-surface-color);
 }
 
 .nav-overlay-blob-a {
-  background-image: var(--nav-overlay-blob-a);
+  background-color: var(--nav-overlay-blob-a-color);
 }
 
 .nav-overlay-blob-b {
-  background-image: var(--nav-overlay-blob-b);
+  background-color: var(--nav-overlay-blob-b-color);
 }
 
 .nav-overlay-blob-c {
-  background-image: var(--nav-overlay-blob-c);
+  background-color: var(--nav-overlay-blob-c-color);
 }
 
 .btn {

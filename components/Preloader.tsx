@@ -13,8 +13,7 @@ type PreloaderProps = {
   onComplete?: () => void;
 };
 
-const STATIC_PREVIEW_STYLES =
-  "h-48 w-48 rounded-full bg-gradient-to-br from-fg/15 via-fg/10 to-fg/5";
+const STATIC_PREVIEW_STYLES = "h-48 w-48 rounded-full bg-fg/10";
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");

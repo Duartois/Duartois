@@ -117,7 +117,7 @@ export default function AboutPage() {
           <section className="flex flex-1 justify-center lg:justify-end">
             <div className="relative flex h-[22rem] w-[22rem] max-w-full items-center justify-center">
               <div
-                className="pointer-events-none absolute inset-0 -z-20 rounded-full border border-fg/10 bg-[radial-gradient(circle_at_30%_25%,rgba(255,223,245,0.45)_0%,rgba(205,231,255,0.25)_45%,transparent_78%)] shadow-[0_35px_90px_-45px_rgba(0,0,0,0.65)]"
+                className="pointer-events-none absolute inset-0 -z-20 rounded-full border border-fg/10 bg-fg/10 shadow-[0_35px_90px_-45px_rgba(0,0,0,0.65)]"
                 aria-hidden
               />
               <div className="pointer-events-none absolute inset-[-6%] -z-10 animate-[spin_24s_linear_infinite] rounded-full border border-transparent border-t-accent2-300/50 border-b-accent1-200/50" aria-hidden />
@@ -131,7 +131,6 @@ export default function AboutPage() {
                   className="object-cover"
                   priority
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-accent1-200/25 via-transparent to-accent2-200/20 mix-blend-screen" aria-hidden />
               </div>
               <div className="pointer-events-none absolute -left-6 top-0 h-20 w-20 rounded-full bg-accent2-200/15 blur-2xl" aria-hidden />
               <div className="pointer-events-none absolute -bottom-10 right-0 h-24 w-24 rounded-full bg-accent1-300/20 blur-3xl" aria-hidden />

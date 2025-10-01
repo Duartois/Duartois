@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import type { ShapeId, ThemeName, VariantState } from "./types";
 
@@ -19,6 +20,23 @@ const SHAPE_ORDER: ShapeId[] = [
   "semiFlamingoAzure",
   "sphereFlamingoSpring",
 ];
+
+
+const COLOR_SPRING = "#78ffd1";
+const COLOR_AZURE = "#99b9ff";
+const COLOR_LIME = "#f0ffa6";
+const COLOR_FLAMINGO = "#ffb3f2";
+const DARK_THEME_COLOR = "#2b2b33";
+
+const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
+  torusSpringAzure: [COLOR_SPRING, COLOR_AZURE],
+  waveSpringLime: [COLOR_SPRING, COLOR_LIME],
+  semiLimeFlamingo: [COLOR_LIME, COLOR_FLAMINGO],
+  torusFlamingoLime: [COLOR_FLAMINGO, COLOR_LIME],
+  semiFlamingoAzure: [COLOR_FLAMINGO, COLOR_AZURE],
+  sphereFlamingoSpring: [COLOR_FLAMINGO, COLOR_SPRING],
+};
+
 
 const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
   torusSpringAzure: { x: 0.0035, y: 0.0042 },
@@ -126,10 +144,35 @@ const createGlossyMaterial = () =>
     clearcoatRoughness: 0.18,
   });
 
+const THICKNESS = 0.34;
+const TORUS_RADIUS = 1.28;
+const TORUS_RADIAL_SEGMENTS = 128;
+const TORUS_TUBULAR_SEGMENTS = 220;
+const CAP_SEGMENTS = 64;
+
+class CircularArcCurve extends THREE.Curve<THREE.Vector3> {
+  public constructor(
+    private readonly radius: number,
+    private readonly arc: number,
+    private readonly startAngle = -arc / 2,
+  ) {
+    super();
+  }
+
+  override getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
+    const theta = this.startAngle + this.arc * t;
+    const x = Math.cos(theta) * this.radius;
+    const z = Math.sin(theta) * this.radius;
+    target.set(x, 0, z);
+    return target;
+  }
+}
+
 const THICKNESS = 0.46;
 const TORUS_RADIUS = 1.72;
 const TORUS_RADIAL_SEGMENTS = 128;
 const TORUS_TUBULAR_SEGMENTS = 192;
+
 
 class WaveCurve extends THREE.Curve<THREE.Vector3> {
   private readonly halfLength: number;
@@ -149,8 +192,51 @@ class WaveCurve extends THREE.Curve<THREE.Vector3> {
   }
 }
 
+
+const createRoundedTubeGeometry = (
+  curve: THREE.Curve<THREE.Vector3>,
+  tubularSegments: number,
+  radialSegments: number,
+) => {
+  const tube = new THREE.TubeGeometry(curve, tubularSegments, THICKNESS, radialSegments, false);
+  const capOrigin = new THREE.SphereGeometry(THICKNESS, CAP_SEGMENTS, CAP_SEGMENTS);
+
+  const startPoint = curve.getPoint(0);
+  const endPoint = curve.getPoint(1);
+
+  const startCap = capOrigin.clone();
+  startCap.translate(startPoint.x, startPoint.y, startPoint.z);
+
+  const endCap = capOrigin.clone();
+  endCap.translate(endPoint.x, endPoint.y, endPoint.z);
+
+  const merged = mergeGeometries([tube, startCap, endCap], true);
+
+  capOrigin.dispose();
+
+  if (!merged) {
+    startCap.dispose();
+    endCap.dispose();
+    return tube;
+  }
+
+  tube.dispose();
+  startCap.dispose();
+  endCap.dispose();
+
+  return merged;
+};
+
+const createPartialTorusGeometry = (arc: number) =>
+  createRoundedTubeGeometry(
+    new CircularArcCurve(TORUS_RADIUS, arc),
+    TORUS_TUBULAR_SEGMENTS,
+    TORUS_RADIAL_SEGMENTS,
+  );
+
 const createPartialTorusGeometry = (arc: number) =>
   new THREE.TorusGeometry(TORUS_RADIUS, THICKNESS, TORUS_RADIAL_SEGMENTS, TORUS_TUBULAR_SEGMENTS, arc);
+
 
 export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
@@ -159,6 +245,9 @@ export async function addDuartoisSignatureShapes(
 ): Promise<ShapesHandle> {
   const group = new THREE.Group();
   scene.add(group);
+  group.scale.setScalar(0.82);
+
+  const waveCurve = new WaveCurve(3.8, 0.74);
 
   const waveCurve = new WaveCurve(5, 1.12);
 
@@ -173,7 +262,11 @@ export async function addDuartoisSignatureShapes(
     ),
     waveSpringLime: new THREE.Mesh(
       applyGradientToGeometry(
+
+        createRoundedTubeGeometry(waveCurve, 280, 88),
+
         new THREE.TubeGeometry(waveCurve, 320, THICKNESS, 72, false),
+
         GRADIENT_STOPS.waveSpringLime,
         GRADIENT_AXES.waveSpringLime,
       ),
@@ -298,16 +391,7 @@ export async function addDuartoisSignatureShapes(
   applyVariant(initialVariant);
   applyTheme(initialTheme);
 
-  const update = (elapsed: number) => {
-    orderedMeshes.forEach((mesh, index) => {
-      const id = SHAPE_ORDER[index];
-      const speeds = ROTATION_SPEEDS[id];
-      mesh.rotation.x += speeds.x;
-      mesh.rotation.y += speeds.y;
-      const wobble = 1 + 0.035 * Math.sin(elapsed * 0.78 + index * 0.6);
-      mesh.scale.setScalar(wobble);
-    });
-  };
+  const update = () => {};
 
   const dispose = () => {
     group.parent?.remove(group);
