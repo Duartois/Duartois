@@ -1,84 +1,42 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Navbar from "../../components/Navbar";
 import AnimatedText from "../../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { getDefaultPalette, type GradientPalette, type VariantName } from "../../components/three/types";
+import { getDefaultPalette, type VariantName } from "../../components/three/types";
 
 const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
 type ProjectKey = (typeof projectOrder)[number];
 
 type ProjectPreview = {
-  id: ProjectKey;
   variantName: VariantName;
-  palette: GradientPalette;
   showDescription?: boolean;
 };
 
-const previewPalettes: Record<ProjectKey, GradientPalette> = {
-  aurora: [
-    ["#C7D2FE", "#A5B4FF", "#7C8BFF", "#4F46E5"],
-    ["#BFDBFE", "#93C5FD", "#5EA3F4", "#2563EB"],
-    ["#FDE68A", "#FACA61", "#F6A53D", "#F97316"],
-    ["#F9A8D4", "#F472B6", "#F04F9A", "#EC4899"],
-    ["#CFFAFE", "#A5F3FC", "#67E8F9", "#22D3EE"],
-    ["#FEE2E2", "#FCA5A5", "#F87171", "#EF4444"],
-  ],
-  mare: [
-    ["#BBF7D0", "#86EFAC", "#4ADE80", "#10B981"],
-    ["#BAE6FD", "#7DD3FC", "#38BDF8", "#0284C7"],
-    ["#DDD6FE", "#C4B5FD", "#A78BFA", "#7C3AED"],
-    ["#99F6E4", "#5EEAD4", "#2DD4BF", "#14B8A6"],
-    ["#FDE68A", "#FCD34D", "#FBBF24", "#D97706"],
-    ["#FECACA", "#FCA5A5", "#F87171", "#DC2626"],
-  ],
-  spectrum: [
-    ["#FDE68A", "#FCD34D", "#FBBF24", "#FACC15"],
-    ["#FBCFE8", "#F472B6", "#F04F9A", "#EC4899"],
-    ["#BAE6FD", "#7DD3FC", "#38BDF8", "#3B82F6"],
-    ["#C7D2FE", "#A5B4FF", "#818CF8", "#6366F1"],
-    ["#BBF7D0", "#86EFAC", "#4ADE80", "#22C55E"],
-    ["#DDD6FE", "#C4B5FD", "#A78BFA", "#8B5CF6"],
-  ],
-};
-
-const projectPreviews: ProjectPreview[] = [
-  {
-    id: "aurora",
+const projectPreviews: Record<ProjectKey, ProjectPreview> = {
+  aurora: {
     variantName: "home",
-    palette: previewPalettes.aurora,
   },
-  {
-    id: "mare",
+  mare: {
     variantName: "about",
-    palette: previewPalettes.mare,
     showDescription: true,
   },
-  {
-    id: "spectrum",
+  spectrum: {
     variantName: "work",
-    palette: previewPalettes.spectrum,
   },
-];
+};
 
 export default function WorkPage() {
   const { t } = useTranslation("common");
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
   const shouldReduceMotion = useReducedMotion();
 
-  const activePreview = projectPreviews.find(
-    (preview) => preview.id === activeProject,
-  )!;
-
-  const previewGradient = useMemo(() => {
-    const [c1, c2, c3, c4] = activePreview.palette[0];
-    return `linear-gradient(135deg, ${c1} 0%, ${c2} 35%, ${c3} 65%, ${c4} 100%)`;
-  }, [activePreview]);
+  const activePreview = projectPreviews[activeProject];
 
   useEffect(() => {
     window.__THREE_APP__?.setState((previous) => ({
@@ -93,7 +51,6 @@ export default function WorkPage() {
     const preview = activePreview;
     window.__THREE_APP__?.setState({
       variantName: preview.variantName,
-      palette: preview.palette,
       parallax: false,
       hovered: true,
     });
@@ -173,11 +130,11 @@ export default function WorkPage() {
             <div
               className="relative aspect-[4/3] w-full max-w-xl overflow-hidden rounded-3xl border border-fg/15 bg-bg/80 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] backdrop-blur"
               role="img"
-              aria-label={t(`work.projects.${activePreview.id}.previewAlt`)}
+              aria-label={t(`work.projects.${activeProject}.previewAlt`)}
             >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
-                  key={activePreview.id}
+                  key={activeProject}
                   className="absolute inset-0"
                   initial={{
                     opacity: shouldReduceMotion ? 1 : 0,
@@ -194,15 +151,14 @@ export default function WorkPage() {
                   }}
                 >
                   <div
-                    className="absolute inset-0"
-                    style={{ background: previewGradient }}
+                    className="absolute inset-0 bg-gradient-to-br from-fg/25 via-fg/10 to-transparent"
                     aria-hidden
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-transparent via-bg/20 to-bg/40" aria-hidden />
                   <AnimatePresence initial={false}>
                     {activePreview.showDescription ? (
                       <motion.div
-                        key={`${activePreview.id}-description`}
+                        key={`${activeProject}-description`}
                         className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg/85 via-bg/65 to-transparent p-8"
                         initial={{
                           opacity: shouldReduceMotion ? 1 : 0,
@@ -219,7 +175,7 @@ export default function WorkPage() {
                         }}
                       >
                         <p className="text-pretty text-base leading-relaxed text-fg/85 sm:text-lg">
-                          {t(`work.projects.${activePreview.id}.description`)}
+                          {t(`work.projects.${activeProject}.description`)}
                         </p>
                       </motion.div>
                     ) : null}
