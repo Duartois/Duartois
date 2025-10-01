@@ -31,10 +31,10 @@ const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
   sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
 };
 
-const COLOR_SPRING = "#78ffd1";
-const COLOR_AZURE = "#99b9ff";
-const COLOR_LIME = "#f0ffa6";
-const COLOR_FLAMINGO = "#ffb3f2";
+const COLOR_SPRING = "#71ff81";
+const COLOR_AZURE = "#85b9ff";
+const COLOR_LIME = "#f0ff66";
+const COLOR_FLAMINGO = "#ff5c82";
 const DARK_THEME_COLOR = "#2b2b33";
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
