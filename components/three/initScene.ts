@@ -1,5 +1,5 @@
 import { Clock, Scene, Vector2, WebGLRenderer, Color } from "three";
-
+import * as THREE from "three";
 import {
   attachToWindow,
   detachFromWindow,
@@ -58,6 +58,22 @@ export const initScene = ({
 
   const effectivePalette = ensurePalette(palette, theme);
   const sceneObjects = createSceneObjects(effectivePalette);
+  // Garante que todos os materiais tenham uTime/uAmp/uFreq, mesmo após HMR
+sceneObjects.materials.forEach((m) => {
+  const u: any = m.uniforms;
+
+  // sempre existir
+  if (!u.uTime) u.uTime = { value: 0 };
+
+  // alias para versões antigas/alternativas
+  if (!u.uAmp && u.uNoiseAmp) u.uAmp = u.uNoiseAmp;
+  if (!u.uFreq && u.uNoiseFreq) u.uFreq = u.uNoiseFreq;
+
+  // se ainda não existir, cria com defaults
+  if (!u.uAmp) u.uAmp = { value: 0 };
+  if (!u.uFreq) u.uFreq = { value: 1.0 };
+});
+
   scene.add(sceneObjects.group);
 
   const initialState: ThreeAppState = {
@@ -98,13 +114,24 @@ export const initScene = ({
       : false;
 
   const resize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+
+  if (canvas.width !== width || canvas.height !== height) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
     renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-  };
+  }
+
+  // ortho frustum: top/bottom fixos e left/right por aspecto
+  const aspect = width / height;
+  const ortho = camera as unknown as THREE.OrthographicCamera;
+  ortho.left = -aspect;
+  ortho.right = aspect;
+  ortho.top = 1;
+  ortho.bottom = -1;
+  ortho.updateProjectionMatrix();
+};
+
 
   const pointerMove = (event: PointerEvent) => {
     const width = window.innerWidth;

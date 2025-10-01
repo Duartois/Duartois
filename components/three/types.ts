@@ -1,4 +1,4 @@
-import type { PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import type { OrthographicCamera, Scene, WebGLRenderer } from "three";
 
 export type Vector3Tuple = [number, number, number];
 
@@ -27,31 +27,38 @@ export type ShapeTransform = {
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
+  // 3) C-torus grande (direita)
   torus270A: {
-    position: [-0.48, 0.88, 0.18],
-    rotation: [0.16, 0.18, 0.42],
+    position: [ 1.05,  0.22,  0.00],
+    rotation: [ 0.00,  0.00, -0.10],
   },
+  // 6) Arco inferior grande (centro)
   torus270B: {
-    position: [-0.52, -0.96, -0.2],
-    rotation: [-0.12, 0.22, -0.36],
+    position: [ 0.00, -0.92,  0.00],
+    rotation: [ 0.00,  0.00,  0.00],
   },
+  // 5) C-torus médio (centro-esquerda)
   semi180A: {
-    position: [0.78, 0.36, 0.16],
-    rotation: [-0.08, 0.26, -0.22],
+    position: [ 0.23, -0.02,  0.00],
+    rotation: [ 0.00,  0.00,  0.10],
   },
+  // 4) Crescente/feijão (esquerda)
   semi180B: {
-    position: [0.92, -1.42, 0.1],
-    rotation: [0.14, -0.14, -0.28],
+    position: [-0.42,  0.08,  0.00],
+    rotation: [ 0.00,  0.00,  0.00],
   },
+  // 1) S-worm superior esquerdo
   wave: {
-    position: [-0.24, 1.98, 0.3],
-    rotation: [0.38, -0.22, 0.56],
+    position: [-0.96,  0.58,  0.00],
+    rotation: [ 0.00,  0.00,  0.00],
   },
+  // 2) Esfera pequena
   sphere: {
-    position: [1.24, 1.64, 0.44],
-    rotation: [0, 0, 0],
+    position: [ 0.18,  0.74,  0.00],
+    rotation: [ 0.00,  0.00,  0.00],
   },
 });
+
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
@@ -62,13 +69,14 @@ export const variantMapping: Record<VariantName, VariantState> = {
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
-  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
-  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
-  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
-  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
-  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
-  ["#f9d7fb", "#f4f6c6", "#a8f0d6", "#a0c8ff"],
+  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
+  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
+  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
+  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
+  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
+  ["#B9FFB2", "#A9EEFF", "#B6B1FF", "#FFB6C6"],
 ];
+
 
 export const DARK_THEME_PALETTE: GradientPalette = [
   ["#2f3039", "#3a3b45", "#454651", "#52535f"],
@@ -106,7 +114,7 @@ export interface ThreeAppHandle {
     getState: () => Readonly<ThreeAppState>;
     events: EventTarget;
     scene: Scene;
-    camera: PerspectiveCamera;
+    camera: OrthographicCamera;
     renderer: WebGLRenderer;
     variantMapping: typeof variantMapping;
   };

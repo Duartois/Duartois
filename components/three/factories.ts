@@ -3,13 +3,14 @@ import {
   Color,
   DoubleSide,
   Group,
-  IcosahedronGeometry,
   Mesh,
-  PerspectiveCamera,
+  OrthographicCamera,
   ShaderMaterial,
   TubeGeometry,
   Vector3,
+  SphereGeometry,
 } from "three";
+
 
 import {
   LIGHT_THEME_PALETTE,
@@ -172,19 +173,26 @@ const fragmentShader = /* glsl */ `
 
 const createGradientMaterial = () => {
   const material = new ShaderMaterial({
-    uniforms: {
-      uColor1: { value: new Color("#f9d7fb") },
-      uColor2: { value: new Color("#f3f6c8") },
-      uColor3: { value: new Color("#a8f0d6") },
-      uColor4: { value: new Color("#a1c8ff") },
-      uTime: { value: 0 },
-      uAmp: { value: 0 },
-      uFreq: { value: 1.25 },
-      uNoiseScale: { value: 0 },
-    },
-    vertexShader,
-    fragmentShader,
-  }) as GradientMaterial;
+  uniforms: {
+    uColor1: { value: new Color("#f9d7fb") },
+    uColor2: { value: new Color("#f3f6c8") },
+    uColor3: { value: new Color("#a8f0d6") },
+    uColor4: { value: new Color("#a1c8ff") },
+    uTime: { value: 0 },
+    uAmp: { value: 0 },
+    uFreq: { value: 1.25 },
+    uNoiseScale: { value: 0 },
+  },
+  vertexShader,
+  fragmentShader,
+}) as GradientMaterial;
+
+// ---- aliases de compatibilidade (evita crash quando trocar nomes) ----
+const u: any = material.uniforms;
+if (!u.uNoiseAmp && u.uAmp) u.uNoiseAmp = u.uAmp;
+if (!u.uNoiseFreq && u.uFreq) u.uNoiseFreq = u.uFreq;
+
+
 
   material.transparent = false;
   material.depthWrite = true;
@@ -300,65 +308,90 @@ const createRibbonGeometry = () => {
 };
 
 const createRippleSphereGeometry = () => {
-  const geometry = new IcosahedronGeometry(0.64, 6);
+  const geometry = new SphereGeometry(0.64, 6);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   return geometry;
 };
 
 export const createGeometries = () => {
+  // 3) C-torus grande à direita
   const torus270A = createArcGeometry({
-    radius: 1.52,
-    arc: Math.PI * 1.58,
-    thickness: 0.27,
-    depth: 0.12,
-    lift: 0.14,
-    tilt: 0.2,
-    roll: 0.46,
+    radius: 1.22,                // raio maior
+    arc: Math.PI * 1.55,         // ~279°
+    thickness: 0.22,             // espessura do tubo
+    depth: 0.10,                 // leve variação Z
+    lift: 0.00,                  // sem “levantar” o arco
+    tilt: 0.00,                  // sem inclinação X
+    roll: -0.10,                 // leve giro Z
   });
 
+  // 6) Arco inferior grande
   const torus270B = createArcGeometry({
-    radius: 1.28,
-    arc: Math.PI * 1.54,
+    radius: 1.36,
+    arc: Math.PI * 1.25,         // ~225°
     thickness: 0.26,
-    depth: 0.1,
-    lift: -0.1,
-    tilt: -0.18,
-    roll: -0.42,
+    depth: 0.10,
+    lift: 0.00,
+    tilt: 0.00,
+    roll: 0.00,
   });
 
+  // 5) C-torus médio (meio-esquerda)
   const semi180A = createArcGeometry({
-    radius: 1.04,
-    arc: Math.PI * 1.46,
-    thickness: 0.24,
-    depth: 0.08,
-    lift: 0.08,
-    tilt: -0.12,
-    roll: 0.32,
+    radius: 1.08,
+    arc: Math.PI * 1.45,         // ~261°
+    thickness: 0.20,
+    depth: 0.10,
+    lift: 0.00,
+    tilt: 0.00,
+    roll: 0.10,
   });
 
+  // 4) “Feijão”/crescente (esquerda)
   const semi180B = createArcGeometry({
-    radius: 0.94,
-    arc: Math.PI * 1.4,
-    thickness: 0.23,
-    depth: 0.08,
-    lift: -0.06,
-    tilt: 0.16,
-    roll: -0.3,
+    radius: 0.98,
+    arc: Math.PI * 1.10,         // ~198°
+    thickness: 0.20,
+    depth: 0.10,
+    lift: 0.00,
+    tilt: 0.00,
+    roll: 0.00,
   });
 
-  const wave = createRibbonGeometry();
-  const sphere = createRippleSphereGeometry();
+  // 1) S-worm superior esquerdo (curva Catmull)
+  const wave = new TubeGeometry(
+    new CatmullRomCurve3(
+      [
+        new Vector3(-1.35,  0.98, 0.00),
+        new Vector3(-0.78,  0.98, 0.00),
+        new Vector3(-0.38,  0.72, 0.00),
+        new Vector3(-0.92,  0.38, 0.00),
+        new Vector3(-1.48,  0.12, 0.00),
+      ],
+      false,
+      "centripetal",
+      0.52
+    ),
+    540,       // tubularSegments
+    0.12,      // tube radius (espessura)
+    64,        // radialSegments
+    false
+  );
 
-  torus270A.scale(1.08, 1.08, 1.08);
-  torus270B.scale(1.14, 1.14, 1.14);
-  semi180A.scale(1.04, 1.04, 1.04);
-  semi180B.scale(1.06, 1.06, 1.06);
-  wave.scale(1.04, 1.04, 1.04);
-  sphere.scale(0.84, 0.84, 0.84);
+  // 2) Esfera pequena superior
+  const sphere = new SphereGeometry(0.16, 96, 96);
 
-  return { torus270A, torus270B, semi180A, semi180B, wave, sphere };
+  return {
+    torus270A,
+    torus270B,
+    semi180A,
+    semi180B,
+    wave,
+    sphere,
+  };
 };
+
 
 export type SceneObjects = {
   group: Group;
@@ -427,10 +460,12 @@ export const updateMeshesFromVariant = (
 };
 
 export const createCamera = () => {
-  const camera = new PerspectiveCamera(40, 1, 0.1, 50);
+  const aspect = window.innerWidth / window.innerHeight;
+  const camera = new OrthographicCamera(-aspect, aspect, 1, -1, 0.1, 50);
   camera.position.set(0, 0, 6);
   return camera;
 };
+
 
 export const cloneVariant = (variant: VariantState) => createVariantState(variant);
 
