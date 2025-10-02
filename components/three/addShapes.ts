@@ -68,10 +68,16 @@ const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
   waveSpringLime: "x",
   semiLimeFlamingo: "angleXZ",
   torusFlamingoLime: "angleXZ",
-  semiFlamingoAzure: "angleXZ",
+  semiFlamingoAzure: "radialY",
   sphereFlamingoSpring: "radial",
 };
 
+/**
+ * Gradient axis descriptors:
+ * - "radial": distance from the origin in 3D space (sqrt(x^2 + y^2 + z^2)).
+ * - "radialXZ": cylindrical radius around the Y axis (sqrt(x^2 + z^2)).
+ * - "radialY": cylindrical radius around the X axis, involving the Y dimension (sqrt(y^2 + z^2)).
+ */
 type GradientAxis =
   | "x"
   | "y"
@@ -143,19 +149,28 @@ const applyGradientToGeometry = (
       attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
       index: number,
     ) => {
-      if (axis === "x") {
-        return attribute.getX(index);
+      switch (axis) {
+        case "x":
+          return attribute.getX(index);
+        case "y":
+          return attribute.getY(index);
+        case "z":
+          return attribute.getZ(index);
+        case "radial":
+          return Math.hypot(
+            attribute.getX(index),
+            attribute.getY(index),
+            attribute.getZ(index),
+          );
+        case "radialXZ":
+          return Math.hypot(attribute.getX(index), attribute.getZ(index));
+        case "radialY":
+          return Math.hypot(attribute.getY(index), attribute.getZ(index));
+        case "none":
+          return 0;
+        default:
+          return attribute.getX(index);
       }
-      if (axis === "y") {
-        return attribute.getY(index);
-      }
-      if (axis === "z") {
-        return attribute.getZ(index);
-      }
-
-      const x = attribute.getX(index);
-      const z = attribute.getZ(index);
-      return Math.hypot(x, z);
     };
 
     for (let i = 0; i < position.count; i += 1) {
