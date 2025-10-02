@@ -132,14 +132,14 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.65,          // highlight largo, sem “faixa” estourada
-    metalness: 0.05,
-    clearcoat: 0.6,
-    clearcoatRoughness: 0.55, // verniz suave
+    roughness: 0.3, // mantém highlights definidos
+    metalness: 0.18,
+    clearcoat: 0.82,
+    clearcoatRoughness: 0.28,
     sheen: 0.0,
     sheenRoughness: 0.0,
-    envMapIntensity: 0.12,    // se houver envMap, deixa bem discreto
-    specularIntensity: 0.45,
+    envMapIntensity: 0.85, // dá brilho perceptível quando houver envMap
+    specularIntensity: 0.58,
     specularColor: "#ffffff",
   });
 
@@ -449,11 +449,12 @@ export async function addDuartoisSignatureShapes(
       }
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = 0.05;
-      material.roughness = 0.95;
-      material.clearcoat = 0.6;
-      material.clearcoatRoughness = 0.55;
-      material.envMapIntensity = 0.12;
+      material.metalness = isDark ? 0.22 : 0.18;
+      material.roughness = isDark ? 0.34 : 0.28;
+      material.clearcoat = isDark ? 0.88 : 0.84;
+      material.clearcoatRoughness = isDark ? 0.32 : 0.26;
+      material.envMapIntensity = isDark ? 0.95 : 0.9;
+      material.specularIntensity = isDark ? 0.62 : 0.6;
       material.sheen = 0.0;
       material.sheenColor.set("#ffffff");
       material.emissive.set("#0b0b0e");
