@@ -64,15 +64,23 @@ const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
-  torusSpringAzure: "radial",
+  torusSpringAzure: "angleXZ",
   waveSpringLime: "x",
-  semiLimeFlamingo: "y",
-  torusFlamingoLime: "radial",
-  semiFlamingoAzure: "radialY",
+  semiLimeFlamingo: "angleXZ",
+  torusFlamingoLime: "angleXZ",
+  semiFlamingoAzure: "angleXZ",
   sphereFlamingoSpring: "radial",
 };
 
-type GradientAxis = "x" | "y" | "z" | "radial" | "radialXZ" | "none" | "radialY";
+type GradientAxis =
+  | "x"
+  | "y"
+  | "z"
+  | "radial"
+  | "radialXZ"
+  | "none"
+  | "radialY"
+  | "angleXZ";
 
 const applyGradientToGeometry = (
   geometry: THREE.BufferGeometry,
@@ -89,32 +97,73 @@ const applyGradientToGeometry = (
     return nonIndexed;
   }
 
+  const values = new Float32Array(position.count);
   let min = Infinity;
   let max = -Infinity;
 
-  const readComponent = (
-    attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
-    index: number,
-  ) => {
-    if (axis === "x") {
-      return attribute.getX(index);
-    }
-    if (axis === "y") {
-      return attribute.getY(index);
-    }
-    if (axis === "z") {
-      return attribute.getZ(index);
+  if (axis === "angleXZ") {
+    const TWO_PI = Math.PI * 2;
+    const rawAngles = new Float32Array(position.count);
+
+    for (let i = 0; i < position.count; i += 1) {
+      const x = position.getX(i);
+      const z = position.getZ(i);
+      const angle = Math.atan2(z, x);
+      rawAngles[i] = THREE.MathUtils.euclideanModulo(angle, TWO_PI);
     }
 
-    const x = attribute.getX(index);
-    const z = attribute.getZ(index);
-    return Math.hypot(x, z);
-  };
+    const sortedAngles = Array.from(rawAngles);
+    sortedAngles.sort((a, b) => a - b);
 
-  for (let i = 0; i < position.count; i += 1) {
-    const value = readComponent(position, i);
-    min = Math.min(min, value);
-    max = Math.max(max, value);
+    let base = sortedAngles[0] ?? 0;
+
+    if (sortedAngles.length > 1) {
+      let largestGap = -Infinity;
+
+      for (let i = 0; i < sortedAngles.length; i += 1) {
+        const current = sortedAngles[i];
+        const next = i === sortedAngles.length - 1 ? sortedAngles[0] + TWO_PI : sortedAngles[i + 1];
+        const gap = next - current;
+
+        if (gap > largestGap) {
+          largestGap = gap;
+          base = i === sortedAngles.length - 1 ? sortedAngles[0] : sortedAngles[i + 1];
+        }
+      }
+    }
+
+    for (let i = 0; i < position.count; i += 1) {
+      const normalized = THREE.MathUtils.euclideanModulo(rawAngles[i] - base, TWO_PI);
+      values[i] = normalized;
+      min = Math.min(min, normalized);
+      max = Math.max(max, normalized);
+    }
+  } else {
+    const readComponent = (
+      attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+      index: number,
+    ) => {
+      if (axis === "x") {
+        return attribute.getX(index);
+      }
+      if (axis === "y") {
+        return attribute.getY(index);
+      }
+      if (axis === "z") {
+        return attribute.getZ(index);
+      }
+
+      const x = attribute.getX(index);
+      const z = attribute.getZ(index);
+      return Math.hypot(x, z);
+    };
+
+    for (let i = 0; i < position.count; i += 1) {
+      const value = readComponent(position, i);
+      values[i] = value;
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+    }
   }
 
   const range = max - min || 1;
@@ -122,7 +171,7 @@ const applyGradientToGeometry = (
   const colors = new Float32Array(position.count * 3);
 
   for (let i = 0; i < position.count; i += 1) {
-    const value = readComponent(position, i);
+    const value = values[i];
     const t = (value - min) / range;
     const scaled = t * (stopColors.length - 1);
     const index = Math.floor(scaled);
