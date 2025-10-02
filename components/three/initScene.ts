@@ -48,8 +48,15 @@ export const initScene = async ({
     antialias: true,
     alpha: true,
   });
+ 
   renderer.setClearColor(new Color("#000000"), 0);
-
+  // === pastel/filmic renderer ===
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  // menos brilho no tema claro, levemente mais no escuro
+  renderer.toneMappingExposure = theme === "light" ? 0.6 : 1.0;
+  // sombras desligadas para evitar contorno duro
+  renderer.shadowMap.enabled = false;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new Scene();
   const camera = createCamera();
   scene.add(camera);
@@ -242,6 +249,7 @@ export const initScene = async ({
     if (partial.theme && partial.theme !== state.theme) {
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
       shapes.applyTheme(partial.theme);
+      renderer.toneMappingExposure = partial.theme === "light" ? 0.6 : 1.0;
       nextState = {
         ...nextState,
         theme: partial.theme,

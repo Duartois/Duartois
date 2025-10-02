@@ -42,7 +42,7 @@ const COLOR_LIME = "#f0ff66";
 const COLOR_FLAMINGO = "#ff5c82";
 const DARK_THEME_COLOR = "#2b2b33";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
-const PASTEL_INTENSITY = 0.15;
+const PASTEL_INTENSITY = 0.28;
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
   torusSpringAzure: [COLOR_AZURE, COLOR_SPRING],
@@ -56,13 +56,13 @@ const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
   torusSpringAzure: "radial",
   waveSpringLime: "y",
-  semiLimeFlamingo: "radial",
+  semiLimeFlamingo: "radialY",
   torusFlamingoLime: "radial",
   semiFlamingoAzure: "radial",
   sphereFlamingoSpring: "y",
 };
 
-type GradientAxis = "x" | "y" | "z" | "radial";
+type GradientAxis = "x" | "y" | "z" | "radial" | "radialXZ" | "none" | "radialY";
 
 const applyGradientToGeometry = (
   geometry: THREE.BufferGeometry,
@@ -133,16 +133,17 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.4,
-    metalness: 0.08,
-    clearcoat: 0.28,
-    clearcoatRoughness: 0.18,
-    sheen: 0.18,
-    sheenRoughness: 0.65,
-    envMapIntensity: 0.1,
-    specularIntensity: 0.38,
+    roughness: 0.65,          // highlight largo, sem “faixa” estourada
+    metalness: 0.05,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.55, // verniz suave
+    sheen: 0.0,
+    sheenRoughness: 0.0,
+    envMapIntensity: 0.12,    // se houver envMap, deixa bem discreto
+    specularIntensity: 0.45,
     specularColor: "#ffffff",
   });
+
 
 const THICKNESS = 0.64;
 const TORUS_RADIUS = 1.28;
@@ -307,14 +308,15 @@ export async function addDuartoisSignatureShapes(
 
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 0.58);
-  const hemisphere = new THREE.HemisphereLight(0xffffff, 0x1a1a23, 0.8);
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.18);
+  const hemisphere = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.7); // sem ground escuro
+  const keyLight = new THREE.DirectionalLight(0xffffff, 0.35);
   keyLight.position.set(6, 8, 8);
-  const fillLight = new THREE.DirectionalLight(0xfff6e6, 0.75);
+  const fillLight = new THREE.DirectionalLight(0xffffff, 0.2);
   fillLight.position.set(-4, 5, 6);
-  const rimLight = new THREE.DirectionalLight(0xffffff, 0.7);
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.2);
   rimLight.position.set(0, -6, -7);
+
 
   const lights: THREE.Light[] = [ambient, hemisphere, keyLight, fillLight, rimLight];
 
@@ -352,12 +354,13 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseAmbient = isDark ? 0.95 : 1.15;
-    const baseHemisphere = isDark ? 0.9 : 1.0;
-    const baseKey = isDark ? 0.9 : 0.9;
-    const baseFill = isDark ? 0.65 : 0.65;
-    const baseRim = isDark ? 0.7 : 0.6;
-    const baseEmissive = isDark ? 0.52 : 0.34;
+    const baseAmbient = isDark ? 0.22 : 0.18;
+    const baseHemisphere = isDark ? 0.8 : 0.7;
+    const baseKey = isDark ? 0.45 : 0.35;
+    const baseFill = isDark ? 0.30 : 0.20;
+    const baseRim = isDark ? 0.35 : 0.20;
+    const baseEmissive = 0.0; // não vamos “tintar” com emissive
+
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -365,22 +368,23 @@ export async function addDuartoisSignatureShapes(
       material.color.set(isDark ? DARK_THEME_COLOR : 0xffffff);
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = 0.08;
-      material.roughness = isDark ? 0.44 : 0.38;
-      material.clearcoat = isDark ? 0.24 : 0.28;
-      material.clearcoatRoughness = isDark ? 0.22 : 0.18;
-      material.envMapIntensity = isDark ? 0.12 : 0.1;
-      material.sheen = isDark ? 0.22 : 0.18;
-      material.sheenColor.set(isDark ? "#474a5d" : "#f4f7ff");
-      material.emissive.set(isDark ? "#1a1a23" : "#0f1212");
-      material.emissiveIntensity = baseEmissive * currentBrightness;
+      material.metalness = 0.05;
+      material.roughness = 0.65;
+      material.clearcoat = 0.6;
+      material.clearcoatRoughness = 0.55;
+      material.envMapIntensity = 0.12;
+      material.sheen = 0.0;
+      material.sheenColor.set("#ffffff");
+      material.emissive.set("#0b0b0e");
+      material.emissiveIntensity = baseEmissive * currentBrightness; // 0
+
       material.needsUpdate = true;
     });
 
-    ambient.color.set(isDark ? "#262630" : "#ffffff");
+    ambient.color.set("#ffffff");
     ambient.intensity = baseAmbient * currentBrightness;
-    hemisphere.color.set(isDark ? "#d5dcff" : "#ffffff");
-    hemisphere.groundColor.set(isDark ? "#232533" : "#f4f7ff");
+    hemisphere.color.set("#ffffff");
+    hemisphere.groundColor.set("#ffffff");
     hemisphere.intensity = baseHemisphere * currentBrightness;
     keyLight.color.set(isDark ? "#ffffff" : "#fff3e0");
     keyLight.intensity = baseKey * currentBrightness;
