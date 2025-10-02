@@ -1,4 +1,3 @@
-import { Clock, Color, Scene, Vector2, WebGLRenderer } from "three";
 import * as THREE from "three";
 import {
   attachToWindow,
@@ -33,6 +32,12 @@ export type InitSceneOptions = {
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
+const getToneMappingExposure = (theme: ThemeName) =>
+  theme === "light" ? 1.1 : 1.5;
+
+const resolveWindow = () =>
+  (typeof window === "undefined" ? null : window);
+
 export const initScene = async ({
   canvas,
   initialVariant = "home",
@@ -40,31 +45,40 @@ export const initScene = async ({
   palette,
   parallax = true,
 }: InitSceneOptions): Promise<ThreeAppHandle> => {
-  if (typeof window !== "undefined") {
-    window.__THREE_APP__?.dispose();
+  const globalWindow = resolveWindow();
+
+  if (!globalWindow) {
+    throw new Error("initScene requires a browser environment");
   }
 
-  const renderer = new WebGLRenderer({
+  globalWindow.__THREE_APP__?.dispose();
+
+  const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
     alpha: true,
   });
- 
-  renderer.setClearColor(new Color("#000000"), 0);
+
+  renderer.setClearColor(new THREE.Color("#000000"), 0);
   // === pastel/filmic renderer ===
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   // menos brilho no tema claro, levemente mais no escuro
-  renderer.toneMappingExposure = theme === "light" ? 1.1 : 1.5;
+  renderer.toneMappingExposure = getToneMappingExposure(theme);
   // sombras desligadas para evitar contorno duro
   renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  const scene = new Scene();
+  const scene = new THREE.Scene();
   const camera = createCamera();
   scene.add(camera);
 
   const effectivePalette = ensurePalette(palette, theme);
-  const baseVariant = createVariantState(variantMapping[initialVariant]);
-  const shapes = await addDuartoisSignatureShapes(scene, baseVariant, theme);
+  const baseVariantTemplate = variantMapping[initialVariant];
+  const initialVariantState = createVariantState(baseVariantTemplate);
+  const shapes = await addDuartoisSignatureShapes(
+    scene,
+    initialVariantState,
+    theme,
+  );
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
@@ -96,7 +110,7 @@ export const initScene = async ({
   };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
-    variant: createVariantState(baseVariant),
+    variant: createVariantState(initialVariantState),
     palette: effectivePalette,
     theme,
     parallax,
@@ -115,9 +129,9 @@ export const initScene = async ({
   const eventTarget = new EventTarget();
 
   let state = initialState;
-  const pointer = new Vector2();
-  const devicePointerTarget = new Vector2();
-  const manualPointerTarget = new Vector2();
+  const pointer = new THREE.Vector2();
+  const devicePointerTarget = new THREE.Vector2();
+  const manualPointerTarget = new THREE.Vector2();
 
   devicePointerTarget.set(initialState.pointer.x, initialState.pointer.y);
   manualPointerTarget.set(
@@ -125,22 +139,24 @@ export const initScene = async ({
     initialState.manualPointer.y,
   );
 
-  const clock = new Clock();
+  const clock = new THREE.Clock();
   let readyDispatched = false;
   let animationId: number | null = null;
   let disposed = false;
 
   const isMobile = () =>
-    typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 768px)").matches
-      : false;
+    globalWindow.matchMedia("(max-width: 768px)").matches;
 
   const resize = () => {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
+    if (height === 0) {
+      return;
+    }
+
     if (canvas.width !== width || canvas.height !== height) {
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+      renderer.setPixelRatio(Math.min(globalWindow.devicePixelRatio, 1.8));
       renderer.setSize(width, height, false);
     }
 
@@ -156,8 +172,8 @@ export const initScene = async ({
 
 
   const pointerMove = (event: PointerEvent) => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = globalWindow.innerWidth;
+    const height = globalWindow.innerHeight;
     const x = (event.clientX / width) * 2 - 1;
     const y = -((event.clientY / height) * 2 - 1);
     devicePointerTarget.set(x, y);
@@ -209,8 +225,8 @@ export const initScene = async ({
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
     shapesGroup.scale.setScalar(nextScale);
 
-    const maxX = (mobile ? 0.22 : 0.32) * (window.innerWidth / 2) * 0.01;
-    const maxY = (mobile ? 0.18 : 0.26) * (window.innerHeight / 2) * 0.01;
+    const maxX = (mobile ? 0.22 : 0.32) * (globalWindow.innerWidth / 2) * 0.01;
+    const maxY = (mobile ? 0.18 : 0.26) * (globalWindow.innerHeight / 2) * 0.01;
     shapesGroup.position.x = clamp(shapesGroup.position.x, -maxX, maxX);
     shapesGroup.position.y = clamp(shapesGroup.position.y, -maxY, maxY);
 
@@ -224,7 +240,7 @@ export const initScene = async ({
     }
 
     if (!disposed) {
-      animationId = window.requestAnimationFrame(tick);
+      animationId = globalWindow.requestAnimationFrame(tick);
     }
   };
 
@@ -236,102 +252,82 @@ export const initScene = async ({
     let changed = false;
     let nextState = state;
 
+    const commit = (updates: Partial<ThreeAppState>) => {
+      nextState = { ...nextState, ...updates };
+      changed = true;
+    };
+
     if (partial.variantName && partial.variantName !== state.variantName) {
       const mapped = variantMapping[partial.variantName];
-      nextState = {
-        ...nextState,
-        variantName: partial.variantName,
-        variant: createVariantState(mapped),
-      };
-      changed = true;
-      shapes.applyVariant(nextState.variant);
+      const nextVariant = createVariantState(mapped);
+      shapes.applyVariant(nextVariant);
+      commit({ variantName: partial.variantName, variant: nextVariant });
     }
 
     if (partial.palette) {
-      nextState = { ...nextState, palette: partial.palette };
-      changed = true;
+      commit({ palette: partial.palette });
     }
 
     if (partial.theme && partial.theme !== state.theme) {
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
       shapes.applyTheme(partial.theme);
-      renderer.toneMappingExposure =
-        partial.theme === "light" ? 1.1 : 1.5;
-      nextState = {
-        ...nextState,
-        theme: partial.theme,
-        palette: nextPalette,
-      };
-      changed = true;
+      renderer.toneMappingExposure = getToneMappingExposure(partial.theme);
+      commit({ theme: partial.theme, palette: nextPalette });
     }
 
     if (typeof partial.brightness === "number") {
       const nextBrightness = clamp(partial.brightness, 0.5, 2);
       if (nextBrightness !== state.brightness) {
         shapes.setBrightness(nextBrightness);
-        nextState = { ...nextState, brightness: nextBrightness };
-        changed = true;
+        commit({ brightness: nextBrightness });
       }
     }
 
     if (typeof partial.parallax === "boolean" && partial.parallax !== state.parallax) {
-      nextState = { ...nextState, parallax: partial.parallax };
-      changed = true;
+      commit({ parallax: partial.parallax });
     }
 
     if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
-      nextState = { ...nextState, hovered: partial.hovered };
-      changed = true;
+      commit({ hovered: partial.hovered });
     }
 
     if (typeof partial.cursorBoost === "number") {
       const boost = clamp(partial.cursorBoost, -0.3, 0.45);
       if (boost !== state.cursorBoost) {
-        nextState = { ...nextState, cursorBoost: boost };
-        changed = true;
+        commit({ cursorBoost: boost });
       }
     }
 
     if (partial.manualPointer) {
       manualPointerTarget.set(partial.manualPointer.x, partial.manualPointer.y);
-      nextState = {
-        ...nextState,
-        manualPointer: { ...partial.manualPointer },
-      };
+      commit({ manualPointer: { ...partial.manualPointer } });
       const effectiveDriver = partial.pointerDriver ?? nextState.pointerDriver;
       if (effectiveDriver === "manual") {
-        nextState = {
-          ...nextState,
-          pointer: { ...partial.manualPointer },
-        };
+        commit({ pointer: { ...partial.manualPointer } });
       }
-      changed = true;
     }
 
     if (partial.pointerDriver && partial.pointerDriver !== state.pointerDriver) {
-      nextState = { ...nextState, pointerDriver: partial.pointerDriver };
       const source =
         partial.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
-      nextState = {
-        ...nextState,
+      commit({
+        pointerDriver: partial.pointerDriver,
         pointer: { x: source.x, y: source.y },
-      };
-      changed = true;
+      });
     }
 
     if (typeof partial.opacity === "number") {
       const nextOpacity = clamp(partial.opacity, 0, 1);
       if (nextOpacity !== state.opacity) {
-        nextState = { ...nextState, opacity: nextOpacity };
         updateMeshesOpacity(nextOpacity);
-        changed = true;
+        commit({ opacity: nextOpacity });
       }
     }
 
     if (partial.variant) {
-      nextState = { ...nextState, variant: createVariantState(partial.variant) };
-      shapes.applyVariant(nextState.variant);
-      changed = true;
+      const nextVariant = createVariantState(partial.variant);
+      shapes.applyVariant(nextVariant);
+      commit({ variant: nextVariant });
     }
 
     state = nextState;
@@ -349,13 +345,13 @@ export const initScene = async ({
     disposed = true;
 
     if (animationId !== null) {
-      window.cancelAnimationFrame(animationId);
+      globalWindow.cancelAnimationFrame(animationId);
       animationId = null;
     }
-    window.removeEventListener("resize", resize);
-    window.removeEventListener("pointermove", pointerMove);
-    window.removeEventListener("pointerenter", pointerEnter);
-    window.removeEventListener("pointerleave", pointerLeave);
+    globalWindow.removeEventListener("resize", resize);
+    globalWindow.removeEventListener("pointermove", pointerMove);
+    globalWindow.removeEventListener("pointerenter", pointerEnter);
+    globalWindow.removeEventListener("pointerleave", pointerLeave);
     shapes.dispose();
     renderer.forceContextLoss();
     renderer.dispose();
@@ -378,14 +374,14 @@ export const initScene = async ({
   attachToWindow(handle);
 
   resize();
-  window.addEventListener("resize", resize);
-  window.addEventListener("pointermove", pointerMove);
-  window.addEventListener("pointerenter", pointerEnter);
-  window.addEventListener("pointerleave", pointerLeave);
+  globalWindow.addEventListener("resize", resize);
+  globalWindow.addEventListener("pointermove", pointerMove);
+  globalWindow.addEventListener("pointerenter", pointerEnter);
+  globalWindow.addEventListener("pointerleave", pointerLeave);
 
   dispatchStateChange(eventTarget, state);
 
-  animationId = window.requestAnimationFrame(tick);
+  animationId = globalWindow.requestAnimationFrame(tick);
 
   return handle;
 };
