@@ -353,11 +353,11 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseAmbient = isDark ? 0.38 : 0.30;
-    const baseHemisphere = isDark ? 0.8 : 0.7;
-    const baseKey = isDark ? 0.45 : 0.35;
-    const baseFill = isDark ? 0.34 : 0.26;
-    const baseRim = isDark ? 0.4 : 0.3;
+    const baseAmbient = isDark ? 0.38 : 0.46;
+    const baseHemisphere = isDark ? 0.8 : 0.95;
+    const baseKey = isDark ? 0.45 : 0.52;
+    const baseFill = isDark ? 0.34 : 0.42;
+    const baseRim = isDark ? 0.4 : 0.5;
     const baseEmissive = 0.0; // não vamos “tintar” com emissive
 
 
