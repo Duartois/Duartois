@@ -249,7 +249,8 @@ export const initScene = async ({
     if (partial.theme && partial.theme !== state.theme) {
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
       shapes.applyTheme(partial.theme);
-      renderer.toneMappingExposure = partial.theme === "light" ? 0.6 : 1.0;
+      renderer.toneMappingExposure =
+        partial.theme === "light" ? 1.1 : 1.5;
       nextState = {
         ...nextState,
         theme: partial.theme,
