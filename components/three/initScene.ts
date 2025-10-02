@@ -53,6 +53,13 @@ export const initScene = async ({
 
   globalWindow.__THREE_APP__?.dispose();
 
+  const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
+  let isMobile = mobileQuery.matches;
+  const handleMobileChange = (event: MediaQueryListEvent) => {
+    isMobile = event.matches;
+  };
+  mobileQuery.addEventListener("change", handleMobileChange);
+
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -162,9 +169,6 @@ export const initScene = async ({
   let animationId: number | null = null;
   let disposed = false;
 
-  const isMobile = () =>
-    globalWindow.matchMedia("(max-width: 768px)").matches;
-
   const resize = () => {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
@@ -224,7 +228,7 @@ export const initScene = async ({
 
     pointer.lerp(targetPointer, clamp(delta * 7, 0, 1));
 
-    const mobile = isMobile();
+    const mobile = isMobile;
     const baseTilt = mobile ? 0.18 : 0.32;
     const parallaxStrength = state.parallax ? baseTilt : 0;
     const breathe = (mobile ? 0.006 : 0.01) * Math.sin(elapsed * 0.85);
@@ -366,6 +370,7 @@ export const initScene = async ({
       globalWindow.cancelAnimationFrame(animationId);
       animationId = null;
     }
+    mobileQuery.removeEventListener("change", handleMobileChange);
     globalWindow.removeEventListener("resize", resize);
     globalWindow.removeEventListener("pointermove", pointerMove);
     globalWindow.removeEventListener("pointerenter", pointerEnter);
