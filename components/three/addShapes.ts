@@ -43,43 +43,24 @@ const COLOR_FLAMINGO = "#ff9fd3";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
 const PASTEL_INTENSITY = 0;
 
+const createGradientStops = (from: string, to: string): readonly string[] => {
+  const start = new THREE.Color(from);
+  const end = new THREE.Color(to);
+  const firstStop = start.clone().lerp(end, 1 / 3);
+  const secondStop = start.clone().lerp(end, 2 / 3);
+
+  return [start, firstStop, secondStop, end].map(
+    (color) => `#${color.getHexString()}`,
+  );
+};
+
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
-  torusSpringAzure: [
-    COLOR_FLAMINGO,
-    COLOR_LIME,
-    COLOR_SPRING,
-    COLOR_AZURE,
-  ],
-  waveSpringLime: [
-    COLOR_AZURE,
-    COLOR_FLAMINGO,
-    COLOR_LIME,
-    COLOR_SPRING,
-  ],
-  semiLimeFlamingo: [
-    COLOR_LIME,
-    COLOR_SPRING,
-    COLOR_FLAMINGO,
-    COLOR_LIME,
-  ],
-  torusFlamingoLime: [
-    COLOR_FLAMINGO,
-    COLOR_LIME,
-    COLOR_SPRING,
-    COLOR_FLAMINGO,
-  ],
-  semiFlamingoAzure: [
-    COLOR_FLAMINGO,
-    COLOR_AZURE,
-    COLOR_SPRING,
-    COLOR_FLAMINGO,
-  ],
-  sphereFlamingoSpring: [
-    COLOR_FLAMINGO,
-    COLOR_SPRING,
-    COLOR_LIME,
-    COLOR_FLAMINGO,
-  ],
+  torusSpringAzure: createGradientStops(COLOR_SPRING, COLOR_AZURE),
+  waveSpringLime: createGradientStops(COLOR_SPRING, COLOR_LIME),
+  semiLimeFlamingo: createGradientStops(COLOR_LIME, COLOR_FLAMINGO),
+  torusFlamingoLime: createGradientStops(COLOR_FLAMINGO, COLOR_LIME),
+  semiFlamingoAzure: createGradientStops(COLOR_FLAMINGO, COLOR_AZURE),
+  sphereFlamingoSpring: createGradientStops(COLOR_FLAMINGO, COLOR_SPRING),
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
