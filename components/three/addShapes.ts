@@ -133,7 +133,7 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.18,
+    roughness: 1.58,
     metalness: 0.08,
     clearcoat: 0.65,
     clearcoatRoughness: 0.12,
