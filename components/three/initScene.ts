@@ -208,8 +208,6 @@ export const initScene = async ({
     shapesGroup.position.x = clamp(shapesGroup.position.x, -maxX, maxX);
     shapesGroup.position.y = clamp(shapesGroup.position.y, -maxY, maxY);
 
-    shapes.update(elapsed);
-
     renderer.render(scene, camera);
 
     if (!readyDispatched && elapsed > 0.35) {

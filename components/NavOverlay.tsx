@@ -69,7 +69,6 @@ export default function NavOverlay({
       work: { x: -0.14, y: -0.18 },
       about: { x: 0.34, y: 0.18 },
       contact: { x: 0.2, y: -0.12 },
-      avatar: { x: 0.06, y: 0.14 },
     }),
     [],
   );
