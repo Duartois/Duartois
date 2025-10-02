@@ -9,13 +9,15 @@
   },
   "home": {
     "hero": {
-      "kicker": "tecnólogo criativo & diretor de arte em lisboa",
-      "title": "teço neon, som e código imersivo em histórias sensoriais.",
-      "subtitle": "colaboro com estúdios e performers para criar identidades reativas, palcos imersivos e visuais vivos.",
-      "ctaProjects": "+ ver os meus projetos",
-      "ctaAbout": "+ saber mais sobre mim"
+      "kicker": "hey, i'm matheus duarte",
+      "titleLine1": "hey, i’m <name>matheus duarte</name>",
+      "titleLine2": "but you can call me <name>real g</name>",
+      "role1": "i’m a graphic designer, ux/ui designer",
+      "role2": "& front-end web developer",
+      "ctaProjects": "→ see my projects",
+      "ctaAbout": "→ more about me"
     }
-  },
+    },
   "work": {
     "title": "Experimentos selecionados",
     "subtitle": "Passe o cursor ou use o teclado para revelar snapshots do processo híbrido entre 3D, código e direção de arte.",
