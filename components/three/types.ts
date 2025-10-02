@@ -17,7 +17,7 @@ export type PointerDriver = "device" | "manual";
 
 export type PointerTarget = { x: number; y: number };
 
-export type VariantName = "home" | "about" | "work" | "contact" | "avatar";
+export type VariantName = "home" | "about" | "work" | "contact";
 
 export type ShapeScale = number | Vector3Tuple;
 
@@ -67,7 +67,6 @@ export const variantMapping: Record<VariantName, VariantState> = {
   about: createFramedVariant(),
   work: createFramedVariant(),
   contact: createFramedVariant(),
-  avatar: createFramedVariant(),
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [

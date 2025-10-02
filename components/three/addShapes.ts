@@ -10,7 +10,6 @@ import type {
 export type ShapesHandle = {
   group: THREE.Group;
   meshes: Record<ShapeId, THREE.Mesh>;
-  update: (elapsed: number) => void;
   applyVariant: (variant: VariantState) => void;
   applyTheme: (theme: ThemeName) => void;
   setBrightness: (value: number) => void;
@@ -601,8 +600,6 @@ export async function addDuartoisSignatureShapes(
   applyVariant(initialVariant);
   applyTheme(initialTheme);
 
-  const update = () => {};
-
   const dispose = () => {
     group.parent?.remove(group);
     orderedMeshes.forEach((mesh) => {
@@ -629,7 +626,6 @@ export async function addDuartoisSignatureShapes(
   return {
     group,
     meshes,
-    update,
     applyVariant,
     applyTheme,
     setBrightness,
