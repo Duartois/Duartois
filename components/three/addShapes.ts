@@ -26,15 +26,6 @@ const SHAPE_ORDER: ShapeId[] = [
 ];
 
 
-const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
-  torusSpringAzure: { x: 0.0035, y: 0.0042 },
-  waveSpringLime: { x: 0.0026, y: 0.0034 },
-  semiLimeFlamingo: { x: 0.0032, y: 0.0039 },
-  torusFlamingoLime: { x: 0.0037, y: 0.0044 },
-  semiFlamingoAzure: { x: 0.0031, y: 0.0038 },
-  sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
-};
-
 const COLOR_SPRING = "#91faca";
 const COLOR_AZURE = "#8ec2ff";
 const COLOR_LIME = "#fef9a9";
