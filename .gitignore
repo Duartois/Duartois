@@ -1,7 +1,8 @@
 node_modules
-papackage-lock.json
+package-lock.json
 dist
 .env
 .vscode
 .DS_Store
 .next
+tsconfig.tsbuildinfo

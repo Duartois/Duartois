@@ -15,14 +15,11 @@ import {
   type ThreeAppState,
   type ThemeName,
   type VariantName,
+  createVariantState,
   getDefaultPalette,
   variantMapping,
 } from "./types";
-import {
-  cloneVariant,
-  createCamera,
-  ensurePalette,
-} from "./factories";
+import { createCamera, ensurePalette } from "./factories";
 import { addDuartoisSignatureShapes } from "@/components/three/addShapes";
 
 export type InitSceneOptions = {
@@ -43,6 +40,10 @@ export const initScene = async ({
   palette,
   parallax = true,
 }: InitSceneOptions): Promise<ThreeAppHandle> => {
+  if (typeof window !== "undefined") {
+    window.__THREE_APP__?.dispose();
+  }
+
   const renderer = new WebGLRenderer({
     canvas,
     antialias: true,
@@ -62,7 +63,7 @@ export const initScene = async ({
   scene.add(camera);
 
   const effectivePalette = ensurePalette(palette, theme);
-  const baseVariant = cloneVariant(variantMapping[initialVariant]);
+  const baseVariant = createVariantState(variantMapping[initialVariant]);
   const shapes = await addDuartoisSignatureShapes(scene, baseVariant, theme);
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapeMeshes = Object.values(shapes.meshes);
@@ -95,7 +96,7 @@ export const initScene = async ({
   };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
-    variant: cloneVariant(baseVariant),
+    variant: createVariantState(baseVariant),
     palette: effectivePalette,
     theme,
     parallax,
@@ -233,7 +234,7 @@ export const initScene = async ({
       nextState = {
         ...nextState,
         variantName: partial.variantName,
-        variant: cloneVariant(mapped),
+        variant: createVariantState(mapped),
       };
       changed = true;
       shapes.applyVariant(nextState.variant);
@@ -321,7 +322,7 @@ export const initScene = async ({
     }
 
     if (partial.variant) {
-      nextState = { ...nextState, variant: cloneVariant(partial.variant) };
+      nextState = { ...nextState, variant: createVariantState(partial.variant) };
       shapes.applyVariant(nextState.variant);
       changed = true;
     }
