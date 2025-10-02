@@ -62,7 +62,8 @@ export default function WorkPage() {
               as="p"
               underline={false}
               trigger="none"
-              className="block text-xs font-medium uppercase tracking-[0.42em] text-fg/65"
+              className="page-animate block text-xs font-medium uppercase tracking-[0.42em] text-fg/65"
+              data-hero-index={0}
             >
               {t("work.previewHint")}
             </AnimatedText>
@@ -70,7 +71,8 @@ export default function WorkPage() {
               as="h1"
               underline={false}
               trigger="none"
-              className="mt-4 block text-4xl font-medium text-fg sm:text-5xl"
+              className="page-animate mt-4 block text-4xl font-medium text-fg sm:text-5xl"
+              data-hero-index={1}
             >
               {t("work.title")}
             </AnimatedText>
@@ -78,11 +80,12 @@ export default function WorkPage() {
               as="p"
               underline={false}
               trigger="none"
-              className="mt-6 block max-w-xl text-base leading-relaxed text-fg/80 sm:text-lg"
+              className="page-animate mt-6 block max-w-xl text-base leading-relaxed text-fg/80 sm:text-lg"
+              data-hero-index={2}
             >
               {t("work.subtitle")}
             </AnimatedText>
-            <ul className="mt-10 flex flex-col gap-3">
+            <ul className="page-animate mt-10 flex flex-col gap-3" data-hero-index={3}>
               {projectOrder.map((projectKey) => (
                 <li key={projectKey}>
                   <button

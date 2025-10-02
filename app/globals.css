@@ -171,17 +171,33 @@ html, body {
   background: rgb(var(--glow-flamingo) / 0.2);
 }
 
-.hero-animate {
+.hero-animate,
+.page-animate {
   animation: hero-fade 0.9s cubic-bezier(.22,.61,.36,1) both;
 }
-.hero-animate[data-hero-index="1"] {
+.hero-animate[data-hero-index="1"],
+.page-animate[data-hero-index="1"] {
   animation-delay: 0.12s;
 }
-.hero-animate[data-hero-index="2"] {
+.hero-animate[data-hero-index="2"],
+.page-animate[data-hero-index="2"] {
   animation-delay: 0.24s;
 }
-.hero-animate[data-hero-index="3"] {
+.hero-animate[data-hero-index="3"],
+.page-animate[data-hero-index="3"] {
   animation-delay: 0.36s;
+}
+.hero-animate[data-hero-index="4"],
+.page-animate[data-hero-index="4"] {
+  animation-delay: 0.48s;
+}
+.hero-animate[data-hero-index="5"],
+.page-animate[data-hero-index="5"] {
+  animation-delay: 0.6s;
+}
+.hero-animate[data-hero-index="6"],
+.page-animate[data-hero-index="6"] {
+  animation-delay: 0.72s;
 }
 
 @keyframes hero-fade {
@@ -200,7 +216,8 @@ html, body {
   .btn, .btn-secondary, .link, .hero-button {
     transition: none !important;
   }
-  .hero-animate {
+  .hero-animate,
+  .page-animate {
     animation: none !important;
   }
 }

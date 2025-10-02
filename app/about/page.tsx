@@ -24,7 +24,8 @@ export default function AboutPage() {
               as="p"
               underline={false}
               trigger="none"
-              className="block text-xs font-medium uppercase tracking-[0.42em] text-fg/65"
+              className="page-animate block text-xs font-medium uppercase tracking-[0.42em] text-fg/65"
+              data-hero-index={0}
             >
               {t("about.kicker")}
             </AnimatedText>
@@ -33,7 +34,8 @@ export default function AboutPage() {
                 as="h1"
                 underline={false}
                 trigger="none"
-                className="block text-5xl font-semibold text-fg sm:text-6xl"
+                className="page-animate block text-5xl font-semibold text-fg sm:text-6xl"
+                data-hero-index={1}
               >
                 {t("about.title")}
               </AnimatedText>
@@ -41,7 +43,8 @@ export default function AboutPage() {
                 as="p"
                 underline={false}
                 trigger="none"
-                className="block text-lg text-fg/70 sm:text-xl"
+                className="page-animate block text-lg text-fg/70 sm:text-xl"
+                data-hero-index={2}
               >
                 {t("about.subtitle")}
               </AnimatedText>
@@ -51,7 +54,8 @@ export default function AboutPage() {
                 as="p"
                 underline={false}
                 trigger="none"
-                className="block lowercase"
+                className="page-animate block lowercase"
+                data-hero-index={3}
               >
                 {t("about.paragraphs.first")}
               </AnimatedText>
@@ -59,7 +63,8 @@ export default function AboutPage() {
                 as="p"
                 underline={false}
                 trigger="none"
-                className="block lowercase"
+                className="page-animate block lowercase"
+                data-hero-index={4}
               >
                 {t("about.paragraphs.second")}
               </AnimatedText>
@@ -67,7 +72,8 @@ export default function AboutPage() {
                 as="p"
                 underline={false}
                 trigger="none"
-                className="block lowercase"
+                className="page-animate block lowercase"
+                data-hero-index={5}
               >
                 <Trans
                   i18nKey="about.paragraphs.third"
@@ -85,7 +91,7 @@ export default function AboutPage() {
                 />
               </AnimatedText>
             </div>
-            <div className="flex flex-wrap gap-3 pt-6">
+            <div className="page-animate flex flex-wrap gap-3 pt-6" data-hero-index={6}>
               <Link
                 href="/Duartois-Resume.pdf"
                 target="_blank"
