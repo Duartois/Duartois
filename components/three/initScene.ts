@@ -344,6 +344,7 @@ export const initScene = async ({
     window.removeEventListener("pointerenter", pointerEnter);
     window.removeEventListener("pointerleave", pointerLeave);
     shapes.dispose();
+    renderer.forceContextLoss();
     renderer.dispose();
     detachFromWindow(handle);
   };
