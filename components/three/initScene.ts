@@ -128,6 +128,7 @@ export const initScene = async ({
   const clock = new Clock();
   let readyDispatched = false;
   let animationId: number | null = null;
+  let disposed = false;
 
   const isMobile = () =>
     typeof window !== "undefined"
@@ -177,6 +178,10 @@ export const initScene = async ({
   };
 
   const tick = () => {
+    if (disposed) {
+      return;
+    }
+
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
@@ -218,7 +223,9 @@ export const initScene = async ({
       dispatchStateChange(eventTarget, state);
     }
 
-    animationId = window.requestAnimationFrame(tick);
+    if (!disposed) {
+      animationId = window.requestAnimationFrame(tick);
+    }
   };
 
   const setState: ThreeAppHandle["setState"] = (updater: StateUpdater) => {
@@ -335,6 +342,12 @@ export const initScene = async ({
   };
 
   const dispose = () => {
+    if (disposed) {
+      return;
+    }
+
+    disposed = true;
+
     if (animationId !== null) {
       window.cancelAnimationFrame(animationId);
       animationId = null;
