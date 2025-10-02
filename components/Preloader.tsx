@@ -31,7 +31,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   useEffect(() => {
     let isCancelled = false;
 
-    const fontsPromise = (typeof document !== "undefined" && "fonts" in document
+    (typeof document !== "undefined" && "fonts" in document
       ? document.fonts.ready.catch(() => undefined)
       : Promise.resolve()
     ).then(() => {
