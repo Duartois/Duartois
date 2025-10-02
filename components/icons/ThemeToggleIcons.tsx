@@ -44,3 +44,33 @@ export function MoonIcon({ className, ...props }: IconProps) {
     </svg>
   );
 }
+export function SunIcon({ className, ...props }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      role="img"
+      aria-hidden
+      focusable="false"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+      className={clsx(
+        "h-6 w-6 text-flamingo drop-shadow-sm transition-transform duration-300 ease-pleasant",
+        className
+      )}
+      {...props}
+    >
+      <path d="M12 3v2.25" className="opacity-90" />
+      <path d="M12 18.75V21" className="opacity-90" />
+      <path d="M21 12h-2.25" className="opacity-90" />
+      <path d="M3 12h2.25" className="opacity-90" />
+      <path d="M16.77 7.23L14.65 9.35" className="opacity-90" />
+      <path d="M14.65 14.65L16.77 16.77" className="opacity-90" />
+      <path d="M7.23 16.77L9.35 14.65" className="opacity-90" />
+      <path d="M9.35 9.35L7.23 7.23" className="opacity-90" />
+      <circle cx="12" cy="12" r="3.75" className="opacity-90" />
+    </svg>
+  );
+}

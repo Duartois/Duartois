@@ -30,6 +30,7 @@ const COLOR_SPRING = "#91faca";
 const COLOR_AZURE = "#8ec2ff";
 const COLOR_LIME = "#fef9a9";
 const COLOR_FLAMINGO = "#ff9fd3";
+
 const createGradientStops = (from: string, to: string): readonly string[] => {
   const start = new THREE.Color(from);
   const end = new THREE.Color(to);

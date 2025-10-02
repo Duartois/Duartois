@@ -76,46 +76,27 @@ export default function NavHeaderContent({
   );
 }
 
-const styles: Record<
-  Variant,
-  {
-    container: string;
-    brandLink: string;
-    brandPrefix: string;
-    brandSuffix: string;
-    controlsContainer: string;
-    switcherContainer: string;
-    button: string;
-    buttonIconWrapper: string;
-    buttonIcon: string;
-  }
-> = {
+const styles = {
   default: {
     container: "flex items-center justify-between gap-6",
-    brandLink:
-      "group inline-flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-fg transition duration-300 ease-out hover:text-lime dark:hover:text-spring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
+    brandLink: "group inline-flex items-baseline gap-2 text-base font-bold uppercase tracking-[0.3em] text-fg transition duration-300 ease-out hover:text-lime dark:hover:text-spring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
     brandPrefix: "text-fg/60 dark:text-fg/70",
     brandSuffix: "text-fg dark:text-fg",
-    controlsContainer:
-      "flex items-center justify-end gap-6 text-[0.75rem] font-medium uppercase tracking-[0.28em] text-fg/70 dark:text-fg/75",
+    controlsContainer: "flex items-center justify-end gap-6 text-xs font-medium uppercase tracking-[0.3em] text-fg/70 dark:text-fg/75",  // was text-[0.75rem] (12px) => text-xs (12px) is equivalent
     switcherContainer: "flex items-center gap-3",
-    button:
-      "group inline-flex items-center gap-2 rounded-md border border-fg/15 bg-bg/80 px-4 py-2 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-fg shadow-soft transition duration-300 ease-out hover:border-fg/25 hover:bg-bg hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70 dark:border-fg/20 dark:bg-bg/40 dark:hover:bg-bg/30",
+    button: "group inline-flex items-center justify-center h-11 w-11 rounded-full border border-fg/15 bg-bg/80 text-fg shadow-soft transition-[transform,box-shadow,border-color,background-color,color] duration-300 ease-out hover:-translate-y-0.5 hover:border-fg/25 hover:bg-bg hover:text-fg hover:shadow-[0_18px_40px_-18px_rgb(var(--color-fg)_/_0.22)] active:translate-y-0 active:scale-95 active:border-fg/30 active:bg-bg/80 active:shadow-[0_10px_26px_-18px_rgb(var(--color-fg)_/_0.26)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70 dark:border-fg/20 dark:bg-bg/40 dark:hover:bg-bg/30 dark:active:bg-bg/30",
     buttonIconWrapper: "inline-flex h-6 w-6 items-center justify-center text-current transition",
-    buttonIcon: "h-4 w-4",
+    buttonIcon: "h-4 w-4"
   },
   overlay: {
     container: "flex items-center justify-between gap-6",
-    brandLink:
-      "pointer-events-auto group inline-flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-fg transition duration-300 ease-out hover:text-lime dark:hover:text-spring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
+    brandLink: "pointer-events-auto group inline-flex items-baseline gap-2 text-base font-bold uppercase tracking-[0.3em] text-fg transition duration-300 ease-out hover:text-lime dark:hover:text-spring focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
     brandPrefix: "text-fg/60 dark:text-fg/70",
     brandSuffix: "text-fg dark:text-fg",
-    controlsContainer:
-      "pointer-events-auto flex items-center justify-end gap-6 text-[0.75rem] font-medium uppercase tracking-[0.28em] text-fg/70 dark:text-fg/75",
+    controlsContainer: "pointer-events-auto flex items-center justify-end gap-6 text-xs font-medium uppercase tracking-[0.3em] text-fg/70 dark:text-fg/75",
     switcherContainer: "flex items-center gap-3",
-    button:
-      "group inline-flex items-center gap-2 rounded-md border border-fg/20 bg-bg/70 px-4 py-2 text-[0.75rem] font-semibold uppercase tracking-[0.3em] text-fg transition duration-300 ease-out hover:border-fg/30 hover:bg-bg hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70 dark:border-fg/25 dark:bg-bg/40 dark:hover:bg-bg/35",
+    button: "group inline-flex items-center justify-center h-11 w-11 rounded-full border border-fg/20 bg-bg/70 text-fg transition duration-300 ease-out hover:-translate-y-0.5 hover:border-fg/30 hover:bg-bg hover:text-fg active:translate-y-0 active:scale-95 active:bg-bg/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70 dark:border-fg/25 dark:bg-bg/40 dark:hover:bg-bg/35",
     buttonIconWrapper: "inline-flex h-6 w-6 items-center justify-center text-current transition",
-    buttonIcon: "h-4 w-4",
-  },
+    buttonIcon: "h-4 w-4"
+  }
 };

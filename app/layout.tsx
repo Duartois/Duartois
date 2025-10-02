@@ -4,7 +4,8 @@ import classNames from "classnames";
 import AppShell from "@/components/AppShell";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
-import { neueMontreal } from "./fonts/fonts";
+import Navbar from "@/components/Navbar";
+
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -14,12 +15,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body
         className={classNames(
-          neueMontreal.variable,
-          neueMontreal.className,
           "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
         )}
       >
         <ThemeProvider>
+          <Navbar />
           <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>

@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
 import NavHeaderContent from "./NavHeaderContent";
-import AnimatedText from "./AnimatedText";
 import {
   getDefaultPalette,
   type GradientPalette,
@@ -273,13 +272,6 @@ export default function NavOverlay({
                           <span className="text-[clamp(0.75rem,1.4vw,0.95rem)] font-normal tracking-[0.32em] text-fg/45 dark:text-fg/50">
                             {String(index + 1).padStart(2, "0")}
                           </span>
-                          <AnimatedText
-                            className="text-[clamp(2.5rem,4.8vw,3.9rem)] uppercase tracking-[0.2em] text-fg/90 dark:text-fg"
-                            underlineClassName="bg-fg/70 dark:bg-fg/60"
-                            textClassName="font-light"
-                          >
-                            {name}
-                          </AnimatedText>
                         </Link>
                       </motion.li>
                     ))}
@@ -309,13 +301,6 @@ export default function NavOverlay({
                           <span aria-hidden className="text-fg/45 transition-colors duration-200 ease-out group-hover:text-fg dark:text-fg/55">
                             &gt;
                           </span>
-                          <AnimatedText
-                            className="text-fg/70 transition-colors duration-200 ease-out group-hover:text-fg dark:text-fg/75 dark:group-hover:text-fg"
-                            underlineClassName="bg-fg/60 dark:bg-fg/50"
-                            textClassName="text-[0.84rem] font-light uppercase tracking-[0.32em]"
-                          >
-                            {label}
-                          </AnimatedText>
                         </Link>
                       </li>
                     ))}

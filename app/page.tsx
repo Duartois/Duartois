@@ -1,8 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import Navbar from "../components/Navbar";
-import AnimatedText from "../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "./i18n/config";
 
@@ -16,59 +14,76 @@ export default function HomePage() {
 
   return (
     <>
-      <Navbar />
-      <div
-        className="pointer-events-none fixed inset-0 z-[9999] bg-repeat bg-center opacity-40 mix-blend-soft-light [background-size:220px] dark:opacity-30"
-        style={{ backgroundImage: `url(${noiseUrl.src})` }}
-        aria-hidden
-      />
-      <main className="relative z-10 flex min-h-screen w-full flex-col">
-        <section className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center sm:px-10 md:py-32 bg-bg/70">
-          <div className="flex w-full max-w-3xl flex-col items-center gap-8 sm:gap-10">
-            <AnimatedText
-              as="span"
-              underline={false}
-              trigger="none"
-              className="hero-animate text-sm font-light lowercase tracking-[0.28em] text-muted/80 sm:text-base"
-              data-hero-index="0"
-            >
-              {t("home.hero.kicker")}
-            </AnimatedText>
-            <AnimatedText
-              as="h1"
-              underline={false}
-              trigger="none"
-              className="hero-animate block text-balance text-4xl font-light lowercase leading-tight text-fg sm:text-5xl md:text-6xl"
-              data-hero-index="1"
-            >
-              {t("home.hero.title")}
-            </AnimatedText>
-            <AnimatedText
-              as="p"
-              underline={false}
-              trigger="none"
-              className="hero-animate block max-w-2xl text-pretty text-base font-light lowercase text-muted sm:text-lg"
-              data-hero-index="2"
-            >
-              {t("home.hero.subtitle")}
-            </AnimatedText>
-            <div className="hero-animate flex flex-col items-center gap-3 sm:flex-row" data-hero-index="3">
-              <Link
-                href="/work"
-                className="hero-button"
-              >
-                {t("home.hero.ctaProjects")}
-              </Link>
-              <Link
-                href="/about"
-                className="hero-button hero-button--ghost"
-              >
-                {t("home.hero.ctaAbout")}
-              </Link>
+<main className="container">
+  <div className="opacity: 1; transform: none;">
+    <div data-scroll-container="true" id="scroll-container">
+      <div data-scroll-section="true" data-scroll-section-id="section0" data-scroll-section-inview="" className="transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); opacity: 1; pointer-events: all;">
+        <div className="page-content pointer-events: auto;">
+          <div className="home">
+            <div className="intro-wrapper">
+              <div className="intro-text">
+                <h3 className="intro-id opacity: 1; transform: none;">
+                  Hey, I’m 
+                  <div className="name">Charles Bruyerre
+                    <div className="wave-wrapper">
+                      <div className="wave background-position-x: 54.6645px;">
+                      </div>
+                    </div>
+                  </div>
+                </h3>
+                <h3 className="intro-id opacity: 1; transform: none;">
+                  But you can call me 
+                  <div className="name">
+                    Sharlee
+                    <div className="wave-wrapper">
+                      <div className="wave background-position-x: 79.1168px;">
+                      </div>
+                    </div>
+                  </div>
+                </h3>
+                <div className="intro-roles">
+                  <p className="intro-role opacity: 1; transform: none;">
+                    I’m a graphic designer, UX/UI designer
+                  </p>
+                  <p className="intro-role opacity: 1; transform: none;">
+                    &amp; front-end web developer
+                  </p>
+                </div>
+                <div className="intro-links">
+                  <ul>
+                    <li className="opacity: 1; transform: none;">
+                      <div className="link-wrapper">
+                        <div className="link">
+                          <a href="/work">
+                            →See my projects
+                          </a>
+                        </div>
+                        <div className="link-underline transform: translateX(-101%) translateZ(0px);">
+                        </div>
+                      </div>
+                    </li>
+                    <li className="opacity: 1; transform: none;">
+                      <div className="link-wrapper">
+                        <div className="link">
+                          <a href="/about">
+                          →More about me
+                          </a>
+                        </div>
+                        <div className="link-underline transform: translateX(-101%) translateZ(0px);">
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
     </>
   );
-}
+} 
