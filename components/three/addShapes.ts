@@ -133,14 +133,14 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 1.58,
+    roughness: 0.4,
     metalness: 0.08,
-    clearcoat: 0.65,
-    clearcoatRoughness: 0.12,
+    clearcoat: 0.28,
+    clearcoatRoughness: 0.18,
     sheen: 0.18,
     sheenRoughness: 0.65,
-    envMapIntensity: 0.2,
-    specularIntensity: 0.65,
+    envMapIntensity: 0.1,
+    specularIntensity: 0.38,
     specularColor: "#ffffff",
   });
 
@@ -352,12 +352,12 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseAmbient = isDark ? 1.1 : 1.3;
-    const baseHemisphere = isDark ? 0.95 : 1.05;
-    const baseKey = isDark ? 1.35 : 1.15;
-    const baseFill = isDark ? 0.85 : 0.7;
-    const baseRim = isDark ? 0.95 : 0.8;
-    const baseEmissive = isDark ? 0.6 : 0.38;
+    const baseAmbient = isDark ? 0.95 : 1.15;
+    const baseHemisphere = isDark ? 0.9 : 1.0;
+    const baseKey = isDark ? 0.9 : 0.9;
+    const baseFill = isDark ? 0.65 : 0.65;
+    const baseRim = isDark ? 0.7 : 0.6;
+    const baseEmissive = isDark ? 0.52 : 0.34;
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -365,13 +365,13 @@ export async function addDuartoisSignatureShapes(
       material.color.set(isDark ? DARK_THEME_COLOR : 0xffffff);
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = isDark ? 0.08 : 0.08;
-      material.roughness = isDark ? 0.24 : 0.18;
-      material.clearcoat = isDark ? 0.55 : 0.65;
-      material.clearcoatRoughness = isDark ? 0.18 : 0.12;
-      material.envMapIntensity = isDark ? 0.28 : 0.22;
-      material.sheen = isDark ? 0.24 : 0.18;
-      material.sheenColor.set(isDark ? "#3b3b45" : "#f0f6ff");
+      material.metalness = 0.08;
+      material.roughness = isDark ? 0.44 : 0.38;
+      material.clearcoat = isDark ? 0.24 : 0.28;
+      material.clearcoatRoughness = isDark ? 0.22 : 0.18;
+      material.envMapIntensity = isDark ? 0.12 : 0.1;
+      material.sheen = isDark ? 0.22 : 0.18;
+      material.sheenColor.set(isDark ? "#474a5d" : "#f4f7ff");
       material.emissive.set(isDark ? "#1a1a23" : "#0f1212");
       material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
@@ -379,14 +379,14 @@ export async function addDuartoisSignatureShapes(
 
     ambient.color.set(isDark ? "#262630" : "#ffffff");
     ambient.intensity = baseAmbient * currentBrightness;
-    hemisphere.color.set(isDark ? "#c6c7ff" : "#ffffff");
-    hemisphere.groundColor.set(isDark ? "#1a1a23" : "#f0f5ff");
+    hemisphere.color.set(isDark ? "#d5dcff" : "#ffffff");
+    hemisphere.groundColor.set(isDark ? "#232533" : "#f4f7ff");
     hemisphere.intensity = baseHemisphere * currentBrightness;
     keyLight.color.set(isDark ? "#ffffff" : "#fff3e0");
     keyLight.intensity = baseKey * currentBrightness;
     fillLight.color.set(isDark ? "#ffe9ff" : "#f2ffff");
     fillLight.intensity = baseFill * currentBrightness;
-    rimLight.color.set(isDark ? "#c6ddff" : "#ffffff");
+    rimLight.color.set(isDark ? "#d8e6ff" : "#ffffff");
     rimLight.intensity = baseRim * currentBrightness;
   };
 
