@@ -64,12 +64,12 @@ const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
-  torusSpringAzure: "angleXZ",
-  waveSpringLime: "x",
-  semiLimeFlamingo: "angleXZ",
-  torusFlamingoLime: "angleXZ",
-  semiFlamingoAzure: "radialY",
-  sphereFlamingoSpring: "radial",
+  torusSpringAzure: "radial",
+  waveSpringLime: "y",
+  semiLimeFlamingo: "radial",
+  torusFlamingoLime: "radial",
+  semiFlamingoAzure: "radial",
+  sphereFlamingoSpring: "y",
 };
 
 /**
@@ -550,7 +550,7 @@ export async function addDuartoisSignatureShapes(
             new THREE.Float32BufferAttribute(
               original.array.slice(),
               original.itemSize,
-            ).setNormalized(original.normalized),
+            )
           );
         }
         flat.opacity = 1;
