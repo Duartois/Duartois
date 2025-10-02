@@ -36,10 +36,10 @@ const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
   sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
 };
 
-const COLOR_SPRING = "#71ff81";
-const COLOR_AZURE = "#85b9ff";
-const COLOR_LIME = "#f0ff66";
-const COLOR_FLAMINGO = "#ff5c82";
+const COLOR_SPRING = "#baf5c8";
+const COLOR_AZURE = "#c9ddff";
+const COLOR_LIME = "#f7ffbf";
+const COLOR_FLAMINGO = "#ffb7cc";
 const DARK_THEME_COLOR = "#2b2b33";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
 const PASTEL_INTENSITY = 0.35;
@@ -133,10 +133,10 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.24,
-    metalness: 0.14,
-    clearcoat: 0.65,
-    clearcoatRoughness: 0.18,
+    roughness: 0.42,
+    metalness: 0.08,
+    clearcoat: 0.32,
+    clearcoatRoughness: 0.24,
   });
 
 const THICKNESS = 0.64;
@@ -349,11 +349,11 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseKey = isDark ? 2.4 : 1.8;
-    const baseFill = isDark ? 1.25 : 1.0;
-    const baseRim = isDark ? 1.5 : 1.1;
-    const baseAmbient = isDark ? 0.5 : 0.66;
-    const baseEmissive = isDark ? 0.26 : 0.12;
+    const baseKey = isDark ? 1.7 : 1.35;
+    const baseFill = isDark ? 0.9 : 0.68;
+    const baseRim = isDark ? 1.05 : 0.78;
+    const baseAmbient = isDark ? 0.44 : 0.56;
+    const baseEmissive = isDark ? 0.18 : 0.08;
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -361,25 +361,25 @@ export async function addDuartoisSignatureShapes(
       material.color.set(isDark ? DARK_THEME_COLOR : 0xffffff);
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = isDark ? 0.1 : 0.14;
-      material.roughness = isDark ? 0.32 : 0.24;
-      material.clearcoat = isDark ? 0.5 : 0.65;
-      material.clearcoatRoughness = isDark ? 0.22 : 0.18;
-      material.emissive.set(isDark ? "#1a1a23" : "#0d1010");
+      material.metalness = isDark ? 0.06 : 0.08;
+      material.roughness = isDark ? 0.48 : 0.42;
+      material.clearcoat = isDark ? 0.24 : 0.32;
+      material.clearcoatRoughness = isDark ? 0.3 : 0.24;
+      material.emissive.set(isDark ? "#1b1b26" : "#0e1111");
       material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
 
-    keyLight.color.set(isDark ? "#e1e7ff" : "#ffffff");
+    keyLight.color.set(isDark ? "#f0f3ff" : "#ffffff");
     keyLight.intensity = baseKey * currentBrightness;
 
-    fillLight.color.set(isDark ? "#7cb8ff" : "#fff1d6");
+    fillLight.color.set(isDark ? "#a8cffd" : "#fff4e3");
     fillLight.intensity = baseFill * currentBrightness;
 
-    rimLight.color.set(isDark ? "#8ae2ff" : "#ffffff");
+    rimLight.color.set(isDark ? "#b8f0ff" : "#f9fbff");
     rimLight.intensity = baseRim * currentBrightness;
 
-    ambient.color.set(isDark ? "#262630" : "#ffffff");
+    ambient.color.set(isDark ? "#2e2e3a" : "#ffffff");
     ambient.intensity = baseAmbient * currentBrightness;
   };
 
