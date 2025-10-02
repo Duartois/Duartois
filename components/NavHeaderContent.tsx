@@ -93,7 +93,7 @@ const styles: Record<
   default: {
     container: "flex items-center justify-between gap-6",
     brandLink:
-      "group inline-flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-fg transition duration-300 ease-out hover:text-brand-500 dark:hover:text-brand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
+      "group inline-flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-fg transition duration-300 ease-out hover:text-lime dark:hover:text-spring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
     brandPrefix: "text-fg/60 dark:text-fg/70",
     brandSuffix: "text-fg dark:text-fg",
     controlsContainer:
@@ -107,7 +107,7 @@ const styles: Record<
   overlay: {
     container: "flex items-center justify-between gap-6",
     brandLink:
-      "pointer-events-auto group inline-flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-fg transition duration-300 ease-out hover:text-brand-400 dark:hover:text-brand-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
+      "pointer-events-auto group inline-flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.28em] text-fg transition duration-300 ease-out hover:text-lime dark:hover:text-spring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg/70",
     brandPrefix: "text-fg/60 dark:text-fg/70",
     brandSuffix: "text-fg dark:text-fg",
     controlsContainer:

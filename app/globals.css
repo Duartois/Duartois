@@ -1,47 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: 240 242 245;
-  --color-fg: 34 38 44;
-  --color-muted: 112 118 140;
-  --glow-lilac: 255 107 194;
-  --glow-mint: 137 217 255;
-  --glow-spring: 120 255 129;
-  --glow-lime: 241 255 107;
-  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.94);
-  --nav-overlay-blob-a-color: rgb(var(--color-fg) / 0.08);
-  --nav-overlay-blob-b-color: rgb(var(--color-fg) / 0.06);
-  --nav-overlay-blob-c-color: rgb(var(--color-fg) / 0.04);
+  --color-bg: 252 247 251;
+  --color-fg: 43 43 51;
+  --color-muted: 118 118 142;
+  --glow-flamingo: 255 179 194;
+  --glow-azure: 153 185 255;
+  --glow-spring: 120 255 209;
+  --glow-lime: 240 255 166;
+  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.95);
+  --nav-overlay-blob-a-color: rgb(var(--glow-flamingo) / 0.22);
+  --nav-overlay-blob-b-color: rgb(var(--glow-azure) / 0.18);
+  --nav-overlay-blob-c-color: rgb(var(--glow-spring) / 0.16);
 }
 
 /* Modo claro */
 :root[data-theme="light"], :root.light {
-  --color-bg: 240 242 245;
-  --color-fg: 34 38 44;
-  --color-muted: 112 118 140;
-  --glow-lilac: 255 107 194;
-  --glow-mint: 137 217 255;
-  --glow-spring: 120 255 129;
-  --glow-lime: 241 255 107;
-  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.94);
-  --nav-overlay-blob-a-color: rgb(var(--color-fg) / 0.08);
-  --nav-overlay-blob-b-color: rgb(var(--color-fg) / 0.06);
-  --nav-overlay-blob-c-color: rgb(var(--color-fg) / 0.04);
+  --color-bg: 252 247 251;
+  --color-fg: 43 43 51;
+  --color-muted: 118 118 142;
+  --glow-flamingo: 255 179 194;
+  --glow-azure: 153 185 255;
+  --glow-spring: 120 255 209;
+  --glow-lime: 240 255 166;
+  --nav-overlay-surface-color: rgb(var(--color-bg) / 0.95);
+  --nav-overlay-blob-a-color: rgb(var(--glow-flamingo) / 0.22);
+  --nav-overlay-blob-b-color: rgb(var(--glow-azure) / 0.18);
+  --nav-overlay-blob-c-color: rgb(var(--glow-spring) / 0.16);
 }
 
 /* Modo escuro */
 :root[data-theme="dark"], :root.dark {
-  --color-bg: 32 35 44;
-  --color-fg: 245 245 252;
-  --color-muted: 178 181 204;
-  --glow-lilac: 185 79 151;
-  --glow-mint: 64 126 179;
-  --glow-spring: 64 156 104;
-  --glow-lime: 140 143 70;
+  --color-bg: 43 43 51;
+  --color-fg: 240 245 255;
+  --color-muted: 178 184 206;
+  --glow-flamingo: 227 128 156;
+  --glow-azure: 118 155 220;
+  --glow-spring: 104 205 168;
+  --glow-lime: 190 215 130;
   --nav-overlay-surface-color: rgb(var(--color-bg) / 0.92);
-  --nav-overlay-blob-a-color: rgb(var(--color-fg) / 0.12);
-  --nav-overlay-blob-b-color: rgb(var(--color-fg) / 0.1);
-  --nav-overlay-blob-c-color: rgb(var(--color-fg) / 0.08);
+  --nav-overlay-blob-a-color: rgb(var(--glow-flamingo) / 0.26);
+  --nav-overlay-blob-b-color: rgb(var(--glow-azure) / 0.2);
+  --nav-overlay-blob-c-color: rgb(var(--glow-spring) / 0.18);
 }
 
 /* 2) Reset & base */
@@ -71,15 +71,27 @@ html, body {
 
 .btn {
   @apply inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-medium lowercase tracking-[0.08em] transition-[transform,box-shadow,background-color,color] duration-500 ease-[cubic-bezier(.22,.61,.36,1)];
-  @apply shadow-[0_10px_30px_-12px_rgba(112,81,155,0.55)] hover:scale-[1.03] active:scale-[0.97];
+  @apply shadow-[0_10px_30px_-12px_rgba(153,185,255,0.55)] hover:scale-[1.03] active:scale-[0.97];
   background: linear-gradient(
     135deg,
-    rgb(var(--glow-lilac) / 0.95),
-    rgb(var(--glow-mint) / 0.9),
+    rgb(var(--glow-flamingo) / 0.95),
+    rgb(var(--glow-azure) / 0.92),
+    rgb(var(--glow-spring) / 0.9),
     rgb(var(--glow-lime) / 0.85)
   );
   color: rgb(var(--color-fg));
   backdrop-filter: blur(16px);
+}
+.dark .btn,
+:root[data-theme="dark"] .btn {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--glow-flamingo) / 0.38),
+    rgb(var(--glow-azure) / 0.34),
+    rgb(var(--glow-spring) / 0.32),
+    rgb(var(--glow-lime) / 0.3)
+  );
+  @apply shadow-[0_18px_36px_-20px_rgba(18,18,26,0.65)];
 }
 .btn-secondary {
   @apply inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-medium lowercase tracking-[0.08em] transition duration-500 ease-[cubic-bezier(.22,.61,.36,1)];
@@ -95,25 +107,50 @@ html, body {
   @apply inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium lowercase tracking-[0.12em] transition-[background-color,box-shadow,transform,color] duration-500 ease-[cubic-bezier(.22,.61,.36,1)];
   background: linear-gradient(
     135deg,
-    rgb(var(--glow-lilac) / 0.45),
-    rgb(var(--glow-mint) / 0.35),
-    rgb(var(--glow-spring) / 0.32)
+    rgb(var(--glow-flamingo) / 0.55),
+    rgb(var(--glow-azure) / 0.45),
+    rgb(var(--glow-spring) / 0.42),
+    rgb(var(--glow-lime) / 0.4)
   );
   color: rgb(var(--color-fg));
   backdrop-filter: blur(22px);
-  box-shadow: 0 10px 30px -12px rgba(62, 44, 102, 0.45);
+  box-shadow: 0 12px 34px -16px rgba(153, 185, 255, 0.32);
 }
 .hero-button:hover,
 .hero-button:focus-visible {
   @apply outline-none;
   background: linear-gradient(
     135deg,
-    rgb(var(--glow-mint) / 0.45),
-    rgb(var(--glow-spring) / 0.4),
-    rgb(var(--glow-lime) / 0.38)
+    rgb(var(--glow-azure) / 0.55),
+    rgb(var(--glow-spring) / 0.5),
+    rgb(var(--glow-lime) / 0.48),
+    rgb(var(--glow-flamingo) / 0.52)
   );
   color: rgb(var(--color-fg));
   transform: translateY(-1px);
+}
+.dark .hero-button,
+:root[data-theme="dark"] .hero-button {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--glow-flamingo) / 0.26),
+    rgb(var(--glow-azure) / 0.24),
+    rgb(var(--glow-spring) / 0.22),
+    rgb(var(--glow-lime) / 0.2)
+  );
+  box-shadow: 0 16px 34px -20px rgba(14, 14, 22, 0.45);
+}
+.dark .hero-button:hover,
+.dark .hero-button:focus-visible,
+:root[data-theme="dark"] .hero-button:hover,
+:root[data-theme="dark"] .hero-button:focus-visible {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--glow-azure) / 0.32),
+    rgb(var(--glow-spring) / 0.3),
+    rgb(var(--glow-lime) / 0.28),
+    rgb(var(--glow-flamingo) / 0.3)
+  );
 }
 .hero-button--ghost {
   background: rgb(var(--color-fg) / 0.08);
@@ -121,7 +158,17 @@ html, body {
 }
 .hero-button--ghost:hover,
 .hero-button--ghost:focus-visible {
-  background: rgb(var(--glow-lilac) / 0.4);
+  background: rgb(var(--glow-flamingo) / 0.4);
+}
+.dark .hero-button--ghost,
+:root[data-theme="dark"] .hero-button--ghost {
+  background: rgb(var(--color-fg) / 0.12);
+}
+.dark .hero-button--ghost:hover,
+.dark .hero-button--ghost:focus-visible,
+:root[data-theme="dark"] .hero-button--ghost:hover,
+:root[data-theme="dark"] .hero-button--ghost:focus-visible {
+  background: rgb(var(--glow-flamingo) / 0.2);
 }
 
 .hero-animate {
