@@ -40,7 +40,6 @@ const COLOR_SPRING = "#71ff81";
 const COLOR_AZURE = "#85b9ff";
 const COLOR_LIME = "#f0ff66";
 const COLOR_FLAMINGO = "#ff5c82";
-const DARK_THEME_COLOR = "#2b2b33";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
 const PASTEL_INTENSITY = 0.28;
 
@@ -354,18 +353,18 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseAmbient = isDark ? 0.22 : 0.18;
+    const baseAmbient = isDark ? 0.38 : 0.30;
     const baseHemisphere = isDark ? 0.8 : 0.7;
     const baseKey = isDark ? 0.45 : 0.35;
-    const baseFill = isDark ? 0.30 : 0.20;
-    const baseRim = isDark ? 0.35 : 0.20;
+    const baseFill = isDark ? 0.34 : 0.26;
+    const baseRim = isDark ? 0.4 : 0.3;
     const baseEmissive = 0.0; // não vamos “tintar” com emissive
 
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
-      material.vertexColors = !isDark;
-      material.color.set(isDark ? DARK_THEME_COLOR : 0xffffff);
+      material.vertexColors = true;
+      material.color.set(isDark ? "#f6f7ff" : "#ffffff");
       material.opacity = 1;
       material.transparent = false;
       material.metalness = 0.05;
