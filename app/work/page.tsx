@@ -7,7 +7,8 @@ import AnimatedText from "../../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { getDefaultPalette, type VariantName } from "../../components/three/types";
+import { type VariantName } from "../../components/three/types";
+import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 
 const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
@@ -38,15 +39,7 @@ export default function WorkPage() {
 
   const activePreview = projectPreviews[activeProject];
 
-  useEffect(() => {
-    window.__THREE_APP__?.setState((previous) => ({
-      variantName: "work",
-      palette: getDefaultPalette(previous.theme),
-      parallax: true,
-      hovered: false,
-      opacity: 0.3,
-    }));
-  }, []);
+  useThreeSceneSetup("work", { resetOnUnmount: true });
 
   useEffect(() => {
     const preview = activePreview;
@@ -58,17 +51,6 @@ export default function WorkPage() {
     });
   }, [activePreview]);
 
-  useEffect(() => {
-    return () => {
-      window.__THREE_APP__?.setState((previous) => ({
-        variantName: "work",
-        palette: getDefaultPalette(previous.theme),
-        parallax: true,
-        hovered: false,
-        opacity: 0.3,
-      }));
-    };
-  }, []);
 
   return (
     <>

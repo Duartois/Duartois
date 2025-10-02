@@ -1,27 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import AnimatedText from "../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "./i18n/config";
 
-import { getDefaultPalette } from "../components/three/types";
 import noiseUrl from "@/public/noise.png";
+import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
 
 export default function HomePage() {
   const { t } = useTranslation("common");
 
-  useEffect(() => {
-    window.__THREE_APP__?.setState((previous) => ({
-      variantName: "home",
-      palette: getDefaultPalette(previous.theme),
-      parallax: true,
-      hovered: false,
-      opacity: 1,
-    }));
-  }, []);
+  useThreeSceneSetup("home", { opacity: 1 });
 
   return (
     <>

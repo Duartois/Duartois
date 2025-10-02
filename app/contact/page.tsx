@@ -1,26 +1,18 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import Navbar from "../../components/Navbar";
 import AnimatedText from "../../components/AnimatedText";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { getDefaultPalette } from "../../components/three/types";
+import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const [status, setStatus] = useState<"idle" | "submitted">("idle");
 
-  useEffect(() => {
-    window.__THREE_APP__?.setState((previous) => ({
-      variantName: "contact",
-      palette: getDefaultPalette(previous.theme),
-      parallax: true,
-      hovered: false,
-      opacity: 0.3,
-    }));
-  }, []);
+  useThreeSceneSetup("contact");
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

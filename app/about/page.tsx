@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import AnimatedText from "../../components/AnimatedText";
 import Link from "next/link";
@@ -8,20 +7,12 @@ import { Trans, useTranslation } from "react-i18next";
 import Image from "next/image";
 import "../i18n/config";
 
-import { getDefaultPalette } from "../../components/three/types";
+import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
 
-  useEffect(() => {
-    window.__THREE_APP__?.setState((previous) => ({
-      variantName: "about",
-      palette: getDefaultPalette(previous.theme),
-      parallax: true,
-      hovered: false,
-      opacity: 0.3,
-    }));
-  }, []);
+  useThreeSceneSetup("about");
 
   return (
     <>
