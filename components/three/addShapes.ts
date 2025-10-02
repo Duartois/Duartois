@@ -143,6 +143,9 @@ const createGlossyMaterial = () =>
     specularColor: "#ffffff",
   });
 
+const createFlatMaterial = () =>
+  new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+
 
 const THICKNESS = 0.64;
 const TORUS_RADIUS = 1.28;
@@ -291,18 +294,34 @@ export async function addDuartoisSignatureShapes(
     ),
   };
 
-  const materials: Record<ShapeId, THREE.MeshPhysicalMaterial> = {
-    torusSpringAzure: meshes.torusSpringAzure
-      .material as THREE.MeshPhysicalMaterial,
-    waveSpringLime: meshes.waveSpringLime.material as THREE.MeshPhysicalMaterial,
-    semiLimeFlamingo: meshes.semiLimeFlamingo
-      .material as THREE.MeshPhysicalMaterial,
-    torusFlamingoLime: meshes.torusFlamingoLime
-      .material as THREE.MeshPhysicalMaterial,
-    semiFlamingoAzure: meshes.semiFlamingoAzure
-      .material as THREE.MeshPhysicalMaterial,
-    sphereFlamingoSpring: meshes.sphereFlamingoSpring
-      .material as THREE.MeshPhysicalMaterial,
+  const materials: Record<
+    ShapeId,
+    { physical: THREE.MeshPhysicalMaterial; flat: THREE.MeshBasicMaterial }
+  > = {
+    torusSpringAzure: {
+      physical: meshes.torusSpringAzure.material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    },
+    waveSpringLime: {
+      physical: meshes.waveSpringLime.material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    },
+    semiLimeFlamingo: {
+      physical: meshes.semiLimeFlamingo.material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    },
+    torusFlamingoLime: {
+      physical: meshes.torusFlamingoLime.material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    },
+    semiFlamingoAzure: {
+      physical: meshes.semiFlamingoAzure.material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    },
+    sphereFlamingoSpring: {
+      physical: meshes.sphereFlamingoSpring.material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    },
   };
 
   const originalColorAttributes: Record<
@@ -419,23 +438,36 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseAmbient = isDark ? 0.38 : 1.50;
-    const baseHemisphere = isDark ? 0.8 : 1.05;
-    const baseKey = isDark ? 0.45 : 0.10;
-    const baseFill = isDark ? 0.34 : 0.25;
-    const baseRim = isDark ? 0.1 : 0.2;
     const baseEmissive = 0.0; // não vamos “tintar” com emissive
 
-
     SHAPE_ORDER.forEach((id) => {
-      const material = materials[id];
+      const { physical, flat } = materials[id];
       const mesh = meshes[id];
       if (isDark) {
-        material.vertexColors = false;
-        material.color.set("#2b2b33");
+        if (mesh.material !== physical) {
+          mesh.material = physical;
+        }
+        physical.vertexColors = false;
+        physical.color.set("#2b2b33");
+        physical.opacity = 1;
+        physical.transparent = false;
+        physical.metalness = 0.22;
+        physical.roughness = 0.34;
+        physical.clearcoat = 0.88;
+        physical.clearcoatRoughness = 0.32;
+        physical.envMapIntensity = 0.95;
+        physical.specularIntensity = 0.62;
+        physical.sheen = 0.0;
+        physical.sheenColor.set("#ffffff");
+        physical.emissive.set("#0b0b0e");
+        physical.emissiveIntensity = baseEmissive * currentBrightness; // 0
+        physical.needsUpdate = true;
       } else {
-        material.vertexColors = true;
-        material.color.set("#ffffff");
+        if (mesh.material !== flat) {
+          mesh.material = flat;
+        }
+        flat.vertexColors = true;
+        flat.color.set("#ffffff");
         const original = originalColorAttributes[id];
         if (original) {
           mesh.geometry.setAttribute(
@@ -446,34 +478,41 @@ export async function addDuartoisSignatureShapes(
             ).setNormalized(original.normalized),
           );
         }
+        flat.opacity = 1;
+        flat.transparent = false;
+        flat.needsUpdate = true;
       }
-      material.opacity = 1;
-      material.transparent = false;
-      material.metalness = isDark ? 0.22 : 0.18;
-      material.roughness = isDark ? 0.34 : 0.28;
-      material.clearcoat = isDark ? 0.88 : 0.84;
-      material.clearcoatRoughness = isDark ? 0.32 : 0.26;
-      material.envMapIntensity = isDark ? 0.95 : 0.9;
-      material.specularIntensity = isDark ? 0.62 : 0.6;
-      material.sheen = 0.0;
-      material.sheenColor.set("#ffffff");
-      material.emissive.set("#0b0b0e");
-      material.emissiveIntensity = baseEmissive * currentBrightness; // 0
-
-      material.needsUpdate = true;
     });
 
+    const darkLightSettings = {
+      ambient: 0.38,
+      hemisphere: 0.8,
+      key: 0.45,
+      fill: 0.34,
+      rim: 0.1,
+    } as const;
+
+    const lightLightSettings = {
+      ambient: 1.5,
+      hemisphere: 0,
+      key: 0,
+      fill: 0,
+      rim: 0,
+    } as const;
+
+    const lightSettings = isDark ? darkLightSettings : lightLightSettings;
+
     ambient.color.set("#ffffff");
-    ambient.intensity = baseAmbient * currentBrightness;
+    ambient.intensity = lightSettings.ambient * currentBrightness;
     hemisphere.color.set("#ffffff");
     hemisphere.groundColor.set("#ffffff");
-    hemisphere.intensity = baseHemisphere * currentBrightness;
+    hemisphere.intensity = lightSettings.hemisphere * currentBrightness;
     keyLight.color.set(isDark ? "#ffffff" : "#fff3e0");
-    keyLight.intensity = baseKey * currentBrightness;
+    keyLight.intensity = lightSettings.key * currentBrightness;
     fillLight.color.set(isDark ? "#ffe9ff" : "#f2ffff");
-    fillLight.intensity = baseFill * currentBrightness;
+    fillLight.intensity = lightSettings.fill * currentBrightness;
     rimLight.color.set(isDark ? "#d8e6ff" : "#ffffff");
-    rimLight.intensity = baseRim * currentBrightness;
+    rimLight.intensity = lightSettings.rim * currentBrightness;
   };
 
   const setBrightness = (value: number) => {
@@ -493,15 +532,15 @@ export async function addDuartoisSignatureShapes(
     group.parent?.remove(group);
     orderedMeshes.forEach((mesh) => {
       mesh.geometry.dispose();
-      const material = mesh.material;
-      const disposeMaterial = (mat: THREE.Material) => {
-        mat.dispose();
-      };
-      if (Array.isArray(material)) {
-        material.forEach(disposeMaterial);
-      } else {
-        disposeMaterial(material);
-      }
+    });
+
+    const uniqueMaterials = new Set<THREE.Material>();
+    Object.values(materials).forEach(({ physical, flat }) => {
+      uniqueMaterials.add(physical);
+      uniqueMaterials.add(flat);
+    });
+    uniqueMaterials.forEach((material) => {
+      material.dispose();
     });
 
     lights.forEach((light) => {
