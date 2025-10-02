@@ -81,9 +81,6 @@
       "ready": "Pronto para começar!"
     }
   },
-  "experience": {
-    "loadingFallback": "Materializando formas…"
-  },
   "themeToggle": {
     "ariaLabel": "Alternar para o tema {{theme}}",
     "title": "Tema {{theme}}",
