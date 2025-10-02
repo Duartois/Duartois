@@ -13,7 +13,7 @@ export function MoonIcon({ className, ...props }: IconProps) {
       aria-hidden
       focusable="false"
       className={clsx(
-        "h-6 w-6 text-accent3-200 drop-shadow-sm transition-transform duration-300 ease-pleasant",
+        "h-6 w-6 text-spring drop-shadow-sm transition-transform duration-300 ease-pleasant",
         className,
       )}
       {...props}

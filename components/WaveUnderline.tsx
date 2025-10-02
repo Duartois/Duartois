@@ -19,7 +19,7 @@ export function WaveUnderline({
       <span className="relative z-10">{children}</span>
       <span
         aria-hidden
-        className={clsx("mt-2 h-2 overflow-hidden text-brand-400", underlineClassName)}
+        className={clsx("mt-2 h-2 overflow-hidden text-lime", underlineClassName)}
       >
         <span
           className="block h-full w-full bg-repeat-x bg-[length:7.5rem_0.75rem] animate-wave"

@@ -120,7 +120,7 @@ export default function AboutPage() {
                 className="pointer-events-none absolute inset-0 -z-20 rounded-full border border-fg/10 bg-fg/10 shadow-[0_35px_90px_-45px_rgba(0,0,0,0.65)]"
                 aria-hidden
               />
-              <div className="pointer-events-none absolute inset-[-6%] -z-10 animate-[spin_24s_linear_infinite] rounded-full border border-transparent border-t-accent2-300/50 border-b-accent1-200/50" aria-hidden />
+              <div className="pointer-events-none absolute inset-[-6%] -z-10 animate-[spin_24s_linear_infinite] rounded-full border border-transparent border-t-azure/50 border-b-flamingo/50" aria-hidden />
               <div className="pointer-events-none absolute inset-[16%] rounded-full border border-fg/10 opacity-60" aria-hidden />
               <div className="relative h-56 w-56 overflow-hidden rounded-full border border-fg/15 shadow-[0_28px_60px_-30px_rgba(0,0,0,0.65)]">
                 <Image
@@ -132,8 +132,8 @@ export default function AboutPage() {
                   priority
                 />
               </div>
-              <div className="pointer-events-none absolute -left-6 top-0 h-20 w-20 rounded-full bg-accent2-200/15 blur-2xl" aria-hidden />
-              <div className="pointer-events-none absolute -bottom-10 right-0 h-24 w-24 rounded-full bg-accent1-300/20 blur-3xl" aria-hidden />
+              <div className="pointer-events-none absolute -left-6 top-0 h-20 w-20 rounded-full bg-azure/15 blur-2xl" aria-hidden />
+              <div className="pointer-events-none absolute -bottom-10 right-0 h-24 w-24 rounded-full bg-flamingo/20 blur-3xl" aria-hidden />
               <div className="pointer-events-none absolute -bottom-6 -left-10 h-28 w-28">
                 <div className="relative h-full w-full">
                   <Image
