@@ -59,6 +59,24 @@ export const initScene = async ({
     alpha: true,
   });
 
+  const gl = renderer.getContext();
+
+  if (!gl) {
+    throw new Error("Failed to acquire WebGL context");
+  }
+
+  const originalGetShaderInfoLog = gl.getShaderInfoLog.bind(gl) as (
+    shader: WebGLShader | null,
+  ) => string | null;
+  const originalGetProgramInfoLog = gl.getProgramInfoLog.bind(gl) as (
+    program: WebGLProgram | null,
+  ) => string | null;
+
+  gl.getShaderInfoLog = ((shader) =>
+    originalGetShaderInfoLog(shader) ?? "") as typeof gl.getShaderInfoLog;
+  gl.getProgramInfoLog = ((program) =>
+    originalGetProgramInfoLog(program) ?? "") as typeof gl.getProgramInfoLog;
+
   renderer.setClearColor(new THREE.Color("#000000"), 0);
   // === pastel/filmic renderer ===
   renderer.outputColorSpace = THREE.SRGBColorSpace;
