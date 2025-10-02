@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import "./i18n/config";
 
 import { getDefaultPalette } from "../components/three/types";
+import noiseUrl from "@/public/noise.png";
 
 export default function HomePage() {
   const { t } = useTranslation("common");
@@ -25,6 +26,11 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
+      <div
+        className="pointer-events-none fixed inset-0 z-[9999] bg-repeat bg-center opacity-40 mix-blend-soft-light [background-size:220px] dark:opacity-30"
+        style={{ backgroundImage: `url(${noiseUrl.src})` }}
+        aria-hidden
+      />
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <section className="flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center sm:px-10 md:py-32 bg-bg/70">
           <div className="flex w-full max-w-3xl flex-col items-center gap-8 sm:gap-10">
