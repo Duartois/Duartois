@@ -30,9 +30,6 @@ const COLOR_SPRING = "#91faca";
 const COLOR_AZURE = "#8ec2ff";
 const COLOR_LIME = "#fef9a9";
 const COLOR_FLAMINGO = "#ff9fd3";
-const PASTEL_TARGET = new THREE.Color("#ffffff");
-const PASTEL_INTENSITY = 0;
-
 const createGradientStops = (from: string, to: string): readonly string[] => {
   const start = new THREE.Color(from);
   const end = new THREE.Color(to);
@@ -65,18 +62,9 @@ const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
 /**
  * Gradient axis descriptors:
  * - "radial": distance from the origin in 3D space (sqrt(x^2 + y^2 + z^2)).
- * - "radialXZ": cylindrical radius around the Y axis (sqrt(x^2 + z^2)).
- * - "radialY": cylindrical radius around the X axis, involving the Y dimension (sqrt(y^2 + z^2)).
+ * - "y": uses the Y component to drive the gradient.
  */
-type GradientAxis =
-  | "x"
-  | "y"
-  | "z"
-  | "radial"
-  | "radialXZ"
-  | "none"
-  | "radialY"
-  | "angleXZ";
+type GradientAxis = "radial" | "y";
 
 const applyGradientToGeometry = (
   geometry: THREE.BufferGeometry,
@@ -97,78 +85,14 @@ const applyGradientToGeometry = (
   let min = Infinity;
   let max = -Infinity;
 
-  if (axis === "angleXZ") {
-    const TWO_PI = Math.PI * 2;
-    const rawAngles = new Float32Array(position.count);
-
-    for (let i = 0; i < position.count; i += 1) {
-      const x = position.getX(i);
-      const z = position.getZ(i);
-      const angle = Math.atan2(z, x);
-      rawAngles[i] = THREE.MathUtils.euclideanModulo(angle, TWO_PI);
-    }
-
-    const sortedAngles = Array.from(rawAngles);
-    sortedAngles.sort((a, b) => a - b);
-
-    let base = sortedAngles[0] ?? 0;
-
-    if (sortedAngles.length > 1) {
-      let largestGap = -Infinity;
-
-      for (let i = 0; i < sortedAngles.length; i += 1) {
-        const current = sortedAngles[i];
-        const next = i === sortedAngles.length - 1 ? sortedAngles[0] + TWO_PI : sortedAngles[i + 1];
-        const gap = next - current;
-
-        if (gap > largestGap) {
-          largestGap = gap;
-          base = i === sortedAngles.length - 1 ? sortedAngles[0] : sortedAngles[i + 1];
-        }
-      }
-    }
-
-    for (let i = 0; i < position.count; i += 1) {
-      const normalized = THREE.MathUtils.euclideanModulo(rawAngles[i] - base, TWO_PI);
-      values[i] = normalized;
-      min = Math.min(min, normalized);
-      max = Math.max(max, normalized);
-    }
-  } else {
-    const readComponent = (
-      attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
-      index: number,
-    ) => {
-      switch (axis) {
-        case "x":
-          return attribute.getX(index);
-        case "y":
-          return attribute.getY(index);
-        case "z":
-          return attribute.getZ(index);
-        case "radial":
-          return Math.hypot(
-            attribute.getX(index),
-            attribute.getY(index),
-            attribute.getZ(index),
-          );
-        case "radialXZ":
-          return Math.hypot(attribute.getX(index), attribute.getZ(index));
-        case "radialY":
-          return Math.hypot(attribute.getY(index), attribute.getZ(index));
-        case "none":
-          return 0;
-        default:
-          return attribute.getX(index);
-      }
-    };
-
-    for (let i = 0; i < position.count; i += 1) {
-      const value = readComponent(position, i);
-      values[i] = value;
-      min = Math.min(min, value);
-      max = Math.max(max, value);
-    }
+  for (let i = 0; i < position.count; i += 1) {
+    const value =
+      axis === "y"
+        ? position.getY(i)
+        : Math.hypot(position.getX(i), position.getY(i), position.getZ(i));
+    values[i] = value;
+    min = Math.min(min, value);
+    max = Math.max(max, value);
   }
 
   const range = max - min || 1;
@@ -184,7 +108,7 @@ const applyGradientToGeometry = (
     const localT = scaled - index;
     const from = stopColors[index];
     const to = stopColors[nextIndex];
-    const color = from.clone().lerp(to, localT).lerp(PASTEL_TARGET, PASTEL_INTENSITY);
+    const color = from.clone().lerp(to, localT);
     colors[i * 3] = color.r;
     colors[i * 3 + 1] = color.g;
     colors[i * 3 + 2] = color.b;
@@ -308,152 +232,54 @@ export async function addDuartoisSignatureShapes(
 
   const waveCurve = new WaveCurve(3.8, 0.4);
 
-  const meshes: Record<ShapeId, THREE.Mesh> = {
-    torusSpringAzure: new THREE.Mesh(
-      applyGradientToGeometry(
-        createPartialTorusGeometry((3 * Math.PI) / 2),
-        GRADIENT_STOPS.torusSpringAzure,
-        GRADIENT_AXES.torusSpringAzure,
-      ),
-      createGlossyMaterial(),
-    ),
-    waveSpringLime: new THREE.Mesh(
-      applyGradientToGeometry(
-        createRoundedTubeGeometry(waveCurve, 280, 88),
-        GRADIENT_STOPS.waveSpringLime,
-        GRADIENT_AXES.waveSpringLime,
-      ),
-      createGlossyMaterial(),
-    ),
-    semiLimeFlamingo: new THREE.Mesh(
-      applyGradientToGeometry(
-        createPartialTorusGeometry(Math.PI),
-        GRADIENT_STOPS.semiLimeFlamingo,
-        GRADIENT_AXES.semiLimeFlamingo,
-      ),
-      createGlossyMaterial(),
-    ),
-    torusFlamingoLime: new THREE.Mesh(
-      applyGradientToGeometry(
-        createPartialTorusGeometry((3 * Math.PI) / 2),
-        GRADIENT_STOPS.torusFlamingoLime,
-        GRADIENT_AXES.torusFlamingoLime,
-      ),
-      createGlossyMaterial(),
-    ),
-    semiFlamingoAzure: new THREE.Mesh(
-      applyGradientToGeometry(
-        createPartialTorusGeometry(Math.PI),
-        GRADIENT_STOPS.semiFlamingoAzure,
-        GRADIENT_AXES.semiFlamingoAzure,
-      ),
-      createGlossyMaterial(),
-    ),
-    sphereFlamingoSpring: new THREE.Mesh(
-      applyGradientToGeometry(
-        new THREE.SphereGeometry(THICKNESS, 96, 96),
-        GRADIENT_STOPS.sphereFlamingoSpring,
-        GRADIENT_AXES.sphereFlamingoSpring,
-      ),
-      createGlossyMaterial(),
-    ),
+  const geometryFactories: Record<ShapeId, () => THREE.BufferGeometry> = {
+    torusSpringAzure: () => createPartialTorusGeometry((3 * Math.PI) / 2),
+    waveSpringLime: () => createRoundedTubeGeometry(waveCurve, 280, 88),
+    semiLimeFlamingo: () => createPartialTorusGeometry(Math.PI),
+    torusFlamingoLime: () => createPartialTorusGeometry((3 * Math.PI) / 2),
+    semiFlamingoAzure: () => createPartialTorusGeometry(Math.PI),
+    sphereFlamingoSpring: () => new THREE.SphereGeometry(THICKNESS, 96, 96),
   };
 
-  const materials: Record<
+  const meshes = SHAPE_ORDER.reduce<Record<ShapeId, THREE.Mesh>>((acc, id) => {
+    const geometry = applyGradientToGeometry(
+      geometryFactories[id](),
+      GRADIENT_STOPS[id],
+      GRADIENT_AXES[id],
+    );
+    acc[id] = new THREE.Mesh(geometry, createGlossyMaterial());
+    return acc;
+  }, {} as Record<ShapeId, THREE.Mesh>);
+
+  const materials = SHAPE_ORDER.reduce<
+    Record<ShapeId, { physical: THREE.MeshPhysicalMaterial; flat: THREE.MeshBasicMaterial }>
+  >((acc, id) => {
+    acc[id] = {
+      physical: meshes[id].material as THREE.MeshPhysicalMaterial,
+      flat: createFlatMaterial(),
+    };
+    return acc;
+  }, {} as Record<
     ShapeId,
     { physical: THREE.MeshPhysicalMaterial; flat: THREE.MeshBasicMaterial }
-  > = {
-    torusSpringAzure: {
-      physical: meshes.torusSpringAzure.material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    },
-    waveSpringLime: {
-      physical: meshes.waveSpringLime.material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    },
-    semiLimeFlamingo: {
-      physical: meshes.semiLimeFlamingo.material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    },
-    torusFlamingoLime: {
-      physical: meshes.torusFlamingoLime.material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    },
-    semiFlamingoAzure: {
-      physical: meshes.semiFlamingoAzure.material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    },
-    sphereFlamingoSpring: {
-      physical: meshes.sphereFlamingoSpring.material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    },
-  };
+  >);
 
-  const originalColorAttributes: Record<
+  const originalColorAttributes = SHAPE_ORDER.reduce<
+    Record<ShapeId, { array: Float32Array; itemSize: number; normalized: boolean } | null>
+  >((acc, id) => {
+    const attribute = meshes[id].geometry.getAttribute("color");
+    acc[id] = attribute
+      ? {
+          array: new Float32Array(attribute.array as ArrayLike<number>),
+          itemSize: attribute.itemSize,
+          normalized: attribute.normalized,
+        }
+      : null;
+    return acc;
+  }, {} as Record<
     ShapeId,
     { array: Float32Array; itemSize: number; normalized: boolean } | null
-  > = {
-    torusSpringAzure: (() => {
-      const attribute = meshes.torusSpringAzure.geometry.getAttribute("color");
-      return attribute
-        ? {
-            array: new Float32Array(attribute.array as ArrayLike<number>),
-            itemSize: attribute.itemSize,
-            normalized: attribute.normalized,
-          }
-        : null;
-    })(),
-    waveSpringLime: (() => {
-      const attribute = meshes.waveSpringLime.geometry.getAttribute("color");
-      return attribute
-        ? {
-            array: new Float32Array(attribute.array as ArrayLike<number>),
-            itemSize: attribute.itemSize,
-            normalized: attribute.normalized,
-          }
-        : null;
-    })(),
-    semiLimeFlamingo: (() => {
-      const attribute = meshes.semiLimeFlamingo.geometry.getAttribute("color");
-      return attribute
-        ? {
-            array: new Float32Array(attribute.array as ArrayLike<number>),
-            itemSize: attribute.itemSize,
-            normalized: attribute.normalized,
-          }
-        : null;
-    })(),
-    torusFlamingoLime: (() => {
-      const attribute = meshes.torusFlamingoLime.geometry.getAttribute("color");
-      return attribute
-        ? {
-            array: new Float32Array(attribute.array as ArrayLike<number>),
-            itemSize: attribute.itemSize,
-            normalized: attribute.normalized,
-          }
-        : null;
-    })(),
-    semiFlamingoAzure: (() => {
-      const attribute = meshes.semiFlamingoAzure.geometry.getAttribute("color");
-      return attribute
-        ? {
-            array: new Float32Array(attribute.array as ArrayLike<number>),
-            itemSize: attribute.itemSize,
-            normalized: attribute.normalized,
-          }
-        : null;
-    })(),
-    sphereFlamingoSpring: (() => {
-      const attribute = meshes.sphereFlamingoSpring.geometry.getAttribute("color");
-      return attribute
-        ? {
-            array: new Float32Array(attribute.array as ArrayLike<number>),
-            itemSize: attribute.itemSize,
-            normalized: attribute.normalized,
-          }
-        : null;
-    })(),
-  };
+  >);
 
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
 
