@@ -53,7 +53,7 @@ export const initScene = async ({
   // === pastel/filmic renderer ===
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   // menos brilho no tema claro, levemente mais no escuro
-  renderer.toneMappingExposure = theme === "light" ? 1.1 : 1.05;
+  renderer.toneMappingExposure = theme === "light" ? 1.1 : 1.5;
   // sombras desligadas para evitar contorno duro
   renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
