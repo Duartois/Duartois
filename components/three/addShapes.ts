@@ -42,7 +42,7 @@ const COLOR_LIME = "#f0ff66";
 const COLOR_FLAMINGO = "#ff5c82";
 const DARK_THEME_COLOR = "#2b2b33";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
-const PASTEL_INTENSITY = 0.35;
+const PASTEL_INTENSITY = 0.15;
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
   torusSpringAzure: [COLOR_AZURE, COLOR_SPRING],
