@@ -5,8 +5,7 @@
   "navbar": {
     "open": "Abrir navegação",
     "close": "Fechar navegação",
-    "menu": "Menu",
-    "closeMenu": "Fechar"
+    "menu": "Menu"
   },
   "home": {
     "hero": {
