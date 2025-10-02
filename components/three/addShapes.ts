@@ -305,6 +305,72 @@ export async function addDuartoisSignatureShapes(
       .material as THREE.MeshPhysicalMaterial,
   };
 
+  const originalColorAttributes: Record<
+    ShapeId,
+    { array: Float32Array; itemSize: number; normalized: boolean } | null
+  > = {
+    torusSpringAzure: (() => {
+      const attribute = meshes.torusSpringAzure.geometry.getAttribute("color");
+      return attribute
+        ? {
+            array: new Float32Array(attribute.array as ArrayLike<number>),
+            itemSize: attribute.itemSize,
+            normalized: attribute.normalized,
+          }
+        : null;
+    })(),
+    waveSpringLime: (() => {
+      const attribute = meshes.waveSpringLime.geometry.getAttribute("color");
+      return attribute
+        ? {
+            array: new Float32Array(attribute.array as ArrayLike<number>),
+            itemSize: attribute.itemSize,
+            normalized: attribute.normalized,
+          }
+        : null;
+    })(),
+    semiLimeFlamingo: (() => {
+      const attribute = meshes.semiLimeFlamingo.geometry.getAttribute("color");
+      return attribute
+        ? {
+            array: new Float32Array(attribute.array as ArrayLike<number>),
+            itemSize: attribute.itemSize,
+            normalized: attribute.normalized,
+          }
+        : null;
+    })(),
+    torusFlamingoLime: (() => {
+      const attribute = meshes.torusFlamingoLime.geometry.getAttribute("color");
+      return attribute
+        ? {
+            array: new Float32Array(attribute.array as ArrayLike<number>),
+            itemSize: attribute.itemSize,
+            normalized: attribute.normalized,
+          }
+        : null;
+    })(),
+    semiFlamingoAzure: (() => {
+      const attribute = meshes.semiFlamingoAzure.geometry.getAttribute("color");
+      return attribute
+        ? {
+            array: new Float32Array(attribute.array as ArrayLike<number>),
+            itemSize: attribute.itemSize,
+            normalized: attribute.normalized,
+          }
+        : null;
+    })(),
+    sphereFlamingoSpring: (() => {
+      const attribute = meshes.sphereFlamingoSpring.geometry.getAttribute("color");
+      return attribute
+        ? {
+            array: new Float32Array(attribute.array as ArrayLike<number>),
+            itemSize: attribute.itemSize,
+            normalized: attribute.normalized,
+          }
+        : null;
+    })(),
+  };
+
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
 
   const ambient = new THREE.AmbientLight(0xffffff, 0.18);
@@ -363,8 +429,24 @@ export async function addDuartoisSignatureShapes(
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
-      material.vertexColors = true;
-      material.color.set(isDark ? "#f6f7ff" : "#ffffff");
+      const mesh = meshes[id];
+      if (isDark) {
+        material.vertexColors = false;
+        material.color.set("#2b2b33");
+      } else {
+        material.vertexColors = true;
+        material.color.set("#ffffff");
+        const original = originalColorAttributes[id];
+        if (original) {
+          mesh.geometry.setAttribute(
+            "color",
+            new THREE.Float32BufferAttribute(
+              original.array.slice(),
+              original.itemSize,
+            ).setNormalized(original.normalized),
+          );
+        }
+      }
       material.opacity = 1;
       material.transparent = false;
       material.metalness = 0.05;
