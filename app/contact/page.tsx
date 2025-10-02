@@ -26,7 +26,7 @@ export default function ContactPage() {
       <Navbar />
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left bg-bg/70">
-          <div className="space-y-4">
+          <div className="page-animate space-y-4" data-hero-index={0}>
             <AnimatedText
               as="h1"
               underline={false}
@@ -46,7 +46,8 @@ export default function ContactPage() {
           </div>
           <form
             onSubmit={handleSubmit}
-            className="w-full space-y-4 rounded-3xl border border-fg/15 bg-bg/75 p-8 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.6)]"
+            className="page-animate w-full space-y-4 rounded-3xl border border-fg/15 bg-bg/75 p-8 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.6)]"
+            data-hero-index={1}
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
