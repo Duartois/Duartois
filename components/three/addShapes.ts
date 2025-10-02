@@ -36,29 +36,59 @@ const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
   sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
 };
 
-const COLOR_SPRING = "#78ffd1";
-const COLOR_AZURE = "#99b9ff";
-const COLOR_LIME = "#f0ffa6";
-const COLOR_FLAMINGO = "#ffb3c2";
+const COLOR_SPRING = "#91faca";
+const COLOR_AZURE = "#8ec2ff";
+const COLOR_LIME = "#fef9a9";
+const COLOR_FLAMINGO = "#ff9fd3";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
 const PASTEL_INTENSITY = 0;
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
-  torusSpringAzure: [COLOR_FLAMINGO, COLOR_AZURE],
-  waveSpringLime: [COLOR_SPRING, COLOR_FLAMINGO],
-  semiLimeFlamingo: [COLOR_FLAMINGO, COLOR_SPRING],
-  torusFlamingoLime: [COLOR_FLAMINGO, COLOR_LIME],
-  semiFlamingoAzure: [COLOR_AZURE, COLOR_FLAMINGO],
-  sphereFlamingoSpring: [COLOR_SPRING, COLOR_FLAMINGO],
+  torusSpringAzure: [
+    COLOR_FLAMINGO,
+    COLOR_LIME,
+    COLOR_SPRING,
+    COLOR_AZURE,
+  ],
+  waveSpringLime: [
+    COLOR_AZURE,
+    COLOR_FLAMINGO,
+    COLOR_LIME,
+    COLOR_SPRING,
+  ],
+  semiLimeFlamingo: [
+    COLOR_LIME,
+    COLOR_SPRING,
+    COLOR_FLAMINGO,
+    COLOR_LIME,
+  ],
+  torusFlamingoLime: [
+    COLOR_FLAMINGO,
+    COLOR_LIME,
+    COLOR_SPRING,
+    COLOR_FLAMINGO,
+  ],
+  semiFlamingoAzure: [
+    COLOR_FLAMINGO,
+    COLOR_AZURE,
+    COLOR_SPRING,
+    COLOR_FLAMINGO,
+  ],
+  sphereFlamingoSpring: [
+    COLOR_FLAMINGO,
+    COLOR_SPRING,
+    COLOR_LIME,
+    COLOR_FLAMINGO,
+  ],
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
   torusSpringAzure: "radial",
-  waveSpringLime: "y",
-  semiLimeFlamingo: "radialY",
+  waveSpringLime: "x",
+  semiLimeFlamingo: "y",
   torusFlamingoLime: "radial",
-  semiFlamingoAzure: "radial",
-  sphereFlamingoSpring: "y",
+  semiFlamingoAzure: "radialY",
+  sphereFlamingoSpring: "radial",
 };
 
 type GradientAxis = "x" | "y" | "z" | "radial" | "radialXZ" | "none" | "radialY";
