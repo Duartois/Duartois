@@ -46,7 +46,7 @@ const createFramedVariant = (): VariantState => ({
     scale: [0.75, 0.75, 0.75],
   },
   torusFlamingoLime: {
-    position: [-100.64, -0.62, -0.58],
+    position: [-0.64, -0.62, -0.58],
     rotation: [-0.28, 0.44, 0.92],
     scale: [0.75, 0.75, 0.75],
   },
