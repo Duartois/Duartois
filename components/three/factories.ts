@@ -1,12 +1,6 @@
 import { OrthographicCamera } from "three";
 
-import {
-  type GradientPalette,
-  type ThemeName,
-  type VariantState,
-  createVariantState,
-  getDefaultPalette,
-} from "./types";
+import { type GradientPalette, type ThemeName, getDefaultPalette } from "./types";
 
 export const createCamera = () => {
   const aspect = window.innerWidth / window.innerHeight;
@@ -16,8 +10,6 @@ export const createCamera = () => {
   camera.updateProjectionMatrix();
   return camera;
 };
-
-export const cloneVariant = (variant: VariantState) => createVariantState(variant);
 
 export const ensurePalette = (
   palette: GradientPalette | undefined,
