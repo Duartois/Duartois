@@ -36,20 +36,20 @@ const ROTATION_SPEEDS: Record<ShapeId, { x: number; y: number }> = {
   sphereFlamingoSpring: { x: 0.0028, y: 0.0031 },
 };
 
-const COLOR_SPRING = "#71ff81";
-const COLOR_AZURE = "#85b9ff";
-const COLOR_LIME = "#f0ff66";
-const COLOR_FLAMINGO = "#ff5c82";
+const COLOR_SPRING = "#78ffd1";
+const COLOR_AZURE = "#99b9ff";
+const COLOR_LIME = "#f0ffa6";
+const COLOR_FLAMINGO = "#ffb3c2";
 const PASTEL_TARGET = new THREE.Color("#ffffff");
-const PASTEL_INTENSITY = 0.28;
+const PASTEL_INTENSITY = 0;
 
 const GRADIENT_STOPS: Record<ShapeId, readonly string[]> = {
-  torusSpringAzure: [COLOR_AZURE, COLOR_SPRING],
-  waveSpringLime: [COLOR_LIME, COLOR_SPRING],
-  semiLimeFlamingo: [COLOR_FLAMINGO, COLOR_LIME],
+  torusSpringAzure: [COLOR_FLAMINGO, COLOR_AZURE],
+  waveSpringLime: [COLOR_SPRING, COLOR_FLAMINGO],
+  semiLimeFlamingo: [COLOR_FLAMINGO, COLOR_SPRING],
   torusFlamingoLime: [COLOR_FLAMINGO, COLOR_LIME],
-  semiFlamingoAzure: [COLOR_FLAMINGO, COLOR_AZURE],
-  sphereFlamingoSpring: [COLOR_FLAMINGO, COLOR_SPRING],
+  semiFlamingoAzure: [COLOR_AZURE, COLOR_FLAMINGO],
+  sphereFlamingoSpring: [COLOR_SPRING, COLOR_FLAMINGO],
 };
 
 const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
