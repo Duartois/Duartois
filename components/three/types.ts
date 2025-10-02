@@ -31,7 +31,7 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [2.55, -1.58, -0.2],
+    position: [2.85, -1.8, -0.2],
     rotation: [-1.36, 0.92, -0.2],
     scale: [0.75, 0.75, 0.75],
   },
@@ -41,17 +41,17 @@ const createFramedVariant = (): VariantState => ({
     scale: [0.75, 0.75, 0.75],
   },
   semiLimeFlamingo: {
-    position: [2, 1.5, -0.4],
+    position: [2, 2, -0.4],
     rotation: [1.14, -0.42, -0.05],
     scale: [0.75, 0.75, 0.75],
   },
   torusFlamingoLime: {
-    position: [-0.64, -0.62, -0.58],
+    position: [0, -2, -0.58],
     rotation: [-0.28, 0.44, 0.92],
     scale: [0.75, 0.75, 0.75],
   },
   semiFlamingoAzure: {
-    position: [-2.42, -1.58, -0.8],
+    position: [-2.82, -1.58, -0.8],
     rotation: [1.36, 0, -0.2],
     scale: [0.75, 0.75, 0.75],
   },
