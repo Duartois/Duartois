@@ -376,7 +376,9 @@ export const initScene = async ({
     globalWindow.removeEventListener("pointerenter", pointerEnter);
     globalWindow.removeEventListener("pointerleave", pointerLeave);
     shapes.dispose();
-    renderer.forceContextLoss();
+    // Keep the renderer cleanup quiet for devtools/extensions by avoiding a
+    // forced context loss. `renderer.dispose()` is enough to release GPU
+    // resources without triggering "Context Lost" warnings.
     renderer.dispose();
     detachFromWindow(handle);
   };
