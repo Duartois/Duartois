@@ -302,18 +302,9 @@ export async function addDuartoisSignatureShapes(
 
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.6);
-  keyLight.position.set(3.6, 4.2, 5.4);
-
-  const fillLight = new THREE.PointLight(0xfff1d6, 0.8, 18);
-  fillLight.position.set(-4.2, 2.1, 3.8);
-
-  const rimLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  rimLight.position.set(-3.4, -2.8, -4.6);
-
   const ambient = new THREE.AmbientLight(0xffffff, 0.58);
 
-  const lights: THREE.Light[] = [keyLight, fillLight, rimLight, ambient];
+  const lights: THREE.Light[] = [ambient];
 
   orderedMeshes.forEach((mesh) => {
     mesh.castShadow = false;
@@ -349,11 +340,8 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseKey = isDark ? 2.4 : 1.8;
-    const baseFill = isDark ? 1.25 : 1.0;
-    const baseRim = isDark ? 1.5 : 1.1;
-    const baseAmbient = isDark ? 0.5 : 0.66;
-    const baseEmissive = isDark ? 0.26 : 0.12;
+    const baseAmbient = isDark ? 1.15 : 1.4;
+    const baseEmissive = isDark ? 0.42 : 0.2;
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -369,15 +357,6 @@ export async function addDuartoisSignatureShapes(
       material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
-
-    keyLight.color.set(isDark ? "#e1e7ff" : "#ffffff");
-    keyLight.intensity = baseKey * currentBrightness;
-
-    fillLight.color.set(isDark ? "#7cb8ff" : "#fff1d6");
-    fillLight.intensity = baseFill * currentBrightness;
-
-    rimLight.color.set(isDark ? "#8ae2ff" : "#ffffff");
-    rimLight.intensity = baseRim * currentBrightness;
 
     ambient.color.set(isDark ? "#262630" : "#ffffff");
     ambient.intensity = baseAmbient * currentBrightness;
