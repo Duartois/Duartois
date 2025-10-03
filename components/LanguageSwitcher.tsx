@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import i18n from "@/app/i18n/config";
 
 type SupportedLanguage = "pt" | "en";
@@ -11,6 +12,7 @@ const normalizeLanguage = (lng?: string | null): SupportedLanguage => {
 };
 
 export default function LanguageSwitcher() {
+  const { t } = useTranslation("common");
   const [lang, setLang] = useState<SupportedLanguage>(
     normalizeLanguage(i18n.language)
   );
@@ -26,7 +28,7 @@ export default function LanguageSwitcher() {
     <a
       href="#"
       title={target.toUpperCase()}
-      aria-label={target === "en" ? "Switch to English" : "Mudar para Português"}
+      aria-label={t("languageSwitcher.ariaLabel")}
       onClick={(e) => {
         e.preventDefault();
         i18n.changeLanguage(target);
