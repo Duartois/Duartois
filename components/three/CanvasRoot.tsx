@@ -36,16 +36,16 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
   }
 
   return (
-    <div className="fixed top-0 left-0 h-full w-full z-0">
+    <div className="fixed top-0 left-0 h-full w-full -z-10">
       <div
         className={classNames(
-          "pointer-events-none fixed inset-0 z-0 overflow-visible transition-opacity duration-700",
+          "pointer-events-none fixed inset-0 -z-10 overflow-visible transition-opacity duration-700",
           isVisible ? "opacity-100" : "opacity-0",
         )}
         aria-hidden={!isVisible}
       >
         <div className="relative h-full w-full">
-          <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 -z-10">
             <CoreCanvas />
           </div>
         </div>
