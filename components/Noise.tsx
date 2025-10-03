@@ -1,9 +1,10 @@
 type NoiseProps = {
   className?: string;
+  position?: "fixed" | "absolute";
 };
 
-export default function Noise({ className }: NoiseProps) {
-  const baseClasses = "pointer-events-none fixed inset-0";
+export default function Noise({ className, position = "fixed" }: NoiseProps) {
+  const baseClasses = `pointer-events-none ${position} inset-0`;
   const classes = [baseClasses, className ?? "z-[60]"]
     .filter(Boolean)
     .join(" ");
