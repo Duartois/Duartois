@@ -5,6 +5,7 @@ import type {
   ShapeId,
   ThemeName,
   VariantState,
+  Vector3Tuple,
 } from "./types";
 
 export type ShapesHandle = {
@@ -13,7 +14,16 @@ export type ShapesHandle = {
   applyVariant: (variant: VariantState) => void;
   applyTheme: (theme: ThemeName) => void;
   setBrightness: (value: number) => void;
+  getVariantBounds: (variant: VariantState) => VariantBounds | null;
   dispose: () => void;
+};
+
+export type VariantBounds = {
+  min: Vector3Tuple;
+  max: Vector3Tuple;
+  width: number;
+  height: number;
+  depth: number;
 };
 
 const SHAPE_ORDER: ShapeId[] = [
@@ -229,7 +239,6 @@ export async function addDuartoisSignatureShapes(
 ): Promise<ShapesHandle> {
   const group = new THREE.Group();
   scene.add(group);
-  group.scale.setScalar(1.2);
 
   const waveCurve = new WaveCurve(3.8, 0.4);
 
@@ -242,12 +251,25 @@ export async function addDuartoisSignatureShapes(
     sphereFlamingoSpring: () => new THREE.SphereGeometry(THICKNESS, 96, 96),
   };
 
+  const boundingSpheres = new Map<
+    ShapeId,
+    { radius: number; center: THREE.Vector3 }
+  >();
+
   const meshes = SHAPE_ORDER.reduce<Record<ShapeId, THREE.Mesh>>((acc, id) => {
     const geometry = applyGradientToGeometry(
       geometryFactories[id](),
       GRADIENT_STOPS[id],
       GRADIENT_AXES[id],
     );
+    geometry.computeBoundingSphere();
+    const sphere = geometry.boundingSphere;
+    if (sphere) {
+      boundingSpheres.set(id, {
+        radius: sphere.radius,
+        center: sphere.center.clone(),
+      });
+    }
     acc[id] = new THREE.Mesh(geometry, createGlossyMaterial());
     return acc;
   }, {} as Record<ShapeId, THREE.Mesh>);
@@ -315,6 +337,74 @@ export async function addDuartoisSignatureShapes(
         mesh.scale.setScalar(target.scale ?? 1);
       }
     });
+  };
+
+  const scratchQuaternion = new THREE.Quaternion();
+  const scratchEuler = new THREE.Euler();
+  const scratchScale = new THREE.Vector3();
+  const scratchCenter = new THREE.Vector3();
+  const scratchPosition = new THREE.Vector3();
+
+  const getVariantBounds = (variant: VariantState): VariantBounds | null => {
+    let minX = Infinity;
+    let minY = Infinity;
+    let minZ = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let maxZ = -Infinity;
+
+    let hasBounds = false;
+
+    SHAPE_ORDER.forEach((id) => {
+      const target = variant[id];
+      const sphere = boundingSpheres.get(id);
+      if (!target || !sphere) {
+        return;
+      }
+
+      const scaleArray = Array.isArray(target.scale)
+        ? target.scale
+        : [target.scale ?? 1, target.scale ?? 1, target.scale ?? 1];
+
+      scratchScale.set(scaleArray[0], scaleArray[1], scaleArray[2]);
+      scratchCenter.copy(sphere.center).multiply(scratchScale);
+
+      scratchEuler.set(
+        target.rotation[0],
+        target.rotation[1],
+        target.rotation[2],
+        "XYZ",
+      );
+      scratchQuaternion.setFromEuler(scratchEuler);
+      scratchCenter.applyQuaternion(scratchQuaternion);
+
+      scratchPosition.set(target.position[0], target.position[1], target.position[2]);
+      scratchCenter.add(scratchPosition);
+
+      const maxScale = Math.max(scaleArray[0], scaleArray[1], scaleArray[2]);
+      const radius = sphere.radius * maxScale;
+
+      minX = Math.min(minX, scratchCenter.x - radius);
+      minY = Math.min(minY, scratchCenter.y - radius);
+      minZ = Math.min(minZ, scratchCenter.z - radius);
+      maxX = Math.max(maxX, scratchCenter.x + radius);
+      maxY = Math.max(maxY, scratchCenter.y + radius);
+      maxZ = Math.max(maxZ, scratchCenter.z + radius);
+
+      hasBounds = true;
+    });
+
+    if (!hasBounds) {
+      return null;
+    }
+
+    return {
+      min: [minX, minY, minZ],
+      max: [maxX, maxY, maxZ],
+      width: maxX - minX,
+      height: maxY - minY,
+      depth: maxZ - minZ,
+    };
   };
 
   let currentTheme: ThemeName = initialTheme;
@@ -428,6 +518,7 @@ export async function addDuartoisSignatureShapes(
     applyVariant,
     applyTheme,
     setBrightness,
+    getVariantBounds,
     dispose,
   };
 }
