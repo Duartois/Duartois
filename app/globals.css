@@ -473,6 +473,144 @@ body.dark header {
     position: relative
 }
 
+.menu-circle-12 {
+    transform: none;
+    transform-origin: 0px 0px;
+}
+.menu-circle-24 {
+    transform: none;
+    transform-origin: 0px 0px;
+}
+.menu-circle-36 {
+    transform: none;
+    transform-origin: 0px 0px;
+}
+.menu-rect {
+    transform: none;
+    transform-origin: 0px 0px;
+}
+
+/* ===== Menu 9 pontos  ===== */
+
+/* Garante que os transforms usem o centro do ícone (24,24) como referência */
+.hamburger-btn .menu-icon { transform-box: fill-box; }
+
+.hamburger-btn .menu-icon .dot,
+.hamburger-btn .menu-icon .center-bars{
+  transition:
+    width .38s cubic-bezier(.22,.61,.36,1),
+    height .38s cubic-bezier(.22,.61,.36,1),
+    transform .30s cubic-bezier(.22,.61,.36,1),
+    opacity .25s cubic-bezier(.22,.61,.36,1);
+  transform-origin: 24px 24px;
+}
+
+.hamburger-btn .menu-icon .dot-center-w,
+.hamburger-btn .menu-icon .dot-center-h {
+  transition:
+    width .38s cubic-bezier(.22,.61,.36,1),
+    height .38s cubic-bezier(.22,.61,.36,1),
+    transform .38s cubic-bezier(.22,.61,.36,1);
+  transform-origin: 0px 0px;
+}
+
+/* ---------- HOVER = "+" (equivalente a width/height=60) ---------- */
+/* Compensação de centro: (60-6)/2 = 27px */
+.hamburger-btn:not([data-animating="true"]):not([data-hover-hold="true"]):not([aria-expanded="true"]):hover .menu-icon .dot-center-w {
+  width: 34px;                 /* 6 → 60 */
+  transform: translateX(-14px);/* empurra 27px p/ esquerda ⇒ 30px p/ cada lado */
+}
+.hamburger-btn:not([data-animating="true"]):not([data-hover-hold="true"]):not([aria-expanded="true"]):hover .menu-icon .dot-center-h {
+  height: 34px;                /* 6 → 60 */
+  transform: translateY(-14px);/* empurra 27px p/ cima ⇒ 30px p/ cada lado */
+}
+
+/* Afasta levemente os medianos para o + respirar (pode manter os teus valores) */
+.hamburger-btn:not([data-animating="true"]):not([data-hover-hold="true"]):not([aria-expanded="true"]):hover .menu-icon .dot-24-12 { transform: translateY(-30px); }
+.hamburger-btn:not([data-animating="true"]):not([data-hover-hold="true"]):not([aria-expanded="true"]):hover .menu-icon .dot-24-36 { transform: translateY( 30px); }
+.hamburger-btn:not([data-animating="true"]):not([data-hover-hold="true"]):not([aria-expanded="true"]):hover .menu-icon .dot-12-24 { transform: translateX(-30px); }
+.hamburger-btn:not([data-animating="true"]):not([data-hover-hold="true"]):not([aria-expanded="true"]):hover .menu-icon .dot-36-24 { transform: translateX( 30px); }
+
+/* ---------- ABERTO = "X" ---------- */
+.hamburger-btn[aria-expanded="true"] .menu-icon .center-bars {
+  transform: rotate(45deg);     /* + → X */
+}
+
+.hamburger-btn[aria-expanded="true"]:not([data-animating="true"]):not([data-hover-hold="true"]):hover .menu-icon .center-bars {
+  transform: rotate(90deg);     
+}
+
+.hamburger-btn[aria-expanded="true"]:not([data-animating="true"]):not([data-hover-hold="true"]):hover .menu-icon .dot-12-12, 
+.hamburger-btn[aria-expanded="true"]:not([data-animating="true"]):not([data-hover-hold="true"]):hover .menu-icon .dot-36-12,
+.hamburger-btn[aria-expanded="true"]:not([data-animating="true"]):not([data-hover-hold="true"]):hover .menu-icon .dot-12-36, 
+.hamburger-btn[aria-expanded="true"]:not([data-animating="true"]):not([data-hover-hold="true"]):hover .menu-icon .dot-36-36 {
+  transform: translate(0,0);    /* Cantos voltam ao lugar */
+  opacity: 0.75;                 /* E ficam mais opacos */
+
+}
+
+/* mantém a mesma compensação de centro quando aberto */
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-center-w {
+  width: 34px;                 /* 6 → 60 */
+  transform: translateX(-14px);
+}
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-center-h {
+  height: 34px;
+  transform: translateY(-14px);
+}
+
+
+
+/* Some com os medianos para destacar o X */
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-24-12,
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-24-36,
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-12-24,
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-36-24 { opacity: 0; }
+
+
+
+/* Cantos dão um passinho pra fora (mesma vibe do site) */
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-12-12 { transform: translate(-15px, -15px); opacity: 1; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-36-12 { transform: translate(15px, -15px); opacity: 1; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-12-36 { transform: translate(-15px,15px); opacity: 1; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-36-36 { transform: translate(15px, 15px); opacity: 1; }
+
+
+/* Centro também pode desaparecer no aberto (igual ref) */
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-24-24 { opacity: 0; }
+
+
+/* ---------- Stagger sutil (mantive o teu) ---------- */
+.hamburger-btn .menu-icon .dot-12-12 { transition-delay: 0ms;  }
+.hamburger-btn .menu-icon .dot-24-12 { transition-delay: 15ms; }
+.hamburger-btn .menu-icon .dot-36-12 { transition-delay: 30ms; }
+.hamburger-btn .menu-icon .dot-12-24 { transition-delay: 45ms; }
+.hamburger-btn .menu-icon .dot-24-24 { transition-delay: 60ms; }
+.hamburger-btn .menu-icon .dot-36-24 { transition-delay: 75ms; }
+.hamburger-btn .menu-icon .dot-12-36 { transition-delay: 90ms; }
+.hamburger-btn .menu-icon .dot-24-36 { transition-delay: 105ms; }
+.hamburger-btn .menu-icon .dot-36-36 { transition-delay: 120ms; }
+
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-36-36 { transition-delay: 0ms;  }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-24-36 { transition-delay: 15ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-12-36 { transition-delay: 30ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-36-24 { transition-delay: 45ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-24-24 { transition-delay: 60ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-12-24 { transition-delay: 75ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-36-12 { transition-delay: 90ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-24-12 { transition-delay: 105ms; }
+.hamburger-btn[aria-expanded="true"] .menu-icon .dot-12-12 { transition-delay: 120ms; }
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .hamburger-btn .menu-icon .dot,
+  .hamburger-btn .menu-icon .center-bars,
+  .hamburger-btn .menu-icon .dot-center-w,
+  .hamburger-btn .menu-icon .dot-center-h { transition: none; }
+}
+
+
+
 .noise {
     position: fixed;
     z-index: 9999;

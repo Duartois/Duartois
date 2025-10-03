@@ -5,6 +5,7 @@ import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
 import { useEffect, PropsWithChildren } from "react";
 
+
 // componente para estilizar o <name> vindo do JSON
 function NameWithWave({ children }: PropsWithChildren) {
   return (
@@ -85,7 +86,7 @@ export default function HomePage() {
 
   return (
     <>
-      <main className="w-front">
+      <main className="w-front h-front relative z-30">
         <div className="opacity: 1; transform: none;">
           <div data-scroll-container="true" id="scroll-container">
             <div
@@ -153,6 +154,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        <div className="noise" />
       </main>
     </>
   );

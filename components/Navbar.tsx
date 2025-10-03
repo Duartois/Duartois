@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Menu from "./Menu";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -11,9 +11,23 @@ import "../app/i18n/config";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [hoverHold, setHoverHold] = useState(false);
+  const animTimerRef = useRef<number | undefined>(undefined);
   const pathname = usePathname();
   useEffect(() => setIsOpen(false), [pathname]);
-  const { t } = useTranslation("common"); 
+  const { t } = useTranslation("common");
+
+  function handleToggle() {
+    setIsAnimating(true);
+    setHoverHold(true); // <- trava hover no clique
+    setIsOpen((v) => !v);
+
+    if (animTimerRef.current) window.clearTimeout(animTimerRef.current);
+    animTimerRef.current = window.setTimeout(() => {
+      setIsAnimating(false);
+    }, 420);
+  }
 
   return (
     <>
@@ -42,22 +56,35 @@ export default function Navbar() {
 
             <h5
               className="full-identity"
-              style={{ display: "none", transform: "translateY(-100px) translateZ(0px)" }}
+              style={{
+                display: "none",
+                transform: "translateY(-100px) translateZ(0px)",
+              }}
             >
-              <span className="nickname">sharlee</span>/<span className="fullname">charles bruyerre</span>
+              <span className="nickname">sharlee</span>/
+              <span className="fullname">charles bruyerre</span>
             </h5>
           </div>
 
           {/* RIGHT */}
-          <div className="right-part" style={{ display: "flex", transform: "none" }}>
+          <div
+            className="right-part"
+            style={{ display: "flex", transform: "none" }}
+          >
             <ul>
               {/* LanguageSwitcher no lugar do EN/PT estático */}
-              <li className="language-switch flex transform-none" style={{ display: "block", transform: "none" }}>
+              <li
+                className="language-switch flex transform-none"
+                style={{ display: "block", transform: "none" }}
+              >
                 <LanguageSwitcher />
               </li>
 
               {/* ThemeToggle usando o mesmo ícone (lua/sol) da referência */}
-              <li className="theme-switch" style={{ display: "block", transform: "none" }}>
+              <li
+                className="theme-switch"
+                style={{ display: "block", transform: "none" }}
+              >
                 <ThemeToggle />
               </li>
 
@@ -70,7 +97,12 @@ export default function Navbar() {
                   aria-expanded={isOpen}
                   aria-controls="main-navigation-overlay"
                   aria-label={isOpen ? "Close menu" : "Open menu"}
-                  onClick={() => setIsOpen((v) => !v)}
+                  data-open={isOpen}
+                  data-animating={isAnimating}
+                  data-hover-hold={hoverHold}
+                  onClick={handleToggle}
+                  onMouseLeave={() => setHoverHold(false)}
+                  onBlur={() => setHoverHold(false)}
                 >
                   <div style={{ transform: "none" }}>
                     <svg
@@ -78,19 +110,46 @@ export default function Navbar() {
                       viewBox="0 0 48 48"
                       width="48"
                       height="48"
-                      className="icons-style"
+                      className="icons-style menu-icon"
+                      aria-hidden="true"
                     >
                       <title>Menu</title>
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <circle cx="24" cy="12" r="3"></circle>
-                      <circle cx="36" cy="12" r="3"></circle>
-                      <circle cx="36" cy="24" r="3"></circle>
-                      <circle cx="36" cy="36" r="3"></circle>
-                      <circle cx="24" cy="36" r="3"></circle>
-                      <circle cx="12" cy="36" r="3"></circle>
-                      <circle cx="12" cy="24" r="3"></circle>
-                      <rect x="21" y="21" width="6px" height="6px" rx="3" ry="3" opacity="0.75"></rect>
-                      <rect x="21" y="21" width="6px" height="6px" rx="3" ry="3" opacity="0.75"></rect>
+
+                      {/* linha de cima */}
+                      <circle cx="12" cy="12" r="3" className="dot dot-12-12" />
+                      <circle cx="24" cy="12" r="3" className="dot dot-24-12" />
+                      <circle cx="36" cy="12" r="3" className="dot dot-36-12" />
+
+                      {/* meio (os lados são círculos, o centro é quadrado arredondado) */}
+                      <circle cx="12" cy="24" r="3" className="dot dot-12-24" />
+                      <circle cx="36" cy="24" r="3" className="dot dot-36-24" />
+
+                      {/* linha de baixo */}
+                      <circle cx="12" cy="36" r="3" className="dot dot-12-36" />
+                      <circle cx="24" cy="36" r="3" className="dot dot-24-36" />
+                      <circle cx="36" cy="36" r="3" className="dot dot-36-36" />
+                      <g className="center-bars">
+                        <rect
+                          x="21"
+                          y="21"
+                          width="6"
+                          height="6"
+                          rx="3"
+                          ry="3"
+                          opacity="0.75"
+                          className="dot-center-w"
+                        />
+                        <rect
+                          x="21"
+                          y="21"
+                          width="6"
+                          height="6"
+                          rx="3"
+                          ry="3"
+                          opacity="0.75"
+                          className="dot-center-h"
+                        />
+                      </g>
                     </svg>
                   </div>
                 </button>
