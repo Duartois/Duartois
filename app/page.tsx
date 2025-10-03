@@ -13,27 +13,17 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 
 import {
   HERO_LINE_ONE_MONOGRAM,
-  HERO_LINE_ONE_MONOGRAM_CENTERED,
   HERO_LINE_TWO_MONOGRAM,
-  HERO_LINE_TWO_MONOGRAM_CENTERED,
   createVariantState,
   variantMapping,
   type VariantState,
-  type MonogramAlignment,
 } from "@/components/three/types";
 
 
-type NameWithWaveProps = PropsWithChildren<{
-  hoverVariant: VariantState;
-  centeredHoverVariant?: VariantState;
-}>;
+type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 
 // componente para estilizar o <name> vindo do JSON
-function NameWithWave({
-  children,
-  hoverVariant,
-  centeredHoverVariant,
-}: NameWithWaveProps) {
+function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
   const storedVariantRef = useRef<VariantState | null>(null);
 
   const handlePointerEnter = useCallback(() => {
@@ -46,32 +36,16 @@ function NameWithWave({
       return;
     }
 
-    const alignment: MonogramAlignment =
-      centeredHoverVariant && window.innerWidth < 990 ? "centered" : "desktop";
-    const nextVariant =
-      alignment === "centered" && centeredHoverVariant
-        ? centeredHoverVariant
-        : hoverVariant;
-    const clonedVariant = createVariantState(nextVariant);
-    const clonedHoverVariants = centeredHoverVariant
-      ? {
-          desktop: createVariantState(hoverVariant),
-          centered: createVariantState(centeredHoverVariant),
-        }
-      : null;
-
     app.setState((previous) => {
       if (!storedVariantRef.current) {
         storedVariantRef.current = createVariantState(previous.variant);
       }
       return {
         hovered: true,
-        variant: clonedVariant,
-        hoverAlignment: alignment,
-        hoverVariants: clonedHoverVariants,
+        variant: hoverVariant,
       };
     });
-  }, [centeredHoverVariant, hoverVariant]);
+  }, [hoverVariant]);
 
   const handlePointerLeave = useCallback(
     (_event: ReactPointerEvent<HTMLSpanElement>) => {
@@ -96,8 +70,6 @@ function NameWithWave({
         return {
           hovered: false,
           variant: fallback,
-          hoverAlignment: null,
-          hoverVariants: null,
         };
       });
     },
@@ -205,12 +177,7 @@ export default function HomePage() {
                           i18nKey="home.hero.titleLine1"
                           components={{
                             name: (
-                              <NameWithWave
-                                hoverVariant={HERO_LINE_ONE_MONOGRAM}
-                                centeredHoverVariant={
-                                  HERO_LINE_ONE_MONOGRAM_CENTERED
-                                }
-                              />
+                              <NameWithWave hoverVariant={HERO_LINE_ONE_MONOGRAM} />
                             ),
                           }}
                         />
@@ -222,12 +189,7 @@ export default function HomePage() {
                           i18nKey="home.hero.titleLine2"
                           components={{
                             name: (
-                              <NameWithWave
-                                hoverVariant={HERO_LINE_TWO_MONOGRAM}
-                                centeredHoverVariant={
-                                  HERO_LINE_TWO_MONOGRAM_CENTERED
-                                }
-                              />
+                              <NameWithWave hoverVariant={HERO_LINE_TWO_MONOGRAM} />
                             ),
                           }}
                         />

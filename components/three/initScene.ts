@@ -9,24 +9,18 @@ import {
 import {
   DEFAULT_BRIGHTNESS,
   type GradientPalette,
-  type HoverVariantSet,
   type ShapeId,
   type StateUpdater,
   type ThreeAppHandle,
   type ThreeAppState,
   type ThemeName,
   type VariantName,
-  type VariantState,
-  type MonogramAlignment,
   createVariantState,
   getDefaultPalette,
   variantMapping,
 } from "./types";
 import { createCamera, ensurePalette } from "./factories";
-import {
-  addDuartoisSignatureShapes,
-  type VariantBounds,
-} from "@/components/three/addShapes";
+import { addDuartoisSignatureShapes } from "@/components/three/addShapes";
 
 export type InitSceneOptions = {
   canvas: HTMLCanvasElement;
@@ -60,31 +54,12 @@ export const initScene = async ({
 
   globalWindow.__THREE_APP__?.dispose();
 
-  const viewportQuery = globalWindow.matchMedia("(max-width: 989px)");
-  let isMobile = viewportQuery.matches;
-  const handleViewportChange = (event: MediaQueryListEvent) => {
+  const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
+  let isMobile = mobileQuery.matches;
+  const handleMobileChange = (event: MediaQueryListEvent) => {
     isMobile = event.matches;
-
-    if (!state.hovered || !state.hoverVariants) {
-      return;
-    }
-
-    const alignment: MonogramAlignment = event.matches ? "centered" : "desktop";
-    if (state.hoverAlignment === alignment) {
-      return;
-    }
-
-    const nextVariant =
-      alignment === "centered"
-        ? state.hoverVariants.centered
-        : state.hoverVariants.desktop;
-
-    setState({
-      hoverAlignment: alignment,
-      hoverVariants: state.hoverVariants,
-      variant: nextVariant,
-    });
   };
+  mobileQuery.addEventListener("change", handleMobileChange);
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -135,13 +110,7 @@ export const initScene = async ({
   const shapesGroup = shapes.group;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
   const initialVariantClone = createVariantState(initialVariantState);
-  let targetVariantState: typeof initialVariantClone = initialVariantClone;
-  let activeVariantBounds: VariantBounds | null = shapes.getVariantBounds(
-    targetVariantState,
-  );
-  let baseScale = 1;
-  let viewportSize = { width: 2, height: 2 };
-  let baseScaleInitialized = false;
+  let targetVariantState = initialVariantClone;
   type MaterialWithOpacity = THREE.Material & {
     opacity: number;
     transparent: boolean;
@@ -168,60 +137,6 @@ export const initScene = async ({
       }
     });
   };
-
-  const getViewportSize = (orthographic: THREE.OrthographicCamera) => ({
-    width: (orthographic.right - orthographic.left) / orthographic.zoom,
-    height: (orthographic.top - orthographic.bottom) / orthographic.zoom,
-  });
-
-  const computeBaseScaleForBounds = (bounds: VariantBounds | null) => {
-    if (!bounds) {
-      return 1;
-    }
-
-    const margin = 0.9;
-    const widthScale =
-      bounds.width > 0 ? (viewportSize.width * margin) / bounds.width : Infinity;
-    const heightScale =
-      bounds.height > 0 ? (viewportSize.height * margin) / bounds.height : Infinity;
-    const candidate = Math.min(widthScale, heightScale);
-
-    if (!Number.isFinite(candidate) || candidate <= 0) {
-      return 1;
-    }
-
-    return candidate;
-  };
-
-  const applyBaseScaleChange = (nextBaseScale: number) => {
-    const previousBaseScale = baseScale;
-    baseScale = Math.max(nextBaseScale, 1e-3);
-
-    if (!baseScaleInitialized) {
-      shapesGroup.scale.setScalar(baseScale);
-      baseScaleInitialized = true;
-      return;
-    }
-
-    if (!Number.isFinite(previousBaseScale) || previousBaseScale <= 0) {
-      shapesGroup.scale.setScalar(baseScale);
-      return;
-    }
-
-    const ratio = shapesGroup.scale.x / previousBaseScale;
-    const safeRatio = Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
-    shapesGroup.scale.setScalar(baseScale * safeRatio);
-  };
-
-  const refreshBaseScale = () => {
-    const nextBaseScale = computeBaseScaleForBounds(activeVariantBounds);
-    applyBaseScaleChange(nextBaseScale);
-  };
-
-  const updateVariantBounds = (variant: VariantState) => {
-    activeVariantBounds = shapes.getVariantBounds(variant);
-    refreshBaseScale();
-  };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
     variant: createVariantState(initialVariantClone),
@@ -229,15 +144,12 @@ export const initScene = async ({
     theme,
     parallax,
     hovered: false,
-    hoverAlignment: null,
-    hoverVariants: null,
     cursorBoost: 0,
     pointer: { x: 0, y: 0 },
     pointerDriver: "device",
     manualPointer: { x: 0, y: 0 },
     opacity: 1,
     brightness: DEFAULT_BRIGHTNESS,
-    primordialRevealComplete: false,
     ready: false,
   };
 
@@ -282,9 +194,6 @@ export const initScene = async ({
     ortho.top = 1;
     ortho.bottom = -1;
     ortho.updateProjectionMatrix();
-
-    viewportSize = getViewportSize(ortho);
-    refreshBaseScale();
   };
 
 
@@ -370,8 +279,7 @@ export const initScene = async ({
     shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
   
 
-    const dynamicScale = Math.max(0.25, 1 + breathe + hoverBoost + state.cursorBoost);
-    const scaleTarget = baseScale * dynamicScale;
+    const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);
     const currentScale = shapesGroup.scale.x;
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
@@ -411,9 +319,7 @@ export const initScene = async ({
 
     if (partial.variantName && partial.variantName !== state.variantName) {
       const mapped = variantMapping[partial.variantName];
-      const nextVariant = createVariantState(mapped);
-      targetVariantState = nextVariant;
-      updateVariantBounds(nextVariant);
+      targetVariantState = createVariantState(mapped);
       commit({ variantName: partial.variantName, variant: createVariantState(mapped) });
     }
 
@@ -428,17 +334,6 @@ export const initScene = async ({
       commit({ theme: partial.theme, palette: nextPalette });
     }
 
-    if (
-      Object.prototype.hasOwnProperty.call(partial, "primordialRevealComplete")
-    ) {
-      const nextPrimordial =
-        (partial as { primordialRevealComplete?: boolean })
-          .primordialRevealComplete ?? false;
-      if (nextPrimordial !== state.primordialRevealComplete) {
-        commit({ primordialRevealComplete: nextPrimordial });
-      }
-    }
-
     if (typeof partial.brightness === "number") {
       const nextBrightness = clamp(partial.brightness, 0.5, 2);
       if (nextBrightness !== state.brightness) {
@@ -451,41 +346,8 @@ export const initScene = async ({
       commit({ parallax: partial.parallax });
     }
 
-    const hoveredProvided = Object.prototype.hasOwnProperty.call(
-      partial,
-      "hovered",
-    );
-    if (hoveredProvided) {
-      const nextHovered = (partial as { hovered?: boolean }).hovered ?? false;
-      if (nextHovered !== state.hovered) {
-        commit({ hovered: nextHovered });
-      }
-    }
-
-    if (Object.prototype.hasOwnProperty.call(partial, "hoverAlignment")) {
-      const nextAlignment =
-        (partial as { hoverAlignment?: MonogramAlignment | null }).hoverAlignment ?? null;
-      if (nextAlignment !== state.hoverAlignment) {
-        commit({ hoverAlignment: nextAlignment });
-      }
-    }
-
-    if (Object.prototype.hasOwnProperty.call(partial, "hoverVariants")) {
-      const nextHoverVariants =
-        (partial as { hoverVariants?: HoverVariantSet | null }).hoverVariants ?? null;
-
-      if (!nextHoverVariants) {
-        if (state.hoverVariants) {
-          commit({ hoverVariants: null });
-        }
-      } else {
-        commit({
-          hoverVariants: {
-            desktop: createVariantState(nextHoverVariants.desktop),
-            centered: createVariantState(nextHoverVariants.centered),
-          },
-        });
-      }
+    if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
+      commit({ hovered: partial.hovered });
     }
 
     if (typeof partial.cursorBoost === "number") {
@@ -521,19 +383,8 @@ export const initScene = async ({
       }
     }
 
-    const shouldSnapVariant =
-      state.hovered &&
-      hoveredProvided &&
-      (partial as { hovered?: boolean }).hovered === false &&
-      state.primordialRevealComplete;
-
     if (partial.variant) {
-      const nextVariant = createVariantState(partial.variant);
-      targetVariantState = nextVariant;
-      updateVariantBounds(nextVariant);
-      if (shouldSnapVariant) {
-        shapes.applyVariant(nextVariant);
-      }
+      targetVariantState = createVariantState(partial.variant);
       commit({ variant: createVariantState(partial.variant) });
     }
 
@@ -555,7 +406,7 @@ export const initScene = async ({
       globalWindow.cancelAnimationFrame(animationId);
       animationId = null;
     }
-    viewportQuery.removeEventListener("change", handleViewportChange);
+    mobileQuery.removeEventListener("change", handleMobileChange);
     globalWindow.removeEventListener("resize", resize);
     globalWindow.removeEventListener("pointermove", pointerMove);
     globalWindow.removeEventListener("pointerenter", pointerEnter);
@@ -580,8 +431,6 @@ export const initScene = async ({
       variantMapping,
     },
   };
-
-  viewportQuery.addEventListener("change", handleViewportChange);
 
   attachToWindow(handle);
 
