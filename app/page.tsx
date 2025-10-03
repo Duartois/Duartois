@@ -12,6 +12,13 @@ import {
 import type { PointerEvent as ReactPointerEvent } from "react";
 
 import {
+  MONOGRAM_VARIANT,
+  createVariantState,
+  variantMapping,
+  type VariantState,
+} from "@/components/three/types";
+
+import {
   HERO_LINE_ONE_MONOGRAM,
   HERO_LINE_TWO_MONOGRAM,
   createVariantState,
@@ -23,7 +30,7 @@ import {
 type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 
 // componente para estilizar o <name> vindo do JSON
-function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
+function NameWithWave({ children }: PropsWithChildren) {
   const storedVariantRef = useRef<VariantState | null>(null);
 
   const handlePointerEnter = useCallback(() => {
@@ -42,13 +49,18 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
       }
       return {
         hovered: true,
-        variant: hoverVariant,
+        variant: MONOGRAM_VARIANT,
       };
     });
-  }, [hoverVariant]);
+  }, []);
 
   const handlePointerLeave = useCallback(
-    (_event: ReactPointerEvent<HTMLSpanElement>) => {
+    (event: ReactPointerEvent<HTMLSpanElement>) => {
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+      if (relatedTarget && relatedTarget.closest(".name")) {
+        return;
+      }
+
       if (typeof window === "undefined") {
         storedVariantRef.current = null;
         return;
