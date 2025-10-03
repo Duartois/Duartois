@@ -3,13 +3,87 @@
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import { useEffect, PropsWithChildren } from "react";
+import {
+  useEffect,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+} from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
+
+import {
+  MONOGRAM_VARIANT,
+  createVariantState,
+  variantMapping,
+  type VariantState,
+} from "@/components/three/types";
 
 
 // componente para estilizar o <name> vindo do JSON
 function NameWithWave({ children }: PropsWithChildren) {
+  const storedVariantRef = useRef<VariantState | null>(null);
+
+  const handlePointerEnter = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const app = window.__THREE_APP__;
+    if (!app) {
+      return;
+    }
+
+    app.setState((previous) => {
+      if (!storedVariantRef.current) {
+        storedVariantRef.current = createVariantState(previous.variant);
+      }
+      return {
+        hovered: true,
+        variant: MONOGRAM_VARIANT,
+      };
+    });
+  }, []);
+
+  const handlePointerLeave = useCallback(
+    (event: ReactPointerEvent<HTMLSpanElement>) => {
+      const relatedTarget = event.relatedTarget as HTMLElement | null;
+      if (relatedTarget && relatedTarget.closest(".name")) {
+        return;
+      }
+
+      if (typeof window === "undefined") {
+        storedVariantRef.current = null;
+        return;
+      }
+
+      const app = window.__THREE_APP__;
+      if (!app) {
+        storedVariantRef.current = null;
+        return;
+      }
+
+      app.setState((previous) => {
+        const fallback =
+          storedVariantRef.current ??
+          createVariantState(variantMapping[previous.variantName]);
+
+        storedVariantRef.current = null;
+
+        return {
+          hovered: false,
+          variant: fallback,
+        };
+      });
+    },
+    [],
+  );
+
   return (
-    <span className="name">
+    <span
+      className="name"
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+    >
       {children}
       <div className="wave-wrapper">
         <div className="wave" />
