@@ -29,6 +29,41 @@ export type ShapeTransform = {
 
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
+const createMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [-0.95, 0.58, 0.05],
+    rotation: [Math.PI / 2, 0.18, Math.PI / 2],
+    scale: [0.58, 0.58, 0.58],
+  },
+  waveSpringLime: {
+    position: [-0.95, -0.25, 0],
+    rotation: [0, Math.PI / 2, Math.PI / 2],
+    scale: [0.54, 0.54, 0.54],
+  },
+  semiLimeFlamingo: {
+    position: [0.45, 0.62, -0.05],
+    rotation: [Math.PI / 2, 0, 0.3],
+    scale: [0.64, 0.64, 0.64],
+  },
+  torusFlamingoLime: {
+    position: [0.45, -0.62, -0.05],
+    rotation: [Math.PI / 2, 0, -0.3],
+    scale: [0.64, 0.64, 0.64],
+  },
+  semiFlamingoAzure: {
+    position: [1.05, 0, 0.12],
+    rotation: [Math.PI / 2, 0, Math.PI / 2],
+    scale: [0.62, 0.62, 0.62],
+  },
+  sphereFlamingoSpring: {
+    position: [-0.18, 0, 0.32],
+    rotation: [0, 0, 0],
+    scale: 0.45,
+  },
+});
+
+export const MONOGRAM_VARIANT = createMonogramVariant();
+
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [2.85, -1.8, -0.2],

@@ -9,6 +9,7 @@ import {
 import {
   DEFAULT_BRIGHTNESS,
   type GradientPalette,
+  type ShapeId,
   type StateUpdater,
   type ThreeAppHandle,
   type ThreeAppState,
@@ -107,6 +108,9 @@ export const initScene = async ({
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
+  const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
+  const initialVariantClone = createVariantState(initialVariantState);
+  let targetVariantState = initialVariantClone;
   type MaterialWithOpacity = THREE.Material & {
     opacity: number;
     transparent: boolean;
@@ -135,7 +139,7 @@ export const initScene = async ({
   };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
-    variant: createVariantState(initialVariantState),
+    variant: createVariantState(initialVariantClone),
     palette: effectivePalette,
     theme,
     parallax,
@@ -223,6 +227,40 @@ export const initScene = async ({
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
+    const variantLerp = clamp(delta * (state.hovered ? 7 : 5), 0, 1);
+    if (variantLerp > 0) {
+      shapeIds.forEach((id) => {
+        const mesh = shapes.meshes[id];
+        const target = targetVariantState[id];
+        if (!target) {
+          return;
+        }
+
+        const [tx, ty, tz] = target.position;
+        mesh.position.x += (tx - mesh.position.x) * variantLerp;
+        mesh.position.y += (ty - mesh.position.y) * variantLerp;
+        mesh.position.z += (tz - mesh.position.z) * variantLerp;
+
+        const [rx, ry, rz] = target.rotation;
+        mesh.rotation.x += (rx - mesh.rotation.x) * variantLerp;
+        mesh.rotation.y += (ry - mesh.rotation.y) * variantLerp;
+        mesh.rotation.z += (rz - mesh.rotation.z) * variantLerp;
+
+        const scaleTarget = target.scale;
+        if (Array.isArray(scaleTarget)) {
+          const [sx, sy, sz] = scaleTarget;
+          mesh.scale.x += (sx - mesh.scale.x) * variantLerp;
+          mesh.scale.y += (sy - mesh.scale.y) * variantLerp;
+          mesh.scale.z += (sz - mesh.scale.z) * variantLerp;
+        } else {
+          const uniform = scaleTarget ?? 1;
+          mesh.scale.x += (uniform - mesh.scale.x) * variantLerp;
+          mesh.scale.y += (uniform - mesh.scale.y) * variantLerp;
+          mesh.scale.z += (uniform - mesh.scale.z) * variantLerp;
+        }
+      });
+    }
+
     const targetPointer =
       state.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
 
@@ -281,9 +319,8 @@ export const initScene = async ({
 
     if (partial.variantName && partial.variantName !== state.variantName) {
       const mapped = variantMapping[partial.variantName];
-      const nextVariant = createVariantState(mapped);
-      shapes.applyVariant(nextVariant);
-      commit({ variantName: partial.variantName, variant: nextVariant });
+      targetVariantState = createVariantState(mapped);
+      commit({ variantName: partial.variantName, variant: createVariantState(mapped) });
     }
 
     if (partial.palette) {
@@ -347,9 +384,8 @@ export const initScene = async ({
     }
 
     if (partial.variant) {
-      const nextVariant = createVariantState(partial.variant);
-      shapes.applyVariant(nextVariant);
-      commit({ variant: nextVariant });
+      targetVariantState = createVariantState(partial.variant);
+      commit({ variant: createVariantState(partial.variant) });
     }
 
     state = nextState;
