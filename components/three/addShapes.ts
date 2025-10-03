@@ -166,14 +166,14 @@ class WaveCurve extends THREE.Curve<THREE.Vector3> {
 
   public constructor(private readonly length: number, private readonly amplitude: number) {
     super();
-    this.halfLength = length / 2;
+    this.halfLength = length / 1.5;
   }
 
   override getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
     const x = THREE.MathUtils.lerp(-this.halfLength, this.halfLength, t);
-    const waveT = (t - 0.5) * Math.PI * 2;
-    const y = Math.sin(waveT) * this.amplitude;
-    const z = Math.cos(waveT) * this.amplitude * 0.4;
+    const waveT = (t - 0.1) * Math.PI * 2.5;
+    const y = 0;
+    const z = Math.sin(waveT) * this.amplitude;
     target.set(x, y, z);
     return target;
   }
