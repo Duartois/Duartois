@@ -4,6 +4,12 @@ export const createStateSnapshot = (state: ThreeAppState) =>
   Object.freeze({
     ...state,
     variant: createVariantState(state.variant),
+    hoverVariants: state.hoverVariants
+      ? {
+          desktop: createVariantState(state.hoverVariants.desktop),
+          centered: createVariantState(state.hoverVariants.centered),
+        }
+      : null,
     palette: state.palette.map((stops) => [...stops]) as ThreeAppState["palette"],
     pointer: { ...state.pointer },
     manualPointer: { ...state.manualPointer },

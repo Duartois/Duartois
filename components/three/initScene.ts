@@ -9,6 +9,7 @@ import {
 import {
   DEFAULT_BRIGHTNESS,
   type GradientPalette,
+  type HoverVariantSet,
   type ShapeId,
   type StateUpdater,
   type ThreeAppHandle,
@@ -16,6 +17,7 @@ import {
   type ThemeName,
   type VariantName,
   type VariantState,
+  type MonogramAlignment,
   createVariantState,
   getDefaultPalette,
   variantMapping,
@@ -58,12 +60,31 @@ export const initScene = async ({
 
   globalWindow.__THREE_APP__?.dispose();
 
-  const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
-  let isMobile = mobileQuery.matches;
-  const handleMobileChange = (event: MediaQueryListEvent) => {
+  const viewportQuery = globalWindow.matchMedia("(max-width: 989px)");
+  let isMobile = viewportQuery.matches;
+  const handleViewportChange = (event: MediaQueryListEvent) => {
     isMobile = event.matches;
+
+    if (!state.hovered || !state.hoverVariants) {
+      return;
+    }
+
+    const alignment: MonogramAlignment = event.matches ? "centered" : "desktop";
+    if (state.hoverAlignment === alignment) {
+      return;
+    }
+
+    const nextVariant =
+      alignment === "centered"
+        ? state.hoverVariants.centered
+        : state.hoverVariants.desktop;
+
+    setState({
+      hoverAlignment: alignment,
+      hoverVariants: state.hoverVariants,
+      variant: nextVariant,
+    });
   };
-  mobileQuery.addEventListener("change", handleMobileChange);
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -208,6 +229,8 @@ export const initScene = async ({
     theme,
     parallax,
     hovered: false,
+    hoverAlignment: null,
+    hoverVariants: null,
     cursorBoost: 0,
     pointer: { x: 0, y: 0 },
     pointerDriver: "device",
@@ -420,6 +443,32 @@ export const initScene = async ({
       commit({ hovered: partial.hovered });
     }
 
+    if (Object.prototype.hasOwnProperty.call(partial, "hoverAlignment")) {
+      const nextAlignment =
+        (partial as { hoverAlignment?: MonogramAlignment | null }).hoverAlignment ?? null;
+      if (nextAlignment !== state.hoverAlignment) {
+        commit({ hoverAlignment: nextAlignment });
+      }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(partial, "hoverVariants")) {
+      const nextHoverVariants =
+        (partial as { hoverVariants?: HoverVariantSet | null }).hoverVariants ?? null;
+
+      if (!nextHoverVariants) {
+        if (state.hoverVariants) {
+          commit({ hoverVariants: null });
+        }
+      } else {
+        commit({
+          hoverVariants: {
+            desktop: createVariantState(nextHoverVariants.desktop),
+            centered: createVariantState(nextHoverVariants.centered),
+          },
+        });
+      }
+    }
+
     if (typeof partial.cursorBoost === "number") {
       const boost = clamp(partial.cursorBoost, -0.3, 0.45);
       if (boost !== state.cursorBoost) {
@@ -478,7 +527,7 @@ export const initScene = async ({
       globalWindow.cancelAnimationFrame(animationId);
       animationId = null;
     }
-    mobileQuery.removeEventListener("change", handleMobileChange);
+    viewportQuery.removeEventListener("change", handleViewportChange);
     globalWindow.removeEventListener("resize", resize);
     globalWindow.removeEventListener("pointermove", pointerMove);
     globalWindow.removeEventListener("pointerenter", pointerEnter);
@@ -503,6 +552,8 @@ export const initScene = async ({
       variantMapping,
     },
   };
+
+  viewportQuery.addEventListener("change", handleViewportChange);
 
   attachToWindow(handle);
 
