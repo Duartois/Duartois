@@ -2,8 +2,6 @@
 
 import classNames from "classnames";
 import { useEffect, useState } from "react";
-import Noise from "../Noise";
-
 import CoreCanvas from "./CoreCanvas";
 
 interface CanvasRootProps {
@@ -50,12 +48,6 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
           </div>
         </div>
       </div>
-      <Noise
-        className={classNames(
-          "z-30 transition-opacity duration-700",
-          isVisible ? "opacity-100" : "opacity-0",
-        )}
-      />
     </div>
   );
 }
