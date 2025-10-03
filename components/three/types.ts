@@ -304,6 +304,7 @@ export type ThreeAppState = {
   manualPointer: PointerTarget;
   opacity: number;
   brightness: number;
+  primordialRevealComplete: boolean;
   ready: boolean;
 };
 

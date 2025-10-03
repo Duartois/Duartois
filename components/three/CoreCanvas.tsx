@@ -6,7 +6,11 @@ import { useTheme } from "@/app/theme/ThemeContext";
 import { initScene } from "./initScene";
 import type { ThreeAppHandle } from "./types";
 
-export default function CoreCanvas() {
+interface CoreCanvasProps {
+  isReady: boolean;
+}
+
+export default function CoreCanvas({ isReady }: CoreCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const handleRef = useRef<ThreeAppHandle | null>(null);
   const { theme } = useTheme();
@@ -40,6 +44,14 @@ export default function CoreCanvas() {
     if (!handleRef.current) return;
     handleRef.current.setState({ theme });
   }, [theme]);
+
+  useEffect(() => {
+    if (!handleRef.current) {
+      return;
+    }
+
+    handleRef.current.setState({ primordialRevealComplete: isReady });
+  }, [isReady]);
 
   return (
     <canvas
