@@ -1,5 +1,3 @@
-import noise from "@/public/noise.png";
-
 type NoiseProps = {
   className?: string;
 };
@@ -15,7 +13,7 @@ export default function Noise({ className }: NoiseProps) {
       aria-hidden
       className={classes}
       style={{
-        backgroundImage: `url(${noise.src})`,
+        backgroundImage: 'url("/noise.png")',
         backgroundRepeat: "repeat",
         mixBlendMode: "soft-light",
         opacity: 0.12,
