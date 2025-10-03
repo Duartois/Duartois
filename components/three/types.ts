@@ -29,6 +29,75 @@ export type ShapeTransform = {
 
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
+const createPrimaryMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [-0.95, 0.58, 0.05],
+    rotation: [Math.PI / 2, 0.18, Math.PI / 2],
+    scale: [0.58, 0.58, 0.58],
+  },
+  waveSpringLime: {
+    position: [-0.95, -0.25, 0],
+    rotation: [0, Math.PI / 2, Math.PI / 2],
+    scale: [0.54, 0.54, 0.54],
+  },
+  semiLimeFlamingo: {
+    position: [0.45, 0.62, -0.05],
+    rotation: [Math.PI / 2, 0, 0.3],
+    scale: [0.64, 0.64, 0.64],
+  },
+  torusFlamingoLime: {
+    position: [0.45, -0.62, -0.05],
+    rotation: [Math.PI / 2, 0, -0.3],
+    scale: [0.64, 0.64, 0.64],
+  },
+  semiFlamingoAzure: {
+    position: [1.05, 0, 0.12],
+    rotation: [Math.PI / 2, 0, Math.PI / 2],
+    scale: [0.62, 0.62, 0.62],
+  },
+  sphereFlamingoSpring: {
+    position: [-0.18, 0, 0.32],
+    rotation: [0, 0, 0],
+    scale: 0.45,
+  },
+});
+
+const createSecondaryMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [-0.52, 0.78, 0.12],
+    rotation: [Math.PI / 2, 0.32, Math.PI / 2],
+    scale: [0.56, 0.56, 0.56],
+  },
+  waveSpringLime: {
+    position: [-1.06, -0.18, 0.08],
+    rotation: [Math.PI / 2, 0.14, Math.PI / 1.35],
+    scale: [0.52, 0.52, 0.52],
+  },
+  semiLimeFlamingo: {
+    position: [0.82, 0.68, -0.02],
+    rotation: [Math.PI / 2, 0.12, -0.18],
+    scale: [0.6, 0.6, 0.6],
+  },
+  torusFlamingoLime: {
+    position: [0.32, -0.74, -0.08],
+    rotation: [Math.PI / 2, 0.28, Math.PI / 1.6],
+    scale: [0.62, 0.62, 0.62],
+  },
+  semiFlamingoAzure: {
+    position: [1.24, -0.06, 0.16],
+    rotation: [Math.PI / 2, 0.18, Math.PI / 2.2],
+    scale: [0.58, 0.58, 0.58],
+  },
+  sphereFlamingoSpring: {
+    position: [0.05, 0.04, 0.28],
+    rotation: [0, 0, 0],
+    scale: 0.46,
+  },
+});
+
+export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
+export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
+
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [2.85, -1.8, -0.2],

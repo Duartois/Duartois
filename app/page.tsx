@@ -3,13 +3,85 @@
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import { useEffect, PropsWithChildren } from "react";
+import {
+  useEffect,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+} from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 
+import {
+  HERO_LINE_ONE_MONOGRAM,
+  HERO_LINE_TWO_MONOGRAM,
+  createVariantState,
+  variantMapping,
+  type VariantState,
+} from "@/components/three/types";
+
+
+type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 
 // componente para estilizar o <name> vindo do JSON
-function NameWithWave({ children }: PropsWithChildren) {
+function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
+  const storedVariantRef = useRef<VariantState | null>(null);
+
+  const handlePointerEnter = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const app = window.__THREE_APP__;
+    if (!app) {
+      return;
+    }
+
+    app.setState((previous) => {
+      if (!storedVariantRef.current) {
+        storedVariantRef.current = createVariantState(previous.variant);
+      }
+      return {
+        hovered: true,
+        variant: hoverVariant,
+      };
+    });
+  }, [hoverVariant]);
+
+  const handlePointerLeave = useCallback(
+    (_event: ReactPointerEvent<HTMLSpanElement>) => {
+      if (typeof window === "undefined") {
+        storedVariantRef.current = null;
+        return;
+      }
+
+      const app = window.__THREE_APP__;
+      if (!app) {
+        storedVariantRef.current = null;
+        return;
+      }
+
+      app.setState((previous) => {
+        const fallback =
+          storedVariantRef.current ??
+          createVariantState(variantMapping[previous.variantName]);
+
+        storedVariantRef.current = null;
+
+        return {
+          hovered: false,
+          variant: fallback,
+        };
+      });
+    },
+    [],
+  );
+
   return (
-    <span className="name">
+    <span
+      className="name"
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+    >
       {children}
       <div className="wave-wrapper">
         <div className="wave" />
@@ -103,7 +175,11 @@ export default function HomePage() {
                       <h3 className="intro-id opacity: 1; transform: none;">
                         <Trans
                           i18nKey="home.hero.titleLine1"
-                          components={{ name: <NameWithWave /> }}
+                          components={{
+                            name: (
+                              <NameWithWave hoverVariant={HERO_LINE_ONE_MONOGRAM} />
+                            ),
+                          }}
                         />
                       </h3>
 
@@ -111,7 +187,11 @@ export default function HomePage() {
                       <h3 className="intro-id opacity: 1; transform: none;">
                         <Trans
                           i18nKey="home.hero.titleLine2"
-                          components={{ name: <NameWithWave /> }}
+                          components={{
+                            name: (
+                              <NameWithWave hoverVariant={HERO_LINE_TWO_MONOGRAM} />
+                            ),
+                          }}
                         />
                       </h3>
 
