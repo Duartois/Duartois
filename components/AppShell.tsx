@@ -2,6 +2,7 @@
 
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import Preloader from "./Preloader";
+import Noise from "./Noise";
 import CanvasRoot from "./three/CanvasRoot";
 
 interface AppShellProps {
@@ -35,6 +36,7 @@ export default function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
+      <Noise className="z-[60]" />
       {!isReady && <Preloader onComplete={handleComplete} />}
       <CanvasRoot isReady={isReady} />
       {canRenderContent ? (
