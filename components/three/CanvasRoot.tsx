@@ -2,7 +2,6 @@
 
 import classNames from "classnames";
 import { useEffect, useState } from "react";
-import Noise from "../Noise";
 import CoreCanvas from "./CoreCanvas";
 
 interface CanvasRootProps {
@@ -46,7 +45,6 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
         <div className="absolute inset-0 z-0">
           <CoreCanvas />
         </div>
-        <Noise position="absolute" className="z-[10]" />
       </div>
     </div>
   );
