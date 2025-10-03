@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { useTheme } from "@/app/theme/ThemeContext";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
@@ -8,6 +10,13 @@ export default function ThemeToggle() {
   const { theme, toggle } = useTheme();
   const { t } = useTranslation("common");
   const nextThemeKey = theme === "dark" ? "light" : "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const effectiveTheme = mounted ? theme : "light";
 
   return (
     <button
@@ -31,7 +40,8 @@ export default function ThemeToggle() {
         <path
           d="M14.994,7.99a7,7,0,0,1-12.813,3.9,1,1,0,0,1,1.063-1.532,6.139,6.139,0,0,0,1.961.089,6.012,6.012,0,0,0,5.212-4.985,6.067,6.067,0,0,0-.065-2.274A1,1,0,0,1,11.9,2.182,6.985,6.985,0,0,1,14.994,7.99Z"
           style={{
-            transform: theme === "dark" ? "translateY(0px)" : "translateY(17px)",
+            transform:
+              effectiveTheme === "dark" ? "translateY(0px)" : "translateY(17px)",
             transformOrigin: "0px 0px",
             transition: "transform 250ms ease",
           }}
@@ -39,7 +49,8 @@ export default function ThemeToggle() {
         {/* Sol (círculo + raios) */}
         <g
           style={{
-            transform: theme === "dark" ? "translateY(17px)" : "translateY(0px)",
+            transform:
+              effectiveTheme === "dark" ? "translateY(17px)" : "translateY(0px)",
             transformOrigin: "0px 0px",
             transition: "transform 250ms ease",
           }}
