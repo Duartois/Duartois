@@ -5,11 +5,12 @@ import AppShell from "@/components/AppShell";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
 import Navbar from "@/components/Navbar";
-
+import I18nGate from "@/app/i18n/I18nGate";
+import Providers from "./providers";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt" suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
@@ -18,10 +19,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
         )}
       >
-        <ThemeProvider>
-          <Navbar />
-          <AppShell>{children}</AppShell>
-        </ThemeProvider>
+        <Providers>
+          <I18nGate>
+            <ThemeProvider>
+              <Navbar />
+              <AppShell>{children}</AppShell>
+            </ThemeProvider>
+          </I18nGate>
+        </Providers>
       </body>
     </html>
   );

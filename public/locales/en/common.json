@@ -9,11 +9,13 @@
   },
   "home": {
     "hero": {
-      "kicker": "creative technologist & art director from lisbon",
-      "title": "i weave neon, sound, and immersive code into sensorial stories.",
-      "subtitle": "i collaborate with studios and performers to craft reactive identities, experiential stages, and living visuals.",
-      "ctaProjects": "+ see my projects",
-      "ctaAbout": "+ more about me"
+      "kicker": "hey, i'm matheus duarte",
+      "titleLine1": "hey, i’m <name>matheus duarte</name>",
+      "titleLine2": "but you can call me <name>real g</name>",
+      "role1": "i’m a graphic designer, ux/ui designer",
+      "role2": "& front-end web developer",
+      "ctaProjects": "→ see my projects",
+      "ctaAbout": "→ more about me"
     }
   },
   "work": {

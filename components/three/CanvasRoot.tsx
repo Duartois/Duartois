@@ -35,6 +35,7 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
   }
 
   return (
+    <div className="fixed w-full h-full top-0 left-0 z-0">
     <div
       className={classNames(
         "pointer-events-none fixed inset-0 z-0 overflow-visible transition-opacity duration-700",
@@ -47,6 +48,7 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
           <CoreCanvas />
         </div>
       </div>
+    </div>
     </div>
   );
 }

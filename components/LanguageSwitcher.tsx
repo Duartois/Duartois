@@ -1,30 +1,29 @@
 "use client";
 
-import { useTranslation } from "react-i18next";
-import "@/app/i18n/config";
+import { useEffect, useState } from "react";
+import i18n from "@/app/i18n/config";
 
 export default function LanguageSwitcher() {
-  const { i18n, t } = useTranslation("common");
-  const currentLang = (i18n.resolvedLanguage || i18n.language || "en").split("-")[0];
-  const languages: Array<"en" | "pt" > = ["en", "pt"];
+  const [lang, setLang] = useState<"pt" | "en">("pt");
+  useEffect(() => {
+    setLang((i18n.language as any) || "pt");
+    const onChanged = (l: string) => setLang((l as any) || "pt");
+    i18n.on("languageChanged", onChanged);
+    return () => i18n.off("languageChanged", onChanged);
+  }, []);
+  const target = lang === "en" ? "pt" : "en";
 
   return (
-    <div className="flex items-center gap-2">
-      {languages.map(lang => (
-        <button
-          key={lang}
-          onClick={() => i18n.changeLanguage(lang)}
-          disabled={lang === currentLang}
-          className={
-            lang === currentLang 
-              ? "text-sm font-semibold uppercase tracking-[0.3em] text-fg"                  /* estilo destacado do idioma ativo */
-              : "text-sm font-medium uppercase tracking-[0.3em] text-fg/50 hover:text-fg dark:text-fg/60 dark:hover:text-fg"
-          }
-          aria-label={t("languageSwitcher.ariaLabel")}
-        >
-          {lang.toUpperCase()}
-        </button>
-      ))}
-    </div>
+    <a
+      href="#"
+      title={target.toUpperCase()}
+      aria-label={target === "en" ? "Switch to English" : "Mudar para Português"}
+      onClick={(e) => {
+        e.preventDefault();
+        i18n.changeLanguage(target);
+      }}
+    >
+      {target.toUpperCase()}
+    </a>
   );
 }

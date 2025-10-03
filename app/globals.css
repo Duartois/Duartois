@@ -253,7 +253,8 @@ header .header-content .left-part,header .header-content .right-part {
 }
 
 header .header-content .left-part .logo {
-    margin-right: 24px
+    margin-right: 24px;
+    display:none;
 }
 
 header .header-content .left-part .full-identity {
@@ -1115,6 +1116,9 @@ footer .footer-wrapper .footer-right {
     .home .intro-wrapper .intro-text .intro-id {
         -webkit-text-stroke:1.25px #606887
     }
+}
+.name {
+  padding-left: 10px;
 }
 
 .home .intro-wrapper .intro-text .name {
@@ -2232,6 +2236,74 @@ table tr:last-child td {
     transition: transform .25s ease-out;
     transform: translateX(-101%) translateZ(0);
 }
+
+/* =========
+   1) Underline animada disparando no wrapper (sem mexer no markup)
+   ========= */
+.link-wrapper:hover .link-underline,
+.link-wrapper:focus-within .link-underline {
+  transform: translateX(0) translateZ(0) !important;
+}
+
+/* Em telas touch, o "tap" também revela a linha */
+@media (hover: none) {
+  .link-wrapper:active .link-underline {
+    transform: translateX(0) translateZ(0) !important;
+  }
+}
+
+/* =========
+   2) "Correções" para className copiado do inspetor (sem remover nada do HTML)
+   ========= */
+
+/* Opacidade */
+[class*="opacity: 1"] { opacity: 1 !important; }
+[class*="opacity: 0"] { opacity: 0 !important; }
+
+/* Pointer events */
+[class*="pointer-events: all"]  { pointer-events: all  !important; }
+[class*="pointer-events: auto"] { pointer-events: auto !important; }
+[class*="pointer-events: none"] { pointer-events: none !important; }
+
+/* Transformações */
+[class*="transform: none"] { transform: none !important; }
+
+/* Casos específicos que aparecem no seu page.tsx */
+[class*="transform: translateX(-101%)"] {
+  transform: translateX(-101%) translateZ(0) !important;
+}
+[class*="matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)"] {
+  transform: none !important; /* matrix identidade */
+}
+
+/* Base: animação sempre aplicada e pausada (mantém o frame atual) */
+.home .intro-wrapper .intro-text .wave-wrapper .wave {
+
+  --wave-duration: 100s;         /* velocidade padrão (altere se quiser) */
+  --wave-period: 2560px;       /* ajuste p/ casar com o tile da sua textura */
+  animation: wave-x-marquee var(--wave-duration, 9s) linear infinite; /* mais lenta */
+  animation-play-state: paused;
+  animation-fill-mode: both; /* segura o último frame quando pausada */
+}
+
+/* Hover: apenas “despausa”. Mantém a MESMA duração do base para não reiniciar */
+.name:hover .wave {
+  animation-play-state: running !important;
+  animation-duration: var(--wave-duration, 9s) !important; /* igual ao base */
+}
+
+/* Touch: idem */
+@media (hover: none) {
+  .name:active .wave {
+    animation-play-state: running !important;
+    animation-duration: var(--wave-duration, 9s) !important; /* igual ao base */
+  }
+}
+@keyframes wave-x-marquee {
+  0%   { background-position-x: var(--wave-x, 0px); }
+  100% { background-position-x: calc(var(--wave-x, 0px) + var(--wave-period, 256px)); }
+}
+
 
 body.dark ::-moz-selection {
     background-color: #606887;
