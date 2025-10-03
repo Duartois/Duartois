@@ -1,7 +1,12 @@
 import noise from "@/public/noise.png";
 
-export default function Noise({ className = "" }) {
-  const classes = ["pointer-events-none fixed inset-0 z-30", className]
+type NoiseProps = {
+  className?: string;
+};
+
+export default function Noise({ className }: NoiseProps) {
+  const baseClasses = "pointer-events-none fixed inset-0";
+  const classes = [baseClasses, className ?? "z-[60]"]
     .filter(Boolean)
     .join(" ");
 
