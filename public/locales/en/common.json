@@ -10,10 +10,10 @@
   "home": {
     "hero": {
       "kicker": "hey, i'm matheus duarte",
-      "titleLine1": "hey, i’m <name>matheus duarte</name>",
-      "titleLine2": "but you can call me <name>real g</name>",
+      "titleLine1": "hey, i’m <name>Matheus Duarte</name>",
+      "titleLine2": "but you can call me <name>Duartois</name>",
       "role1": "i’m a graphic designer, ux/ui designer",
-      "role2": "& front-end web developer",
+      "role2": "& fullstack web developer",
       "ctaProjects": "→ see my projects",
       "ctaAbout": "→ more about me"
     }

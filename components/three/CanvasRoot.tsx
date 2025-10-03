@@ -2,6 +2,7 @@
 
 import classNames from "classnames";
 import { useEffect, useState } from "react";
+import Noise from "../Noise";
 
 import CoreCanvas from "./CoreCanvas";
 

@@ -66,6 +66,7 @@ function applyTheme(theme: Theme) {
   const root = document.documentElement;
   root.setAttribute("data-theme", theme);
   root.classList.toggle("dark", theme === "dark");
+  document.body?.classList.toggle("dark", theme === "dark");
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

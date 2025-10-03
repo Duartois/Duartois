@@ -9,13 +9,13 @@
   },
   "home": {
     "hero": {
-      "kicker": "hey, i'm matheus duarte",
-      "titleLine1": "hey, i’m <name>matheus duarte</name>",
-      "titleLine2": "but you can call me <name>real g</name>",
-      "role1": "i’m a graphic designer, ux/ui designer",
-      "role2": "& front-end web developer",
-      "ctaProjects": "→ see my projects",
-      "ctaAbout": "→ more about me"
+      "kicker": "Eai! Sou Matheus Duarte",
+      "titleLine1": "Eai! Sou <name>Matheus Duarte</name>",
+      "titleLine2": "mas você pode me chamar de <name>Duartois</name>",
+      "role1": "sou um designer gráfico, designer ux/ui",
+      "role2": "& desenvolvedor fullstack",
+      "ctaProjects": "→ veja meus projetos",
+      "ctaAbout": "→ mais sobre mim"
     }
     },
   "work": {

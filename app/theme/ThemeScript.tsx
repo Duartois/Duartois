@@ -14,6 +14,7 @@ export default function ThemeScript() {
         }
         root.setAttribute('data-theme', theme);
         root.classList.toggle('dark', theme === 'dark');
+        document.body && document.body.classList.toggle('dark', theme === 'dark');
       } catch (e) {}
     })();
   `.trim();
