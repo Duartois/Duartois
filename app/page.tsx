@@ -52,6 +52,13 @@ function NameWithWave({
       alignment === "centered" && centeredHoverVariant
         ? centeredHoverVariant
         : hoverVariant;
+    const clonedVariant = createVariantState(nextVariant);
+    const clonedHoverVariants = centeredHoverVariant
+      ? {
+          desktop: createVariantState(hoverVariant),
+          centered: createVariantState(centeredHoverVariant),
+        }
+      : null;
 
     app.setState((previous) => {
       if (!storedVariantRef.current) {
@@ -59,14 +66,9 @@ function NameWithWave({
       }
       return {
         hovered: true,
-        variant: nextVariant,
+        variant: clonedVariant,
         hoverAlignment: alignment,
-        hoverVariants: centeredHoverVariant
-          ? {
-              desktop: hoverVariant,
-              centered: centeredHoverVariant,
-            }
-          : null,
+        hoverVariants: clonedHoverVariants,
       };
     });
   }, [centeredHoverVariant, hoverVariant]);
