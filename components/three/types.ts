@@ -10,6 +10,15 @@ export type ShapeId =
   | "semiFlamingoAzure"
   | "sphereFlamingoSpring";
 
+const SHAPE_IDS: readonly ShapeId[] = [
+  "torusSpringAzure",
+  "waveSpringLime",
+  "semiLimeFlamingo",
+  "torusFlamingoLime",
+  "semiFlamingoAzure",
+  "sphereFlamingoSpring",
+] as const;
+
 export type GradientStops = [string, string, string, string];
 export type GradientPalette = readonly GradientStops[];
 
@@ -34,6 +43,179 @@ export type MonogramAlignment = "desktop" | "centered";
 export type HoverVariantSet = {
   desktop: VariantState;
   centered: VariantState;
+};
+
+const cloneScale = (scale: ShapeScale): ShapeScale =>
+  Array.isArray(scale) ? ([...scale] as Vector3Tuple) : scale;
+
+const addVector3 = (a: Vector3Tuple, b: Vector3Tuple): Vector3Tuple => [
+  a[0] + b[0],
+  a[1] + b[1],
+  a[2] + b[2],
+];
+
+const multiplyScale = (scale: ShapeScale, factor: ShapeScale): ShapeScale => {
+  if (Array.isArray(scale)) {
+    const base = scale as Vector3Tuple;
+    if (Array.isArray(factor)) {
+      const ratios = factor as Vector3Tuple;
+      return [
+        base[0] * ratios[0],
+        base[1] * ratios[1],
+        base[2] * ratios[2],
+      ] as Vector3Tuple;
+    }
+    return [base[0] * factor, base[1] * factor, base[2] * factor] as Vector3Tuple;
+  }
+
+  const base = scale ?? 1;
+  if (Array.isArray(factor)) {
+    const ratios = factor as Vector3Tuple;
+    return base * ratios[0];
+  }
+
+  return base * factor;
+};
+
+type TransformAdjustments = {
+  position?: Vector3Tuple;
+  rotation?: Vector3Tuple;
+  scaleRatio?: ShapeScale;
+};
+
+const applyAdjustments = (
+  base: ShapeTransform,
+  adjustments?: TransformAdjustments,
+): ShapeTransform => {
+  if (!adjustments) {
+    return {
+      position: [...base.position] as Vector3Tuple,
+      rotation: [...base.rotation] as Vector3Tuple,
+      scale: cloneScale(base.scale),
+    };
+  }
+
+  const position = adjustments.position
+    ? addVector3(base.position, adjustments.position)
+    : ([...base.position] as Vector3Tuple);
+
+  const rotation = adjustments.rotation
+    ? addVector3(base.rotation, adjustments.rotation)
+    : ([...base.rotation] as Vector3Tuple);
+
+  const scale = adjustments.scaleRatio
+    ? multiplyScale(base.scale, adjustments.scaleRatio)
+    : cloneScale(base.scale);
+
+  return { position, rotation, scale };
+};
+
+const createFramedVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.85, -1.8, -0.2],
+    rotation: [-1.36, 0.92, -0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  waveSpringLime: {
+    position: [-3.5, 1.5, -1],
+    rotation: [-0.14, 0.32, -0.12],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiLimeFlamingo: {
+    position: [2, 2, -0.4],
+    rotation: [1.14, -0.42, -0.05],
+    scale: [0.75, 0.75, 0.75],
+  },
+  torusFlamingoLime: {
+    position: [0, -2, -0.58],
+    rotation: [-0.28, 0.44, 0.92],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiFlamingoAzure: {
+    position: [-2.82, -1.58, -0.8],
+    rotation: [1.36, 0, -0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  sphereFlamingoSpring: {
+    position: [0, 1.5, 0],
+    rotation: [0, 0, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
+});
+
+const PRIMARY_DESKTOP_ADJUSTMENTS: Record<ShapeId, TransformAdjustments> = {
+  torusSpringAzure: {
+    position: [-4.97, 1.85, -0.9],
+    rotation: [Math.PI / 2 + 1.36, Math.PI * -1.7 - 0.92, 0.2],
+    scaleRatio: 0.18 / 0.75,
+  },
+  waveSpringLime: {
+    position: [2, -1.65, -1],
+    rotation: [0.14, Math.PI - 0.32, Math.PI / 1.9 + 0.12],
+    scaleRatio: 0.15 / 0.75,
+  },
+  semiLimeFlamingo: {
+    position: [-4.8, -2.2, -0.05],
+    rotation: [Math.PI / 2 - 1.14, Math.PI * -0.4 + 0.42, 0.05],
+    scaleRatio: 13 / 75,
+  },
+  torusFlamingoLime: {
+    position: [-1.8, 1.68, 0.13],
+    rotation: [Math.PI / 2 + 0.28, Math.PI * -1.2 - 0.44, -0.92],
+    scaleRatio: 16 / 75,
+  },
+  semiFlamingoAzure: {
+    position: [0.22, 1.6, 0.86],
+    rotation: [Math.PI / 2 - 1.36, Math.PI * -1.5, 0.2], // abertura para baixo
+    scaleRatio: 4 / 15,
+  },
+  sphereFlamingoSpring: {
+    position: [-1.3, -2, 0.32],
+    scaleRatio: 14 / 75,
+  },
+};
+
+const SECONDARY_DESKTOP_ADJUSTMENTS: Record<ShapeId, TransformAdjustments> = {
+  torusSpringAzure: {
+    position: [-0.15, 1.72, 2.3],
+    rotation: [Math.PI / 2 + 1.36, Math.PI * -0.5 - 0.92, 2.2],
+    scaleRatio: 0.12 / 0.75,
+  },
+  waveSpringLime: {
+    position: [6.2, -1.75, 3],
+    rotation: [0.14, Math.PI - 0.32, Math.PI / 2 + 0.12],
+    scaleRatio: 0.12 / 0.75,
+  },
+  semiLimeFlamingo: {
+    position: [-0.3, -2.29, -1.1],
+    rotation: [Math.PI / 2 - 1.14, Math.PI * -0.6 + 0.42, 0.05],
+    scaleRatio: 0.18 / 0.75,
+  },
+  torusFlamingoLime: {
+    position: [2, 2, -0.42],
+    rotation: [Math.PI / 2 + 0.28, Math.PI * -1.87 - 0.44, -0.92],
+    scaleRatio: 0.35 / 0.75,
+  },
+  semiFlamingoAzure: {
+    position: [5.52, 1.63, 2.8],
+    rotation: [Math.PI / 2 - 1.36, Math.PI * -0.5, 2.2],
+    scaleRatio: 0.07 / 0.75,
+  },
+  sphereFlamingoSpring: {
+    position: [2, -1.5, 0.28],
+    scaleRatio: 4 / 15,
+  },
+};
+
+const applyAdjustmentsToFramedVariant = (
+  adjustments: Record<ShapeId, TransformAdjustments>,
+): VariantState => {
+  const base = createFramedVariant();
+
+  return SHAPE_IDS.reduce<VariantState>((acc, id) => {
+    acc[id] = applyAdjustments(base[id], adjustments[id]);
+    return acc;
+  }, {} as VariantState);
 };
 
 const shiftPosition = (position: Vector3Tuple, deltaX: number): Vector3Tuple => [
@@ -90,38 +272,7 @@ const shiftVariant = (variant: VariantState, deltaX: number): VariantState => ({
 const createPrimaryMonogramVariant = (
   alignment: MonogramAlignment = "desktop",
 ): VariantState => {
-  const desktop: VariantState = {
-    torusSpringAzure: {
-      position: [-2.12, 0.05, -1.1],
-      rotation: [Math.PI / 2, Math.PI * -1.7, 0],
-      scale: [0.18, 0.18, 0.18],
-    },
-    waveSpringLime: {
-      position: [-1.5, -0.15, -2],
-      rotation: [0, Math.PI / 1, Math.PI / 1.9],
-      scale: [0.15, 0.15, 0.15],
-    },
-    semiLimeFlamingo: {
-      position: [-2.8, -0.2, -0.45],
-      rotation: [Math.PI / 2, Math.PI * -0.4, 0],
-      scale: [0.13, 0.13, 0.13],
-    },
-    torusFlamingoLime: {
-      position: [-1.8, -0.32, -0.45],
-      rotation: [Math.PI / 2, Math.PI * -1.2, 0],
-      scale: [0.16, 0.16, 0.16],
-    },
-    semiFlamingoAzure: {
-      position: [-2.6, 0.02, 0.06],
-      rotation: [Math.PI / 2, Math.PI * -1.5, 0], // abertura para baixo
-      scale: [0.2, 0.2, 0.2],
-    },
-    sphereFlamingoSpring: {
-      position: [-1.3, -0.5, 0.32],
-      rotation: [0, 0, 0],
-      scale: 0.14,
-    },
-  };
+  const desktop = applyAdjustmentsToFramedVariant(PRIMARY_DESKTOP_ADJUSTMENTS);
 
   if (alignment === "centered") {
     return shiftVariant(desktop, 2);
@@ -133,38 +284,7 @@ const createPrimaryMonogramVariant = (
 const createSecondaryMonogramVariant = (
   alignment: MonogramAlignment = "desktop",
 ): VariantState => {
-  const desktop: VariantState = {
-    torusSpringAzure: {
-      position: [2.7, -0.08, 2.1],
-      rotation: [Math.PI / 2, Math.PI * -0.5, 2],
-      scale: [0.12, 0.12, 0.12],
-    },
-    waveSpringLime: {
-      position: [2.7, -0.25, 2],
-      rotation: [0, Math.PI / 1, Math.PI / 2],
-      scale: [0.12, 0.12, 0.12],
-    },
-    semiLimeFlamingo: {
-      position: [1.7, -0.29, -1.5],
-      rotation: [Math.PI / 2, Math.PI * -0.6, 0],
-      scale: [0.18, 0.18, 0.18],
-    },
-    torusFlamingoLime: {
-      position: [2, 0, -1],
-      rotation: [Math.PI / 2, Math.PI * -1.87, 0],
-      scale: [0.35, 0.35, 0.35],
-    },
-    semiFlamingoAzure: {
-      position: [2.7, 0.05, 2],
-      rotation: [Math.PI / 2, Math.PI * -0.5, 2],
-      scale: [0.07, 0.07, 0.07],
-    },
-    sphereFlamingoSpring: {
-      position: [2, 0, 0.28],
-      rotation: [0, 0, 0],
-      scale: 0.2,
-    },
-  };
+  const desktop = applyAdjustmentsToFramedVariant(SECONDARY_DESKTOP_ADJUSTMENTS);
 
   if (alignment === "centered") {
     return shiftVariant(desktop, -2);
@@ -179,41 +299,6 @@ export const HERO_LINE_ONE_MONOGRAM_CENTERED =
 export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant("desktop");
 export const HERO_LINE_TWO_MONOGRAM_CENTERED =
   createSecondaryMonogramVariant("centered");
-
-
-//Posição inicial
-const createFramedVariant = (): VariantState => ({
-  torusSpringAzure: {
-    position: [2.85, -1.8, -0.2],
-    rotation: [-1.36, 0.92, -0.2],
-    scale: [0.75, 0.75, 0.75],
-  },
-  waveSpringLime: {
-    position: [-3.5, 1.5, -1],
-    rotation: [-0.14, 0.32, -0.12],
-    scale: [0.75, 0.75, 0.75],
-  },
-  semiLimeFlamingo: {
-    position: [2, 2, -0.4],
-    rotation: [1.14, -0.42, -0.05],
-    scale: [0.75, 0.75, 0.75],
-  },
-  torusFlamingoLime: {
-    position: [0, -2, -0.58],
-    rotation: [-0.28, 0.44, 0.92],
-    scale: [0.75, 0.75, 0.75],
-  },
-  semiFlamingoAzure: {
-    position: [-2.82, -1.58, -0.8],
-    rotation: [1.36, 0, -0.2],
-    scale: [0.75, 0.75, 0.75],
-  },
-  sphereFlamingoSpring: {
-    position: [0, 1.5, 0],
-    rotation: [0, 0, 0],
-    scale: [0.75, 0.75, 0.75],
-  },
-});
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
@@ -282,9 +367,6 @@ declare global {
     __THREE_APP__?: ThreeAppHandle;
   }
 }
-
-const cloneScale = (scale: ShapeScale): ShapeScale =>
-  Array.isArray(scale) ? ([...scale] as Vector3Tuple) : scale;
 
 export const createVariantState = (variant: VariantState): VariantState => ({
   torusSpringAzure: {
