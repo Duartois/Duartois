@@ -1,48 +1,35 @@
 "use client";
 
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import { ReactNode, useEffect } from "react";
+import { useEffect } from "react";
 
 
 export default function HomePage() {
-  const applyBackgroundPositionFromClass = (el: HTMLElement) => {
-    const cls = el.className || "";
-    const rxX = /background-position-x:\s*([+-]?\d*\.?\d+)px/;
-    const rxY = /background-position-y:\s*([+-]?\d*\.?\d+)px/;
+  function applyBackgroundPositionFromClass(el: HTMLElement) {
+  const cls = el.className || "";
+  const rxX = /background-position-x:\s*([+-]?\d*\.?\d+)px/;
+  const rxY = /background-position-y:\s*([+-]?\d*\.?\d+)px/;
 
-    const mx = cls.match(rxX);
-    if (mx) {
-      const x = `${parseFloat(mx[1])}px`;
-      el.style.backgroundPositionX = x;
-      // expõe o valor inicial para os @keyframes via CSS var
-      el.style.setProperty("--wave-x", x);
-    }
+  const mx = cls.match(rxX);
+  if (mx) {
+    const x = `${parseFloat(mx[1])}px`;
+    el.style.backgroundPositionX = x;
+    // expõe o valor inicial para os @keyframes via CSS var
+    el.style.setProperty("--wave-x", x);
+  }
 
-    const my = cls.match(rxY);
-    if (my) {
-      const y = `${parseFloat(my[1])}px`;
-      el.style.backgroundPositionY = y;
-      // (se um dia animar Y também, já fica preparado)
-      el.style.setProperty("--wave-y", y);
-    }
-  };
+  const my = cls.match(rxY);
+  if (my) {
+    const y = `${parseFloat(my[1])}px`;
+    el.style.backgroundPositionY = y;
+    // (se um dia animar Y também, já fica preparado)
+    el.style.setProperty("--wave-y", y);
+  }
+}
 
-  const NameHighlight = ({
-    children,
-    waveClassName,
-  }: {
-    children: ReactNode;
-    waveClassName: string;
-  }) => (
-    <div className="name">
-      {children}
-      <div className="wave-wrapper">
-        <div className={waveClassName} />
-      </div>
-    </div>
-  );
+
 
   useEffect(() => {
     // aplica imediatamente em todos que já vieram do SSR
@@ -95,31 +82,30 @@ export default function HomePage() {
             <div className="intro-wrapper">
               <div className="intro-text">
                 <h3 className="intro-id opacity: 1; transform: none; ">
-                  <Trans
-                    i18nKey="home.hero.titleLine1"
-                    components={{
-                      name: (
-                        <NameHighlight waveClassName="wave background-position-x: 54.6645px;" />
-                      ),
-                    }}
-                  />
+                  Eai! Sou 
+                  <div className="name">Matheus Duarte
+                    <div className="wave-wrapper">
+                      <div className="wave background-position-x: 54.6645px;">
+                      </div>
+                    </div>
+                  </div>
                 </h3>
                 <h3 className="intro-id opacity: 1; transform: none;">
-                  <Trans
-                    i18nKey="home.hero.titleLine2"
-                    components={{
-                      name: (
-                        <NameHighlight waveClassName="wave background-position-x: 79.1168px;" />
-                      ),
-                    }}
-                  />
+                  Mas você pode me chamar de
+                  <div className="name">
+                    Duartois
+                    <div className="wave-wrapper">
+                      <div className="wave background-position-x: 79.1168px;">
+                      </div>
+                    </div>
+                  </div>
                 </h3>
                 <div className="intro-roles">
                   <p className="intro-role opacity: 1; transform: none;">
-                    {t("home.hero.role1")}
+                    Sou Graphic designer, UX/UI designer
                   </p>
                   <p className="intro-role opacity: 1; transform: none;">
-                    {t("home.hero.role2")}
+                    &amp; e Desenvolvedor Full-Stack
                   </p>
                 </div>
                 <div className="intro-links">
@@ -128,7 +114,7 @@ export default function HomePage() {
                       <div className="link-wrapper">
                         <div className="link">
                           <a href="/work">
-                            {t("home.hero.ctaProjects")}
+                            → Meus projetos
                           </a>
                         </div>
                         <div className="link-underline transform: translateX(-101%) translateZ(0px);">
@@ -139,7 +125,7 @@ export default function HomePage() {
                       <div className="link-wrapper">
                         <div className="link">
                           <a href="/about">
-                            {t("home.hero.ctaAbout")}
+                          → Mais sobre mim
                           </a>
                         </div>
                         <div className="link-underline">

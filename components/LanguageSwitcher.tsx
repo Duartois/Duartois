@@ -3,24 +3,15 @@
 import { useEffect, useState } from "react";
 import i18n from "@/app/i18n/config";
 
-type SupportedLanguage = "pt" | "en";
-
-const normalizeLanguage = (lng?: string | null): SupportedLanguage => {
-  if (!lng) return "pt";
-  return lng.startsWith("en") ? "en" : "pt";
-};
-
 export default function LanguageSwitcher() {
-  const [lang, setLang] = useState<SupportedLanguage>(
-    normalizeLanguage(i18n.language)
-  );
+  const [lang, setLang] = useState<"pt" | "en">("pt");
   useEffect(() => {
-    const onChanged = (l: string) => setLang(normalizeLanguage(l));
+    setLang((i18n.language as any) || "pt");
+    const onChanged = (l: string) => setLang((l as any) || "pt");
     i18n.on("languageChanged", onChanged);
-    setLang(normalizeLanguage(i18n.language));
     return () => i18n.off("languageChanged", onChanged);
   }, []);
-  const target: SupportedLanguage = lang === "en" ? "pt" : "en";
+  const target = lang === "en" ? "pt" : "en";
 
   return (
     <a
