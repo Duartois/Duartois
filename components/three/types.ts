@@ -29,74 +29,156 @@ export type ShapeTransform = {
 
 export type VariantState = Record<ShapeId, ShapeTransform>;
 
-const createPrimaryMonogramVariant = (): VariantState => ({
+export type MonogramAlignment = "desktop" | "centered";
+
+export type HoverVariantSet = {
+  desktop: VariantState;
+  centered: VariantState;
+};
+
+const shiftPosition = (position: Vector3Tuple, deltaX: number): Vector3Tuple => [
+  position[0] + deltaX,
+  position[1],
+  position[2],
+];
+
+const shiftVariant = (variant: VariantState, deltaX: number): VariantState => ({
   torusSpringAzure: {
-    position: [-2.12, 0.05, -1.10],
-    rotation: [Math.PI / 2, Math.PI * -1.7, 0],
-    scale: [0.18, 0.18, 0.18],
+    position: shiftPosition(variant.torusSpringAzure.position, deltaX),
+    rotation: [...variant.torusSpringAzure.rotation] as Vector3Tuple,
+    scale: Array.isArray(variant.torusSpringAzure.scale)
+      ? ([...variant.torusSpringAzure.scale] as Vector3Tuple)
+      : variant.torusSpringAzure.scale,
   },
   waveSpringLime: {
-    position: [-1.5, -0.15, -2],
-    rotation: [0, Math.PI / 1, Math.PI / 1.9],
-    scale: [0.15, 0.15, 0.15],
+    position: shiftPosition(variant.waveSpringLime.position, deltaX),
+    rotation: [...variant.waveSpringLime.rotation] as Vector3Tuple,
+    scale: Array.isArray(variant.waveSpringLime.scale)
+      ? ([...variant.waveSpringLime.scale] as Vector3Tuple)
+      : variant.waveSpringLime.scale,
   },
   semiLimeFlamingo: {
-    position: [-2.8, -0.2, -0.45],
-    rotation: [Math.PI / 2, Math.PI * -0.4, 0],
-    scale: [0.13, 0.13, 0.13],
+    position: shiftPosition(variant.semiLimeFlamingo.position, deltaX),
+    rotation: [...variant.semiLimeFlamingo.rotation] as Vector3Tuple,
+    scale: Array.isArray(variant.semiLimeFlamingo.scale)
+      ? ([...variant.semiLimeFlamingo.scale] as Vector3Tuple)
+      : variant.semiLimeFlamingo.scale,
   },
   torusFlamingoLime: {
-    position: [-1.8, -0.32, -0.45],
-    rotation: [Math.PI / 2, Math.PI * -1.2, 0],
-    scale: [0.16, 0.16, 0.16],
+    position: shiftPosition(variant.torusFlamingoLime.position, deltaX),
+    rotation: [...variant.torusFlamingoLime.rotation] as Vector3Tuple,
+    scale: Array.isArray(variant.torusFlamingoLime.scale)
+      ? ([...variant.torusFlamingoLime.scale] as Vector3Tuple)
+      : variant.torusFlamingoLime.scale,
   },
   semiFlamingoAzure: {
-    position: [-2.60, 0.02, 0.06],
-    rotation: [Math.PI / 2, Math.PI * -1.5, 0], // abertura para baixo
-    scale: [0.20, 0.20, 0.20],
+    position: shiftPosition(variant.semiFlamingoAzure.position, deltaX),
+    rotation: [...variant.semiFlamingoAzure.rotation] as Vector3Tuple,
+    scale: Array.isArray(variant.semiFlamingoAzure.scale)
+      ? ([...variant.semiFlamingoAzure.scale] as Vector3Tuple)
+      : variant.semiFlamingoAzure.scale,
   },
   sphereFlamingoSpring: {
-    position: [-1.3, -0.5, 0.32],
-    rotation: [0, 0, 0],
-    scale: 0.14,
+    position: shiftPosition(variant.sphereFlamingoSpring.position, deltaX),
+    rotation: [...variant.sphereFlamingoSpring.rotation] as Vector3Tuple,
+    scale: Array.isArray(variant.sphereFlamingoSpring.scale)
+      ? ([...variant.sphereFlamingoSpring.scale] as Vector3Tuple)
+      : variant.sphereFlamingoSpring.scale,
   },
 });
 
-const createSecondaryMonogramVariant = (): VariantState => ({
-  torusSpringAzure: {
-    position: [2.7, -0.08, 2.1],
-    rotation: [Math.PI / 2, Math.PI * -0.5, 2],
-    scale: [0.12, 0.12, 0.12],
-  },
-  waveSpringLime: {
-    position: [2.7, -0.25, 2],
-    rotation: [0, Math.PI / 1, Math.PI / 2],
-    scale: [0.12, 0.12, 0.12],
-  },
-  semiLimeFlamingo: {
-    position: [1.7, -0.29, -1.5],
-    rotation: [Math.PI / 2, Math.PI * -0.6, 0],
-    scale: [0.18, 0.18, 0.18],
-  },
-  torusFlamingoLime: {
-    position: [2, 0, -1],
-    rotation: [Math.PI / 2, Math.PI * -1.87, 0],
-    scale: [0.35, 0.35, 0.35],
-  },
-  semiFlamingoAzure: {
-    position: [2.7, 0.05, 2],
-    rotation: [Math.PI / 2, Math.PI * -0.5, 2],
-    scale: [0.07, 0.07, 0.07],
-  },
-  sphereFlamingoSpring: {
-    position: [2, 0, 0.28],
-    rotation: [0, 0, 0],
-    scale: 0.2,
-  },
-});
+const createPrimaryMonogramVariant = (
+  alignment: MonogramAlignment = "desktop",
+): VariantState => {
+  const desktop: VariantState = {
+    torusSpringAzure: {
+      position: [-2.12, 0.05, -1.1],
+      rotation: [Math.PI / 2, Math.PI * -1.7, 0],
+      scale: [0.18, 0.18, 0.18],
+    },
+    waveSpringLime: {
+      position: [-1.5, -0.15, -2],
+      rotation: [0, Math.PI / 1, Math.PI / 1.9],
+      scale: [0.15, 0.15, 0.15],
+    },
+    semiLimeFlamingo: {
+      position: [-2.8, -0.2, -0.45],
+      rotation: [Math.PI / 2, Math.PI * -0.4, 0],
+      scale: [0.13, 0.13, 0.13],
+    },
+    torusFlamingoLime: {
+      position: [-1.8, -0.32, -0.45],
+      rotation: [Math.PI / 2, Math.PI * -1.2, 0],
+      scale: [0.16, 0.16, 0.16],
+    },
+    semiFlamingoAzure: {
+      position: [-2.6, 0.02, 0.06],
+      rotation: [Math.PI / 2, Math.PI * -1.5, 0], // abertura para baixo
+      scale: [0.2, 0.2, 0.2],
+    },
+    sphereFlamingoSpring: {
+      position: [-1.3, -0.5, 0.32],
+      rotation: [0, 0, 0],
+      scale: 0.14,
+    },
+  };
 
-export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
-export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
+  if (alignment === "centered") {
+    return shiftVariant(desktop, 2);
+  }
+
+  return desktop;
+};
+
+const createSecondaryMonogramVariant = (
+  alignment: MonogramAlignment = "desktop",
+): VariantState => {
+  const desktop: VariantState = {
+    torusSpringAzure: {
+      position: [2.7, -0.08, 2.1],
+      rotation: [Math.PI / 2, Math.PI * -0.5, 2],
+      scale: [0.12, 0.12, 0.12],
+    },
+    waveSpringLime: {
+      position: [2.7, -0.25, 2],
+      rotation: [0, Math.PI / 1, Math.PI / 2],
+      scale: [0.12, 0.12, 0.12],
+    },
+    semiLimeFlamingo: {
+      position: [1.7, -0.29, -1.5],
+      rotation: [Math.PI / 2, Math.PI * -0.6, 0],
+      scale: [0.18, 0.18, 0.18],
+    },
+    torusFlamingoLime: {
+      position: [2, 0, -1],
+      rotation: [Math.PI / 2, Math.PI * -1.87, 0],
+      scale: [0.35, 0.35, 0.35],
+    },
+    semiFlamingoAzure: {
+      position: [2.7, 0.05, 2],
+      rotation: [Math.PI / 2, Math.PI * -0.5, 2],
+      scale: [0.07, 0.07, 0.07],
+    },
+    sphereFlamingoSpring: {
+      position: [2, 0, 0.28],
+      rotation: [0, 0, 0],
+      scale: 0.2,
+    },
+  };
+
+  if (alignment === "centered") {
+    return shiftVariant(desktop, -2);
+  }
+
+  return desktop;
+};
+
+export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant("desktop");
+export const HERO_LINE_ONE_MONOGRAM_CENTERED =
+  createPrimaryMonogramVariant("centered");
+export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant("desktop");
+export const HERO_LINE_TWO_MONOGRAM_CENTERED =
+  createSecondaryMonogramVariant("centered");
 
 
 //Posição inicial
@@ -167,6 +249,8 @@ export type ThreeAppState = {
   theme: ThemeName;
   parallax: boolean;
   hovered: boolean;
+  hoverAlignment: MonogramAlignment | null;
+  hoverVariants: HoverVariantSet | null;
   cursorBoost: number;
   pointer: PointerTarget;
   pointerDriver: PointerDriver;
