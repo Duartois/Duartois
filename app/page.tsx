@@ -18,6 +18,16 @@ import {
   type VariantState,
 } from "@/components/three/types";
 
+import {
+  HERO_LINE_ONE_MONOGRAM,
+  HERO_LINE_TWO_MONOGRAM,
+  createVariantState,
+  variantMapping,
+  type VariantState,
+} from "@/components/three/types";
+
+
+type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 
 // componente para estilizar o <name> vindo do JSON
 function NameWithWave({ children }: PropsWithChildren) {
@@ -177,7 +187,11 @@ export default function HomePage() {
                       <h3 className="intro-id opacity: 1; transform: none;">
                         <Trans
                           i18nKey="home.hero.titleLine1"
-                          components={{ name: <NameWithWave /> }}
+                          components={{
+                            name: (
+                              <NameWithWave hoverVariant={HERO_LINE_ONE_MONOGRAM} />
+                            ),
+                          }}
                         />
                       </h3>
 
@@ -185,7 +199,11 @@ export default function HomePage() {
                       <h3 className="intro-id opacity: 1; transform: none;">
                         <Trans
                           i18nKey="home.hero.titleLine2"
-                          components={{ name: <NameWithWave /> }}
+                          components={{
+                            name: (
+                              <NameWithWave hoverVariant={HERO_LINE_TWO_MONOGRAM} />
+                            ),
+                          }}
                         />
                       </h3>
 
