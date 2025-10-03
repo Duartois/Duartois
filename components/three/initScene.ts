@@ -237,6 +237,7 @@ export const initScene = async ({
     manualPointer: { x: 0, y: 0 },
     opacity: 1,
     brightness: DEFAULT_BRIGHTNESS,
+    primordialRevealComplete: false,
     ready: false,
   };
 
@@ -427,6 +428,17 @@ export const initScene = async ({
       commit({ theme: partial.theme, palette: nextPalette });
     }
 
+    if (
+      Object.prototype.hasOwnProperty.call(partial, "primordialRevealComplete")
+    ) {
+      const nextPrimordial =
+        (partial as { primordialRevealComplete?: boolean })
+          .primordialRevealComplete ?? false;
+      if (nextPrimordial !== state.primordialRevealComplete) {
+        commit({ primordialRevealComplete: nextPrimordial });
+      }
+    }
+
     if (typeof partial.brightness === "number") {
       const nextBrightness = clamp(partial.brightness, 0.5, 2);
       if (nextBrightness !== state.brightness) {
@@ -439,8 +451,15 @@ export const initScene = async ({
       commit({ parallax: partial.parallax });
     }
 
-    if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
-      commit({ hovered: partial.hovered });
+    const hoveredProvided = Object.prototype.hasOwnProperty.call(
+      partial,
+      "hovered",
+    );
+    if (hoveredProvided) {
+      const nextHovered = (partial as { hovered?: boolean }).hovered ?? false;
+      if (nextHovered !== state.hovered) {
+        commit({ hovered: nextHovered });
+      }
     }
 
     if (Object.prototype.hasOwnProperty.call(partial, "hoverAlignment")) {
@@ -502,10 +521,19 @@ export const initScene = async ({
       }
     }
 
+    const shouldSnapVariant =
+      state.hovered &&
+      hoveredProvided &&
+      (partial as { hovered?: boolean }).hovered === false &&
+      state.primordialRevealComplete;
+
     if (partial.variant) {
       const nextVariant = createVariantState(partial.variant);
       targetVariantState = nextVariant;
       updateVariantBounds(nextVariant);
+      if (shouldSnapVariant) {
+        shapes.applyVariant(nextVariant);
+      }
       commit({ variant: createVariantState(partial.variant) });
     }
 
