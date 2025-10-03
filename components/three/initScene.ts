@@ -15,12 +15,16 @@ import {
   type ThreeAppState,
   type ThemeName,
   type VariantName,
+  type VariantState,
   createVariantState,
   getDefaultPalette,
   variantMapping,
 } from "./types";
 import { createCamera, ensurePalette } from "./factories";
-import { addDuartoisSignatureShapes } from "@/components/three/addShapes";
+import {
+  addDuartoisSignatureShapes,
+  type VariantBounds,
+} from "@/components/three/addShapes";
 
 export type InitSceneOptions = {
   canvas: HTMLCanvasElement;
@@ -110,7 +114,13 @@ export const initScene = async ({
   const shapesGroup = shapes.group;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
   const initialVariantClone = createVariantState(initialVariantState);
-  let targetVariantState = initialVariantClone;
+  let targetVariantState: typeof initialVariantClone = initialVariantClone;
+  let activeVariantBounds: VariantBounds | null = shapes.getVariantBounds(
+    targetVariantState,
+  );
+  let baseScale = 1;
+  let viewportSize = { width: 2, height: 2 };
+  let baseScaleInitialized = false;
   type MaterialWithOpacity = THREE.Material & {
     opacity: number;
     transparent: boolean;
@@ -136,6 +146,60 @@ export const initScene = async ({
         updateMaterial(material);
       }
     });
+  };
+
+  const getViewportSize = (orthographic: THREE.OrthographicCamera) => ({
+    width: (orthographic.right - orthographic.left) / orthographic.zoom,
+    height: (orthographic.top - orthographic.bottom) / orthographic.zoom,
+  });
+
+  const computeBaseScaleForBounds = (bounds: VariantBounds | null) => {
+    if (!bounds) {
+      return 1;
+    }
+
+    const margin = 0.9;
+    const widthScale =
+      bounds.width > 0 ? (viewportSize.width * margin) / bounds.width : Infinity;
+    const heightScale =
+      bounds.height > 0 ? (viewportSize.height * margin) / bounds.height : Infinity;
+    const candidate = Math.min(widthScale, heightScale);
+
+    if (!Number.isFinite(candidate) || candidate <= 0) {
+      return 1;
+    }
+
+    return candidate;
+  };
+
+  const applyBaseScaleChange = (nextBaseScale: number) => {
+    const previousBaseScale = baseScale;
+    baseScale = Math.max(nextBaseScale, 1e-3);
+
+    if (!baseScaleInitialized) {
+      shapesGroup.scale.setScalar(baseScale);
+      baseScaleInitialized = true;
+      return;
+    }
+
+    if (!Number.isFinite(previousBaseScale) || previousBaseScale <= 0) {
+      shapesGroup.scale.setScalar(baseScale);
+      return;
+    }
+
+    const ratio = shapesGroup.scale.x / previousBaseScale;
+    const safeRatio = Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
+    shapesGroup.scale.setScalar(baseScale * safeRatio);
+  };
+
+  const refreshBaseScale = () => {
+    const nextBaseScale = computeBaseScaleForBounds(activeVariantBounds);
+    applyBaseScaleChange(nextBaseScale);
+  };
+
+  const updateVariantBounds = (variant: VariantState) => {
+    activeVariantBounds = shapes.getVariantBounds(variant);
+    refreshBaseScale();
   };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
@@ -194,6 +258,9 @@ export const initScene = async ({
     ortho.top = 1;
     ortho.bottom = -1;
     ortho.updateProjectionMatrix();
+
+    viewportSize = getViewportSize(ortho);
+    refreshBaseScale();
   };
 
 
@@ -279,7 +346,8 @@ export const initScene = async ({
     shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
   
 
-    const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
+    const dynamicScale = Math.max(0.25, 1 + breathe + hoverBoost + state.cursorBoost);
+    const scaleTarget = baseScale * dynamicScale;
     const lerpScale = clamp(delta * 4, 0, 1);
     const currentScale = shapesGroup.scale.x;
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
@@ -319,7 +387,9 @@ export const initScene = async ({
 
     if (partial.variantName && partial.variantName !== state.variantName) {
       const mapped = variantMapping[partial.variantName];
-      targetVariantState = createVariantState(mapped);
+      const nextVariant = createVariantState(mapped);
+      targetVariantState = nextVariant;
+      updateVariantBounds(nextVariant);
       commit({ variantName: partial.variantName, variant: createVariantState(mapped) });
     }
 
@@ -384,7 +454,9 @@ export const initScene = async ({
     }
 
     if (partial.variant) {
-      targetVariantState = createVariantState(partial.variant);
+      const nextVariant = createVariantState(partial.variant);
+      targetVariantState = nextVariant;
+      updateVariantBounds(nextVariant);
       commit({ variant: createVariantState(partial.variant) });
     }
 
