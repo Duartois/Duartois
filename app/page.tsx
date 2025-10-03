@@ -85,7 +85,7 @@ export default function HomePage() {
 
   return (
     <>
-      <main className="relative z-[70] w-front">
+      <main className="w-front">
         <div className="opacity: 1; transform: none;">
           <div data-scroll-container="true" id="scroll-container">
             <div

@@ -41,22 +41,23 @@ export default function Navbar() {
             </div>
 
             <h5
-              className="full-identity display-none transform-translateY--100px translateZ-0px"
+              className="full-identity"
+              style={{ display: "none", transform: "translateY(-100px) translateZ(0px)" }}
             >
               <span className="nickname">sharlee</span>/<span className="fullname">charles bruyerre</span>
             </h5>
           </div>
 
           {/* RIGHT */}
-          <div className="right-part flex transform-none">
+          <div className="right-part" style={{ display: "flex", transform: "none" }}>
             <ul>
               {/* LanguageSwitcher no lugar do EN/PT estático */}
-              <li className="language-switch flex transform-none">
+              <li className="language-switch flex transform-none" style={{ display: "block", transform: "none" }}>
                 <LanguageSwitcher />
               </li>
 
               {/* ThemeToggle usando o mesmo ícone (lua/sol) da referência */}
-              <li className="theme-switch flex transform-none">
+              <li className="theme-switch" style={{ display: "block", transform: "none" }}>
                 <ThemeToggle />
               </li>
 
