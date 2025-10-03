@@ -69,7 +69,7 @@ export default function Navbar() {
                   aria-haspopup="dialog"
                   aria-expanded={isOpen}
                   aria-controls="main-navigation-overlay"
-                  aria-label={isOpen ? "Close menu" : "Open menu"}
+                  aria-label={isOpen ? t("navbar.close") : t("navbar.open")}
                   onClick={() => setIsOpen((v) => !v)}
                 >
                   <div style={{ transform: "none" }}>
@@ -80,7 +80,7 @@ export default function Navbar() {
                       height="48"
                       className="icons-style"
                     >
-                      <title>Menu</title>
+                      <title>{t("navbar.menu")}</title>
                       <circle cx="12" cy="12" r="3"></circle>
                       <circle cx="24" cy="12" r="3"></circle>
                       <circle cx="36" cy="12" r="3"></circle>
