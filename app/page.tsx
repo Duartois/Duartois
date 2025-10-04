@@ -301,7 +301,11 @@ export default function HomePage() {
                           <li className="opacity: 1">
                             <div className="link-wrapper">
                               <div className="link">
-                                <a href="/work">{t("home.hero.ctaProjects")}</a>
+                                <a href="/work">
+                                  <WordFallText as="span" initialDelay={1.3}>
+                                    {t("home.hero.ctaProjects")}
+                                  </WordFallText>
+                                </a>
                               </div>
                               <div className="link-underline transform: translateX(-101%) translateZ(0px);" />
                             </div>
@@ -309,7 +313,11 @@ export default function HomePage() {
                           <li className="opacity: 1">
                             <div className="link-wrapper">
                               <div className="link">
-                                <a href="/about">{t("home.hero.ctaAbout")}</a>
+                                <a href="/about">
+                                  <WordFallText as="span" initialDelay={1.3}>
+                                    {t("home.hero.ctaAbout")}
+                                  </WordFallText>
+                                </a>
                               </div>
                               <div className="link-underline" />
                             </div>
