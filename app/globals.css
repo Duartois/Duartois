@@ -30,6 +30,7 @@
     --border-radius: 48px;
     --border: 2px;
     --border-radius-content: 0;
+    
 }
 main {
     position: relative;
@@ -2480,8 +2481,8 @@ body.dark .link-underline {
 
 .fall-down-element {
     opacity: 0;
-    transform: translateY(calc(var(--fall-distance, 64px) * -1));
-    animation: fall-down var(--fall-duration, 0.8s) cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform: translateY(-96px);
+    animation: fall-down 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     animation-delay: var(--fall-delay, 0s);
     will-change: transform, opacity;
 }
@@ -2489,17 +2490,12 @@ body.dark .link-underline {
 @keyframes fall-down {
     0% {
         opacity: 0;
-        transform: translateY(calc(var(--fall-distance, 64px) * -1));
-    }
-
-    60% {
-        opacity: 1;
-        transform: translateY(calc(var(--fall-distance, 64px) * 0.12));
+        transform: translateY(-96px);
     }
 
     100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: none;
     }
 }
 
