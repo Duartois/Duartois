@@ -8,10 +8,10 @@ import {
   PropsWithChildren,
   useCallback,
   useRef,
+  type CSSProperties,
 } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 
-import WordFallText from "@/components/WordFallText";
 import {
   HERO_LINE_ONE_MONOGRAM,
   HERO_LINE_TWO_MONOGRAM,
@@ -151,7 +151,8 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
   return (
     <span
       ref={spanRef}
-      className="name"
+      className="name fall-down-element"
+      style={{ "--fall-delay": "0.1s" } as CSSProperties}
       data-cursor-interactive
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
@@ -247,9 +248,8 @@ export default function HomePage() {
                   <div className="intro-wrapper">
                     <div className="intro-text">
                       {/* título 1 */}
-                      <WordFallText
-                        as="h3"
-                        className="intro-id opacity: 1; transform: none;"
+                      <h3
+                        className="intro-id fall-down-element opacity: 1; transform: none;"
                       >
                         <Trans
                           i18nKey="home.hero.titleLine1"
@@ -259,13 +259,12 @@ export default function HomePage() {
                             ),
                           }}
                         />
-                      </WordFallText>
+                      </h3>
 
                       {/* título 2 */}
-                      <WordFallText
-                        as="h3"
-                        className="intro-id opacity: 1; transform: none;"
-                        initialDelay={0.4}
+                      <h3
+                        className="intro-id fall-down-element opacity: 1; transform: none;"
+                        style={{ "--fall-delay": "0.4s" } as CSSProperties}
                       >
                         <Trans
                           i18nKey="home.hero.titleLine2"
@@ -275,24 +274,22 @@ export default function HomePage() {
                             ),
                           }}
                         />
-                      </WordFallText>
+                      </h3>
 
                       {/* roles */}
                       <div className="intro-roles">
-                        <WordFallText
-                          as="p"
-                          className="intro-role opacity: 1; transform: none;"
-                          initialDelay={0.8}
+                        <p
+                          className="intro-role fall-down-element opacity: 1; transform: none;"
+                          style={{ "--fall-delay": "0.8s" } as CSSProperties}
                         >
                           {t("home.hero.role1")}
-                        </WordFallText>
-                        <WordFallText
-                          as="p"
-                          className="intro-role opacity: 1; transform: none;"
-                          initialDelay={1.1}
+                        </p>
+                        <p
+                          className="intro-role fall-down-element opacity: 1; transform: none;"
+                          style={{ "--fall-delay": "1.1s" } as CSSProperties}
                         >
                           {t("home.hero.role2")}
-                        </WordFallText>
+                        </p>
                       </div>
 
                       {/* CTAs */}
@@ -302,9 +299,12 @@ export default function HomePage() {
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/work">
-                                  <WordFallText as="span" initialDelay={1.3}>
+                                  <span
+                                    className="fall-down-element"
+                                    style={{ "--fall-delay": "1.3s" } as CSSProperties}
+                                  >
                                     {t("home.hero.ctaProjects")}
-                                  </WordFallText>
+                                  </span>
                                 </a>
                               </div>
                               <div className="link-underline transform: translateX(-101%) translateZ(0px);" />
@@ -314,9 +314,12 @@ export default function HomePage() {
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/about">
-                                  <WordFallText as="span" initialDelay={1.3}>
+                                  <span
+                                    className="fall-down-element"
+                                    style={{ "--fall-delay": "1.3s" } as CSSProperties}
+                                  >
                                     {t("home.hero.ctaAbout")}
-                                  </WordFallText>
+                                  </span>
                                 </a>
                               </div>
                               <div className="link-underline" />

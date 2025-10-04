@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, type CSSProperties } from "react";
 
-import WordFallText from "./WordFallText";
-
 type MenuProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -63,7 +61,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       aria-modal="true"
       aria-hidden={!isOpen}
     >
-      <div className="menu-content">
+      <div className="menu-content fall-down-element" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
         <div className="menu-items">
           <nav>
             <ol>
@@ -71,9 +69,9 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                 <li key={item.href}>
                   <div className="item-inner" style={itemStyle(i)}>
                     <Link href={item.href} onClick={onClose}>
-                      <WordFallText as="h1" delayStep={0.05}>
+                      <span className="fall-down-element" style={{ "--fall-delay": `${i * 0.05}s` } as CSSProperties}>
                         {item.label}
-                      </WordFallText>
+                      </span>
                     </Link>
                   </div>
                 </li>
@@ -97,9 +95,12 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                             rel="noreferrer"
                             onClick={onClose}
                           >
-                            <WordFallText as="span" delayStep={0.05}>
+                            <span
+                              className="fall-down-element"
+                              style={{ "--fall-delay": `${(items.length + i) * 0.05}s` } as CSSProperties}
+                            >
                               ↗ {s.label}
-                            </WordFallText>
+                            </span>
                           </a>
                         </div>
                         {/* underline comeÃ§a em -101% exatamente como na referÃªncia/CSS */}
