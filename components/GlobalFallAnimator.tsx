@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const ITEM_TRANSITION_DURATION = 400;
 const ITEM_STAGGER_DELAY = 60;
 const MAX_STAGGER_STEPS = 12;
+const REVEAL_EVENT = "app-shell:reveal";
 
 function isSkippable(el: Element) {
   const tag = el.tagName;
@@ -32,6 +33,8 @@ function setDelay(el: HTMLElement | SVGElement, delay: number) {
 export default function GlobalFallAnimator() {
   const pathname = usePathname();
   const cleanupTimerRef = useRef<number | undefined>(undefined);
+  const revealListenerRef = useRef<(() => void) | null>(null);
+  const enterFramesRef = useRef<number[]>([]);
 
   useEffect(() => {
     if (cleanupTimerRef.current) {
@@ -39,27 +42,83 @@ export default function GlobalFallAnimator() {
       cleanupTimerRef.current = undefined;
     }
 
+    if (revealListenerRef.current) {
+      window.removeEventListener(REVEAL_EVENT, revealListenerRef.current);
+      revealListenerRef.current = null;
+    }
+
+    enterFramesRef.current.forEach((frame) => window.cancelAnimationFrame(frame));
+    enterFramesRef.current.length = 0;
+
     const body = document.body;
     const elements = Array.from(
       body.querySelectorAll<HTMLElement | SVGElement>("*:not(html):not(body)")
     ).filter((el) => !isSkippable(el) && !el.closest("[data-fall-skip='true']"));
 
+    const preloading = body.dataset.preloading === "true";
+    const waitingElements: (HTMLElement | SVGElement)[] = [];
+    const immediateElements: (HTMLElement | SVGElement)[] = [];
+
     elements.forEach((el, index) => {
       setDelay(el, computeDelay(index));
       el.classList.add("fall-animated");
+      el.classList.remove("fall-enter");
       el.classList.remove("fall-exit");
+
+      if (
+        preloading &&
+        !el.closest("[data-preloader-root='true']") &&
+        !el.hasAttribute("data-preloader-root")
+      ) {
+        waitingElements.push(el);
+      } else {
+        immediateElements.push(el);
+      }
     });
 
-    const enterFrame = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        elements.forEach((el) => {
-          el.classList.add("fall-enter");
+    const addEnterClass = (targets: (HTMLElement | SVGElement)[]) => {
+      if (!targets.length) {
+        return;
+      }
+
+      const first = window.requestAnimationFrame(() => {
+        const second = window.requestAnimationFrame(() => {
+          targets.forEach((el) => {
+            el.classList.add("fall-enter");
+          });
         });
+        enterFramesRef.current.push(second);
       });
-    });
+
+      enterFramesRef.current.push(first);
+    };
+
+    addEnterClass(immediateElements);
+
+    if (waitingElements.length) {
+      const reveal = () => {
+        addEnterClass(waitingElements);
+        revealListenerRef.current = null;
+      };
+
+      if (body.dataset.preloading === "true") {
+        revealListenerRef.current = reveal;
+        window.addEventListener(REVEAL_EVENT, reveal, { once: true });
+      } else {
+        reveal();
+      }
+    }
 
     return () => {
-      window.cancelAnimationFrame(enterFrame);
+      if (revealListenerRef.current) {
+        window.removeEventListener(REVEAL_EVENT, revealListenerRef.current);
+        revealListenerRef.current = null;
+      }
+
+      enterFramesRef.current.forEach((frame) =>
+        window.cancelAnimationFrame(frame),
+      );
+      enterFramesRef.current.length = 0;
       const total = elements.length;
 
       elements.forEach((el, index) => {

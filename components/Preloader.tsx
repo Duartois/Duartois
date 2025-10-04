@@ -250,7 +250,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   };
 
   return (
-    <div className="splashscreen" style={splashStyle} aria-hidden={isHidden}>
+    <div
+      className="splashscreen"
+      style={splashStyle}
+      aria-hidden={isHidden}
+      data-preloader-root="true"
+    >
       <div className={previewClassName} aria-hidden="true">
         <PreloaderLogo />
       </div>
