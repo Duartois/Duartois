@@ -262,7 +262,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         <p className="visually-hidden">{statusLabel}</p>
       </div>
       <div className="credits">
-        <p>Designed and coded by Sharlee © 2025</p>
+        <p>Designed and coded by Matheus Duarte © 2025</p>
       </div>
     </div>
   );
@@ -278,7 +278,7 @@ function PreloaderLogo() {
       height="72"
       className="icons-style"
     >
-      <circle
+      {/* <circle
         id="Sphere"
         cx="31.019"
         cy="18.93"
@@ -314,7 +314,7 @@ function PreloaderLogo() {
         pathLength={1}
         strokeDashoffset="0px"
         strokeDasharray="1px 1px"
-      />
+      /> */}
     </svg>
   );
 }
