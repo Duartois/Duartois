@@ -77,6 +77,34 @@ function createWordSpans(
   return nodes;
 }
 
+function countWords(nodes: ReactNode): number {
+  if (nodes == null || typeof nodes === "boolean") {
+    return 0;
+  }
+
+  if (typeof nodes === "string" || typeof nodes === "number") {
+    return String(nodes)
+      .split(/(\s+)/)
+      .reduce((count, part) => {
+        if (part === "" || isWhitespace(part)) {
+          return count;
+        }
+
+        return count + 1;
+      }, 0);
+  }
+
+  if (Array.isArray(nodes)) {
+    return nodes.reduce((count, child) => count + countWords(child), 0);
+  }
+
+  if (isValidElement(nodes)) {
+    return countWords((nodes as ReactElement).props.children);
+  }
+
+  return 0;
+}
+
 export default function WordFallText<
   T extends ElementType = "span",
 >({
@@ -89,14 +117,35 @@ export default function WordFallText<
 }: WordFallTextProps<T>) {
   const Component = (as ?? "span") as ElementType;
 
+  const wordCount = useMemo(() => countWords(children), [children]);
+
+  const delays = useMemo(() => {
+    if (wordCount === 0) {
+      return [] as number[];
+    }
+
+    const values = Array.from({ length: wordCount }, (_, index) =>
+      initialDelay + index * delayStep,
+    );
+
+    for (let i = values.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = values[i];
+      values[i] = values[j];
+      values[j] = temp;
+    }
+
+    return values;
+  }, [delayStep, initialDelay, wordCount]);
+
   const getDelayFactory = useMemo(() => {
     let wordIndex = 0;
     return () => {
-      const delay = initialDelay + wordIndex * delayStep;
+      const delay = delays[wordIndex] ?? initialDelay;
       wordIndex += 1;
       return `${delay}s`;
     };
-  }, [delayStep, initialDelay]);
+  }, [delays, initialDelay]);
 
   const content = useMemo(() => {
     const getDelay = getDelayFactory;
