@@ -241,7 +241,80 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     ? STATIC_PREVIEW_STYLES
     : "h-48 w-48 animate-pulse rounded-full bg-fg/10";
 
+  const statusLabel = t(`preloader.status.${statusKey}`);
+  const progressLabel = Math.round(progress);
+  const isHidden = statusKey === "ready";
+  const splashStyle: CSSProperties = {
+    opacity: isHidden ? 0 : 1,
+    display: isHidden ? "none" : "flex",
+  };
+
   return (
-    <div class="splashscreen" style="opacity: 0; display: none;"><div style="transform: none;"><svg data-name="deconstructedLogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72" class="icons-style"><circle id="Sphere" cx="31.019" cy="18.93" r="3.555" opacity="0" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px" style="transform: translateY(-96px) rotate(0deg); transform-origin: 31.019px 18.93px;" transform-origin="31.018998861312866px 18.930000066757202px"></circle><path id="Magnet1" d="M61.028,23.378a3.555,3.555,0,0,0-6.682-2.432,4.39,4.39,0,0,1-8.25-3,3.555,3.555,0,1,0-6.682-2.432,11.5,11.5,0,0,0,21.614,7.867Z" opacity="0" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px" style="transform: translateY(-96px) rotate(0deg); transform-origin: 49.9814px 22.0613px;" transform-origin="49.981407165527344px 22.061344146728516px"></path><path id="Wave" d="M24.221,27.153a4.387,4.387,0,0,1-5.607-1.76A11.436,11.436,0,0,0,13.56,20.8a3.555,3.555,0,1,0-3.005,6.444,4.358,4.358,0,0,1,1.925,1.748,11.5,11.5,0,0,0,14.7,4.627,4.389,4.389,0,0,1,5.608,1.759,11.43,11.43,0,0,0,5.053,4.595,3.556,3.556,0,0,0,3.006-6.445,4.353,4.353,0,0,1-1.926-1.747,11.5,11.5,0,0,0-14.7-4.627Z" opacity="0" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px" style="transform: translateY(-96px) rotate(0deg); transform-origin: 25.683px 30.3782px;" transform-origin="25.68295192718506px 30.378185272216797px"></path><path id="Magnet2" d="M13.411,43.392a3.555,3.555,0,0,0,5.825,4.078,4.39,4.39,0,1,1,7.191,5.036,3.555,3.555,0,0,0,5.825,4.078A11.5,11.5,0,1,0,13.411,43.392Z" opacity="0" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px" style="transform: translateY(-96px) rotate(0deg); transform-origin: 23.5515px 48.2918px;" transform-origin="23.55152416229248px 48.29178047180176px"></path><path id="OpenLoop" d="M61.5,47.329A11.5,11.5,0,0,0,50,35.829a3.556,3.556,0,1,0,0,7.111,4.389,4.389,0,1,1-4.39,4.389,3.556,3.556,0,0,0-7.111,0,11.5,11.5,0,0,0,23,0Z" opacity="0" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px" style="transform: translateY(-96px) rotate(0deg); transform-origin: 49.9995px 47.3288px;" transform-origin="49.9995002746582px 47.32875061035156px"></path></svg></div><div class="loading-text-wrapper"><p class="loading-text" style="opacity: 0; transform: translateY(-96px) translateZ(0px);">Materializing shapes<!-- -->...</p></div><div class="credits"><p style="opacity: 0; transform: translateY(-96px) translateZ(0px);">Designed and coded by Sharlee<!-- --> © <!-- -->2025</p></div></div>
+    <div className="splashscreen" style={splashStyle} aria-hidden={isHidden}>
+      <div className={previewClassName} aria-hidden="true">
+        <PreloaderLogo />
+      </div>
+      <div className="loading-text-wrapper" aria-live="polite">
+        <p className="loading-text">{t("preloader.title")}</p>
+        <p className="visually-hidden">
+          {t("preloader.progress", { value: progressLabel })}
+        </p>
+        <p className="visually-hidden">{statusLabel}</p>
+      </div>
+      <div className="credits">
+        <p>Designed and coded by Sharlee © 2025</p>
+      </div>
+    </div>
+  );
+}
+
+function PreloaderLogo() {
+  return (
+    <svg
+      data-name="deconstructedLogo"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 72 72"
+      width="72"
+      height="72"
+      className="icons-style"
+    >
+      <circle
+        id="Sphere"
+        cx="31.019"
+        cy="18.93"
+        r="3.555"
+        pathLength={1}
+        strokeDashoffset="0px"
+        strokeDasharray="1px 1px"
+      />
+      <path
+        id="Magnet1"
+        d="M61.028,23.378a3.555,3.555,0,0,0-6.682-2.432,4.39,4.39,0,0,1-8.25-3,3.555,3.555,0,1,0-6.682-2.432,11.5,11.5,0,0,0,21.614,7.867Z"
+        pathLength={1}
+        strokeDashoffset="0px"
+        strokeDasharray="1px 1px"
+      />
+      <path
+        id="Wave"
+        d="M24.221,27.153a4.387,4.387,0,0,1-5.607-1.76A11.436,11.436,0,0,0,13.56,20.8a3.555,3.555,0,1,0-3.005,6.444,4.358,4.358,0,0,1,1.925,1.748,11.5,11.5,0,0,0,14.7,4.627,4.389,4.389,0,0,1,5.608,1.759,11.43,11.43,0,0,0,5.053,4.595,3.556,3.556,0,0,0,3.006-6.445,4.353,4.353,0,0,1-1.926-1.747,11.5,11.5,0,0,0-14.7-4.627Z"
+        pathLength={1}
+        strokeDashoffset="0px"
+        strokeDasharray="1px 1px"
+      />
+      <path
+        id="Magnet2"
+        d="M13.411,43.392a3.555,3.555,0,0,0,5.825,4.078,4.39,4.39,0,1,1,7.191,5.036,3.555,3.555,0,0,0,5.825,4.078A11.5,11.5,0,1,0,13.411,43.392Z"
+        pathLength={1}
+        strokeDashoffset="0px"
+        strokeDasharray="1px 1px"
+      />
+      <path
+        id="OpenLoop"
+        d="M61.5,47.329A11.5,11.5,0,0,0,50,35.829a3.556,3.556,0,1,0,0,7.111,4.389,4.389,0,1,1-4.39,4.389,3.556,3.556,0,0,0-7.111,0,11.5,11.5,0,0,0,23,0Z"
+        pathLength={1}
+        strokeDashoffset="0px"
+        strokeDasharray="1px 1px"
+      />
+    </svg>
   );
 }

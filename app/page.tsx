@@ -3,13 +3,7 @@
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import {
-  useEffect,
-  PropsWithChildren,
-  useCallback,
-  useRef,
-  type CSSProperties,
-} from "react";
+import { useEffect, PropsWithChildren, useCallback, useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 
 import {
@@ -151,8 +145,7 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
   return (
     <span
       ref={spanRef}
-      className="name fall-down-element"
-      style={{ "--fall-delay": "0.1s" } as CSSProperties}
+      className="name"
       data-cursor-interactive
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
@@ -248,9 +241,7 @@ export default function HomePage() {
                   <div className="intro-wrapper">
                     <div className="intro-text">
                       {/* título 1 */}
-                      <h3
-                        className="intro-id fall-down-element opacity: 1; transform: none;"
-                      >
+                      <h3 className="intro-id opacity: 1; transform: none;">
                         <Trans
                           i18nKey="home.hero.titleLine1"
                           components={{
@@ -262,10 +253,7 @@ export default function HomePage() {
                       </h3>
 
                       {/* título 2 */}
-                      <h3
-                        className="intro-id fall-down-element opacity: 1; transform: none;"
-                        style={{ "--fall-delay": "0.4s" } as CSSProperties}
-                      >
+                      <h3 className="intro-id opacity: 1; transform: none;">
                         <Trans
                           i18nKey="home.hero.titleLine2"
                           components={{
@@ -278,16 +266,10 @@ export default function HomePage() {
 
                       {/* roles */}
                       <div className="intro-roles">
-                        <p
-                          className="intro-role fall-down-element opacity: 1; transform: none;"
-                          style={{ "--fall-delay": "0.8s" } as CSSProperties}
-                        >
+                        <p className="intro-role opacity: 1; transform: none;">
                           {t("home.hero.role1")}
                         </p>
-                        <p
-                          className="intro-role fall-down-element opacity: 1; transform: none;"
-                          style={{ "--fall-delay": "1.1s" } as CSSProperties}
-                        >
+                        <p className="intro-role opacity: 1; transform: none;">
                           {t("home.hero.role2")}
                         </p>
                       </div>
@@ -299,10 +281,7 @@ export default function HomePage() {
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/work">
-                                  <span
-                                    className="fall-down-element"
-                                    style={{ "--fall-delay": "1.3s" } as CSSProperties}
-                                  >
+                                  <span>
                                     {t("home.hero.ctaProjects")}
                                   </span>
                                 </a>
@@ -314,10 +293,7 @@ export default function HomePage() {
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/about">
-                                  <span
-                                    className="fall-down-element"
-                                    style={{ "--fall-delay": "1.3s" } as CSSProperties}
-                                  >
+                                  <span>
                                     {t("home.hero.ctaAbout")}
                                   </span>
                                 </a>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState, type CSSProperties } from "react";
+import { FormEvent, useState } from "react";
 import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
@@ -26,14 +26,11 @@ export default function ContactPage() {
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left bg-bg/70">
           <div className="page-animate space-y-4" data-hero-index={0}>
-            <h1
-              className="fall-down-element text-4xl font-semibold text-fg sm:text-5xl"
-            >
+            <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
               {t("contact.title")}
             </h1>
             <p
-              className="fall-down-element text-base text-fg/70 sm:text-lg"
-              style={{ "--fall-delay": "0.2s" } as CSSProperties}
+              className="text-base text-fg/70 sm:text-lg"
             >
               {t("contact.subtitle")}
             </p>
@@ -45,9 +42,7 @@ export default function ContactPage() {
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
-                <span className="fall-down-element">
-                  {t("contact.form.nameLabel")}
-                </span>
+                <span>{t("contact.form.nameLabel")}</span>
                 <input
                   type="text"
                   name="name"
@@ -57,9 +52,7 @@ export default function ContactPage() {
                 />
               </label>
               <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
-                <span className="fall-down-element" style={{ "--fall-delay": "0.2s" } as CSSProperties}>
-                  {t("contact.form.emailLabel")}
-                </span>
+                <span>{t("contact.form.emailLabel")}</span>
                 <input
                   type="email"
                   name="email"
@@ -70,9 +63,7 @@ export default function ContactPage() {
               </label>
             </div>
             <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
-              <span className="fall-down-element" style={{ "--fall-delay": "0.3s" } as CSSProperties}>
-                {t("contact.form.messageLabel")}
-              </span>
+              <span>{t("contact.form.messageLabel")}</span>
               <textarea
                 name="message"
                 required
@@ -84,14 +75,13 @@ export default function ContactPage() {
             <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
               <button
                 type="submit"
-                className="fall-down-element w-full rounded-full bg-fg px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-bg transition hover:bg-fg/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg sm:w-auto"
-                style={{ "--fall-delay": "0.4s" } as CSSProperties}
+                className="w-full rounded-full bg-fg px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-bg transition hover:bg-fg/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg sm:w-auto"
               >
                 {t("contact.form.submit")}
               </button>
               <div className="min-h-[1.5rem] text-sm text-fg/70" aria-live="polite">
                 {status === "submitted" ? (
-                  <span className="fall-down-element" style={{ "--fall-delay": "0.5s" } as CSSProperties}>
+                  <span>
                     {t("contact.form.success")}
                   </span>
                 ) : (

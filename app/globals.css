@@ -2478,31 +2478,3 @@ body.dark .profile-pic-wrapper .profile-pic {
 body.dark .link-underline {
     background-color: #f3f2f9
 }
-
-.fall-down-element {
-    opacity: 0;
-    transform: translateY(-96px);
-    animation: fall-down 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-    animation-delay: var(--fall-delay, 0s);
-    will-change: transform, opacity;
-}
-
-@keyframes fall-down {
-    0% {
-        opacity: 0;
-        transform: translateY(-96px);
-    }
-
-    100% {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .fall-down-element {
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-    }
-}

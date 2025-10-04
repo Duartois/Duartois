@@ -61,7 +61,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       aria-modal="true"
       aria-hidden={!isOpen}
     >
-      <div className="menu-content fall-down-element" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
+      <div className="menu-content">
         <div className="menu-items">
           <nav>
             <ol>
@@ -69,9 +69,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                 <li key={item.href}>
                   <div className="item-inner" style={itemStyle(i)}>
                     <Link href={item.href} onClick={onClose}>
-                      <span className="fall-down-element" style={{ "--fall-delay": `${i * 0.05}s` } as CSSProperties}>
-                        {item.label}
-                      </span>
+                      <span>{item.label}</span>
                     </Link>
                   </div>
                 </li>
@@ -95,12 +93,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                             rel="noreferrer"
                             onClick={onClose}
                           >
-                            <span
-                              className="fall-down-element"
-                              style={{ "--fall-delay": `${(items.length + i) * 0.05}s` } as CSSProperties}
-                            >
-                              ↗ {s.label}
-                            </span>
+                          <span>↗ {s.label}</span>
                           </a>
                         </div>
                         {/* underline comeÃ§a em -101% exatamente como na referÃªncia/CSS */}
