@@ -37,7 +37,8 @@ main {
     overflow: hidden;
     width: 100%
 }
-.cursor,.cursor-dot {
+.cursor,
+.cursor-dot {
     position: fixed;
     top: 0;
     left: 0;
@@ -45,7 +46,7 @@ main {
     border-radius: 9999px;
     transform: translate3d(-50%,-50%,0);
     opacity: 0;
-    transition: opacity .2s ease,transform .18s ease;
+    transition: opacity .2s ease;
     z-index: 999;
     mix-blend-mode: multiply
 }
@@ -54,13 +55,26 @@ main {
     width: 32px;
     height: 32px;
     border: 1px solid rgba(96,104,135,.4);
-    background-color: rgba(96,104,135,.1)
+    background-color: rgba(96,104,135,.1);
+    transition: opacity .2s ease,background-color .2s ease,border-color .2s ease;
+    will-change: transform
 }
 
 .cursor-dot {
     width: 6px;
     height: 6px;
-    background-color: #606887
+    background-color: #606887;
+    transition: opacity .2s ease;
+    will-change: transform
+}
+
+.cursor--link {
+    background-color: rgb(96,104,135);
+    border-color: rgb(96,104,135);
+}
+
+.cursor-dot--hidden {
+    opacity: 0;
 }
 
 body.cursor-enabled,body.cursor-enabled * {
