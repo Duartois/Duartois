@@ -2,13 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-function applyTransform(
-  element: HTMLDivElement,
-  x: number,
-  y: number,
-  scale = 1,
-) {
-  element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
+function applyTransform(element: HTMLDivElement, x: number, y: number) {
+  element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
 }
 
 export default function CustomCursor() {
@@ -36,9 +31,12 @@ export default function CustomCursor() {
     const targetPosition = { x: 0, y: 0 };
     const dotPosition = { x: 0, y: 0 };
     const cursorPosition = { x: 0, y: 0 };
+    const cursorStyle = window.getComputedStyle(cursor);
+    const baseCursorSize = parseFloat(cursorStyle.width) || 24;
     let currentScale = 1;
     let targetScale = 1;
-    let isHoveringLink = false;
+    let renderedScale = 1;
+    let hoveredInteractive: HTMLElement | null = null;
     let isMouseDown = false;
 
     const DOT_EASE = 0.22;
@@ -57,7 +55,7 @@ export default function CustomCursor() {
     };
 
     const applyScaleTarget = () => {
-      targetScale = isMouseDown || isHoveringLink ? 2 : 1;
+      targetScale = isMouseDown || hoveredInteractive ? 2 : 1;
       startAnimation();
     };
 
@@ -89,7 +87,15 @@ export default function CustomCursor() {
       }
 
       applyTransform(dot, dotPosition.x, dotPosition.y);
-      applyTransform(cursor, cursorPosition.x, cursorPosition.y, currentScale);
+      applyTransform(cursor, cursorPosition.x, cursorPosition.y);
+
+      if (Math.abs(currentScale - renderedScale) > 0.001) {
+        renderedScale = currentScale;
+        const size = baseCursorSize * currentScale;
+        const sizeValue = `${size.toFixed(2)}px`;
+        cursor.style.width = sizeValue;
+        cursor.style.height = sizeValue;
+      }
 
       if (animationActive) {
         raf = requestAnimationFrame(tick);
@@ -122,48 +128,86 @@ export default function CustomCursor() {
       stopAnimation();
     };
 
-    const activateLinkHover = () => {
-      if (isHoveringLink) {
+    const activateInteractiveHover = (element: HTMLElement) => {
+      if (hoveredInteractive === element) {
         return;
       }
 
-      isHoveringLink = true;
+      hoveredInteractive = element;
       cursor.classList.add("cursor--link");
       dot.classList.add("cursor-dot--hidden");
       applyScaleTarget();
     };
 
-    const deactivateLinkHover = () => {
-      if (!isHoveringLink) {
+    const deactivateInteractiveHover = (element?: HTMLElement | null) => {
+      if (!hoveredInteractive || (element && hoveredInteractive !== element)) {
         return;
       }
 
-      isHoveringLink = false;
+      hoveredInteractive = null;
       cursor.classList.remove("cursor--link");
       dot.classList.remove("cursor-dot--hidden");
       applyScaleTarget();
     };
 
+    const INTERACTIVE_SELECTOR = [
+      "a[href]",
+      "button",
+      "summary",
+      "input:not([type='hidden'])",
+      "select",
+      "textarea",
+      "label[for]",
+      "[role='button']",
+      "[role='link']",
+      "[role='menuitem']",
+      "[role='option']",
+      "[tabindex]:not([tabindex='-1'])",
+      "[data-cursor-interactive]",
+    ].join(",");
+
+    const findInteractiveTarget = (element: HTMLElement | null) => {
+      if (!element) {
+        return null;
+      }
+
+      const interactive = element.closest(INTERACTIVE_SELECTOR) as HTMLElement | null;
+
+      if (!interactive) {
+        return null;
+      }
+
+      if (
+        interactive.matches(
+          ':disabled, [aria-disabled="true"], [data-cursor-interactive="false"]',
+        )
+      ) {
+        return null;
+      }
+
+      return interactive;
+    };
+
     const handlePointerOver = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
-      const link = target?.closest("a");
+      const interactive = findInteractiveTarget(target);
 
-      if (link) {
-        activateLinkHover();
+      if (interactive) {
+        activateInteractiveHover(interactive);
       }
     };
 
     const handlePointerOut = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
-      const anchor = target?.closest("a");
+      const interactive = findInteractiveTarget(target);
 
-      if (!anchor) {
+      if (!interactive) {
         return;
       }
 
       const related = event.relatedTarget as HTMLElement | null;
-      if (!related || !anchor.contains(related)) {
-        deactivateLinkHover();
+      if (!related || !interactive.contains(related)) {
+        deactivateInteractiveHover(interactive);
       }
     };
 
@@ -185,6 +229,7 @@ export default function CustomCursor() {
       window.removeEventListener("mouseleave", handleLeave);
       document.removeEventListener("pointerover", handlePointerOver);
       document.removeEventListener("pointerout", handlePointerOut);
+      deactivateInteractiveHover();
       hide();
     };
   }, []);

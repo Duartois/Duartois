@@ -42,6 +42,7 @@ main {
     position: fixed;
     top: 0;
     left: 0;
+    box-sizing: border-box;
     pointer-events: none;
     border-radius: 9999px;
     transform: translate3d(-50%,-50%,0);
