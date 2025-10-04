@@ -1,5 +1,113 @@
 import * as THREE from "three";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+
+const mergeGeometries = (
+  geometries: THREE.BufferGeometry[],
+  useGroups = false,
+): THREE.BufferGeometry | null => {
+  if (geometries.length === 0) {
+    return null;
+  }
+
+  const processedGeometries = geometries.map((geometry) =>
+    geometry.index ? geometry.toNonIndexed() : geometry,
+  );
+
+  const disposeProcessedClones = () => {
+    processedGeometries.forEach((processed, index) => {
+      if (processed !== geometries[index]) {
+        processed.dispose();
+      }
+    });
+  };
+
+  const attributeInfos = new Map<
+    string,
+    {
+      arrayType: { new (size: number): any };
+      itemSize: number;
+      normalized: boolean;
+      totalLength: number;
+      arrays: ArrayLike<number>[];
+    }
+  >();
+
+  for (const geometry of processedGeometries) {
+    const attributes = geometry.attributes as Record<string, THREE.BufferAttribute>;
+    for (const name of Object.keys(attributes)) {
+      const attribute = attributes[name];
+
+      if (!attributeInfos.has(name)) {
+        attributeInfos.set(name, {
+          arrayType: attribute.array.constructor as {
+            new (size: number): any;
+          },
+          itemSize: attribute.itemSize,
+          normalized: attribute.normalized,
+          totalLength: attribute.array.length,
+          arrays: [attribute.array],
+        });
+        continue;
+      }
+
+      const info = attributeInfos.get(name)!;
+
+      if (
+        info.itemSize !== attribute.itemSize ||
+        info.normalized !== attribute.normalized ||
+        info.arrayType !==
+          (attribute.array.constructor as { new (size: number): any })
+      ) {
+        disposeProcessedClones();
+        return null;
+      }
+
+      info.totalLength += attribute.array.length;
+      info.arrays.push(attribute.array);
+    }
+  }
+
+  for (const info of attributeInfos.values()) {
+    if (info.arrays.length !== processedGeometries.length) {
+      disposeProcessedClones();
+      return null;
+    }
+  }
+
+  const mergedGeometry = new THREE.BufferGeometry();
+
+  attributeInfos.forEach((info, name) => {
+    const mergedArray = new info.arrayType(info.totalLength);
+    let offset = 0;
+    for (const array of info.arrays) {
+      mergedArray.set(array, offset);
+      offset += array.length;
+    }
+
+    const attribute = new THREE.BufferAttribute(
+      mergedArray as ArrayLike<number>,
+      info.itemSize,
+      info.normalized,
+    );
+    mergedGeometry.setAttribute(name, attribute);
+  });
+
+  if (useGroups) {
+    let groupStart = 0;
+    processedGeometries.forEach((geometry, index) => {
+      const position = geometry.getAttribute("position");
+      if (!position) {
+        return;
+      }
+      const count = position.count;
+      mergedGeometry.addGroup(groupStart, count, index);
+      groupStart += count;
+    });
+  }
+
+  disposeProcessedClones();
+
+  return mergedGeometry;
+};
 
 import type {
   ShapeId,
