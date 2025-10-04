@@ -16,6 +16,7 @@ import {
   type ThemeName,
   type VariantName,
   createVariantState,
+  createResponsiveVariantState,
   getDefaultPalette,
   variantMapping,
 } from "./types";
@@ -99,7 +100,11 @@ export const initScene = async ({
 
   const effectivePalette = ensurePalette(palette, theme);
   const baseVariantTemplate = variantMapping[initialVariant];
-  const initialVariantState = createVariantState(baseVariantTemplate);
+  const initialVariantState = createResponsiveVariantState(
+    baseVariantTemplate,
+    globalWindow.innerWidth,
+    globalWindow.innerHeight,
+  );
   const shapes = await addDuartoisSignatureShapes(
     scene,
     initialVariantState,
@@ -194,6 +199,14 @@ export const initScene = async ({
     ortho.top = 1;
     ortho.bottom = -1;
     ortho.updateProjectionMatrix();
+
+    setState((previous) => ({
+      variant: createResponsiveVariantState(
+        variantMapping[previous.variantName],
+        width,
+        height,
+      ),
+    }));
   };
 
 
@@ -319,8 +332,16 @@ export const initScene = async ({
 
     if (partial.variantName && partial.variantName !== state.variantName) {
       const mapped = variantMapping[partial.variantName];
-      targetVariantState = createVariantState(mapped);
-      commit({ variantName: partial.variantName, variant: createVariantState(mapped) });
+      const responsiveVariant = createResponsiveVariantState(
+        mapped,
+        globalWindow.innerWidth,
+        globalWindow.innerHeight,
+      );
+      targetVariantState = createVariantState(responsiveVariant);
+      commit({
+        variantName: partial.variantName,
+        variant: createVariantState(responsiveVariant),
+      });
     }
 
     if (partial.palette) {
