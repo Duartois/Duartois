@@ -224,6 +224,12 @@ const applyGradientToGeometry = (
   }
 
   nonIndexed.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+
+  // Garantimos limites atualizados para evitar que o Three.js oculte a malha ao
+  // aplicar frustum culling com dados desatualizados.
+  nonIndexed.computeBoundingBox();
+  nonIndexed.computeBoundingSphere();
+
   return nonIndexed;
 };
 
@@ -356,7 +362,12 @@ export async function addDuartoisSignatureShapes(
       GRADIENT_STOPS[id],
       GRADIENT_AXES[id],
     );
-    acc[id] = new THREE.Mesh(geometry, createGlossyMaterial());
+    const mesh = new THREE.Mesh(geometry, createGlossyMaterial());
+    // As geometrias são atualizadas manualmente, então desativamos o frustum
+    // culling para impedir que desapareçam caso o bounding volume fique
+    // incorreto após alguma atualização.
+    mesh.frustumCulled = false;
+    acc[id] = mesh;
     return acc;
   }, {} as Record<ShapeId, THREE.Mesh>);
 
