@@ -140,6 +140,123 @@ export const variantMapping: Record<VariantName, VariantState> = {
   contact: createFramedVariant(),
 };
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const BASE_VIEWPORT_WIDTH = 1440;
+const BASE_VIEWPORT_HEIGHT = 900;
+const MIN_VIEWPORT_SCALE = 0.55;
+
+const SHAPE_IDS: readonly ShapeId[] = [
+  "torusSpringAzure",
+  "waveSpringLime",
+  "semiLimeFlamingo",
+  "torusFlamingoLime",
+  "semiFlamingoAzure",
+  "sphereFlamingoSpring",
+];
+
+export const createResponsiveVariantState = (
+  variant: VariantState,
+  viewportWidth: number,
+  viewportHeight: number,
+): VariantState => {
+  const widthScale = viewportWidth / BASE_VIEWPORT_WIDTH;
+  const heightScale = viewportHeight / BASE_VIEWPORT_HEIGHT;
+  const uniformScale = clamp(Math.min(widthScale, heightScale), MIN_VIEWPORT_SCALE, 1);
+
+  const responsiveState = {} as VariantState;
+
+  SHAPE_IDS.forEach((shapeId) => {
+    const source = variant[shapeId];
+    const [px, py, pz] = source.position;
+    const [rx, ry, rz] = source.rotation;
+    const scaledScale = Array.isArray(source.scale)
+      ? ([
+          source.scale[0] * uniformScale,
+          source.scale[1] * uniformScale,
+          source.scale[2] * uniformScale,
+        ] as Vector3Tuple)
+      : source.scale * uniformScale;
+
+    responsiveState[shapeId] = {
+      position: [
+        px * uniformScale,
+        py * uniformScale,
+        pz * uniformScale,
+      ] as Vector3Tuple,
+      rotation: [rx, ry, rz] as Vector3Tuple,
+      scale: scaledScale,
+    };
+  });
+
+  return responsiveState;
+};
+
+export const createResponsiveHeroVariantState = (
+  variant: VariantState,
+  viewportWidth: number,
+  viewportHeight: number,
+  centerBelowWidth = 990,
+  tabletOptions: { maxWidth: number; centerLerp: number } = {
+    maxWidth: 1700,
+    centerLerp: 0.5,
+  },
+): VariantState => {
+  const responsiveVariant = createResponsiveVariantState(
+    variant,
+    viewportWidth,
+    viewportHeight,
+  );
+
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  SHAPE_IDS.forEach((shapeId) => {
+    const [x, y] = responsiveVariant[shapeId].position;
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  });
+
+  if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
+    return responsiveVariant;
+  }
+
+  const offsetX = -((minX + maxX) / 2);
+  const offsetY = -((minY + maxY) / 2);
+
+  if (viewportWidth > centerBelowWidth) {
+    if (viewportWidth > tabletOptions.maxWidth) {
+      return responsiveVariant;
+    }
+
+    const lerp = clamp(tabletOptions.centerLerp, 0, 1);
+    SHAPE_IDS.forEach((shapeId) => {
+      const transform = responsiveVariant[shapeId];
+      const [x, y, z] = transform.position;
+      transform.position = [
+        x + offsetX * lerp,
+        y + offsetY * lerp,
+        z,
+      ] as Vector3Tuple;
+    });
+
+    return responsiveVariant;
+  }
+
+  SHAPE_IDS.forEach((shapeId) => {
+    const transform = responsiveVariant[shapeId];
+    const [x, y, z] = transform.position;
+    transform.position = [x + offsetX, y + offsetY, z] as Vector3Tuple;
+  });
+
+  return responsiveVariant;
+};
+
 export const LIGHT_THEME_PALETTE: GradientPalette = [
   ["#ffb3c2", "#ffc3cf", "#ffd4dc", "#ffe4ea"],
   ["#99b9ff", "#aec7ff", "#c3d6ff", "#d8e4ff"],

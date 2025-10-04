@@ -15,6 +15,8 @@ import {
   HERO_LINE_ONE_MONOGRAM,
   HERO_LINE_TWO_MONOGRAM,
   createVariantState,
+  createResponsiveHeroVariantState,
+  createResponsiveVariantState,
   variantMapping,
   type VariantState,
 } from "@/components/three/types";
@@ -36,13 +38,19 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
       return;
     }
 
+    const responsiveHover = createResponsiveHeroVariantState(
+      hoverVariant,
+      window.innerWidth,
+      window.innerHeight,
+    );
+
     app.setState((previous) => {
       if (!storedVariantRef.current) {
         storedVariantRef.current = createVariantState(previous.variant);
       }
       return {
         hovered: true,
-        variant: hoverVariant,
+        variant: responsiveHover,
       };
     });
   }, [hoverVariant]);
@@ -63,7 +71,11 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
       app.setState((previous) => {
         const fallback =
           storedVariantRef.current ??
-          createVariantState(variantMapping[previous.variantName]);
+          createResponsiveVariantState(
+            variantMapping[previous.variantName],
+            window.innerWidth,
+            window.innerHeight,
+          );
 
         storedVariantRef.current = null;
 
