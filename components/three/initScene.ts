@@ -145,6 +145,7 @@ export const initScene = async ({
   const initialState: ThreeAppState = {
     variantName: initialVariant,
     variant: createVariantState(initialVariantClone),
+    hoverVariants: null,
     palette: effectivePalette,
     theme,
     parallax,
