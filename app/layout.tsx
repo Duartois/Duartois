@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         data-preloading="true"
         className={classNames(
-          "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
+          "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10 overflow-y-hidden",
         )}
       >
         <ThemeProvider>

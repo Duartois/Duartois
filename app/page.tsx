@@ -5,6 +5,7 @@ import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
 import { useEffect, PropsWithChildren, useCallback, useRef } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
+import Noise from "@/components/Noise";
 
 import {
   HERO_LINE_ONE_MONOGRAM,
@@ -311,7 +312,6 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div className="noise" />
       </main>
     </>
   );

@@ -362,7 +362,7 @@ body[data-preloading="true"] main {
     align-items: center;
     justify-content: center;
     row-gap: var(--top-internal-margin);
-    background-color: rgb(var(--color-bg) / 1)
+    background-color: rgb(var(--color-bg) / 1);
 }
 
 .splashscreen .loading-text-wrapper {

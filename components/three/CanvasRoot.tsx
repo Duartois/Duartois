@@ -3,6 +3,7 @@
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import CoreCanvas from "./CoreCanvas";
+import Noise from "../Noise";
 
 interface CanvasRootProps {
   isReady: boolean;
@@ -43,6 +44,7 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
     >
       <div className="relative h-full w-full">
         <div className="absolute inset-0 z-0">
+          <Noise />
           <CoreCanvas isReady={isReady} />
         </div>
       </div>
