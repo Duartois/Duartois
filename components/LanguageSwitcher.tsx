@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import i18n from "@/app/i18n/config";
 
 export default function LanguageSwitcher() {
@@ -22,6 +22,8 @@ export default function LanguageSwitcher() {
         e.preventDefault();
         i18n.changeLanguage(target);
       }}
+      className="fall-down-element"
+      style={{ "--fall-delay": "0.2s" } as CSSProperties}
     >
       {target.toUpperCase()}
     </a>

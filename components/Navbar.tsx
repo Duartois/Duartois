@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import Menu from "./Menu";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -31,11 +31,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header>
-        <div className="header-content">
+      <header className="fall-down-element" style={{ "--fall-delay": "0.1s" } as CSSProperties}>
+        <div className="header-content fall-down-element" style={{ "--fall-delay": "0.15s" } as CSSProperties}>
           {/* LEFT */}
-          <div className="left-part flex transform-none">
-            <div className="logo">
+          <div className="left-part flex transform-none fall-down-element" style={{ "--fall-delay": "0.2s" } as CSSProperties}>
+            <div className="logo fall-down-element" style={{ "--fall-delay": "0.25s" } as CSSProperties}>
               <Link href="/" aria-label="Home">
                 <span className="visually-hidden">Home</span>
                 <svg
@@ -68,8 +68,8 @@ export default function Navbar() {
 
           {/* RIGHT */}
           <div
-            className="right-part"
-            style={{ display: "flex", transform: "none" }}
+            className="right-part fall-down-element"
+            style={{ display: "flex", transform: "none", "--fall-delay": "0.3s" } as CSSProperties}
           >
             <ul>
               {/* LanguageSwitcher no lugar do EN/PT estático */}
@@ -91,7 +91,8 @@ export default function Navbar() {
               {/* Botão do menu (9 pontos) */}
               <li>
                 <button
-                  className="hamburger-btn"
+                  className="hamburger-btn fall-down-element"
+                  style={{ "--fall-delay": "0.35s" } as CSSProperties}
                   type="button"
                   aria-haspopup="dialog"
                   aria-expanded={isOpen}

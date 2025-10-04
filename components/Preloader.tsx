@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
@@ -128,12 +128,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bg/95 backdrop-blur"
+      className="fall-down-element fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bg/95 backdrop-blur"
       role="status"
       aria-live="polite"
     >
-      <div className={previewClassName} aria-hidden />
-      <div className="text-center text-fg">
+      <div className={`${previewClassName} fall-down-element`} style={{ "--fall-delay": "0.1s" } as CSSProperties} aria-hidden />
+      <div className="fall-down-element text-center text-fg" style={{ "--fall-delay": "0.2s" } as CSSProperties}>
         <p className="text-lg font-semibold tracking-wide">{t("preloader.title")}</p>
         <p className="mt-1 text-sm font-medium text-fg/70" aria-live="polite">
           {t(`preloader.status.${statusKey}`)}

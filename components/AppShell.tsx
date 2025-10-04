@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState, type CSSProperties } from "react";
 import Preloader from "./Preloader";
 import CanvasRoot from "./three/CanvasRoot";
 
@@ -39,11 +39,12 @@ export default function AppShell({ children }: AppShellProps) {
       <CanvasRoot isReady={isReady} />
       {canRenderContent ? (
         <div
-          className={`${
+          className={`fall-down-element ${
             isContentVisible
               ? "visible opacity-100"
               : "pointer-events-none invisible opacity-0"
           }`}
+          style={{ "--fall-delay": "0.3s" } as CSSProperties}
           aria-hidden={!isContentVisible}
           aria-busy={!isContentVisible}
         >
