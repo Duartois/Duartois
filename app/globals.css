@@ -1267,7 +1267,7 @@ footer .footer-wrapper .footer-right {
 .home .intro-wrapper .intro-text .name {
     position: relative;
     white-space: nowrap;
-    cursor: help;
+    cursor: pointer;
     display: inline-block;
     font-family: studiofeixen-variable,studiofeixen,Arial,Helvetica,sans-serif;
     font-weight: 400;

@@ -151,6 +151,7 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
     <span
       ref={spanRef}
       className="name"
+      data-cursor-interactive
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       onClick={handleClick}
