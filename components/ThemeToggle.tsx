@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 
 import { useTheme } from "@/app/theme/ThemeContext";
 import { useTranslation } from "react-i18next";
@@ -22,8 +22,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="theme-switch-btn fall-down-element"
-      style={{ "--fall-delay": "0.25s" } as CSSProperties}
+      className="theme-switch-btn"
       aria-label={t("themeToggle.ariaLabel", { theme: t(`themeToggle.themes.${nextThemeKey}`) })}
       aria-pressed={theme === "dark"}
       title={t("themeToggle.title", { theme: t(`themeToggle.themes.${theme}`) })}

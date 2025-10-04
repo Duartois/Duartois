@@ -1,6 +1,13 @@
 "use client";
 
-import { ReactNode, useCallback, useEffect, useState, type CSSProperties } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import useSequentialReveal from "@/app/helpers/useSequentialReveal";
 import Preloader from "./Preloader";
 import CanvasRoot from "./three/CanvasRoot";
 
@@ -12,6 +19,7 @@ export default function AppShell({ children }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
   const [canRenderContent, setCanRenderContent] = useState(false);
   const [isContentVisible, setIsContentVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -33,18 +41,16 @@ export default function AppShell({ children }: AppShellProps) {
     return () => cancelAnimationFrame(id);
   }, [isReady]);
 
+  useSequentialReveal(containerRef, isContentVisible);
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {!isReady && <Preloader onComplete={handleComplete} />}
       <CanvasRoot isReady={isReady} />
       {canRenderContent ? (
         <div
-          className={`fall-down-element ${
-            isContentVisible
-              ? "visible opacity-100"
-              : "pointer-events-none invisible opacity-0"
-          }`}
-          style={{ "--fall-delay": "0.3s" } as CSSProperties}
+          ref={containerRef}
+          className={isContentVisible ? "" : "pointer-events-none"}
           aria-hidden={!isContentVisible}
           aria-busy={!isContentVisible}
         >
