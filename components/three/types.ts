@@ -198,6 +198,7 @@ export const createResponsiveHeroVariantState = (
   viewportWidth: number,
   viewportHeight: number,
   centerBelowWidth = 990,
+  partiallyCenterBelowWidth = 1700,
 ): VariantState => {
   const responsiveVariant = createResponsiveVariantState(
     variant,
@@ -205,7 +206,7 @@ export const createResponsiveHeroVariantState = (
     viewportHeight,
   );
 
-  if (viewportWidth > centerBelowWidth) {
+  if (viewportWidth > partiallyCenterBelowWidth) {
     return responsiveVariant;
   }
 
@@ -229,10 +230,18 @@ export const createResponsiveHeroVariantState = (
   const offsetX = -((minX + maxX) / 2);
   const offsetY = -((minY + maxY) / 2);
 
+  const applyFullCenter = viewportWidth <= centerBelowWidth;
+  const horizontalFactor = applyFullCenter ? 1 : 0.5;
+  const verticalFactor = applyFullCenter ? 1 : 0;
+
   SHAPE_IDS.forEach((shapeId) => {
     const transform = responsiveVariant[shapeId];
     const [x, y, z] = transform.position;
-    transform.position = [x + offsetX, y + offsetY, z] as Vector3Tuple;
+    transform.position = [
+      x + offsetX * horizontalFactor,
+      y + offsetY * verticalFactor,
+      z,
+    ] as Vector3Tuple;
   });
 
   return responsiveVariant;
