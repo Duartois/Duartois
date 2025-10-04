@@ -39,47 +39,38 @@ main {
 }
 .cursor,.cursor-dot {
     position: fixed;
+    top: 0;
+    left: 0;
     pointer-events: none;
-    top: 50%;
-    left: 50%;
-    border-radius: 50%;
+    border-radius: 9999px;
+    transform: translate3d(-50%,-50%,0);
+    opacity: 0;
+    transition: opacity .2s ease,transform .18s ease;
     z-index: 999;
-    transform: translate(-50%,-50%);
-    -webkit-animation: .1s;
-    animation: .1s;
-    overflow: hidden
+    mix-blend-mode: multiply
 }
 
 .cursor {
-    width: 24px;
-    height: 24px;
-    background-color: #606887;
-    border-color: #606887;
-    mix-blend-mode: multiply
-}
-
-.cursor body.dark {
-    background-color: #f3f2f9;
-    border-color: #f3f2f9;
-    mix-blend-mode: difference
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(96,104,135,.4);
+    background-color: rgba(96,104,135,.1)
 }
 
 .cursor-dot {
-    width: 4px;
-    height: 4px;
-    background-color: #606887;
-    -webkit-animation: .4s linear;
-    animation: .4s linear;
-    mix-blend-mode: multiply
+    width: 6px;
+    height: 6px;
+    background-color: #606887
 }
 
-.cursor-dot .body.dark,body.dark .cursor {
-    background-color: #f3f2f9;
-    mix-blend-mode: difference
+body.cursor-enabled,body.cursor-enabled * {
+    cursor: none !important
 }
 
 body.dark .cursor {
-    border-color: #f3f2f9
+    border-color: rgba(243,242,249,.7);
+    background-color: rgba(243,242,249,.08);
+    mix-blend-mode: difference
 }
 
 body.dark .cursor-dot {
