@@ -270,6 +270,10 @@ export const DEFAULT_BRIGHTNESS = 1.2;
 export type ThreeAppState = {
   variantName: VariantName;
   variant: VariantState;
+  hoverVariants: {
+    desktop: VariantState;
+    centered: VariantState;
+  } | null;
   palette: GradientPalette;
   theme: ThemeName;
   parallax: boolean;
