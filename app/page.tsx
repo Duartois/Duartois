@@ -28,7 +28,7 @@ type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
   const storedVariantRef = useRef<VariantState | null>(null);
 
-  const handlePointerEnter = useCallback(() => {
+  const applyHoverVariant = useCallback(() => {
     if (typeof window === "undefined") {
       return;
     }
@@ -55,44 +55,78 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
     });
   }, [hoverVariant]);
 
+  const restoreVariant = useCallback(() => {
+    if (typeof window === "undefined") {
+      storedVariantRef.current = null;
+      return;
+    }
+
+    const app = window.__THREE_APP__;
+    if (!app) {
+      storedVariantRef.current = null;
+      return;
+    }
+
+    app.setState((previous) => {
+      const fallback =
+        storedVariantRef.current ??
+        createResponsiveVariantState(
+          variantMapping[previous.variantName],
+          window.innerWidth,
+          window.innerHeight,
+        );
+
+      storedVariantRef.current = null;
+
+      return {
+        hovered: false,
+        variant: fallback,
+      };
+    });
+  }, []);
+
+  const handlePointerEnter = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (window.innerWidth <= 990) {
+      return;
+    }
+
+    applyHoverVariant();
+  }, [applyHoverVariant]);
+
   const handlePointerLeave = useCallback(
     (_event: ReactPointerEvent<HTMLSpanElement>) => {
-      if (typeof window === "undefined") {
-        storedVariantRef.current = null;
-        return;
-      }
-
-      const app = window.__THREE_APP__;
-      if (!app) {
-        storedVariantRef.current = null;
-        return;
-      }
-
-      app.setState((previous) => {
-        const fallback =
-          storedVariantRef.current ??
-          createResponsiveVariantState(
-            variantMapping[previous.variantName],
-            window.innerWidth,
-            window.innerHeight,
-          );
-
-        storedVariantRef.current = null;
-
-        return {
-          hovered: false,
-          variant: fallback,
-        };
-      });
+      restoreVariant();
     },
-    [],
+    [restoreVariant],
   );
+
+  const handleClick = useCallback(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (window.innerWidth > 990) {
+      return;
+    }
+
+    if (storedVariantRef.current) {
+      restoreVariant();
+      return;
+    }
+
+    applyHoverVariant();
+  }, [applyHoverVariant, restoreVariant]);
 
   return (
     <span
       className="name"
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
+      onClick={handleClick}
     >
       {children}
       <div className="wave-wrapper">
