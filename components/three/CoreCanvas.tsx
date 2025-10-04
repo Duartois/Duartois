@@ -50,7 +50,6 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
       return;
     }
 
-    handleRef.current.setState({ primordialRevealComplete: isReady });
   }, [isReady]);
 
   return (
