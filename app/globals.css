@@ -313,6 +313,12 @@ body.dark header {
     mix-blend-mode: difference
 }
 
+body[data-preloading="true"] header,
+body[data-preloading="true"] main {
+    opacity: 0;
+    pointer-events: none
+}
+
 .fall-animated {
     opacity: 0;
     translate: 0 -100px;
@@ -355,7 +361,8 @@ body.dark header {
     padding: var(--top-internal-margin) var(--left-right-margin);
     align-items: center;
     justify-content: center;
-    row-gap: var(--top-internal-margin)
+    row-gap: var(--top-internal-margin);
+    background-color: rgb(var(--color-bg) / 1)
 }
 
 .splashscreen .loading-text-wrapper {

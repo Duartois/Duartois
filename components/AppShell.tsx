@@ -7,19 +7,20 @@ import {
   useRef,
   useState,
 } from "react";
-import useSequentialReveal from "@/app/helpers/useSequentialReveal";
 import Preloader from "./Preloader";
 import CanvasRoot from "./three/CanvasRoot";
 
 interface AppShellProps {
   children: ReactNode;
+  navbar?: ReactNode;
 }
 
-export default function AppShell({ children }: AppShellProps) {
+const REVEAL_EVENT = "app-shell:reveal";
+
+export default function AppShell({ children, navbar }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
-  const [canRenderContent, setCanRenderContent] = useState(false);
   const [isContentVisible, setIsContentVisible] = useState(false);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const hasDispatchedRevealRef = useRef(false);
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -27,12 +28,9 @@ export default function AppShell({ children }: AppShellProps) {
 
   useEffect(() => {
     if (!isReady) {
-      setCanRenderContent(false);
       setIsContentVisible(false);
       return;
     }
-
-    setCanRenderContent(true);
 
     const id = requestAnimationFrame(() => {
       setIsContentVisible(true);
@@ -41,22 +39,38 @@ export default function AppShell({ children }: AppShellProps) {
     return () => cancelAnimationFrame(id);
   }, [isReady]);
 
-  useSequentialReveal(containerRef, isContentVisible);
+  useEffect(() => {
+    const body = document.body;
+    if (!body) {
+      return;
+    }
+
+    if (!isContentVisible) {
+      body.dataset.preloading = "true";
+      hasDispatchedRevealRef.current = false;
+      return;
+    }
+
+    body.dataset.preloading = "false";
+
+    if (!hasDispatchedRevealRef.current) {
+      hasDispatchedRevealRef.current = true;
+      window.dispatchEvent(new Event(REVEAL_EVENT));
+    }
+  }, [isContentVisible]);
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {!isReady && <Preloader onComplete={handleComplete} />}
       <CanvasRoot isReady={isReady} />
-      {canRenderContent ? (
-        <div
-          ref={containerRef}
-          className={isContentVisible ? "" : "pointer-events-none"}
-          aria-hidden={!isContentVisible}
-          aria-busy={!isContentVisible}
-        >
-          {children}
-        </div>
-      ) : null}
+      <div
+        className={isContentVisible ? "" : "pointer-events-none"}
+        aria-hidden={!isContentVisible}
+        aria-busy={!isContentVisible}
+      >
+        {navbar}
+        {children}
+      </div>
     </div>
   );
 }

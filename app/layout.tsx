@@ -28,6 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ThemeScript />
       </head>
       <body
+        data-preloading="true"
         className={classNames(
           "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
         )}
@@ -36,8 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <I18nProvider lang={lang}>
             <GlobalFallAnimator />
             <CustomCursor />
-            <Navbar />
-            <AppShell>{children}</AppShell>
+            <AppShell navbar={<Navbar />}>{children}</AppShell>
           </I18nProvider>
         </ThemeProvider>
       </body>
