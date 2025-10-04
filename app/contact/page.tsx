@@ -5,6 +5,8 @@ import Navbar from "../../components/Navbar";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
+import WordFallText from "@/components/WordFallText";
+
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 
 export default function ContactPage() {
@@ -26,6 +28,12 @@ export default function ContactPage() {
       <main className="relative z-10 flex min-h-screen w-full flex-col">
         <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left bg-bg/70">
           <div className="page-animate space-y-4" data-hero-index={0}>
+            <WordFallText as="h1" className="text-4xl font-semibold text-fg sm:text-5xl">
+              {t("contact.title")}
+            </WordFallText>
+            <WordFallText as="p" className="text-base text-fg/70 sm:text-lg">
+              {t("contact.subtitle")}
+            </WordFallText>
           </div>
           <form
             onSubmit={handleSubmit}
@@ -34,7 +42,9 @@ export default function ContactPage() {
           >
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
-                <span>{t("contact.form.nameLabel")}</span>
+                <WordFallText as="span">
+                  {t("contact.form.nameLabel")}
+                </WordFallText>
                 <input
                   type="text"
                   name="name"
@@ -44,7 +54,9 @@ export default function ContactPage() {
                 />
               </label>
               <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
-                <span>{t("contact.form.emailLabel")}</span>
+                <WordFallText as="span">
+                  {t("contact.form.emailLabel")}
+                </WordFallText>
                 <input
                   type="email"
                   name="email"
@@ -55,7 +67,9 @@ export default function ContactPage() {
               </label>
             </div>
             <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
-              <span>{t("contact.form.messageLabel")}</span>
+              <WordFallText as="span">
+                {t("contact.form.messageLabel")}
+              </WordFallText>
               <textarea
                 name="message"
                 required
@@ -69,10 +83,18 @@ export default function ContactPage() {
                 type="submit"
                 className="w-full rounded-full bg-fg px-8 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-bg transition hover:bg-fg/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg sm:w-auto"
               >
-                {t("contact.form.submit")}
+                <WordFallText as="span">
+                  {t("contact.form.submit")}
+                </WordFallText>
               </button>
               <div className="min-h-[1.5rem] text-sm text-fg/70" aria-live="polite">
-                {status === "submitted" ? t("contact.form.success") : ""}
+                {status === "submitted" ? (
+                  <WordFallText as="span">
+                    {t("contact.form.success")}
+                  </WordFallText>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           </form>

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo } from "react";
 
+import WordFallText from "./WordFallText";
+
 type MenuProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -69,7 +71,9 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                 <li key={item.href}>
                   <div className="item-inner" style={itemStyle(i)}>
                     <Link href={item.href} onClick={onClose}>
-                      <h1>{item.label}</h1>
+                      <WordFallText as="h1" delayStep={0.05}>
+                        {item.label}
+                      </WordFallText>
                     </Link>
                   </div>
                 </li>
@@ -87,8 +91,15 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                     <div className="item-inner" style={itemStyle(items.length + i)}>
                       <div className="link-wrapper">
                         <div className="link">
-                          <a href={s.href} target="_blank" rel="noreferrer" onClick={onClose}>
-                            â†— {s.label}
+                          <a
+                            href={s.href}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={onClose}
+                          >
+                            <WordFallText as="span" delayStep={0.05}>
+                              ↗ {s.label}
+                            </WordFallText>
                           </a>
                         </div>
                         {/* underline comeÃ§a em -101% exatamente como na referÃªncia/CSS */}
