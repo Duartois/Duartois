@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
-
-import WordFallText from "./WordFallText";
+import { useEffect, useMemo, type CSSProperties } from "react";
 
 type MenuProps = {
   isOpen: boolean;
@@ -45,7 +43,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   }, [isOpen, onClose]);
 
   // animaÃ§Ã£o de entrada 1:1 com a referÃªncia: translateY(-100px) -> 0
-  const itemStyle = (i: number): React.CSSProperties => ({
+  const itemStyle = (i: number): CSSProperties => ({
     transform: isOpen
       ? "translateY(0px) translateZ(0px)"
       : "translateY(-100px) translateZ(0px)",
@@ -71,9 +69,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                 <li key={item.href}>
                   <div className="item-inner" style={itemStyle(i)}>
                     <Link href={item.href} onClick={onClose}>
-                      <WordFallText as="h1" delayStep={0.05}>
-                        {item.label}
-                      </WordFallText>
+                      <h1>{item.label}</h1>
                     </Link>
                   </div>
                 </li>
@@ -97,9 +93,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                             rel="noreferrer"
                             onClick={onClose}
                           >
-                            <WordFallText as="span" delayStep={0.05}>
-                              ↗ {s.label}
-                            </WordFallText>
+                            <span>↗ {s.label}</span>
                           </a>
                         </div>
                         {/* underline comeÃ§a em -101% exatamente como na referÃªncia/CSS */}
