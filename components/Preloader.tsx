@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
@@ -14,18 +20,125 @@ type PreloaderProps = {
 };
 
 const STATIC_PREVIEW_STYLES = "h-48 w-48 rounded-full bg-fg/10";
+const INITIAL_PROGRESS = 12;
+const MIN_VISIBLE_TIME = 900;
+const READY_EXIT_BUFFER = 200;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(INITIAL_PROGRESS);
+  const [targetProgress, setTargetProgress] = useState(INITIAL_PROGRESS);
   const hasCompletedRef = useRef(false);
-  const idleTimeoutRef = useRef<number>();
+  const completionTimeoutRef = useRef<number>();
+  const readyTimeoutRef = useRef<number>();
+  const progressFrameRef = useRef<number>();
+  const targetProgressRef = useRef(INITIAL_PROGRESS);
+  const progressRef = useRef(INITIAL_PROGRESS);
+  const mountTimeRef = useRef<number>(
+    typeof performance !== "undefined" ? performance.now() : Date.now(),
+  );
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+    mountTimeRef.current =
+      typeof performance !== "undefined" ? performance.now() : Date.now();
+  }, []);
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
+
+  useEffect(() => {
+    targetProgressRef.current = targetProgress;
+  }, [targetProgress]);
+
+  const finalizeLoading = useCallback(() => {
+    if (hasCompletedRef.current) {
+      return;
+    }
+
+    hasCompletedRef.current = true;
+
+    const now =
+      typeof performance !== "undefined" ? performance.now() : Date.now();
+    const elapsed = now - mountTimeRef.current;
+    const remaining = Math.max(MIN_VISIBLE_TIME - elapsed, 0);
+    const readyDelay = Math.max(remaining - READY_EXIT_BUFFER, 0);
+
+    if (readyDelay > 0) {
+      readyTimeoutRef.current = window.setTimeout(() => {
+        readyTimeoutRef.current = undefined;
+        setStatusKey("ready");
+      }, readyDelay);
+    } else {
+      setStatusKey("ready");
+    }
+
+    completionTimeoutRef.current = window.setTimeout(() => {
+      completionTimeoutRef.current = undefined;
+      onComplete?.();
+    }, remaining + READY_EXIT_BUFFER);
+  }, [onComplete]);
+
+  useEffect(() => {
+    if (progressFrameRef.current) {
+      cancelAnimationFrame(progressFrameRef.current);
+      progressFrameRef.current = undefined;
+    }
+
+    if (targetProgressRef.current <= progressRef.current) {
+      return;
+    }
+
+    const step = () => {
+      setProgress((current) => {
+        const target = targetProgressRef.current;
+        if (current >= target) {
+          progressFrameRef.current = undefined;
+          return target;
+        }
+
+        const diff = target - current;
+        const increment = Math.max(diff * 0.18, 0.8);
+        const next = current + increment;
+
+        if (next < target) {
+          progressFrameRef.current = requestAnimationFrame(step);
+          return next;
+        }
+
+        progressFrameRef.current = undefined;
+        return target;
+      });
+    };
+
+    progressFrameRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (progressFrameRef.current) {
+        cancelAnimationFrame(progressFrameRef.current);
+        progressFrameRef.current = undefined;
+      }
+    };
+  }, [targetProgress]);
+
+  useEffect(() => {
+    return () => {
+      if (progressFrameRef.current) {
+        cancelAnimationFrame(progressFrameRef.current);
+      }
+      if (completionTimeoutRef.current !== undefined) {
+        window.clearTimeout(completionTimeoutRef.current);
+        completionTimeoutRef.current = undefined;
+      }
+      if (readyTimeoutRef.current !== undefined) {
+        window.clearTimeout(readyTimeoutRef.current);
+        readyTimeoutRef.current = undefined;
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -36,7 +149,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       : Promise.resolve()
     ).then(() => {
       if (!isCancelled) {
-        setProgress((current) => (current < 50 ? 50 : current));
+        setTargetProgress((current) => (current < 55 ? 55 : current));
         setStatusKey((current) => (current === "fonts" ? "scene" : current));
       }
     });
@@ -64,17 +177,19 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
         if (!detail) return;
         if (detail.state.ready) {
-          setProgress(100);
+          setTargetProgress(100);
           setStatusKey((current) => {
             if (current === "ready") return current;
             return "idle";
           });
+          finalizeLoading();
         }
       };
 
       const handleReady = () => {
-        setProgress(100);
+        setTargetProgress(100);
         setStatusKey("idle");
+        finalizeLoading();
       };
 
       const events = app.bundle.events;
@@ -98,29 +213,29 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       cancelled = true;
       detach?.();
     };
-  }, [hasMounted]);
+  }, [finalizeLoading, hasMounted]);
 
   useEffect(() => {
-    if (statusKey !== "idle" || hasCompletedRef.current) {
+    if (statusKey === "idle" || statusKey === "ready") {
       return;
     }
 
-    idleTimeoutRef.current = window.setTimeout(() => {
-      idleTimeoutRef.current = undefined;
-      if (!hasCompletedRef.current) {
-        hasCompletedRef.current = true;
-        setStatusKey("ready");
-        onComplete?.();
-      }
-    }, 350);
+    const ceiling = statusKey === "fonts" ? 48 : 96;
+
+    const interval = window.setInterval(() => {
+      setTargetProgress((current) => {
+        if (current >= ceiling) {
+          return current;
+        }
+
+        return Math.min(current + 1.5, ceiling);
+      });
+    }, 180);
 
     return () => {
-      if (idleTimeoutRef.current !== undefined) {
-        window.clearTimeout(idleTimeoutRef.current);
-        idleTimeoutRef.current = undefined;
-      }
+      window.clearInterval(interval);
     };
-  }, [onComplete, statusKey]);
+  }, [statusKey]);
 
   const previewClassName = prefersReducedMotion
     ? STATIC_PREVIEW_STYLES
@@ -128,7 +243,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   return (
     <div
-      className="fall-down-element fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bg/95 backdrop-blur"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bg/95 backdrop-blur"
       role="status"
       aria-live="polite"
     >
@@ -139,7 +254,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           {t(`preloader.status.${statusKey}`)}
         </p>
         <p className="mt-1 text-xs font-medium text-fg/60" aria-live="polite">
-          {t("preloader.progress", { value: progress })}
+          {t("preloader.progress", { value: Math.round(progress) })}
         </p>
       </div>
     </div>
