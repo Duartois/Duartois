@@ -27,6 +27,7 @@ type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 // componente para estilizar o <name> vindo do JSON
 function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
   const storedVariantRef = useRef<VariantState | null>(null);
+  const spanRef = useRef<HTMLSpanElement | null>(null);
 
   const applyHoverVariant = useCallback(() => {
     if (typeof window === "undefined") {
@@ -123,6 +124,7 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
 
   return (
     <span
+      ref={spanRef}
       className="name"
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
