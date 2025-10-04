@@ -8,7 +8,7 @@ import { ThemeProvider } from "./theme/ThemeContext";
 import Navbar from "@/components/Navbar";
 import CustomCursor from "@/components/CustomCursor";
 import I18nProvider from "./i18n/I18nProvider";
-import GlobalWordFall from "@/components/GlobalWordFall";
+import GlobalEntranceAnimation from "@/components/GlobalEntranceAnimation";
 
 type SupportedLang = "pt" | "en";
 
@@ -34,9 +34,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       >
         <ThemeProvider>
           <I18nProvider lang={lang}>
+            <GlobalEntranceAnimation />
             <CustomCursor />
             <Navbar />
-            <GlobalWordFall />
             <AppShell>{children}</AppShell>
           </I18nProvider>
         </ThemeProvider>
