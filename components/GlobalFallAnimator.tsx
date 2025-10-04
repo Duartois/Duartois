@@ -23,7 +23,7 @@ function computeDelay(index: number) {
   return Math.min(index, MAX_STAGGER_STEPS) * ITEM_STAGGER_DELAY;
 }
 
-function setDelay(el: Element, delay: number) {
+function setDelay(el: HTMLElement | SVGElement, delay: number) {
   if ("style" in el && el.style) {
     el.style.setProperty("--fall-delay", `${delay}ms`);
   }
