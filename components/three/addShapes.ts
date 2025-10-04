@@ -1,5 +1,9 @@
 import * as THREE from "three";
 
+type TypedArrayConstructor = {
+  new (size: number): THREE.TypedArray;
+};
+
 const mergeGeometries = (
   geometries: THREE.BufferGeometry[],
   useGroups = false,
@@ -23,11 +27,11 @@ const mergeGeometries = (
   const attributeInfos = new Map<
     string,
     {
-      arrayType: { new (size: number): any };
+      arrayType: TypedArrayConstructor;
       itemSize: number;
       normalized: boolean;
       totalLength: number;
-      arrays: ArrayLike<number>[];
+      arrays: THREE.TypedArray[];
     }
   >();
 
@@ -35,16 +39,16 @@ const mergeGeometries = (
     const attributes = geometry.attributes as Record<string, THREE.BufferAttribute>;
     for (const name of Object.keys(attributes)) {
       const attribute = attributes[name];
+      const array = attribute.array as THREE.TypedArray;
+      const arrayType = array.constructor as TypedArrayConstructor;
 
       if (!attributeInfos.has(name)) {
         attributeInfos.set(name, {
-          arrayType: attribute.array.constructor as {
-            new (size: number): any;
-          },
+          arrayType,
           itemSize: attribute.itemSize,
           normalized: attribute.normalized,
-          totalLength: attribute.array.length,
-          arrays: [attribute.array],
+          totalLength: array.length,
+          arrays: [array],
         });
         continue;
       }
@@ -54,15 +58,14 @@ const mergeGeometries = (
       if (
         info.itemSize !== attribute.itemSize ||
         info.normalized !== attribute.normalized ||
-        info.arrayType !==
-          (attribute.array.constructor as { new (size: number): any })
+        info.arrayType !== arrayType
       ) {
         disposeProcessedClones();
         return null;
       }
 
-      info.totalLength += attribute.array.length;
-      info.arrays.push(attribute.array);
+      info.totalLength += array.length;
+      info.arrays.push(array);
     }
   }
 
@@ -83,6 +86,13 @@ const mergeGeometries = (
       offset += array.length;
     }
 
+    const attribute = new THREE.BufferAttribute(
+      mergedArray,
+      info.itemSize,
+      info.normalized,
+    );
+
+    mergedGeometry.setAttribute(name, attribute);
   });
 
   if (useGroups) {
