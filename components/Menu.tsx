@@ -1,13 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, type CSSProperties } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 type MenuProps = {
   isOpen: boolean;
   onClose: () => void;
   id?: string;
 };
+
+const ITEM_TRANSITION_DURATION = 400;
+const ITEM_STAGGER_DELAY = 60;
 
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   // itens principais â€“ mesmos rÃ³tulos / rotas da referÃªncia
@@ -30,6 +39,37 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     []
   );
 
+  const totalItems = items.length + socials.length;
+  const hideTimeoutRef = useRef<number | undefined>(undefined);
+  const [isVisible, setIsVisible] = useState(isOpen);
+
+  useEffect(() => {
+    if (hideTimeoutRef.current) {
+      window.clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = undefined;
+    }
+
+    if (isOpen) {
+      setIsVisible(true);
+      return;
+    }
+
+    const totalDelay =
+      ITEM_TRANSITION_DURATION +
+      Math.max(totalItems - 1, 0) * ITEM_STAGGER_DELAY;
+
+    hideTimeoutRef.current = window.setTimeout(() => {
+      setIsVisible(false);
+    }, totalDelay);
+
+    return () => {
+      if (hideTimeoutRef.current) {
+        window.clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = undefined;
+      }
+    };
+  }, [isOpen, totalItems]);
+
   // ESC e trava de scroll quando aberto
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -43,20 +83,32 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   }, [isOpen, onClose]);
 
   // animaÃ§Ã£o de entrada 1:1 com a referÃªncia: translateY(-100px) -> 0
-  const itemStyle = (i: number): CSSProperties => ({
-    transform: isOpen
-      ? "translateY(0px) translateZ(0px)"
-      : "translateY(-100px) translateZ(0px)",
-    transition: "transform 400ms cubic-bezier(.22,.61,.36,1)",
-    transitionDelay: `${isOpen ? i * 60 : 0}ms`,
-  });
+  const itemStyle = (i: number): CSSProperties => {
+    const delay = isOpen
+      ? i * ITEM_STAGGER_DELAY
+      : (totalItems - 1 - i) * ITEM_STAGGER_DELAY;
+
+    return {
+      transform: isOpen
+        ? "translateY(0px) translateZ(0px)"
+        : "translateY(-100px) translateZ(0px)",
+      opacity: isOpen ? 1 : 0,
+      transition: `transform ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1), opacity ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
+      transitionDelay: `${delay}ms`,
+    };
+  };
 
   return (
     // estrutura e classes iguais Ã  referÃªncia
     <div
       id={id}
       className="menu"
-      style={{ opacity: isOpen ? 1 : 0.5, display: isOpen ? "block" : "none" }}
+      style={{
+        opacity: isOpen ? 1 : 0,
+        display: isVisible ? "block" : "none",
+        pointerEvents: isOpen ? "auto" : "none",
+        transition: `opacity ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
+      }}
       role="dialog"
       aria-modal="true"
       aria-hidden={!isOpen}
