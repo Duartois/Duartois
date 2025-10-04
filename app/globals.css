@@ -313,6 +313,36 @@ body.dark header {
     mix-blend-mode: difference
 }
 
+.fall-animated {
+    opacity: 0;
+    translate: 0 -100px;
+    transition:
+        translate .4s cubic-bezier(.22,.61,.36,1),
+        opacity .4s cubic-bezier(.22,.61,.36,1);
+    transition-delay: var(--fall-delay, 0ms);
+    will-change: translate, opacity
+}
+
+.fall-animated.fall-enter {
+    opacity: 1;
+    translate: 0 0
+}
+
+.fall-animated.fall-exit {
+    opacity: 0;
+    translate: 0 -100px
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fall-animated,
+    .fall-animated.fall-enter,
+    .fall-animated.fall-exit {
+        transition: none !important;
+        opacity: 1 !important;
+        translate: 0 0 !important
+    }
+}
+
 .splashscreen {
     z-index: 9998;
     position: fixed;

@@ -105,7 +105,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       className="menu"
       style={{
         opacity: isOpen ? 1 : 0,
-        display: isVisible ? "block" : "none",
+        visibility: isOpen || isVisible ? "visible" : "hidden",
         pointerEvents: isOpen ? "auto" : "none",
         transition: `opacity ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
       }}
