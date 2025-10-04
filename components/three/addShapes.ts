@@ -83,12 +83,6 @@ const mergeGeometries = (
       offset += array.length;
     }
 
-    const attribute = new THREE.BufferAttribute(
-      mergedArray as ArrayLike<number>,
-      info.itemSize,
-      info.normalized,
-    );
-    mergedGeometry.setAttribute(name, attribute);
   });
 
   if (useGroups) {
