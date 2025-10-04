@@ -122,6 +122,31 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
     applyHoverVariant();
   }, [applyHoverVariant, restoreVariant]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!storedVariantRef.current || !spanRef.current) {
+        return;
+      }
+
+      const target = event.target as Node | null;
+      if (!target || spanRef.current.contains(target)) {
+        return;
+      }
+
+      restoreVariant();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [restoreVariant]);
+
   return (
     <span
       ref={spanRef}
