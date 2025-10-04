@@ -2478,18 +2478,50 @@ body.dark .link-underline {
     background-color: #f3f2f9
 }
 
+.global-fall-element {
+    opacity: 0;
+    transform: translate3d(-2.25rem, -1.5rem, 0) rotate(-1.5deg);
+    animation: global-fall-down var(--global-fall-duration, 0.95s) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    animation-delay: var(--global-fall-delay, 0s);
+    will-change: transform, opacity;
+}
+
 .falling-words .word-fall {
     display: inline-block;
     opacity: 0;
-    transform: translate3d(0, -1.25em, 0);
-    animation: word-fall-down 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform: translate3d(-1.35rem, -1.35rem, 0);
+    animation: word-fall-down 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    will-change: transform, opacity;
+}
+
+@keyframes global-fall-down {
+    0% {
+        opacity: 0;
+        transform: translate3d(-2.5rem, -1.75rem, 0) rotate(-2deg);
+    }
+
+    55% {
+        opacity: 1;
+        transform: translate3d(0.35rem, 0.35rem, 0) rotate(-0.2deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) rotate(0);
+    }
 }
 
 @keyframes word-fall-down {
     0% {
         opacity: 0;
-        transform: translate3d(0, -1.25em, 0);
+        transform: translate3d(-1.35rem, -1.35rem, 0);
     }
+
+    65% {
+        opacity: 1;
+        transform: translate3d(0.15rem, 0.25rem, 0);
+    }
+
     100% {
         opacity: 1;
         transform: translate3d(0, 0, 0);
@@ -2497,9 +2529,10 @@ body.dark .link-underline {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .global-fall-element,
     .falling-words .word-fall {
-        animation: none;
-        opacity: 1;
-        transform: none;
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
     }
 }

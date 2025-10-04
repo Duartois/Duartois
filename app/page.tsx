@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 
+import WordFallText from "@/components/WordFallText";
 import {
   HERO_LINE_ONE_MONOGRAM,
   HERO_LINE_TWO_MONOGRAM,
@@ -246,7 +247,10 @@ export default function HomePage() {
                   <div className="intro-wrapper">
                     <div className="intro-text">
                       {/* título 1 */}
-                      <h3 className="intro-id opacity: 1; transform: none;">
+                      <WordFallText
+                        as="h3"
+                        className="intro-id opacity: 1; transform: none;"
+                      >
                         <Trans
                           i18nKey="home.hero.titleLine1"
                           components={{
@@ -255,10 +259,14 @@ export default function HomePage() {
                             ),
                           }}
                         />
-                      </h3>
+                      </WordFallText>
 
                       {/* título 2 */}
-                      <h3 className="intro-id opacity: 1; transform: none;">
+                      <WordFallText
+                        as="h3"
+                        className="intro-id opacity: 1; transform: none;"
+                        initialDelay={0.4}
+                      >
                         <Trans
                           i18nKey="home.hero.titleLine2"
                           components={{
@@ -267,16 +275,24 @@ export default function HomePage() {
                             ),
                           }}
                         />
-                      </h3>
+                      </WordFallText>
 
                       {/* roles */}
                       <div className="intro-roles">
-                        <p className="intro-role opacity: 1; transform: none;">
+                        <WordFallText
+                          as="p"
+                          className="intro-role opacity: 1; transform: none;"
+                          initialDelay={0.8}
+                        >
                           {t("home.hero.role1")}
-                        </p>
-                        <p className="intro-role opacity: 1; transform: none;">
+                        </WordFallText>
+                        <WordFallText
+                          as="p"
+                          className="intro-role opacity: 1; transform: none;"
+                          initialDelay={1.1}
+                        >
                           {t("home.hero.role2")}
-                        </p>
+                        </WordFallText>
                       </div>
 
                       {/* CTAs */}
@@ -286,7 +302,9 @@ export default function HomePage() {
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/work">
-                                  <span>{t("home.hero.ctaProjects")}</span>
+                                  <WordFallText as="span" initialDelay={1.3}>
+                                    {t("home.hero.ctaProjects")}
+                                  </WordFallText>
                                 </a>
                               </div>
                               <div className="link-underline transform: translateX(-101%) translateZ(0px);" />
@@ -296,7 +314,9 @@ export default function HomePage() {
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/about">
-                                  <span>{t("home.hero.ctaAbout")}</span>
+                                  <WordFallText as="span" initialDelay={1.3}>
+                                    {t("home.hero.ctaAbout")}
+                                  </WordFallText>
                                 </a>
                               </div>
                               <div className="link-underline" />
