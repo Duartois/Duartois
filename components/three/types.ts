@@ -198,16 +198,16 @@ export const createResponsiveHeroVariantState = (
   viewportWidth: number,
   viewportHeight: number,
   centerBelowWidth = 990,
-  tabletOptions: { maxWidth: number; centerLerp: number } = {
-    maxWidth: 1700,
-    centerLerp: 0.5,
-  },
 ): VariantState => {
   const responsiveVariant = createResponsiveVariantState(
     variant,
     viewportWidth,
     viewportHeight,
   );
+
+  if (viewportWidth > centerBelowWidth) {
+    return responsiveVariant;
+  }
 
   let minX = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
@@ -228,25 +228,6 @@ export const createResponsiveHeroVariantState = (
 
   const offsetX = -((minX + maxX) / 2);
   const offsetY = -((minY + maxY) / 2);
-
-  if (viewportWidth > centerBelowWidth) {
-    if (viewportWidth > tabletOptions.maxWidth) {
-      return responsiveVariant;
-    }
-
-    const lerp = clamp(tabletOptions.centerLerp, 0, 1);
-    SHAPE_IDS.forEach((shapeId) => {
-      const transform = responsiveVariant[shapeId];
-      const [x, y, z] = transform.position;
-      transform.position = [
-        x + offsetX * lerp,
-        y + offsetY * lerp,
-        z,
-      ] as Vector3Tuple;
-    });
-
-    return responsiveVariant;
-  }
 
   SHAPE_IDS.forEach((shapeId) => {
     const transform = responsiveVariant[shapeId];
