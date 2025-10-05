@@ -88,6 +88,18 @@ body.dark .cursor {
     mix-blend-mode: difference
 }
 
+@media (pointer: coarse), (max-width: 63.99em) {
+    .cursor,
+    .cursor-dot {
+        display: none !important
+    }
+
+    body.cursor-enabled,
+    body.cursor-enabled * {
+        cursor: auto !important
+    }
+}
+
 body.dark .cursor-dot {
     background-color: #f3f2f9;
     mix-blend-mode: difference
@@ -363,6 +375,12 @@ body[data-preloading="true"] main {
     justify-content: center;
     row-gap: var(--top-internal-margin);
     background-color: rgb(var(--color-bg) / 1);
+    transition: opacity .45s cubic-bezier(.22,.61,.36,1);
+}
+
+.splashscreen[data-state="hiding"] {
+    opacity: 0;
+    pointer-events: none
 }
 
 .splashscreen .loading-text-wrapper {
