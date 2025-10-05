@@ -9,14 +9,17 @@ import {
   type CSSProperties,
 } from "react";
 
+import {
+  FALL_ITEM_TRANSITION_DURATION,
+  FALL_ITEM_STAGGER_DELAY,
+  getFallItemStyle,
+} from "./fallAnimation";
+
 type MenuProps = {
   isOpen: boolean;
   onClose: () => void;
   id?: string;
 };
-
-const ITEM_TRANSITION_DURATION = 400;
-const ITEM_STAGGER_DELAY = 60;
 
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   // itens principais â€“ mesmos rÃ³tulos / rotas da referÃªncia
@@ -55,8 +58,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     }
 
     const totalDelay =
-      ITEM_TRANSITION_DURATION +
-      Math.max(totalItems - 1, 0) * ITEM_STAGGER_DELAY;
+      FALL_ITEM_TRANSITION_DURATION +
+      Math.max(totalItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
 
     hideTimeoutRef.current = window.setTimeout(() => {
       setIsVisible(false);
@@ -83,20 +86,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   }, [isOpen, onClose]);
 
   // animaÃ§Ã£o de entrada 1:1 com a referÃªncia: translateY(-100px) -> 0
-  const itemStyle = (i: number): CSSProperties => {
-    const delay = isOpen
-      ? i * ITEM_STAGGER_DELAY
-      : (totalItems - 1 - i) * ITEM_STAGGER_DELAY;
-
-    return {
-      transform: isOpen
-        ? "translateY(0px) translateZ(0px)"
-        : "translateY(-100px) translateZ(0px)",
-      opacity: isOpen ? 1 : 0,
-      transition: `transform ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1), opacity ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
-      transitionDelay: `${delay}ms`,
-    };
-  };
+  const itemStyle = (i: number): CSSProperties =>
+    getFallItemStyle(isOpen, i, totalItems);
 
   return (
     // estrutura e classes iguais Ã  referÃªncia
@@ -107,7 +98,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         opacity: isOpen ? 1 : 0,
         visibility: isOpen || isVisible ? "visible" : "hidden",
         pointerEvents: isOpen ? "auto" : "none",
-        transition: `opacity ${ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
+        transition: `opacity ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
       }}
       role="dialog"
       aria-modal="true"
