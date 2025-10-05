@@ -236,8 +236,18 @@ export default function CustomCursor() {
 
   return (
     <>
-      <div ref={dotRef} className="cursor-dot" />
-      <div ref={cursorRef} className="cursor" />
+      <div
+        ref={dotRef}
+        className="cursor-dot"
+        data-fall-skip="true"
+        aria-hidden="true"
+      />
+      <div
+        ref={cursorRef}
+        className="cursor"
+        data-fall-skip="true"
+        aria-hidden="true"
+      />
     </>
   );
 }
