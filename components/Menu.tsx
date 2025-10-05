@@ -113,7 +113,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       aria-modal="true"
       aria-hidden={!isOpen}
     >
-      <div className="menu-content fall-down-element" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
+      <div className="menu-content" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
         <div className="menu-items">
           <nav>
             <ol>
