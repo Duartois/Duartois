@@ -14,6 +14,8 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
 import { getFallItemStyle } from "@/components/fallAnimation";
 
+const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
+
 import {
   HERO_LINE_ONE_MONOGRAM,
   HERO_LINE_TWO_MONOGRAM,
@@ -238,14 +240,28 @@ export default function HomePage() {
   useEffect(() => {
     if (disableFallAnimation) {
       setIsFallActive(true);
-      return;
+      return undefined;
     }
 
-    const frame = requestAnimationFrame(() => {
-      setIsFallActive(true);
-    });
+    if (typeof window === "undefined") {
+      return undefined;
+    }
 
-    return () => cancelAnimationFrame(frame);
+    const activateFall = () => {
+      setIsFallActive(true);
+      window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    };
+
+    if (document.body?.dataset.preloading === "false") {
+      activateFall();
+      return undefined;
+    }
+
+    window.addEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+
+    return () => {
+      window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    };
   }, [disableFallAnimation]);
 
   const totalFallItems = 6;
