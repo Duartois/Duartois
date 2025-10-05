@@ -20,6 +20,84 @@ function isSkippable(el: Element) {
   );
 }
 
+function isMediaElement(el: Element) {
+  if (!(el instanceof HTMLElement)) {
+    return false;
+  }
+
+  return el.matches(
+    "audio, canvas, embed, iframe, img, object, picture, source, track, video",
+  );
+}
+
+function hasTextNode(el: HTMLElement) {
+  if (el.childElementCount === 0) {
+    return Boolean(el.textContent?.trim().length);
+  }
+
+  for (const node of Array.from(el.childNodes)) {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim().length) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function shouldAnimate(el: Element) {
+  if (isSkippable(el)) {
+    return false;
+  }
+
+  if (el.closest("[data-fall-skip='true']")) {
+    return false;
+  }
+
+  if (el.hasAttribute("data-three-canvas")) {
+    return false;
+  }
+
+  if (el instanceof HTMLElement) {
+    if (el.dataset.fallSkip === "true") {
+      return false;
+    }
+
+    if (el.dataset.fallTarget === "true") {
+      return true;
+    }
+
+    if (el.classList.contains("visually-hidden")) {
+      return false;
+    }
+
+    if (el.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
+  }
+
+  if (el instanceof HTMLCanvasElement) {
+    return false;
+  }
+
+  if (el instanceof SVGSVGElement) {
+    return true;
+  }
+
+  if (el instanceof SVGElement) {
+    return false;
+  }
+
+  if (!(el instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (isMediaElement(el)) {
+    return false;
+  }
+
+  return hasTextNode(el);
+}
+
 function computeDelay(index: number) {
   return Math.min(index, MAX_STAGGER_STEPS) * ITEM_STAGGER_DELAY;
 }
@@ -53,7 +131,7 @@ export default function GlobalFallAnimator() {
     const body = document.body;
     const elements = Array.from(
       body.querySelectorAll<HTMLElement | SVGElement>("*:not(html):not(body)")
-    ).filter((el) => !isSkippable(el) && !el.closest("[data-fall-skip='true']"));
+    ).filter(shouldAnimate);
 
     const preloading = body.dataset.preloading === "true";
     const waitingElements: (HTMLElement | SVGElement)[] = [];

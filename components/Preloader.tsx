@@ -260,7 +260,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         <PreloaderLogo />
       </div>
       <div className="loading-text-wrapper" aria-live="polite">
-        <p className="loading-text">{t("preloader.title")}</p>
+        <p className="loading-text">
+          <FallWordFragments text={t("preloader.title")} />
+        </p>
         <p className="visually-hidden">
           {t("preloader.progress", { value: progressLabel })}
         </p>
@@ -270,6 +272,25 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         <p>Designed and coded by Matheus Duarte © 2025</p>
       </div>
     </div>
+  );
+}
+
+function FallWordFragments({ text }: { text: string }) {
+  const parts = text.split(/\s+/).filter(Boolean);
+
+  return (
+    <>
+      {parts.map((part, index) => (
+        <span
+          key={`${part}-${index}`}
+          data-fall-target="true"
+          style={{ display: "inline-block" }}
+        >
+          {part}
+          {index < parts.length - 1 ? "\u00A0" : ""}
+        </span>
+      ))}
+    </>
   );
 }
 
