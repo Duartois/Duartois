@@ -163,7 +163,13 @@ export const createResponsiveVariantState = (
 ): VariantState => {
   const widthScale = viewportWidth / BASE_VIEWPORT_WIDTH;
   const heightScale = viewportHeight / BASE_VIEWPORT_HEIGHT;
-  const uniformScale = clamp(Math.min(widthScale, heightScale), MIN_VIEWPORT_SCALE, 1);
+  const horizontalScale = clamp(widthScale, MIN_VIEWPORT_SCALE, 1);
+  const verticalScale = clamp(heightScale, MIN_VIEWPORT_SCALE, 1);
+  const depthScale = clamp(
+    Math.min(widthScale, heightScale),
+    MIN_VIEWPORT_SCALE,
+    1,
+  );
 
   const responsiveState = {} as VariantState;
 
@@ -173,17 +179,17 @@ export const createResponsiveVariantState = (
     const [rx, ry, rz] = source.rotation;
     const scaledScale = Array.isArray(source.scale)
       ? ([
-          source.scale[0] * uniformScale,
-          source.scale[1] * uniformScale,
-          source.scale[2] * uniformScale,
+          source.scale[0] * depthScale,
+          source.scale[1] * depthScale,
+          source.scale[2] * depthScale,
         ] as Vector3Tuple)
-      : source.scale * uniformScale;
+      : source.scale * depthScale;
 
     responsiveState[shapeId] = {
       position: [
-        px * uniformScale,
-        py * uniformScale,
-        pz * uniformScale,
+        px * horizontalScale,
+        py * verticalScale,
+        pz * depthScale,
       ] as Vector3Tuple,
       rotation: [rx, ry, rz] as Vector3Tuple,
       scale: scaledScale,
