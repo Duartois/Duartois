@@ -41,6 +41,7 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
         isVisible ? "opacity-100" : "opacity-0",
       )}
       aria-hidden={!isVisible}
+      data-fall-skip="true"
     >
       <div className="relative h-full w-full">
         <div className="absolute inset-0 z-0">
