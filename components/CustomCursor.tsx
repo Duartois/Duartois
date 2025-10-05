@@ -1,26 +1,47 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function applyTransform(element: HTMLDivElement, x: number, y: number) {
   element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
 }
 
 export default function CustomCursor() {
+  const [isDesktopPointer, setIsDesktopPointer] = useState(false);
   const dotRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const finePointerQuery = window.matchMedia("(pointer: fine)");
+    const desktopWidthQuery = window.matchMedia("(min-width: 64em)");
+
+    const updatePointerState = () => {
+      setIsDesktopPointer(
+        finePointerQuery.matches && desktopWidthQuery.matches,
+      );
+    };
+
+    updatePointerState();
+
+    finePointerQuery.addEventListener("change", updatePointerState);
+    desktopWidthQuery.addEventListener("change", updatePointerState);
+
+    return () => {
+      finePointerQuery.removeEventListener("change", updatePointerState);
+      desktopWidthQuery.removeEventListener("change", updatePointerState);
+    };
+  }, []);
 
   useEffect(() => {
     const dot = dotRef.current;
     const cursor = cursorRef.current;
 
-    if (!dot || !cursor) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(pointer: fine)");
-
-    if (!mediaQuery.matches) {
+    if (!dot || !cursor || !isDesktopPointer) {
+      document.body.classList.remove("cursor-enabled");
       return;
     }
 
@@ -232,7 +253,11 @@ export default function CustomCursor() {
       deactivateInteractiveHover();
       hide();
     };
-  }, []);
+  }, [isDesktopPointer]);
+
+  if (!isDesktopPointer) {
+    return null;
+  }
 
   return (
     <>

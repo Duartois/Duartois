@@ -22,7 +22,7 @@ type PreloaderProps = {
 const STATIC_PREVIEW_STYLES = "h-48 w-48 rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
 const MIN_VISIBLE_TIME = 900;
-const READY_EXIT_BUFFER = 200;
+const READY_EXIT_BUFFER = 450;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
@@ -67,6 +67,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const elapsed = now - mountTimeRef.current;
     const remaining = Math.max(MIN_VISIBLE_TIME - elapsed, 0);
     const readyDelay = Math.max(remaining - READY_EXIT_BUFFER, 0);
+
+    setTargetProgress(100);
 
     if (readyDelay > 0) {
       readyTimeoutRef.current = window.setTimeout(() => {
@@ -243,17 +245,17 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   const statusLabel = t(`preloader.status.${statusKey}`);
   const progressLabel = Math.round(progress);
-  const isHidden = statusKey === "ready";
-  const splashStyle: CSSProperties = {
-    opacity: isHidden ? 0 : 1,
-    display: isHidden ? "none" : "flex",
-  };
+  const isHiding = statusKey === "ready";
+  const splashStyle: CSSProperties = isHiding
+    ? { opacity: 0, pointerEvents: "none" }
+    : { opacity: 1 };
 
   return (
     <div
       className="splashscreen"
       style={splashStyle}
-      aria-hidden={isHidden}
+      data-state={isHiding ? "hiding" : "visible"}
+      aria-hidden={isHiding}
       data-preloader-root="true"
     >
       <div className={previewClassName} aria-hidden="true">
