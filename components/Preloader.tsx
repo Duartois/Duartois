@@ -22,8 +22,8 @@ type PreloaderProps = {
 
 const STATIC_PREVIEW_STYLES = "h-48 w-48 rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
-const MIN_VISIBLE_TIME = 5000;
-const READY_EXIT_BUFFER = 450;
+const MIN_VISIBLE_TIME = 3500;
+const READY_EXIT_BUFFER = 350;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
