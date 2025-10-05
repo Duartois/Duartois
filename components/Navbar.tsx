@@ -8,6 +8,10 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
+import { useReducedMotion } from "framer-motion";
+import { getFallItemStyle } from "./fallAnimation";
+
+const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +21,42 @@ export default function Navbar() {
   const pathname = usePathname();
   useEffect(() => setIsOpen(false), [pathname]);
   const { t } = useTranslation("common");
+  const prefersReducedMotion = useReducedMotion();
+  const disableFallAnimation = Boolean(prefersReducedMotion);
+  const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
+
+  useEffect(() => {
+    if (disableFallAnimation) {
+      setIsFallActive(true);
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const activateFall = () => {
+      setIsFallActive(true);
+      window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    };
+
+    if (typeof document !== "undefined" && document.body?.dataset.preloading === "false") {
+      activateFall();
+      return;
+    }
+
+    window.addEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+
+    return () => {
+      window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    };
+  }, [disableFallAnimation]);
+
+  const totalFallItems = 4;
+  const fallStyle = (index: number) =>
+    getFallItemStyle(isFallActive, index, totalFallItems, {
+      disable: disableFallAnimation,
+    });
 
   function handleToggle() {
     setIsAnimating(true);
@@ -35,7 +75,7 @@ export default function Navbar() {
         <div className="header-content">
           {/* LEFT */}
           <div className="left-part flex transform-none">
-            <div className="logo">
+            <div className="logo" style={fallStyle(0)}>
               <Link href="/" aria-label="Home">
                 <span className="visually-hidden">Home</span>
                 <svg
@@ -72,21 +112,18 @@ export default function Navbar() {
               {/* LanguageSwitcher no lugar do EN/PT estático */}
               <li
                 className="language-switch flex transform-none"
-                style={{ display: "block", transform: "none" }}
+                style={{ ...fallStyle(1), display: "block" }}
               >
                 <LanguageSwitcher />
               </li>
 
               {/* ThemeToggle usando o mesmo ícone (lua/sol) da referência */}
-              <li
-                className="theme-switch"
-                style={{ display: "block", transform: "none" }}
-              >
+              <li className="theme-switch" style={{ ...fallStyle(2), display: "block" }}>
                 <ThemeToggle />
               </li>
 
               {/* Botão do menu (9 pontos) */}
-              <li>
+              <li style={fallStyle(3)}>
                 <button
                   className="hamburger-btn"
                   type="button"
