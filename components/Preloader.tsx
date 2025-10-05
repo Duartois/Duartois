@@ -7,11 +7,12 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
 import type { ThreeAppState } from "./three/types";
+import { getFallItemStyle } from "./fallAnimation";
+import { useReducedMotion } from "framer-motion";
 
 type PreloaderStatus = "fonts" | "scene" | "idle" | "ready";
 
@@ -39,6 +40,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   );
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
+  const disableFallAnimation = Boolean(prefersReducedMotion);
+  const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -239,9 +242,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     };
   }, [statusKey]);
 
-  const previewClassName = prefersReducedMotion
-    ? STATIC_PREVIEW_STYLES
-    : "h-48 w-48 animate-pulse rounded-full bg-fg/10";
+  const previewClassName = STATIC_PREVIEW_STYLES;
 
   const statusLabel = t(`preloader.status.${statusKey}`);
   const progressLabel = Math.round(progress);
@@ -250,18 +251,51 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     ? { opacity: 0, pointerEvents: "none" }
     : { opacity: 1 };
 
+  useEffect(() => {
+    if (disableFallAnimation) {
+      setIsFallActive(true);
+      return;
+    }
+
+    if (!isHiding) {
+      const frame = requestAnimationFrame(() => {
+        setIsFallActive(true);
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+
+    setIsFallActive(false);
+    return undefined;
+  }, [disableFallAnimation, isHiding]);
+
+  const totalFallItems = 3;
+  const previewStyle = getFallItemStyle(isFallActive, 0, totalFallItems, {
+    disable: disableFallAnimation,
+  });
+  const textStyle = getFallItemStyle(isFallActive, 1, totalFallItems, {
+    disable: disableFallAnimation,
+  });
+  const creditsStyle = getFallItemStyle(isFallActive, 2, totalFallItems, {
+    disable: disableFallAnimation,
+  });
+
   return (
     <div
       className="splashscreen"
+      data-fall-skip="true"
       style={splashStyle}
       data-state={isHiding ? "hiding" : "visible"}
       aria-hidden={isHiding}
       data-preloader-root="true"
     >
-      <div className={previewClassName} aria-hidden="true">
+      <div className={previewClassName} aria-hidden="true" style={previewStyle}>
         <PreloaderLogo />
       </div>
-      <div className="loading-text-wrapper" aria-live="polite">
+      <div
+        className="loading-text-wrapper"
+        aria-live="polite"
+        style={textStyle}
+      >
         <p className="loading-text">
           <FallWordFragments text={t("preloader.title")} />
         </p>
@@ -270,7 +304,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         </p>
         <p className="visually-hidden">{statusLabel}</p>
       </div>
-      <div className="credits">
+      <div className="credits" style={creditsStyle}>
         <p>Designed and coded by Matheus Duarte © 2025</p>
       </div>
     </div>

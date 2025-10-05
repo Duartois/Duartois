@@ -3,9 +3,16 @@
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import { useEffect, PropsWithChildren, useCallback, useRef } from "react";
+import {
+  useEffect,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import Noise from "@/components/Noise";
+import { useReducedMotion } from "framer-motion";
+import { getFallItemStyle } from "@/components/fallAnimation";
 
 import {
   HERO_LINE_ONE_MONOGRAM,
@@ -224,25 +231,48 @@ export default function HomePage() {
   }, []);
 
   const { t } = useTranslation("common");
+  const prefersReducedMotion = useReducedMotion();
+  const disableFallAnimation = Boolean(prefersReducedMotion);
+  const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
+
+  useEffect(() => {
+    if (disableFallAnimation) {
+      setIsFallActive(true);
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setIsFallActive(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [disableFallAnimation]);
+
+  const totalFallItems = 6;
+  const fallStyle = (index: number) =>
+    getFallItemStyle(isFallActive, index, totalFallItems, {
+      disable: disableFallAnimation,
+    });
+
   useThreeSceneSetup("home", { opacity: 1 });
 
   return (
     <>
-      <main className="w-front h-front relative z-30">
-        <div className="opacity: 1; transform: none;">
+      <main className="w-front h-front relative z-30" data-fall-skip="true">
+        <div>
           <div data-scroll-container="true" id="scroll-container">
             <div
               data-scroll-section="true"
               data-scroll-section-id="section0"
               data-scroll-section-inview=""
-              className="transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); opacity: 1; pointer-events: all;"
+              className="transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);"
             >
-              <div className="page-content pointer-events: auto;">
+              <div className="page-content">
                 <div className="home">
                   <div className="intro-wrapper">
                     <div className="intro-text">
                       {/* título 1 */}
-                      <h3 className="intro-id opacity: 1; transform: none;">
+                      <h3 className="intro-id" style={fallStyle(0)}>
                         <Trans
                           i18nKey="home.hero.titleLine1"
                           components={{
@@ -254,7 +284,7 @@ export default function HomePage() {
                       </h3>
 
                       {/* título 2 */}
-                      <h3 className="intro-id opacity: 1; transform: none;">
+                      <h3 className="intro-id" style={fallStyle(1)}>
                         <Trans
                           i18nKey="home.hero.titleLine2"
                           components={{
@@ -267,10 +297,10 @@ export default function HomePage() {
 
                       {/* roles */}
                       <div className="intro-roles">
-                        <p className="intro-role opacity: 1; transform: none;">
+                        <p className="intro-role" style={fallStyle(2)}>
                           {t("home.hero.role1")}
                         </p>
-                        <p className="intro-role opacity: 1; transform: none;">
+                        <p className="intro-role" style={fallStyle(3)}>
                           {t("home.hero.role2")}
                         </p>
                       </div>
@@ -278,7 +308,7 @@ export default function HomePage() {
                       {/* CTAs */}
                       <div className="intro-links">
                         <ul>
-                          <li className="opacity: 1">
+                          <li style={fallStyle(4)}>
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/work">
@@ -287,10 +317,15 @@ export default function HomePage() {
                                   </span>
                                 </a>
                               </div>
-                              <div className="link-underline transform: translateX(-101%) translateZ(0px);" />
+                              <div
+                                className="link-underline"
+                                style={{
+                                  transform: "translateX(-101%) translateZ(0)",
+                                }}
+                              />
                             </div>
                           </li>
-                          <li className="opacity: 1">
+                          <li style={fallStyle(5)}>
                             <div className="link-wrapper">
                               <div className="link">
                                 <a href="/about">
