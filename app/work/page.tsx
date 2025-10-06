@@ -92,7 +92,11 @@ export default function WorkPage() {
     <main className="relative z-10 flex min-h-screen w-full flex-col">
       <div
         className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-24"
-        style={{ pointerEvents: isMenuOpen ? "none" : undefined }}
+        style={{
+          pointerEvents: isMenuOpen ? "none" : undefined,
+          opacity: isMenuOpen ? 0 : 1,
+          transition: "opacity 300ms ease",
+        }}
         aria-hidden={isMenuOpen}
       >
         <header

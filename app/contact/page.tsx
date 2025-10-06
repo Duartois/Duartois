@@ -41,7 +41,11 @@ export default function ContactPage() {
     <main className="relative z-10 flex min-h-screen w-full flex-col">
       <div
         className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left"
-        style={{ pointerEvents: isMenuOpen ? "none" : undefined }}
+        style={{
+          pointerEvents: isMenuOpen ? "none" : undefined,
+          opacity: isMenuOpen ? 0 : 1,
+          transition: "opacity 300ms ease",
+        }}
         aria-hidden={isMenuOpen}
       >
         <div
