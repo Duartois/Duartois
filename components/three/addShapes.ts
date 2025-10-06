@@ -236,19 +236,18 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.3, // mantém highlights definidos
-    metalness: 0.18,
-    clearcoat: 0.82,
-    clearcoatRoughness: 0.28,
-    sheen: 0.0,
-    sheenRoughness: 0.0,
-    envMapIntensity: 0.85, // dá brilho perceptível quando houver envMap
-    specularIntensity: 0.58,
+    color: "#ffffff",
+    roughness: 0.26, // leve polimento sem exagerar nas reflexões
+    metalness: 0.28,
+    clearcoat: 0.92,
+    clearcoatRoughness: 0.2,
+    sheen: 0.12,
+    sheenRoughness: 0.45,
+    envMapIntensity: 0.96,
+    specularIntensity: 0.68,
     specularColor: "#ffffff",
+    ior: 1.45,
   });
-
-const createFlatMaterial = () =>
-  new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
 
 
 const THICKNESS = 0.64;
@@ -371,35 +370,13 @@ export async function addDuartoisSignatureShapes(
     return acc;
   }, {} as Record<ShapeId, THREE.Mesh>);
 
-  const materials = SHAPE_ORDER.reduce<
-    Record<ShapeId, { physical: THREE.MeshPhysicalMaterial; flat: THREE.MeshBasicMaterial }>
-  >((acc, id) => {
-    acc[id] = {
-      physical: meshes[id].material as THREE.MeshPhysicalMaterial,
-      flat: createFlatMaterial(),
-    };
-    return acc;
-  }, {} as Record<
-    ShapeId,
-    { physical: THREE.MeshPhysicalMaterial; flat: THREE.MeshBasicMaterial }
-  >);
-
-  const originalColorAttributes = SHAPE_ORDER.reduce<
-    Record<ShapeId, { array: Float32Array; itemSize: number; normalized: boolean } | null>
-  >((acc, id) => {
-    const attribute = meshes[id].geometry.getAttribute("color");
-    acc[id] = attribute
-      ? {
-          array: new Float32Array(attribute.array as ArrayLike<number>),
-          itemSize: attribute.itemSize,
-          normalized: attribute.normalized,
-        }
-      : null;
-    return acc;
-  }, {} as Record<
-    ShapeId,
-    { array: Float32Array; itemSize: number; normalized: boolean } | null
-  >);
+  const materials = SHAPE_ORDER.reduce<Record<ShapeId, THREE.MeshPhysicalMaterial>>(
+    (acc, id) => {
+      acc[id] = meshes[id].material as THREE.MeshPhysicalMaterial;
+      return acc;
+    },
+    {} as Record<ShapeId, THREE.MeshPhysicalMaterial>,
+  );
 
   const orderedMeshes = SHAPE_ORDER.map((id) => meshes[id]);
 
@@ -407,7 +384,10 @@ export async function addDuartoisSignatureShapes(
   const keyLight = new THREE.DirectionalLight(0xffffff, 0.35);
   keyLight.position.set(6, 8, 8);
 
-  const lights: THREE.Light[] = [ambient, keyLight];
+  const rimLight = new THREE.DirectionalLight(0xffffff, 0.22);
+  rimLight.position.set(-4, 5, -6);
+
+  const lights: THREE.Light[] = [ambient, keyLight, rimLight];
 
   orderedMeshes.forEach((mesh) => {
     mesh.castShadow = false;
@@ -443,68 +423,50 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseEmissive = 0.0; // não vamos “tintar” com emissive
-
     SHAPE_ORDER.forEach((id) => {
-      const { physical, flat } = materials[id];
+      const material = materials[id];
       const mesh = meshes[id];
-      if (isDark) {
-        if (mesh.material !== physical) {
-          mesh.material = physical;
-        }
-        physical.vertexColors = false;
-        physical.color.set("#2b2b33");
-        physical.opacity = 1;
-        physical.transparent = false;
-        physical.metalness = 0.22;
-        physical.roughness = 0.34;
-        physical.clearcoat = 0.88;
-        physical.clearcoatRoughness = 0.32;
-        physical.envMapIntensity = 0.95;
-        physical.specularIntensity = 0.62;
-        physical.sheen = 0.0;
-        physical.sheenColor.set("#ffffff");
-        physical.emissive.set("#0b0b0e");
-        physical.emissiveIntensity = baseEmissive * currentBrightness; // 0
-        physical.needsUpdate = true;
-      } else {
-        if (mesh.material !== flat) {
-          mesh.material = flat;
-        }
-        flat.vertexColors = true;
-        flat.color.set("#ffffff");
-        const original = originalColorAttributes[id];
-        if (original) {
-          mesh.geometry.setAttribute(
-            "color",
-            new THREE.Float32BufferAttribute(
-              original.array.slice(),
-              original.itemSize,
-            )
-          );
-        }
-        flat.opacity = 1;
-        flat.transparent = false;
-        flat.needsUpdate = true;
+      if (mesh.material !== material) {
+        mesh.material = material;
       }
+
+      material.vertexColors = true;
+      material.color.set("#ffffff");
+      material.opacity = 1;
+      material.transparent = false;
+      material.metalness = isDark ? 0.34 : 0.28;
+      material.roughness = isDark ? 0.3 : 0.24;
+      material.clearcoat = 0.92;
+      material.clearcoatRoughness = isDark ? 0.22 : 0.2;
+      material.envMapIntensity = isDark ? 1.05 : 0.96;
+      material.specularIntensity = isDark ? 0.74 : 0.68;
+      material.sheen = 0.12;
+      material.sheenColor.set("#ffffff");
+      material.emissive.set("#000000");
+      material.emissiveIntensity = 0;
+      material.needsUpdate = true;
     });
 
     const darkLightSettings = {
-      ambient: 0.38,
-      key: 0.45,
+      ambient: 0.44,
+      key: 0.54,
+      rim: 0.28,
     } as const;
 
     const lightLightSettings = {
-      ambient: 1.5,
-      key: 0,
+      ambient: 1.08,
+      key: 0.4,
+      rim: 0.24,
     } as const;
 
     const lightSettings = isDark ? darkLightSettings : lightLightSettings;
 
     ambient.color.set("#ffffff");
     ambient.intensity = lightSettings.ambient * currentBrightness;
-    keyLight.color.set(isDark ? "#ffffff" : "#fff3e0");
+    keyLight.color.set("#ffffff");
     keyLight.intensity = lightSettings.key * currentBrightness;
+    rimLight.color.set("#ffffff");
+    rimLight.intensity = lightSettings.rim * currentBrightness;
   };
 
   const setBrightness = (value: number) => {
@@ -525,9 +487,8 @@ export async function addDuartoisSignatureShapes(
     });
 
     const uniqueMaterials = new Set<THREE.Material>();
-    Object.values(materials).forEach(({ physical, flat }) => {
-      uniqueMaterials.add(physical);
-      uniqueMaterials.add(flat);
+    Object.values(materials).forEach((material) => {
+      uniqueMaterials.add(material);
     });
     uniqueMaterials.forEach((material) => {
       material.dispose();
