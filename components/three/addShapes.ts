@@ -236,16 +236,15 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    color: "#ffffff",
-    roughness: 0.26, // leve polimento sem exagerar nas reflexões
-    metalness: 0.28,
-    clearcoat: 0.92,
-    clearcoatRoughness: 0.2,
-    sheen: 0.12,
-    sheenRoughness: 0.45,
-    envMapIntensity: 0.96,
-    specularIntensity: 0.68,
-    specularColor: "#ffffff",
+    roughness: 0.22, // deixa o brilho suave, mas presente
+    metalness: 0.35,
+    clearcoat: 0.94,
+    clearcoatRoughness: 0.16,
+    sheen: 0.24,
+    sheenRoughness: 0.38,
+    envMapIntensity: 1.05,
+    specularIntensity: 0.74,
+    specularColor: "#f5f7ff",
     ior: 1.45,
   });
 
@@ -384,7 +383,7 @@ export async function addDuartoisSignatureShapes(
   const keyLight = new THREE.DirectionalLight(0xffffff, 0.35);
   keyLight.position.set(6, 8, 8);
 
-  const rimLight = new THREE.DirectionalLight(0xffffff, 0.22);
+  const rimLight = new THREE.DirectionalLight(0x9cc7ff, 0.24);
   rimLight.position.set(-4, 5, -6);
 
   const lights: THREE.Light[] = [ambient, keyLight, rimLight];
@@ -423,6 +422,8 @@ export async function addDuartoisSignatureShapes(
     currentTheme = theme;
     const isDark = theme === "dark";
 
+    const baseEmissive = isDark ? 0.12 : 0.04;
+
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
       const mesh = meshes[id];
@@ -431,41 +432,41 @@ export async function addDuartoisSignatureShapes(
       }
 
       material.vertexColors = true;
-      material.color.set("#ffffff");
+      material.color.set(isDark ? "#1b1d28" : "#f6f7ff");
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = isDark ? 0.34 : 0.28;
-      material.roughness = isDark ? 0.3 : 0.24;
-      material.clearcoat = 0.92;
-      material.clearcoatRoughness = isDark ? 0.22 : 0.2;
-      material.envMapIntensity = isDark ? 1.05 : 0.96;
-      material.specularIntensity = isDark ? 0.74 : 0.68;
-      material.sheen = 0.12;
-      material.sheenColor.set("#ffffff");
-      material.emissive.set("#000000");
-      material.emissiveIntensity = 0;
+      material.metalness = isDark ? 0.48 : 0.4;
+      material.roughness = isDark ? 0.26 : 0.2;
+      material.clearcoat = isDark ? 0.98 : 0.94;
+      material.clearcoatRoughness = isDark ? 0.2 : 0.16;
+      material.envMapIntensity = isDark ? 1.2 : 1.0;
+      material.specularIntensity = isDark ? 0.82 : 0.74;
+      material.sheen = 0.28;
+      material.sheenColor.set(isDark ? "#e6e9ff" : "#ffffff");
+      material.emissive.set(isDark ? "#090a13" : "#fafbff");
+      material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
 
     const darkLightSettings = {
-      ambient: 0.44,
-      key: 0.54,
-      rim: 0.28,
+      ambient: 0.46,
+      key: 0.58,
+      rim: 0.32,
     } as const;
 
     const lightLightSettings = {
-      ambient: 1.08,
-      key: 0.4,
-      rim: 0.24,
+      ambient: 1.12,
+      key: 0.42,
+      rim: 0.28,
     } as const;
 
     const lightSettings = isDark ? darkLightSettings : lightLightSettings;
 
     ambient.color.set("#ffffff");
     ambient.intensity = lightSettings.ambient * currentBrightness;
-    keyLight.color.set("#ffffff");
+    keyLight.color.set(isDark ? "#ffffff" : "#ffe9d2");
     keyLight.intensity = lightSettings.key * currentBrightness;
-    rimLight.color.set("#ffffff");
+    rimLight.color.set(isDark ? "#9cc7ff" : "#cde2ff");
     rimLight.intensity = lightSettings.rim * currentBrightness;
   };
 
