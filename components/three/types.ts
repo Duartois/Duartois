@@ -95,8 +95,42 @@ const createSecondaryMonogramVariant = (): VariantState => ({
   },
 });
 
+const createMenuMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [-2.05, 0.08, -1.1],
+    rotation: [Math.PI / 2, Math.PI * -1.7, 0],
+    scale: [0.2, 0.2, 0.2],
+  },
+  waveSpringLime: {
+    position: [-1.45, -0.12, -2.05],
+    rotation: [0, Math.PI, Math.PI / 1.9],
+    scale: [0.16, 0.16, 0.16],
+  },
+  semiLimeFlamingo: {
+    position: [-2.7, -0.15, -0.5],
+    rotation: [Math.PI / 2, Math.PI * -0.35, 0],
+    scale: [0.15, 0.15, 0.15],
+  },
+  torusFlamingoLime: {
+    position: [-1.75, -0.3, -0.45],
+    rotation: [Math.PI / 2, Math.PI * -1.2, 0],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [-2.55, 0.05, 0.05],
+    rotation: [Math.PI / 2, Math.PI * -1.45, 0],
+    scale: [0.22, 0.22, 0.22],
+  },
+  sphereFlamingoSpring: {
+    position: [-1.25, -0.48, 0.35],
+    rotation: [0, 0, 0],
+    scale: 0.16,
+  },
+});
+
 export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
 export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
+export const MENU_OVERLAY_MONOGRAM = createMenuMonogramVariant();
 
 
 //Posição inicial
