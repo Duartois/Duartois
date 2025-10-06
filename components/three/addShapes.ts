@@ -236,14 +236,14 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.22, // deixa o brilho suave, mas presente
-    metalness: 0.35,
-    clearcoat: 0.94,
+    roughness: 0.12, // deixa o brilho suave, mas presente
+    metalness: 0.15,
+    clearcoat: 0.14,
     clearcoatRoughness: 0.16,
-    sheen: 0.24,
+    sheen: 0.14,
     sheenRoughness: 0.38,
-    envMapIntensity: 1.05,
-    specularIntensity: 0.74,
+    envMapIntensity: 0.15,
+    specularIntensity: 0.14,
     specularColor: "#f5f7ff",
     ior: 1.45,
   });
@@ -383,7 +383,7 @@ export async function addDuartoisSignatureShapes(
   const keyLight = new THREE.DirectionalLight(0xffffff, 0.35);
   keyLight.position.set(6, 8, 8);
 
-  const rimLight = new THREE.DirectionalLight(0x9cc7ff, 0.24);
+  const rimLight = new THREE.DirectionalLight(0x9cc7ff, 0.5);
   rimLight.position.set(-4, 5, -6);
 
   const lights: THREE.Light[] = [ambient, keyLight, rimLight];
