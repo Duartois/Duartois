@@ -283,7 +283,7 @@ class WaveCurve extends THREE.Curve<THREE.Vector3> {
 
   override getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
     const x = THREE.MathUtils.lerp(-this.halfLength, this.halfLength, t);
-    const waveT = (t - 0.1) * Math.PI * 2.5;
+    const waveT = (t - 0.5) * Math.PI * 2.5;
     const y = 0;
     const z = Math.sin(waveT) * this.amplitude;
     target.set(x, y, z);

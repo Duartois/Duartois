@@ -104,7 +104,7 @@ const createMenuMonogramVariant = (): VariantState => ({
   },
   waveSpringLime: {
     position: [-2.3, 0.97, 1],
-    rotation: [1, 0.7, Math.PI / 0.5],
+    rotation: [-2.5, 0, -0.5],
     scale: [0.25, 0.25, 0.25],
   },
   semiLimeFlamingo: {
@@ -123,7 +123,7 @@ const createMenuMonogramVariant = (): VariantState => ({
     scale: [0.24, 0.24, 0.24],
   },
   sphereFlamingoSpring: {
-    position: [-1.8, 0.81, 1],
+    position: [-1.8, 0.73, 1],
     rotation: [0, 0, 0],
     scale: 0.28,
   },
