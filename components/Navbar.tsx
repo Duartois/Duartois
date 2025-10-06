@@ -20,7 +20,7 @@ import {
 } from "@/components/three/types";
 
 const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
-const MENU_MOBILE_BREAKPOINT = 990;
+const MENU_MOBILE_BREAKPOINT = 1500;
 
 type StoredSceneState = {
   variant: VariantState;
