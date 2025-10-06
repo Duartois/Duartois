@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
@@ -354,11 +355,11 @@ export default function HomePage() {
                           <li style={fallStyle(4)}>
                             <div className="link-wrapper">
                               <div className="link">
-                                <a href="/work">
+                                <Link href="/work">
                                   <span>
                                     {t("home.hero.ctaProjects")}
                                   </span>
-                                </a>
+                                </Link>
                               </div>
                               <div
                                 className="link-underline"
@@ -371,11 +372,11 @@ export default function HomePage() {
                           <li style={fallStyle(5)}>
                             <div className="link-wrapper">
                               <div className="link">
-                                <a href="/about">
+                                <Link href="/about">
                                   <span>
                                     {t("home.hero.ctaAbout")}
                                   </span>
-                                </a>
+                                </Link>
                               </div>
                               <div className="link-underline" />
                             </div>

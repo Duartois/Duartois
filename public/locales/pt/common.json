@@ -1,6 +1,23 @@
 {
   "languageSwitcher": {
-    "ariaLabel": "Idioma definido para inglês"
+    "current": {
+      "en": "Idioma definido para inglês",
+      "pt": "Idioma definido para português"
+    },
+    "switchTo": {
+      "en": "Mudar para inglês",
+      "pt": "Mudar para português"
+    },
+    "labels": {
+      "en": "EN",
+      "pt": "PT"
+    }
+  },
+  "navigation": {
+    "home": "Início",
+    "work": "Projetos",
+    "about": "Sobre",
+    "contact": "Contato"
   },
   "navbar": {
     "open": "Abrir navegação",

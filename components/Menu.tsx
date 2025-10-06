@@ -8,6 +8,9 @@ import {
   useState,
   type CSSProperties,
 } from "react";
+import { useTranslation } from "react-i18next";
+
+import "@/app/i18n/config";
 
 import {
   FALL_ITEM_TRANSITION_DURATION,
@@ -22,15 +25,16 @@ type MenuProps = {
 };
 
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
-  // itens principais â€“ mesmos rÃ³tulos / rotas da referÃªncia
+  const { t } = useTranslation("common");
+
   const items = useMemo(
     () => [
-      { href: "/", label: "Home" },
-      { href: "/work", label: "Work" },
-      { href: "/about", label: "About" },
-      { href: "/contact", label: "Contact" },
+      { href: "/", label: t("navigation.home") },
+      { href: "/work", label: t("navigation.work") },
+      { href: "/about", label: t("navigation.about") },
+      { href: "/contact", label: t("navigation.contact") },
     ],
-    []
+    [t]
   );
 
   // redes sociais â€“ iguais Ã  referÃªncia

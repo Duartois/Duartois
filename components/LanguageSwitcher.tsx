@@ -1,29 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import i18n from "@/app/i18n/config";
 
+type SupportedLanguage = "pt" | "en";
+
 export default function LanguageSwitcher() {
-  const [lang, setLang] = useState<"pt" | "en">("pt");
+  const { t } = useTranslation("common");
+  const [lang, setLang] = useState<SupportedLanguage>("pt");
+
   useEffect(() => {
-    setLang((i18n.language as any) || "pt");
-    const onChanged = (l: string) => setLang((l as any) || "pt");
+    setLang((i18n.language as SupportedLanguage) || "pt");
+    const onChanged = (language: string) =>
+      setLang((language as SupportedLanguage) || "pt");
+
     i18n.on("languageChanged", onChanged);
-    return () => i18n.off("languageChanged", onChanged);
+
+    return () => {
+      i18n.off("languageChanged", onChanged);
+    };
   }, []);
-  const target = lang === "en" ? "pt" : "en";
+
+  const target: SupportedLanguage = lang === "en" ? "pt" : "en";
+  const targetLabel = t(`languageSwitcher.labels.${target}`);
+  const switchLabel = t(`languageSwitcher.switchTo.${target}`);
+  const currentLabel = t(`languageSwitcher.current.${lang}`);
 
   return (
     <a
       href="#"
-      title={target.toUpperCase()}
-      aria-label={target === "en" ? "Switch to English" : "Mudar para Português"}
-      onClick={(e) => {
-        e.preventDefault();
+      title={targetLabel}
+      aria-label={switchLabel}
+      onClick={(event) => {
+        event.preventDefault();
         i18n.changeLanguage(target);
       }}
     >
-      {target.toUpperCase()}
+      <span aria-hidden>{targetLabel}</span>
+      <span className="visually-hidden">{currentLabel}</span>
     </a>
   );
 }

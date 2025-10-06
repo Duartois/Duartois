@@ -1,6 +1,23 @@
 {
   "languageSwitcher": {
-    "ariaLabel": "Language set to English"
+    "current": {
+      "en": "Language set to English",
+      "pt": "Language set to Portuguese"
+    },
+    "switchTo": {
+      "en": "Switch to English",
+      "pt": "Switch to Portuguese"
+    },
+    "labels": {
+      "en": "EN",
+      "pt": "PT"
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "work": "Work",
+    "about": "About",
+    "contact": "Contact"
   },
   "navbar": {
     "open": "Open navigation",
