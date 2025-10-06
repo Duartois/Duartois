@@ -1270,7 +1270,9 @@ footer .footer-wrapper .footer-right {
 .home {
     width: 100%;
     height: inherit;
-    justify-content: space-around
+    justify-content: space-around;
+    opacity: 1;
+    transition: opacity .4s ease
 }
 
 .home,.home .intro-wrapper {
@@ -1393,6 +1395,11 @@ body.dark .home .intro-wrapper .intro-text .intro-id .name {
 
 body.dark .home .intro-wrapper .intro-text .intro-id .wave-wrapper .wave {
     background-image: url(/wave.svg)
+}
+
+body[data-menu-open="true"] .home {
+    opacity: 0;
+    pointer-events: none
 }
 
 .about {
