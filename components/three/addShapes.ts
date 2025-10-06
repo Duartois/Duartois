@@ -236,10 +236,10 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.12, // deixa o brilho suave, mas presente
-    metalness: 0.15,
-    clearcoat: 0.14,
-    clearcoatRoughness: 0.16,
+    roughness: 0.012, // deixa o brilho suave, mas presente
+    metalness: 0.05,
+    clearcoat: 0.014,
+    clearcoatRoughness: 0.016,
     sheen: 0.14,
     sheenRoughness: 0.38,
     envMapIntensity: 0.15,
@@ -416,13 +416,13 @@ export async function addDuartoisSignatureShapes(
   };
 
   let currentTheme: ThemeName = initialTheme;
-  let currentBrightness = 1;
+  let currentBrightness = 1.5;
 
   const applyTheme = (theme: ThemeName) => {
     currentTheme = theme;
     const isDark = theme === "dark";
 
-    const baseEmissive = isDark ? 0.12 : 0.04;
+    const baseEmissive = isDark ? 0.012 : 0.04;
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -432,21 +432,18 @@ export async function addDuartoisSignatureShapes(
       }
 
       material.vertexColors = true;
-      // Mantemos a cor do gradiente o mais fiel possível removendo o tingimento
-      // aplicado anteriormente no material. Usar branco neutro evita escurecer
-      // os tons originais sem introduzir novos códigos de cor.
-      material.color.set("#ffffff");
+      material.color.set(isDark ? "#1b1d28" : "#f6f7ff");
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = isDark ? 0.48 : 0.4;
-      material.roughness = isDark ? 0.26 : 0.2;
-      material.clearcoat = isDark ? 0.98 : 0.94;
-      material.clearcoatRoughness = isDark ? 0.2 : 0.16;
-      material.envMapIntensity = isDark ? 1.2 : 1.0;
-      material.specularIntensity = isDark ? 0.82 : 0.74;
-      material.sheen = 0.28;
+      material.metalness = isDark ? 0.008 : 0.005;
+      material.roughness = isDark ? 0.26 : 0.3;
+      material.clearcoat = isDark ? 0.018 : 0.14;
+      material.clearcoatRoughness = isDark ? 0.02 : 0.016;
+      material.envMapIntensity = isDark ? 0.02 : 0.08;
+      material.specularIntensity = isDark ? 0.02 : 0.024;
+      material.sheen = 0.18;
       material.sheenColor.set(isDark ? "#e6e9ff" : "#ffffff");
-      material.emissive.set("#ffffff");
+      material.emissive.set(isDark ? "#090a13" : "#fafbff");
       material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
