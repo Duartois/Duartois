@@ -272,6 +272,33 @@ export default function HomePage() {
 
   useThreeSceneSetup("home", { opacity: 1 });
 
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return undefined;
+    }
+
+    const { body, documentElement } = document;
+
+    const previousOverflow = {
+      bodyX: body.style.overflowX,
+      bodyY: body.style.overflowY,
+      htmlX: documentElement.style.overflowX,
+      htmlY: documentElement.style.overflowY,
+    };
+
+    body.style.overflowX = "hidden";
+    body.style.overflowY = "hidden";
+    documentElement.style.overflowX = "hidden";
+    documentElement.style.overflowY = "hidden";
+
+    return () => {
+      body.style.overflowX = previousOverflow.bodyX;
+      body.style.overflowY = previousOverflow.bodyY;
+      documentElement.style.overflowX = previousOverflow.htmlX;
+      documentElement.style.overflowY = previousOverflow.htmlY;
+    };
+  }, []);
+
   return (
     <>
       <main className="w-front h-front relative z-30" data-fall-skip="true">
