@@ -431,8 +431,13 @@ export async function addDuartoisSignatureShapes(
         mesh.material = material;
       }
 
-      material.vertexColors = true;
-      material.color.set(isDark ? "#1b1d28" : "#f6f7ff");
+      if (isDark) {
+        material.vertexColors = false;
+        material.color.set("#4a4d57");
+      } else {
+        material.vertexColors = true;
+        material.color.set("#f6f7ff");
+      }
       material.opacity = 1;
       material.transparent = false;
       material.metalness = isDark ? 0.008 : 0.005;
