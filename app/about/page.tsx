@@ -6,18 +6,27 @@ import { Trans, useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useMenu } from "@/components/MenuContext";
+import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
+  const { isOpen: isMenuOpen } = useMenu();
+  const fallStyle = useMenuFallAnimation(2);
 
   useThreeSceneSetup("about");
 
   return (
     <main className="relative z-10 flex min-h-screen w-full flex-col">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center gap-16 px-6 py-24">
+      <div
+        className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center gap-16 px-6 py-24"
+        style={{ pointerEvents: isMenuOpen ? "none" : undefined }}
+        aria-hidden={isMenuOpen}
+      >
         <header
           className="page-animate space-y-4 text-center sm:text-left"
           data-hero-index={0}
+          style={fallStyle(0)}
         >
           <span className="text-xs font-medium uppercase tracking-[0.4em] text-fg/60">
             {t("about.kicker")}
@@ -33,6 +42,7 @@ export default function AboutPage() {
         <section
           className="page-animate grid w-full gap-12 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:items-center"
           data-hero-index={1}
+          style={fallStyle(1)}
         >
           <div className="space-y-6 text-center text-base leading-relaxed text-fg/70 sm:text-lg md:text-left">
             <p>{t("about.paragraphs.first")}</p>
