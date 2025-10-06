@@ -40,23 +40,77 @@
     "subtitle": "Hover or focus to reveal snapshots of the hybrid process between 3D, code, and art direction.",
     "previewHint": "Pick a project",
     "projects": {
-      "aurora": {
-        "title": "Aurora Chromatica",
-        "year": "2024",
-        "description": "Responsive installation translating live soundtracks into luminous landscapes for an immersive festival.",
-        "previewAlt": "Abstract visualization of the Aurora Chromatica project."
+      "sharlee": {
+        "title": "Sharlee",
+        "category": "Branding",
+        "href": "/work/sharlee",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr38gep0kx08ur49lovevv",
+        "coverAlt": "Cover of the project Sharlee",
+        "coverPlaceholder": "rgb(91, 237, 199)"
       },
-      "mare": {
-        "title": "Atlantic Tide",
-        "year": "2023",
-        "description": "Audiovisual narrative merging tide data, poetry, and projection mapping along the Portuguese coastline.",
-        "previewAlt": "Concept poster for the Atlantic Tide project."
+      "actResponsable": {
+        "title": "ACT Responsable",
+        "category": "Web Development",
+        "href": "/work/act-responsable",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rq5glpo27o07ukwp1itrg2",
+        "coverAlt": "Cover of the project ACT Responsable",
+        "coverPlaceholder": "rgb(231, 163, 167)"
       },
-      "spectrum": {
-        "title": "Spectrum Pulse",
-        "year": "2022",
-        "description": "Modular identity for a generative music platform with dynamic motion and print guidelines.",
-        "previewAlt": "Dynamic interface of the Spectrum Pulse project."
+      "duaLipa": {
+        "title": "Dua Lipa",
+        "category": "Portrait",
+        "href": "/work/dua-lipa",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs841tpy7n07ur7jivicon",
+        "coverAlt": "Cover of the project Dua Lipa",
+        "coverPlaceholder": "rgb(248, 255, 129)"
+      },
+      "cocolyze": {
+        "title": "Cocolyze",
+        "category": "UX/UI Design",
+        "href": "/work/cocolyze",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqa5voo2gj08urw6x6qk8w",
+        "coverAlt": "Cover of the project Cocolyze",
+        "coverPlaceholder": "rgb(137, 223, 214)"
+      },
+      "lesIndecis": {
+        "title": "Les Indécis",
+        "category": "Branding",
+        "href": "/work/les-indecis",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs8yutpyup07ursumcy3r7",
+        "coverAlt": "Cover of the project Les Indécis",
+        "coverPlaceholder": "rgb(119, 208, 206)"
+      },
+      "gameOfTheGoose": {
+        "title": "Game of the goose",
+        "category": "Game Design",
+        "href": "/work/game-of-the-goose",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs7m8kpxp907urgq9ovkoo",
+        "coverAlt": "Cover of the project Game of the Goose",
+        "coverPlaceholder": "rgb(173, 188, 186)"
+      },
+      "lequipeExplore": {
+        "title": "L’Équipe Explore",
+        "category": "Illustration",
+        "href": "/work/lequipe-explore",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rsa2f5qa8e08uroxavu02d",
+        "coverAlt": "Cover of the project L’Équipe Explore",
+        "coverPlaceholder": "rgb(233, 220, 97)"
+      },
+      "silhouette": {
+        "title": "Silhouette",
+        "category": "Portrait",
+        "href": "/work/silhouette",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr3xtxop0u07urwqls6szn",
+        "coverAlt": "Cover of the project Silhouette",
+        "coverPlaceholder": "rgb(163, 167, 185)"
+      },
+      "portraits": {
+        "title": "Portraits",
+        "category": "Portrait",
+        "href": "/work/portraits",
+        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rsajlmq0e807uru9k9h1xu",
+        "coverAlt": "Cover of the project Portraits",
+        "coverPlaceholder": "rgb(248, 212, 195)"
       }
     }
   },
