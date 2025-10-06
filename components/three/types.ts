@@ -145,7 +145,7 @@ const clamp = (value: number, min: number, max: number) =>
 
 const BASE_VIEWPORT_WIDTH = 1440;
 const BASE_VIEWPORT_HEIGHT = 900;
-const MIN_VIEWPORT_SCALE = 0.55;
+const MIN_VIEWPORT_SCALE = 1;
 
 const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
