@@ -10,14 +10,34 @@ import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
 import { useReducedMotion } from "framer-motion";
 import { getFallItemStyle } from "./fallAnimation";
+import {
+  MENU_OVERLAY_MONOGRAM,
+  createResponsiveHeroVariantState,
+  createVariantState,
+  type PointerDriver,
+  type PointerTarget,
+  type VariantState,
+} from "@/components/three/types";
 
 const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
+const MENU_CENTER_BREAKPOINT = 1500;
+
+type StoredSceneState = {
+  variant: VariantState;
+  parallax: boolean;
+  hovered: boolean;
+  cursorBoost: number;
+  pointerDriver: PointerDriver;
+  manualPointer: PointerTarget;
+};
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [hoverHold, setHoverHold] = useState(false);
   const animTimerRef = useRef<number | undefined>(undefined);
+  const storedSceneStateRef = useRef<StoredSceneState | null>(null);
+  const [menuSceneVersion, setMenuSceneVersion] = useState(0);
   const pathname = usePathname();
   useEffect(() => setIsOpen(false), [pathname]);
   useEffect(() => {
@@ -36,6 +56,79 @@ export default function Navbar() {
       delete body.dataset.menuOpen;
     };
   }, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const app = window.__THREE_APP__;
+    if (!app) {
+      const frame = window.requestAnimationFrame(() => {
+        setMenuSceneVersion((value) => value + 1);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frame);
+      };
+    }
+
+    const computeMenuVariant = () =>
+      createResponsiveHeroVariantState(
+        MENU_OVERLAY_MONOGRAM,
+        window.innerWidth,
+        window.innerHeight,
+        MENU_CENTER_BREAKPOINT,
+        MENU_CENTER_BREAKPOINT,
+      );
+
+    const applyMenuVariant = () => {
+      app.setState({ variant: computeMenuVariant() });
+    };
+
+    const snapshot = app.bundle.getState();
+    storedSceneStateRef.current = {
+      variant: createVariantState(snapshot.variant),
+      parallax: snapshot.parallax,
+      hovered: snapshot.hovered,
+      cursorBoost: snapshot.cursorBoost,
+      pointerDriver: snapshot.pointerDriver,
+      manualPointer: { ...snapshot.manualPointer },
+    };
+
+    const initialMenuVariant = computeMenuVariant();
+
+    app.setState({
+      parallax: false,
+      hovered: false,
+      cursorBoost: 0,
+      pointerDriver: "manual",
+      manualPointer: { x: 0, y: 0 },
+      variant: initialMenuVariant,
+    });
+
+    window.addEventListener("resize", applyMenuVariant);
+
+    return () => {
+      window.removeEventListener("resize", applyMenuVariant);
+
+      const stored = storedSceneStateRef.current;
+      if (stored) {
+        app.setState({
+          parallax: stored.parallax,
+          hovered: stored.hovered,
+          cursorBoost: stored.cursorBoost,
+          pointerDriver: stored.pointerDriver,
+          manualPointer: { ...stored.manualPointer },
+          variant: createVariantState(stored.variant),
+        });
+        storedSceneStateRef.current = null;
+      }
+    };
+  }, [isOpen, menuSceneVersion]);
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);
