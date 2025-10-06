@@ -7,6 +7,8 @@ import "../i18n/config";
 
 import { type VariantName } from "../../components/three/types";
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useMenu } from "@/components/MenuContext";
+import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
 const projectOrder = ["aurora", "mare", "spectrum"] as const;
 
@@ -50,6 +52,8 @@ export default function WorkPage() {
   const { t } = useTranslation("common");
   const shouldReduceMotion = useReducedMotion();
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
+  const { isOpen: isMenuOpen } = useMenu();
+  const fallStyle = useMenuFallAnimation(2);
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -86,10 +90,15 @@ export default function WorkPage() {
 
   return (
     <main className="relative z-10 flex min-h-screen w-full flex-col">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-24">
+      <div
+        className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-24"
+        style={{ pointerEvents: isMenuOpen ? "none" : undefined }}
+        aria-hidden={isMenuOpen}
+      >
         <header
           className="page-animate space-y-4 text-center sm:text-left"
           data-hero-index={0}
+          style={fallStyle(0)}
         >
           <span className="text-xs font-medium uppercase tracking-[0.4em] text-fg/60">
             {t("work.previewHint")}
@@ -105,6 +114,7 @@ export default function WorkPage() {
         <section
           className="page-animate grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
           data-hero-index={1}
+          style={fallStyle(1)}
         >
           <ol className="grid gap-4">
             {projectOrder.map((projectKey) => {

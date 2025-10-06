@@ -9,6 +9,7 @@ import {
 } from "react";
 import Preloader from "./Preloader";
 import CanvasRoot from "./three/CanvasRoot";
+import { MenuProvider } from "./MenuContext";
 
 interface AppShellProps {
   children: ReactNode;
@@ -60,17 +61,19 @@ export default function AppShell({ children, navbar }: AppShellProps) {
   }, [isContentVisible]);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      {!isReady && <Preloader onComplete={handleComplete} />}
-      <CanvasRoot isReady={isReady} />
-      <div
-        className={isContentVisible ? "" : "pointer-events-none"}
-        aria-hidden={!isContentVisible}
-        aria-busy={!isContentVisible}
-      >
-        {navbar}
-        {children}
+    <MenuProvider>
+      <div className="relative min-h-screen w-full overflow-hidden">
+        {!isReady && <Preloader onComplete={handleComplete} />}
+        <CanvasRoot isReady={isReady} />
+        <div
+          className={isContentVisible ? "" : "pointer-events-none"}
+          aria-hidden={!isContentVisible}
+          aria-busy={!isContentVisible}
+        >
+          {navbar}
+          {children}
+        </div>
       </div>
-    </div>
+    </MenuProvider>
   );
 }

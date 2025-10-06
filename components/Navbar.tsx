@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
 import { useReducedMotion } from "framer-motion";
 import { getFallItemStyle } from "./fallAnimation";
+import { useMenu } from "./MenuContext";
 import {
   MENU_OVERLAY_MONOGRAM,
   createResponsiveHeroVariantState,
@@ -32,7 +33,7 @@ type StoredSceneState = {
 };
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, setIsOpen } = useMenu();
   const [isAnimating, setIsAnimating] = useState(false);
   const [hoverHold, setHoverHold] = useState(false);
   const animTimerRef = useRef<number | undefined>(undefined);

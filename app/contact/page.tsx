@@ -5,10 +5,14 @@ import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useMenu } from "@/components/MenuContext";
+import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const [status, setStatus] = useState<"idle" | "submitted">("idle");
+  const { isOpen: isMenuOpen } = useMenu();
+  const fallStyle = useMenuFallAnimation(2);
 
   useThreeSceneSetup("contact");
 
@@ -35,10 +39,15 @@ export default function ContactPage() {
 
   return (
     <main className="relative z-10 flex min-h-screen w-full flex-col">
-      <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left">
+      <div
+        className="mx-auto flex min-h-screen w-full max-w-4xl flex-col items-center justify-center gap-10 px-6 py-24 text-center sm:text-left"
+        style={{ pointerEvents: isMenuOpen ? "none" : undefined }}
+        aria-hidden={isMenuOpen}
+      >
         <div
           className="page-animate space-y-4 text-center sm:text-left"
           data-hero-index={0}
+          style={fallStyle(0)}
         >
           <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
             {t("contact.title")}
@@ -51,6 +60,7 @@ export default function ContactPage() {
           onSubmit={handleSubmit}
           className="page-animate w-full space-y-4 rounded-3xl border border-fg/15 bg-bg/75 p-8 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.6)] backdrop-blur"
           data-hero-index={1}
+          style={fallStyle(1)}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-2 text-left text-sm font-medium uppercase tracking-[0.3em] text-fg/70">
