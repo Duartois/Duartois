@@ -20,7 +20,7 @@ import {
 } from "@/components/three/types";
 
 const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
-const MENU_CENTER_BREAKPOINT = 1500;
+const MENU_MOBILE_BREAKPOINT = 990;
 
 type StoredSceneState = {
   variant: VariantState;
@@ -81,8 +81,8 @@ export default function Navbar() {
         MENU_OVERLAY_MONOGRAM,
         window.innerWidth,
         window.innerHeight,
-        MENU_CENTER_BREAKPOINT,
-        MENU_CENTER_BREAKPOINT,
+        MENU_MOBILE_BREAKPOINT,
+        MENU_MOBILE_BREAKPOINT,
       );
 
     const applyMenuVariant = () => {
