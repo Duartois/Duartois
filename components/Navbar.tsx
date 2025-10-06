@@ -20,6 +20,22 @@ export default function Navbar() {
   const animTimerRef = useRef<number | undefined>(undefined);
   const pathname = usePathname();
   useEffect(() => setIsOpen(false), [pathname]);
+  useEffect(() => {
+    const body = document.body;
+    if (!body) {
+      return;
+    }
+
+    if (isOpen) {
+      body.dataset.menuOpen = "true";
+    } else {
+      delete body.dataset.menuOpen;
+    }
+
+    return () => {
+      delete body.dataset.menuOpen;
+    };
+  }, [isOpen]);
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);
