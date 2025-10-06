@@ -432,7 +432,10 @@ export async function addDuartoisSignatureShapes(
       }
 
       material.vertexColors = true;
-      material.color.set(isDark ? "#1b1d28" : "#f6f7ff");
+      // Mantemos a cor do gradiente o mais fiel possível removendo o tingimento
+      // aplicado anteriormente no material. Usar branco neutro evita escurecer
+      // os tons originais sem introduzir novos códigos de cor.
+      material.color.set("#ffffff");
       material.opacity = 1;
       material.transparent = false;
       material.metalness = isDark ? 0.48 : 0.4;
@@ -443,7 +446,7 @@ export async function addDuartoisSignatureShapes(
       material.specularIntensity = isDark ? 0.82 : 0.74;
       material.sheen = 0.28;
       material.sheenColor.set(isDark ? "#e6e9ff" : "#ffffff");
-      material.emissive.set(isDark ? "#090a13" : "#fafbff");
+      material.emissive.set("#ffffff");
       material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
