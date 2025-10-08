@@ -132,17 +132,23 @@
   },
 
   "contact": {
-    "title": "Shall we create something together?",
-    "subtitle": "Send a note with what you're planning or connect through the networks below.",
-    "form": {
-      "nameLabel": "Name",
-      "namePlaceholder": "Alex Johnson",
-      "emailLabel": "Email",
-      "emailPlaceholder": "you@studio.com",
-      "messageLabel": "Message",
-      "messagePlaceholder": "Tell me about the project, timeline, and goals.",
-      "submit": "send message",
-      "success": "Message sent! I'll reply soon."
+    "mail": {
+      "label": "Mail",
+      "address": "hello@itssharl.ee",
+      "href": "mailto:hello@itssharl.ee"
+    },
+    "socials": {
+      "label": "Social medias",
+      "links": [
+        {
+          "label": "Instagram",
+          "href": "https://www.instagram.com/itssharl.ee/"
+        },
+        {
+          "label": "Behance",
+          "href": "https://www.behance.net/itssharlee"
+        }
+      ]
     }
   },
   "preloader": {
