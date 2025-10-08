@@ -149,14 +149,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                           </a>
                         </div>
                         {/* underline comeÃ§a em -101% exatamente como na referÃªncia/CSS */}
-                        <div
-                          className="link-underline"
-                          style={{
-                            transform: isOpen
-                              ? "translateX(0) translateZ(0)"
-                              : "translateX(-101%) translateZ(0)",
-                          }}
-                        />
+                        <div className="link-underline" />
                       </div>
                     </div>
                   </li>
