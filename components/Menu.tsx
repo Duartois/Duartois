@@ -41,12 +41,8 @@ const HOVER_HIGHLIGHTS = {
 } as const satisfies Record<HighlightTarget, readonly ShapeId[]>;
 
 const HOME_SCALE_FACTOR = 1.08;
-const HOME_FRONT_OFFSET = -0.12;
 const HIGHLIGHT_SCALE_FACTOR = 1.12;
-const HIGHLIGHT_FRONT_OFFSET = -0.18;
-const DIMMED_SCALE_FACTOR = 0.94;
-const DIMMED_BACK_OFFSET = 0.12;
-const DIMMED_OPACITY = 0.28;
+const DIMMED_OPACITY = 0.3;
 
 const scaleShapes = (
   variant: VariantState,
@@ -68,22 +64,6 @@ const scaleShapes = (
 
     const baseScale = transform.scale ?? 1;
     transform.scale = baseScale * factor;
-  });
-};
-
-const offsetShapesDepth = (
-  variant: VariantState,
-  ids: readonly ShapeId[],
-  delta: number,
-) => {
-  ids.forEach((id) => {
-    const transform = variant[id];
-    if (!transform) {
-      return;
-    }
-
-    const [x, y, z] = transform.position;
-    transform.position = [x, y, z + delta];
   });
 };
 
@@ -208,16 +188,9 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
 
       if (target === "home") {
         scaleShapes(variant, SHAPE_IDS, HOME_SCALE_FACTOR);
-        offsetShapesDepth(variant, SHAPE_IDS, HOME_FRONT_OFFSET);
       } else {
         const highlight = HOVER_HIGHLIGHTS[target];
-        const highlightSet = new Set<ShapeId>(highlight);
-        const dimmed = SHAPE_IDS.filter((id) => !highlightSet.has(id));
-
         scaleShapes(variant, highlight, HIGHLIGHT_SCALE_FACTOR);
-        offsetShapesDepth(variant, highlight, HIGHLIGHT_FRONT_OFFSET);
-        scaleShapes(variant, dimmed, DIMMED_SCALE_FACTOR);
-        offsetShapesDepth(variant, dimmed, DIMMED_BACK_OFFSET);
       }
 
       ignoreNextStateChangeRef.current = true;
