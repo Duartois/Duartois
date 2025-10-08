@@ -64,7 +64,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
 
   return (
     <MenuProvider>
-      <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="app-shell relative min-h-screen w-full">
         {!isReady && <Preloader onComplete={handleComplete} />}
         <CanvasRoot isReady={isReady} />
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
