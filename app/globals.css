@@ -881,6 +881,7 @@ body.dark .noise {
 }
 
 @media(max-width: 47.99em) {
+    .miniplayer-wrapper .miniplayer-border .miniplayer-border-svg,
     .miniplayer-wrapper .miniplayer {
         transform:translate(50%,25%)
     }

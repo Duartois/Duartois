@@ -8,20 +8,6 @@ import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
-const MINIPLAYER_BORDER_ROTATION =
-  "translateX(-50%) translateY(50%) rotateZ(318.913deg) translateZ(0px)";
-
-function MiniplayerBorder() {
-  return (
-    <img
-      src="/miniplayer-border.svg"
-      alt=""
-      className="miniplayer-border-svg"
-      aria-hidden
-    />
-  );
-}
-
 export default function AboutPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
@@ -63,14 +49,16 @@ export default function AboutPage() {
 
           <div className="miniplayer-wrapper">
             <div
-              className="miniplayer-border"
-              style={{ opacity: 1, transform: MINIPLAYER_BORDER_ROTATION }}
-            >
-              <MiniplayerBorder />
+              className="miniplayer-border">
+                <img
+      src="/miniplayer-border.svg"
+      alt=""
+      className="miniplayer-border-svg"
+      aria-hidden
+    />
             </div>
             <div
               className="miniplayer"
-              style={{ transform: "translateX(-50%) translateY(50%)" }}
             >
               <a
                 href={t("about.miniplayer.href")}
