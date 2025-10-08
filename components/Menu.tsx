@@ -51,21 +51,21 @@ const HOME_FORWARD_SHIFT = -1.1;
 const DIMMED_OPACITY_FACTOR = 0.35;
 
 const FORWARD_POSITION_DELTAS: Record<ShapeId, [number, number, number]> = {
-  torusSpringAzure: [0.12, 0.08, -0.25],
-  waveSpringLime: [0.18, 0.14, -0.2],
-  semiLimeFlamingo: [0.2, -0.06, -0.22],
-  torusFlamingoLime: [0.15, -0.18, -0.24],
-  semiFlamingoAzure: [0.22, -0.16, -0.2],
-  sphereFlamingoSpring: [0.16, 0.2, -0.18],
+  torusSpringAzure: [-0.2, 0.2, 10],
+  waveSpringLime: [-0.2, 0.2, 10],
+  semiLimeFlamingo: [-0.2, 0.2, 10],
+  torusFlamingoLime: [-0.2, 0.2, 10],
+  semiFlamingoAzure: [-0.2, 0.2, 10],
+  sphereFlamingoSpring: [-0.2, 0.2, 10],
 };
 
 const FORWARD_ROTATION_DELTAS: Record<ShapeId, [number, number, number]> = {
-  torusSpringAzure: [0.08, 0.2, 0.12],
-  waveSpringLime: [-0.12, 0.16, 0.08],
-  semiLimeFlamingo: [0.06, -0.22, 0.14],
-  torusFlamingoLime: [0.1, 0.24, -0.08],
-  semiFlamingoAzure: [-0.14, 0.18, 0.16],
-  sphereFlamingoSpring: [0.18, 0.12, 0.22],
+  torusSpringAzure: [0.18, -0.2, 0.12],
+  waveSpringLime: [-0.22, -0.16, 0.08],
+  semiLimeFlamingo: [0.16, 0.22, 0.14],
+  torusFlamingoLime: [0.2, -0.24, -0.08],
+  semiFlamingoAzure: [-0.24, 0.18, 0.16],
+  sphereFlamingoSpring: [0.28, -0.12, 0.22],
 };
 
 type MenuItemKey = "home" | "work" | "about" | "contact";
