@@ -17,6 +17,7 @@ import {
   createVariantState,
   type PointerDriver,
   type PointerTarget,
+  type ShapeOpacityState,
   type VariantState,
 } from "@/components/three/types";
 
@@ -30,6 +31,8 @@ type StoredSceneState = {
   cursorBoost: number;
   pointerDriver: PointerDriver;
   manualPointer: PointerTarget;
+  shapeOpacity: ShapeOpacityState;
+  opacity: number;
 };
 
 export default function Navbar() {
@@ -98,6 +101,8 @@ export default function Navbar() {
       cursorBoost: snapshot.cursorBoost,
       pointerDriver: snapshot.pointerDriver,
       manualPointer: { ...snapshot.manualPointer },
+      shapeOpacity: { ...snapshot.shapeOpacity },
+      opacity: snapshot.opacity,
     };
 
     const initialMenuVariant = computeMenuVariant();
@@ -109,6 +114,8 @@ export default function Navbar() {
       pointerDriver: "manual",
       manualPointer: { x: 0, y: 0 },
       variant: initialMenuVariant,
+      shapeOpacity: { ...snapshot.shapeOpacity },
+      opacity: snapshot.opacity,
     });
 
     window.addEventListener("resize", applyMenuVariant);
@@ -125,6 +132,8 @@ export default function Navbar() {
           pointerDriver: stored.pointerDriver,
           manualPointer: { ...stored.manualPointer },
           variant: createVariantState(stored.variant),
+          shapeOpacity: { ...stored.shapeOpacity },
+          opacity: stored.opacity,
         });
         storedSceneStateRef.current = null;
       }

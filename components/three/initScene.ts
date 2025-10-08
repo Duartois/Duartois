@@ -111,10 +111,16 @@ export const initScene = async ({
     theme,
   );
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
-  const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
   const baseGroupZ = shapesGroup.position.z;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
+  const initialShapeOpacity = shapeIds.reduce(
+    (acc, id) => {
+      acc[id] = 1;
+      return acc;
+    },
+    {} as Record<ShapeId, number>,
+  );
   const initialVariantClone = createVariantState(initialVariantState);
   let targetVariantState = initialVariantClone;
   type MaterialWithOpacity = THREE.Material & {
@@ -125,22 +131,35 @@ export const initScene = async ({
   const hasOpacity = (material: THREE.Material): material is MaterialWithOpacity =>
     "opacity" in material && "transparent" in material;
 
-  const updateMeshesOpacity = (opacity: number) => {
-    shapeMeshes.forEach((mesh) => {
-      const material = mesh.material;
-      const updateMaterial = (mat: THREE.Material) => {
-        if (hasOpacity(mat)) {
-          mat.opacity = opacity;
-          mat.transparent = opacity < 1 ? true : mat.transparent;
-          mat.needsUpdate = true;
-        }
-      };
+  const applyOpacityToMaterial = (material: THREE.Material, opacity: number) => {
+    if (!hasOpacity(material)) {
+      return;
+    }
 
-      if (Array.isArray(material)) {
-        material.forEach(updateMaterial);
-      } else {
-        updateMaterial(material);
-      }
+    material.opacity = opacity;
+    material.transparent = opacity < 1 ? true : material.transparent;
+    material.needsUpdate = true;
+  };
+
+  const applyOpacityToMesh = (mesh: THREE.Mesh, opacity: number) => {
+    const material = mesh.material;
+
+    if (Array.isArray(material)) {
+      material.forEach((mat) => applyOpacityToMaterial(mat, opacity));
+      return;
+    }
+
+    applyOpacityToMaterial(material, opacity);
+  };
+
+  const updateAllMeshOpacities = (
+    globalOpacity: number,
+    shapeOpacity: Record<ShapeId, number>,
+  ) => {
+    shapeIds.forEach((id) => {
+      const mesh = shapes.meshes[id];
+      const combinedOpacity = clamp(globalOpacity * shapeOpacity[id], 0, 1);
+      applyOpacityToMesh(mesh, combinedOpacity);
     });
   };
   const initialState: ThreeAppState = {
@@ -156,15 +175,17 @@ export const initScene = async ({
     pointerDriver: "device",
     manualPointer: { x: 0, y: 0 },
     opacity: 1,
+    shapeOpacity: { ...initialShapeOpacity },
     brightness: DEFAULT_BRIGHTNESS,
     ready: false,
   };
 
-  updateMeshesOpacity(initialState.opacity);
+  updateAllMeshOpacities(initialState.opacity, initialState.shapeOpacity);
 
   const eventTarget = new EventTarget();
 
   let state = initialState;
+  let shapeOpacityState = { ...initialShapeOpacity };
   const pointer = new THREE.Vector2();
   const devicePointerTarget = new THREE.Vector2();
   const manualPointerTarget = new THREE.Vector2();
@@ -324,6 +345,10 @@ export const initScene = async ({
 
     let changed = false;
     let nextState = state;
+    let pendingOpacity = state.opacity;
+    let opacityChanged = false;
+    let pendingShapeOpacity = shapeOpacityState;
+    let shapeOpacityChanged = false;
 
     const commit = (updates: Partial<ThreeAppState>) => {
       nextState = { ...nextState, ...updates };
@@ -398,10 +423,40 @@ export const initScene = async ({
 
     if (typeof partial.opacity === "number") {
       const nextOpacity = clamp(partial.opacity, 0, 1);
-      if (nextOpacity !== state.opacity) {
-        updateMeshesOpacity(nextOpacity);
+      if (nextOpacity !== pendingOpacity) {
+        pendingOpacity = nextOpacity;
+        opacityChanged = true;
         commit({ opacity: nextOpacity });
       }
+    }
+
+    if (partial.shapeOpacity) {
+      const updatedOpacity = { ...pendingShapeOpacity };
+      let localChange = false;
+
+      (Object.entries(partial.shapeOpacity) as [ShapeId, number][]).forEach(
+        ([key, value]) => {
+          if (!(key in updatedOpacity)) {
+            return;
+          }
+
+          const clampedValue = clamp(value, 0, 1);
+          if (updatedOpacity[key] !== clampedValue) {
+            updatedOpacity[key] = clampedValue;
+            localChange = true;
+          }
+        },
+      );
+
+      if (localChange) {
+        pendingShapeOpacity = updatedOpacity;
+        shapeOpacityChanged = true;
+        commit({ shapeOpacity: { ...pendingShapeOpacity } });
+      }
+    }
+
+    if (opacityChanged || shapeOpacityChanged) {
+      updateAllMeshOpacities(pendingOpacity, pendingShapeOpacity);
     }
 
     if (partial.variant) {
@@ -410,6 +465,7 @@ export const initScene = async ({
     }
 
     state = nextState;
+    shapeOpacityState = pendingShapeOpacity;
 
     if (changed) {
       dispatchStateChange(eventTarget, state);

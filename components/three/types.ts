@@ -308,6 +308,8 @@ export type ThemeName = "light" | "dark";
 
 export const DEFAULT_BRIGHTNESS = 2.3;
 
+export type ShapeOpacityState = Record<ShapeId, number>;
+
 export type ThreeAppState = {
   variantName: VariantName;
   variant: VariantState;
@@ -324,6 +326,7 @@ export type ThreeAppState = {
   pointerDriver: PointerDriver;
   manualPointer: PointerTarget;
   opacity: number;
+  shapeOpacity: ShapeOpacityState;
   brightness: number;
   ready: boolean;
 };
