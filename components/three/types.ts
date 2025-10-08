@@ -182,7 +182,7 @@ const BASE_VIEWPORT_WIDTH = 1440;
 const BASE_VIEWPORT_HEIGHT = 900;
 const MIN_VIEWPORT_SCALE = 1;
 
-export const SHAPE_IDS: readonly ShapeId[] = [
+const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
   "waveSpringLime",
   "semiLimeFlamingo",
@@ -190,8 +190,6 @@ export const SHAPE_IDS: readonly ShapeId[] = [
   "semiFlamingoAzure",
   "sphereFlamingoSpring",
 ];
-
-export const SHAPES_GROUP_NAME = "duartois-shapes-group";
 
 export const createResponsiveVariantState = (
   variant: VariantState,
