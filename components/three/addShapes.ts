@@ -114,6 +114,7 @@ import type {
   ThemeName,
   VariantState,
 } from "./types";
+import { SHAPES_GROUP_NAME } from "./types";
 
 export type ShapesHandle = {
   group: THREE.Group;
@@ -341,6 +342,7 @@ export async function addDuartoisSignatureShapes(
 ): Promise<ShapesHandle> {
   const group = new THREE.Group();
   scene.add(group);
+  group.name = SHAPES_GROUP_NAME;
   group.scale.setScalar(1.2);
 
   const waveCurve = new WaveCurve(3.8, 0.4);
@@ -361,6 +363,7 @@ export async function addDuartoisSignatureShapes(
       GRADIENT_AXES[id],
     );
     const mesh = new THREE.Mesh(geometry, createGlossyMaterial());
+    mesh.name = id;
     // As geometrias são atualizadas manualmente, então desativamos o frustum
     // culling para impedir que desapareçam caso o bounding volume fique
     // incorreto após alguma atualização.
