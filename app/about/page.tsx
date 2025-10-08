@@ -19,6 +19,59 @@ export default function AboutPage() {
     window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const originalRequestMediaKeySystemAccess =
+      navigator.requestMediaKeySystemAccess;
+
+    if (!originalRequestMediaKeySystemAccess) {
+      return;
+    }
+
+    const patchedRequestMediaKeySystemAccess: Navigator["requestMediaKeySystemAccess"] = (
+      keySystem,
+      configurations,
+    ) => {
+      const patchedConfigurations = Array.from(
+        configurations,
+        (configuration): MediaKeySystemConfiguration => {
+          if (!configuration.videoCapabilities?.length) {
+            return configuration;
+          }
+
+          const videoCapabilities = configuration.videoCapabilities.map(
+            (capability): MediaKeySystemMediaCapability => {
+              if (capability.robustness) {
+                return capability;
+              }
+
+              return {
+                ...capability,
+                robustness: "SW_SECURE_DECODE",
+              } satisfies MediaKeySystemMediaCapability;
+            },
+          );
+
+          return {
+            ...configuration,
+            videoCapabilities,
+          } satisfies MediaKeySystemConfiguration;
+        },
+      );
+
+      return originalRequestMediaKeySystemAccess.call(
+        navigator,
+        keySystem,
+        patchedConfigurations,
+      );
+    };
+
+    navigator.requestMediaKeySystemAccess = patchedRequestMediaKeySystemAccess;
+
+    return () => {
+      navigator.requestMediaKeySystemAccess = originalRequestMediaKeySystemAccess;
+    };
+  }, []);
+
   return (
     <main
       className="page-content"
@@ -44,18 +97,19 @@ export default function AboutPage() {
           <div>
             <div className="page-head">
               <h2 className="page-title">{t("navigation.about")}</h2>
-            
-            <div className="miniplayer">
-            <iframe
-              data-testid="embed-iframe"
-              style={{ borderRadius: "12px" }}
-              src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-            />
+              <div className="page-head-miniplayer" data-testid="miniplayer">
+                <iframe
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  data-testid="embed-iframe"
+                  height={80}
+                  loading="lazy"
+                  src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
+                  style={{ borderRadius: "12px" }}
+                  title="Abracadabra - Lady Gaga"
+                  width="100%"
+                />
+              </div>
             </div>
-          </div>
             <hr className="head-separator" />
           </div>
           <p className="presentation-text">{t("about.presentation")}</p>
