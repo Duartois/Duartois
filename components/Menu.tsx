@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
+  type FocusEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -17,6 +19,14 @@ import {
   FALL_ITEM_STAGGER_DELAY,
   getFallItemStyle,
 } from "./fallAnimation";
+import {
+  MENU_OVERLAY_MONOGRAM,
+  createResponsiveHeroVariantState,
+  createVariantState,
+  type ShapeId,
+  type ShapeOpacityState,
+  type VariantState,
+} from "@/components/three/types";
 
 type MenuProps = {
   isOpen: boolean;
@@ -24,17 +34,38 @@ type MenuProps = {
   id?: string;
 };
 
+type HoverTarget = "none" | "home" | "work" | "about" | "contact";
+
+type NavigationItem = {
+  href: string;
+  label: string;
+  hover: Exclude<HoverTarget, "none">;
+};
+
+const MENU_MOBILE_BREAKPOINT = 1500;
+const HOVER_ALL_SCALE = 1.12;
+const HOVER_FOCUSED_SCALE = 1.14;
+const DIMMED_OPACITY = 0.35;
+const SHAPE_IDS: readonly ShapeId[] = [
+  "torusSpringAzure",
+  "waveSpringLime",
+  "semiLimeFlamingo",
+  "torusFlamingoLime",
+  "semiFlamingoAzure",
+  "sphereFlamingoSpring",
+];
+
 
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   const { t } = useTranslation("common");
- const items = useMemo(
-     () => [
-      { href: "/", label: t("navigation.home") },
-      { href: "/work", label: t("navigation.work") },
-      { href: "/about", label: t("navigation.about") },
-      { href: "/contact", label: t("navigation.contact") },
+  const items = useMemo<NavigationItem[]>(
+    () => [
+      { href: "/", label: t("navigation.home"), hover: "home" },
+      { href: "/work", label: t("navigation.work"), hover: "work" },
+      { href: "/about", label: t("navigation.about"), hover: "about" },
+      { href: "/contact", label: t("navigation.contact"), hover: "contact" },
     ],
-    [t]
+    [t],
   );
 
   // redes sociais â€“ iguais Ã  referÃªncia
@@ -49,6 +80,194 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const totalItems = items.length + socials.length;
   const hideTimeoutRef = useRef<number | undefined>(undefined);
   const [isVisible, setIsVisible] = useState(isOpen);
+  const baseVariantRef = useRef<VariantState | null>(null);
+  const baseOpacityRef = useRef<ShapeOpacityState | null>(null);
+  const currentHoverRef = useRef<HoverTarget>("none");
+
+  const computeMenuVariant = useCallback((): VariantState | null => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    return createResponsiveHeroVariantState(
+      MENU_OVERLAY_MONOGRAM,
+      window.innerWidth,
+      window.innerHeight,
+      MENU_MOBILE_BREAKPOINT,
+      MENU_MOBILE_BREAKPOINT,
+    );
+  }, []);
+
+  const applyHover = useCallback(
+    (target: HoverTarget) => {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      const app = window.__THREE_APP__;
+      if (!app) {
+        return;
+      }
+
+      if (!baseVariantRef.current) {
+        const computed = computeMenuVariant();
+        if (!computed) {
+          return;
+        }
+        baseVariantRef.current = createVariantState(computed);
+      }
+
+      const snapshot = app.bundle.getState();
+      if (!baseOpacityRef.current) {
+        baseOpacityRef.current = { ...snapshot.shapeOpacity };
+      }
+
+      const baseVariant = baseVariantRef.current;
+      if (!baseVariant) {
+        return;
+      }
+
+      const nextVariant = createVariantState(baseVariant);
+      const baseOpacity =
+        baseOpacityRef.current ?? ({ ...snapshot.shapeOpacity } as ShapeOpacityState);
+      const nextOpacity: ShapeOpacityState = { ...baseOpacity };
+
+      const scaleShape = (shapeId: ShapeId, factor: number) => {
+        const transform = nextVariant[shapeId];
+        const { scale } = transform;
+
+        nextVariant[shapeId] = {
+          ...transform,
+          scale: Array.isArray(scale)
+            ? (scale.map((value) => value * factor) as typeof scale)
+            : scale * factor,
+        };
+      };
+
+      const dimUnfocusedShapes = (highlighted: ShapeId[]) => {
+        SHAPE_IDS.forEach((shapeId) => {
+          const baseValue = baseOpacity[shapeId] ?? 1;
+          nextOpacity[shapeId] = highlighted.includes(shapeId)
+            ? baseValue
+            : Math.min(baseValue, DIMMED_OPACITY);
+        });
+      };
+
+      switch (target) {
+        case "home":
+          SHAPE_IDS.forEach((shapeId) => {
+            scaleShape(shapeId, HOVER_ALL_SCALE);
+            nextOpacity[shapeId] = baseOpacity[shapeId] ?? 1;
+          });
+          break;
+        case "work":
+          scaleShape("waveSpringLime", HOVER_FOCUSED_SCALE);
+          scaleShape("sphereFlamingoSpring", HOVER_FOCUSED_SCALE);
+          dimUnfocusedShapes(["waveSpringLime", "sphereFlamingoSpring"]);
+          break;
+        case "about":
+          scaleShape("semiLimeFlamingo", HOVER_FOCUSED_SCALE);
+          scaleShape("torusSpringAzure", HOVER_FOCUSED_SCALE);
+          dimUnfocusedShapes(["semiLimeFlamingo", "torusSpringAzure"]);
+          break;
+        case "contact":
+          scaleShape("semiFlamingoAzure", HOVER_FOCUSED_SCALE);
+          scaleShape("torusFlamingoLime", HOVER_FOCUSED_SCALE);
+          dimUnfocusedShapes(["semiFlamingoAzure", "torusFlamingoLime"]);
+          break;
+        case "none":
+        default:
+          SHAPE_IDS.forEach((shapeId) => {
+            nextOpacity[shapeId] = baseOpacity[shapeId] ?? 1;
+          });
+          break;
+      }
+
+      const partialUpdate = target === "none"
+        ? {
+            variant: createVariantState(baseVariant),
+            shapeOpacity: { ...baseOpacity },
+          }
+        : {
+            variant: nextVariant,
+            shapeOpacity: nextOpacity,
+          };
+
+      app.setState(partialUpdate);
+      currentHoverRef.current = target;
+    },
+    [computeMenuVariant],
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      currentHoverRef.current = "none";
+      baseVariantRef.current = null;
+      baseOpacityRef.current = null;
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let frame: number | null = null;
+
+    const syncMenuVariant = () => {
+      const appHandle = window.__THREE_APP__;
+      if (!appHandle) {
+        frame = window.requestAnimationFrame(syncMenuVariant);
+        return;
+      }
+
+      const computed = computeMenuVariant();
+      if (!computed) {
+        return;
+      }
+
+      baseVariantRef.current = createVariantState(computed);
+      const snapshot = appHandle.bundle.getState();
+      if (!baseOpacityRef.current) {
+        baseOpacityRef.current = { ...snapshot.shapeOpacity };
+      }
+
+      if (currentHoverRef.current === "none") {
+        const baseOpacity =
+          baseOpacityRef.current ?? ({ ...snapshot.shapeOpacity } as ShapeOpacityState);
+        appHandle.setState({
+          variant: createVariantState(computed),
+          shapeOpacity: { ...baseOpacity },
+        });
+      } else {
+        applyHover(currentHoverRef.current);
+      }
+
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+        frame = null;
+      }
+    };
+
+    syncMenuVariant();
+    window.addEventListener("resize", syncMenuVariant);
+
+    return () => {
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+      }
+      window.removeEventListener("resize", syncMenuVariant);
+    };
+  }, [isOpen, computeMenuVariant, applyHover]);
+
+  const handleBlurCapture = useCallback(
+    (event: FocusEvent<HTMLLIElement>) => {
+      const nextTarget = event.relatedTarget as Node | null;
+      if (!event.currentTarget.contains(nextTarget)) {
+        applyHover("none");
+      }
+    },
+    [applyHover],
+  );
 
 
   useEffect(() => {
@@ -114,7 +333,13 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
           <nav>
             <ol>
               {items.map((item, i) => (
-                <li key={item.href}>
+                <li
+                  key={item.href}
+                  onMouseEnter={() => applyHover(item.hover)}
+                  onMouseLeave={() => applyHover("none")}
+                  onFocusCapture={() => applyHover(item.hover)}
+                  onBlurCapture={handleBlurCapture}
+                >
                   <div className="item-inner" style={itemStyle(i)}>
                     <Link href={item.href} onClick={onClose}>
                       <h1>
@@ -129,7 +354,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         </div>
 
         <div className="menu-socials">
-          <ul>
+          <ul onMouseEnter={() => applyHover("none")}>
             <div>
               <div>
                 {socials.map((s, i) => (
