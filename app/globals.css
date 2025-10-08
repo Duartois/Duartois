@@ -39,6 +39,30 @@ main {
     overflow: hidden;
     width: 100%
 }
+.body-scroll-control {
+    overflow-y: hidden
+}
+
+.app-shell {
+    overflow: hidden
+}
+
+@media(max-width: 56.24em) {
+    .body-scroll-control {
+        overflow-x: hidden;
+        overflow-y: auto
+    }
+
+    .app-shell {
+        overflow-x: hidden;
+        overflow-y: auto
+    }
+
+    main.work-page {
+        overflow-x: hidden;
+        overflow-y: auto
+    }
+}
 .cursor,
 .cursor-dot {
     position: fixed;

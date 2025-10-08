@@ -80,7 +80,7 @@ export default function WorkPage() {
   }, [activePreview, isMenuOpen]);
 
   return (
-    <main className="relative z-10 flex min-h-screen w-full flex-col">
+    <main className="work-page relative z-10 flex min-h-screen w-full flex-col">
       <section
         className="projects"
         style={{
