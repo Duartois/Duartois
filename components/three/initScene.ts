@@ -113,6 +113,7 @@ export const initScene = async ({
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapeMeshes = Object.values(shapes.meshes);
   const shapesGroup = shapes.group;
+  const baseGroupZ = shapesGroup.position.z;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
   const initialVariantClone = createVariantState(initialVariantState);
   let targetVariantState = initialVariantClone;
@@ -291,13 +292,11 @@ export const initScene = async ({
 
     shapesGroup.position.x += (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
     shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
-  
 
-    const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
-    const lerpScale = clamp(delta * 4, 0, 1);
-    const currentScale = shapesGroup.scale.x;
-    const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
-    shapesGroup.scale.setScalar(nextScale);
+    const depthTarget =
+      baseGroupZ + breathe * 2 + (hoverBoost + state.cursorBoost) * 4;
+    const lerpDepth = clamp(delta * 4, 0, 1);
+    shapesGroup.position.z += (depthTarget - shapesGroup.position.z) * lerpDepth;
 
     const maxX = (mobile ? 0.22 : 0.32) * (globalWindow.innerWidth / 2) * 0.01;
     const maxY = (mobile ? 0.18 : 0.26) * (globalWindow.innerHeight / 2) * 0.01;
