@@ -1,14 +1,26 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { useEffect } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useEffect, type CSSProperties } from "react";
+import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+
+const MINIPLAYER_BORDER_ROTATION =
+  "translateX(-50%) translateY(50%) rotateZ(318.913deg) translateZ(0px)";
+
+function MiniplayerBorder() {
+  return (
+    <img
+      src="/miniplayer-border.svg"
+      alt=""
+      className="miniplayer-border-svg"
+      aria-hidden
+    />
+  );
+}
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
@@ -21,102 +33,87 @@ export default function AboutPage() {
     window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
   }, [isMenuOpen]);
 
+  const songInfoStyle = {
+    opacity: 0,
+    "--dark-muted": "#343434",
+    "--light-muted": "#cdcdcd",
+    "--dark-vibrant": "#424242",
+    "--light-vibrant": "#bcbcbc",
+  } as CSSProperties;
+
   return (
-    <main className="relative z-10 flex min-h-screen w-full flex-col">
-      <div
-        className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center gap-16 px-6 py-24"
-        style={{
-          pointerEvents: isMenuOpen ? "none" : undefined,
-          opacity: isMenuOpen ? 0 : 1,
-          transition: "opacity 300ms ease",
-        }}
-        aria-hidden={isMenuOpen}
-      >
-        <header
-          className="page-animate space-y-4 text-center sm:text-left"
-          data-hero-index={0}
-          style={fallStyle(0)}
-        >
-          <span className="text-xs font-medium uppercase tracking-[0.4em] text-fg/60">
-            {t("about.kicker")}
-          </span>
-          <h1 className="text-4xl font-semibold text-fg sm:text-5xl">
-            {t("about.title")}
-          </h1>
-          <p className="text-base text-fg/70 sm:text-lg">
-            {t("about.subtitle")}
-          </p>
-        </header>
+    <main
+      className="page-content"
+      style={{
+        pointerEvents: isMenuOpen ? "none" : "auto",
+        opacity: isMenuOpen ? 0 : 1,
+        transition: "opacity 300ms ease",
+      }}
+      aria-hidden={isMenuOpen}
+    >
+      <div className="about">
+        <div className="about-right" data-hero-index={0} style={fallStyle(0)}>
+          <div className="profile-pic-wrapper">
+            <img
+              alt={t("about.portraitAlt")}
+              src="https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rst67bqmro07urdf8a8sgu"
+              className="profile-pic"
+            />
+          </div>
 
-        <section
-          className="page-animate grid w-full gap-12 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:items-center"
-          data-hero-index={1}
-          style={fallStyle(1)}
-        >
-          <div className="space-y-6 text-center text-base leading-relaxed text-fg/70 sm:text-lg md:text-left">
-            <p>{t("about.paragraphs.first")}</p>
-            <p>{t("about.paragraphs.second")}</p>
-            <p>
-              <Trans
-                i18nKey="about.paragraphs.third"
-                components={{
-                  github: (
-                    <Link
-                      href="https://github.com/duartois"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-semibold text-fg hover:text-fg/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
-                    />
-                  ),
-                }}
-              />
-            </p>
-
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-start">
+          <div className="miniplayer-wrapper">
+            <div
+              className="miniplayer-border"
+              style={{ opacity: 1, transform: MINIPLAYER_BORDER_ROTATION }}
+            >
+              <MiniplayerBorder />
+            </div>
+            <div
+              className="miniplayer"
+              style={{ transform: "translateX(-50%) translateY(50%)" }}
+            >
               <a
-                href="/files/resume.pdf"
-                className="w-full rounded-full border border-fg/20 bg-fg px-8 py-3 text-center text-sm font-semibold uppercase tracking-[0.3em] text-bg transition hover:bg-fg/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg sm:w-auto"
+                href={t("about.miniplayer.href")}
+                target="_blank"
+                rel="noreferrer"
               >
-                {t("about.cta.resume")}
-              </a>
-              <Link
-                href="/contact"
-                className="w-full rounded-full border border-fg/20 px-8 py-3 text-center text-sm font-semibold uppercase tracking-[0.3em] text-fg transition hover:border-fg/40 hover:bg-bg/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg sm:w-auto"
-              >
-                {t("about.cta.contact")}
-              </Link>
-            </div>
-          </div>
-
-          <div className="relative flex w-full justify-center md:justify-end">
-            <div className="relative w-full max-w-sm">
-              <div
-                aria-hidden
-                className="absolute -inset-6 rounded-[3rem] border border-fg/10 bg-bg/60 blur-2xl"
-              />
-              <div className="relative overflow-hidden rounded-[3rem] border border-fg/15 bg-bg/80 p-6 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.65)] backdrop-blur">
-                <Image
-                  src="/about-portrait.svg"
-                  alt={t("about.portraitAlt")}
-                  width={640}
-                  height={640}
-                  className="h-auto w-full"
-                  priority
-                />
-                <div className="mt-6 flex items-center justify-between gap-4 text-xs uppercase tracking-[0.4em] text-fg/60">
-                  <Image
-                    src="/wave.svg"
-                    alt={t("about.badgeAlt")}
-                    width={72}
-                    height={72}
-                    className="h-16 w-16"
-                  />
-                  <span>{t("about.kicker")}</span>
+                <div className="miniplayer-inner">
+                  <div className="song-cover-wrapper">
+                    <img
+                      alt={t("about.miniplayer.coverAlt")}
+                      src={t("about.miniplayer.cover")}
+                      className="song-cover"
+                    />
+                    <div className="song-infos" style={songInfoStyle}>
+                      <div className="song">{t("about.miniplayer.song")}</div>
+                      <div className="artist">{t("about.miniplayer.artist")}</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </a>
             </div>
           </div>
-        </section>
+        </div>
+
+        <div className="about-left" data-hero-index={1} style={fallStyle(1)}>
+          <div>
+            <div className="page-head">
+              <h2 className="page-title">{t("navigation.about")}</h2>
+            </div>
+            <hr className="head-separator" />
+          </div>
+          <p className="presentation-text">{t("about.presentation")}</p>
+          <div className="resume-link">
+            <div className="link-wrapper">
+              <div className="link">
+                <a href={t("about.resumeUrl")} target="_blank" rel="noreferrer">
+                  {t("about.cta.resume")}
+                </a>
+              </div>
+              <div className="link-underline" />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
