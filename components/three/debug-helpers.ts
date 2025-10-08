@@ -13,6 +13,7 @@ export const createStateSnapshot = (state: ThreeAppState) =>
     palette: state.palette.map((stops) => [...stops]) as ThreeAppState["palette"],
     pointer: { ...state.pointer },
     manualPointer: { ...state.manualPointer },
+    shapeOpacity: { ...state.shapeOpacity },
   });
 
 export const attachToWindow = (handle: ThreeAppHandle) => {
