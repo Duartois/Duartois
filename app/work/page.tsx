@@ -162,13 +162,21 @@ export default function WorkPage() {
                             transform: isActive
                               ? "translateX(0) translateZ(0)"
                               : "translateX(-100%) translateZ(0)",
-                            transition: "transform 300ms ease",
+                            transition:
+                              "transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)",
                           }}
                         >
                           →
                         </h4>
                       </div>
-                      <h4 className="projects-title" style={{ transform: "none" }}>
+                      <h4
+                        className="projects-title"
+                        style={{
+                          transform: isActive
+                            ? "translateX(var(--projects-arrow-offset))"
+                            : "translateX(0)",
+                        }}
+                      >
                         {copy.title}
                       </h4>
                     </div>
