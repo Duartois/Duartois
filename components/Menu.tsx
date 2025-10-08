@@ -17,56 +17,6 @@ import {
   FALL_ITEM_STAGGER_DELAY,
   getFallItemStyle,
 } from "./fallAnimation";
-import {
-  createVariantState,
-  type ShapeId,
-  type ShapeOpacityState,
-  type VariantState,
-  type Vector3Tuple,
-} from "@/components/three/types";
-
-type NavKey = "home" | "work" | "about" | "contact";
-
-type MenuItem = {
-  key: NavKey;
-  href: string;
-  label: string;
-};
-
-const SHAPE_IDS: readonly ShapeId[] = [
-  "torusSpringAzure",
-  "waveSpringLime",
-  "semiLimeFlamingo",
-  "torusFlamingoLime",
-  "semiFlamingoAzure",
-  "sphereFlamingoSpring",
-];
-
-const HOVER_ROTATION_DELTA: Vector3Tuple = [0.18, 0.22, -0.12];
-const HOVER_POSITION_DELTAS: Record<ShapeId, Vector3Tuple> = {
-  torusSpringAzure: [0.45, 0.32, 1.05],
-  waveSpringLime: [-0.52, 0.36, 1],
-  semiLimeFlamingo: [0.38, -0.34, 1],
-  torusFlamingoLime: [0.26, -0.48, 1],
-  semiFlamingoAzure: [-0.44, -0.4, 1],
-  sphereFlamingoSpring: [0.33, 0.46, 1.05],
-};
-
-const HOVER_CONFIGS: Record<NavKey, { shapes: readonly ShapeId[]; dimOthers: boolean }> = {
-  home: { shapes: SHAPE_IDS, dimOthers: false },
-  work: {
-    shapes: ["waveSpringLime", "sphereFlamingoSpring"],
-    dimOthers: true,
-  },
-  about: {
-    shapes: ["semiLimeFlamingo", "torusSpringAzure"],
-    dimOthers: true,
-  },
-  contact: {
-    shapes: ["semiFlamingoAzure", "torusFlamingoLime"],
-    dimOthers: true,
-  },
-};
 
 type MenuProps = {
   isOpen: boolean;
@@ -77,14 +27,14 @@ type MenuProps = {
 
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   const { t } = useTranslation("common");
-  const items = useMemo<MenuItem[]>(
-    () => [
-      { key: "home", href: "/", label: t("navigation.home") },
-      { key: "work", href: "/work", label: t("navigation.work") },
-      { key: "about", href: "/about", label: t("navigation.about") },
-      { key: "contact", href: "/contact", label: t("navigation.contact") },
+ const items = useMemo(
+     () => [
+      { href: "/", label: t("navigation.home") },
+      { href: "/work", label: t("navigation.work") },
+      { href: "/about", label: t("navigation.about") },
+      { href: "/contact", label: t("navigation.contact") },
     ],
-    [t],
+    [t]
   );
 
   // redes sociais â€“ iguais Ã  referÃªncia
@@ -99,9 +49,6 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const totalItems = items.length + socials.length;
   const hideTimeoutRef = useRef<number | undefined>(undefined);
   const [isVisible, setIsVisible] = useState(isOpen);
-  const [activeItem, setActiveItem] = useState<NavKey | null>(null);
-  const baseVariantRef = useRef<VariantState | null>(null);
-  const baseShapeOpacityRef = useRef<ShapeOpacityState | null>(null);
 
 
   useEffect(() => {
@@ -143,117 +90,6 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     };
   }, [isOpen, onClose]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setActiveItem(null);
-      baseVariantRef.current = null;
-      baseShapeOpacityRef.current = null;
-      return;
-    }
-
-    const app = window.__THREE_APP__;
-    if (!app) {
-      return;
-    }
-
-    let cancelled = false;
-    const frame = window.requestAnimationFrame(() => {
-      if (cancelled) {
-        return;
-      }
-
-      const snapshot = app.bundle.getState();
-      const variantSnapshot = createVariantState(snapshot.variant);
-      const shapeOpacitySnapshot = { ...snapshot.shapeOpacity };
-
-      baseVariantRef.current = variantSnapshot;
-      baseShapeOpacityRef.current = shapeOpacitySnapshot;
-
-      app.setState({
-        variant: createVariantState(variantSnapshot),
-        shapeOpacity: { ...shapeOpacitySnapshot },
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      window.cancelAnimationFrame(frame);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const app = window.__THREE_APP__;
-    const baseVariant = baseVariantRef.current;
-    const baseShapeOpacity = baseShapeOpacityRef.current;
-
-    if (!app || !baseVariant || !baseShapeOpacity) {
-      return;
-    }
-
-    if (!activeItem) {
-      app.setState({
-        variant: createVariantState(baseVariant),
-        shapeOpacity: { ...baseShapeOpacity },
-      });
-      return;
-    }
-
-    const config = HOVER_CONFIGS[activeItem];
-    const variant = createVariantState(baseVariant);
-    const highlightSet = new Set<ShapeId>(config.shapes);
-
-    config.shapes.forEach((shapeId) => {
-      const baseTransform = baseVariant[shapeId];
-      const transform = variant[shapeId];
-      const [dx, dy, dz] = HOVER_POSITION_DELTAS[shapeId] ?? [0, 0, 0.6];
-
-      transform.position = [
-        baseTransform.position[0] + dx,
-        baseTransform.position[1] + dy,
-        baseTransform.position[2] + dz,
-      ] as Vector3Tuple;
-      transform.rotation = [
-        baseTransform.rotation[0] + HOVER_ROTATION_DELTA[0],
-        baseTransform.rotation[1] + HOVER_ROTATION_DELTA[1],
-        baseTransform.rotation[2] + HOVER_ROTATION_DELTA[2],
-      ] as Vector3Tuple;
-    });
-
-    const nextShapeOpacity: ShapeOpacityState = { ...baseShapeOpacity };
-
-    if (config.dimOthers) {
-      SHAPE_IDS.forEach((shapeId) => {
-        if (highlightSet.has(shapeId)) {
-          nextShapeOpacity[shapeId] = baseShapeOpacity[shapeId];
-          return;
-        }
-
-        nextShapeOpacity[shapeId] = baseShapeOpacity[shapeId] * 0.8;
-      });
-    } else {
-      SHAPE_IDS.forEach((shapeId) => {
-        nextShapeOpacity[shapeId] = baseShapeOpacity[shapeId];
-      });
-    }
-
-    app.setState({
-      variant,
-      shapeOpacity: nextShapeOpacity,
-    });
-  }, [activeItem, isOpen]);
-
-  const handlePointerEnter = (key: NavKey) => {
-    setActiveItem(key);
-  };
-
-  const handlePointerLeave = () => {
-    setActiveItem(null);
-  };
-
   // animaÃ§Ã£o de entrada 1:1 com a referÃªncia: translateY(-100px) -> 0
   const itemStyle = (i: number): CSSProperties =>
     getFallItemStyle(isOpen, i, totalItems);
@@ -279,18 +115,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
             <ol>
               {items.map((item, i) => (
                 <li key={item.href}>
-                  <div
-                    className="item-inner"
-                    style={itemStyle(i)}
-                    onPointerEnter={() => handlePointerEnter(item.key)}
-                    onPointerLeave={handlePointerLeave}
-                  >
-                    <Link
-                      href={item.href}
-                      onClick={onClose}
-                      onFocus={() => handlePointerEnter(item.key)}
-                      onBlur={handlePointerLeave}
-                    >
+                  <div className="item-inner" style={itemStyle(i)}>
+                    <Link href={item.href} onClick={onClose}>
                       <h1>
                         {item.label}
                       </h1>
