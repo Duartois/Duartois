@@ -7,11 +7,16 @@ import "../i18n/config";
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import { useTheme } from "../theme/ThemeContext";
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
   const fallStyle = useMenuFallAnimation(2);
+  const { theme } = useTheme();
+
+  const spotifyAccent = theme === "dark" ? "F3F2F9" : "606887";
+  const spotifyEmbedUrl = `https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23${spotifyAccent}`;
 
   useThreeSceneSetup("about");
 
@@ -103,8 +108,7 @@ export default function AboutPage() {
                   data-testid="embed-iframe"
                   height={80}
                   loading="lazy"
-                  src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
-                  style={{ borderRadius: "12px" }}
+                  src={spotifyEmbedUrl}
                   title="Abracadabra - Lady Gaga"
                   width="100%"
                 />
