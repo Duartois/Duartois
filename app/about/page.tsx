@@ -103,8 +103,7 @@ export default function AboutPage() {
                   data-testid="embed-iframe"
                   height={80}
                   loading="lazy"
-                  src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
-                  style={{ borderRadius: "12px" }}
+                  src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23606887"
                   title="Abracadabra - Lady Gaga"
                   width="100%"
                 />
