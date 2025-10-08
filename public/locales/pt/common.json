@@ -131,17 +131,23 @@
     }
   },
   "contact": {
-    "title": "Vamos criar algo juntos?",
-    "subtitle": "Envie uma mensagem com o que você está planejando ou conecte-se pelas redes abaixo.",
-    "form": {
-      "nameLabel": "Nome",
-      "namePlaceholder": "Ana Silva",
-      "emailLabel": "E-mail",
-      "emailPlaceholder": "voce@estudio.com",
-      "messageLabel": "Mensagem",
-      "messagePlaceholder": "Conte-me sobre o projeto, prazos e objetivos.",
-      "submit": "enviar mensagem",
-      "success": "Mensagem enviada! Vou responder em breve."
+    "mail": {
+      "label": "E-mail",
+      "address": "hello@itssharl.ee",
+      "href": "mailto:hello@itssharl.ee"
+    },
+    "socials": {
+      "label": "Redes sociais",
+      "links": [
+        {
+          "label": "Instagram",
+          "href": "https://www.instagram.com/itssharl.ee/"
+        },
+        {
+          "label": "Behance",
+          "href": "https://www.behance.net/itssharlee"
+        }
+      ]
     }
   },
   "preloader": {
