@@ -75,9 +75,9 @@ export default function WorkPage() {
       variantName: activePreview.variantName,
       parallax: false,
       hovered: true,
-      opacity: 0.3,
+      opacity: isMenuOpen ? 1 : 0.3,
     });
-  }, [activePreview]);
+  }, [activePreview, isMenuOpen]);
 
   return (
     <main className="relative z-10 flex min-h-screen w-full flex-col">

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import "../i18n/config";
 
@@ -15,6 +16,10 @@ export default function AboutPage() {
   const fallStyle = useMenuFallAnimation(2);
 
   useThreeSceneSetup("about");
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [isMenuOpen]);
 
   return (
     <main className="relative z-10 flex min-h-screen w-full flex-col">

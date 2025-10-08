@@ -17,6 +17,10 @@ export default function ContactPage() {
   useThreeSceneSetup("contact");
 
   useEffect(() => {
+    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [isMenuOpen]);
+
+  useEffect(() => {
     if (status !== "submitted") {
       return;
     }
