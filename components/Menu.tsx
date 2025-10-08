@@ -50,6 +50,24 @@ const DEFAULT_FORWARD_SHIFT = -0.8;
 const HOME_FORWARD_SHIFT = -1.1;
 const DIMMED_OPACITY_FACTOR = 0.35;
 
+const FORWARD_POSITION_DELTAS: Record<ShapeId, [number, number, number]> = {
+  torusSpringAzure: [0.12, 0.08, -0.25],
+  waveSpringLime: [0.18, 0.14, -0.2],
+  semiLimeFlamingo: [0.2, -0.06, -0.22],
+  torusFlamingoLime: [0.15, -0.18, -0.24],
+  semiFlamingoAzure: [0.22, -0.16, -0.2],
+  sphereFlamingoSpring: [0.16, 0.2, -0.18],
+};
+
+const FORWARD_ROTATION_DELTAS: Record<ShapeId, [number, number, number]> = {
+  torusSpringAzure: [0.08, 0.2, 0.12],
+  waveSpringLime: [-0.12, 0.16, 0.08],
+  semiLimeFlamingo: [0.06, -0.22, 0.14],
+  torusFlamingoLime: [0.1, 0.24, -0.08],
+  semiFlamingoAzure: [-0.14, 0.18, 0.16],
+  sphereFlamingoSpring: [0.18, 0.12, 0.22],
+};
+
 type MenuItemKey = "home" | "work" | "about" | "contact";
 
 type HoverConfig = {
@@ -207,7 +225,21 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     config.forward.forEach((shapeId) => {
       const transform = baseVariant[shapeId];
       const [x, y, z] = transform.position;
-      transform.position = [x, y, z + shift] as typeof transform.position;
+      const [rx, ry, rz] = transform.rotation;
+      const [dx, dy, dz] = FORWARD_POSITION_DELTAS[shapeId];
+      const [drx, dry, drz] = FORWARD_ROTATION_DELTAS[shapeId];
+
+      transform.position = [
+        x + dx,
+        y + dy,
+        z + shift + dz,
+      ] as typeof transform.position;
+
+      transform.rotation = [
+        rx + drx,
+        ry + dry,
+        rz + drz,
+      ] as typeof transform.rotation;
     });
 
     const sourceOpacity = baseOpacityRef.current ?? FALLBACK_MENU_SHAPE_OPACITY;
