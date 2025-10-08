@@ -42,8 +42,15 @@ const SHAPE_IDS: readonly ShapeId[] = [
   "sphereFlamingoSpring",
 ];
 
-const HOVER_Z_OFFSET = 0.6;
 const HOVER_ROTATION_DELTA: Vector3Tuple = [0.18, 0.22, -0.12];
+const HOVER_POSITION_DELTAS: Record<ShapeId, Vector3Tuple> = {
+  torusSpringAzure: [0.45, 0.32, 1.05],
+  waveSpringLime: [-0.52, 0.36, 1],
+  semiLimeFlamingo: [0.38, -0.34, 1],
+  torusFlamingoLime: [0.26, -0.48, 1],
+  semiFlamingoAzure: [-0.44, -0.4, 1],
+  sphereFlamingoSpring: [0.33, 0.46, 1.05],
+};
 
 const HOVER_CONFIGS: Record<NavKey, { shapes: readonly ShapeId[]; dimOthers: boolean }> = {
   home: { shapes: SHAPE_IDS, dimOthers: false },
@@ -202,10 +209,12 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     config.shapes.forEach((shapeId) => {
       const baseTransform = baseVariant[shapeId];
       const transform = variant[shapeId];
+      const [dx, dy, dz] = HOVER_POSITION_DELTAS[shapeId] ?? [0, 0, 0.6];
+
       transform.position = [
-        baseTransform.position[0],
-        baseTransform.position[1],
-        baseTransform.position[2] + HOVER_Z_OFFSET,
+        baseTransform.position[0] + dx,
+        baseTransform.position[1] + dy,
+        baseTransform.position[2] + dz,
       ] as Vector3Tuple;
       transform.rotation = [
         baseTransform.rotation[0] + HOVER_ROTATION_DELTA[0],
