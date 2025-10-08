@@ -40,14 +40,13 @@ const HOVER_HIGHLIGHTS = {
   contact: ["semiFlamingoAzure", "torusFlamingoLime"],
 } as const satisfies Record<HighlightTarget, readonly ShapeId[]>;
 
-const HOME_SCALE_FACTOR = 1.08;
-const HIGHLIGHT_SCALE_FACTOR = 1.12;
-const DIMMED_OPACITY = 0.3;
+const FORWARD_OFFSET = 0.45;
+const ROTATION_DELTA: [number, number, number] = [0.12, -0.18, 0];
+const DIMMED_OPACITY = 0.8;
 
-const scaleShapes = (
+const moveShapesForward = (
   variant: VariantState,
   ids: readonly ShapeId[],
-  factor: number,
 ) => {
   ids.forEach((id) => {
     const transform = variant[id];
@@ -55,15 +54,11 @@ const scaleShapes = (
       return;
     }
 
-    if (Array.isArray(transform.scale)) {
-      transform.scale[0] *= factor;
-      transform.scale[1] *= factor;
-      transform.scale[2] *= factor;
-      return;
-    }
+    const [x, y, z] = transform.position;
+    const [rx, ry, rz] = transform.rotation;
 
-    const baseScale = transform.scale ?? 1;
-    transform.scale = baseScale * factor;
+    transform.position = [x, y, z + FORWARD_OFFSET];
+    transform.rotation = [rx + ROTATION_DELTA[0], ry + ROTATION_DELTA[1], rz + ROTATION_DELTA[2]];
   });
 };
 
@@ -187,10 +182,10 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       const variant = createVariantState(baseVariant);
 
       if (target === "home") {
-        scaleShapes(variant, SHAPE_IDS, HOME_SCALE_FACTOR);
+        moveShapesForward(variant, SHAPE_IDS);
       } else {
         const highlight = HOVER_HIGHLIGHTS[target];
-        scaleShapes(variant, highlight, HIGHLIGHT_SCALE_FACTOR);
+        moveShapesForward(variant, highlight);
       }
 
       ignoreNextStateChangeRef.current = true;
