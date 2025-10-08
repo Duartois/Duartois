@@ -864,13 +864,33 @@ body.dark .noise {
     display: flex;
     justify-content: flex-end;
     flex: 0 0 auto;
-    min-width: min(100%, 280px)
+    min-width: min(100%, 280px);
+    position: relative;
+    isolation: isolate;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #606887
+}
+
+.page-head-miniplayer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: #606887;
+    mix-blend-mode: color;
+    pointer-events: none;
+    z-index: 1
 }
 
 .page-head-miniplayer iframe {
     width: min(100%, 320px);
     border: 0;
-    height: 80px
+    height: 80px;
+    position: relative;
+    z-index: 0;
+    border-radius: inherit;
+    background-color: transparent
 }
 
 @media(max-width: 47.99em) {
