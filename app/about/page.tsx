@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type CSSProperties } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
@@ -18,14 +18,6 @@ export default function AboutPage() {
   useEffect(() => {
     window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
   }, [isMenuOpen]);
-
-  const songInfoStyle = {
-    opacity: 0,
-    "--dark-muted": "#343434",
-    "--light-muted": "#cdcdcd",
-    "--dark-vibrant": "#424242",
-    "--light-vibrant": "#bcbcbc",
-  } as CSSProperties;
 
   return (
     <main
@@ -48,38 +40,25 @@ export default function AboutPage() {
           </div>
 
           <div className="miniplayer-wrapper">
-            <div
-              className="miniplayer-border">
-                <img
-      src="/miniplayer-border.svg"
-      alt=""
-      className="miniplayer-border-svg"
-      aria-hidden
-    />
+            <div className="miniplayer-border">
+              <img
+                src="/miniplayer-border.svg"
+                alt=""
+                className="miniplayer-border-svg"
+                aria-hidden
+              />
             </div>
-            <div
-              className="miniplayer"
-            >
-              <a
-                href={t("about.miniplayer.href")}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <div className="miniplayer-inner">
-                  <div className="song-cover-wrapper">
-                    <img
-                      alt={t("about.miniplayer.coverAlt")}
-                      src={t("about.miniplayer.cover")}
-                      className="song-cover"
-                    />
-                    <div className="song-infos" style={songInfoStyle}>
-                      <div className="song">{t("about.miniplayer.song")}</div>
-                      <div className="artist">{t("about.miniplayer.artist")}</div>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </div>
+            <iframe
+              data-testid="embed-iframe"
+              style={{ borderRadius: "12px" }}
+              src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
+              width="100%"
+              height="152"
+              frameBorder={0}
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            />
           </div>
         </div>
 
