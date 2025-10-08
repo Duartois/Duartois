@@ -43,7 +43,8 @@ type NavigationItem = {
 };
 
 const MENU_MOBILE_BREAKPOINT = 1500;
-const HOVER_FORWARD_DISTANCE = -0.32;
+const HOVER_ALL_SCALE = 1.12;
+const HOVER_FOCUSED_SCALE = 1.14;
 const DIMMED_OPACITY = 0.35;
 const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
@@ -131,13 +132,15 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         baseOpacityRef.current ?? ({ ...snapshot.shapeOpacity } as ShapeOpacityState);
       const nextOpacity: ShapeOpacityState = { ...baseOpacity };
 
-      const shiftShapeDepth = (shapeId: ShapeId, offset: number) => {
+      const scaleShape = (shapeId: ShapeId, factor: number) => {
         const transform = nextVariant[shapeId];
-        const { position } = transform;
+        const { scale } = transform;
 
         nextVariant[shapeId] = {
           ...transform,
-          position: [position[0], position[1], position[2] + offset],
+          scale: Array.isArray(scale)
+            ? (scale.map((value) => value * factor) as typeof scale)
+            : scale * factor,
         };
       };
 
@@ -153,23 +156,23 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       switch (target) {
         case "home":
           SHAPE_IDS.forEach((shapeId) => {
-            shiftShapeDepth(shapeId, HOVER_FORWARD_DISTANCE);
+            scaleShape(shapeId, HOVER_ALL_SCALE);
             nextOpacity[shapeId] = baseOpacity[shapeId] ?? 1;
           });
           break;
         case "work":
-          shiftShapeDepth("waveSpringLime", HOVER_FORWARD_DISTANCE);
-          shiftShapeDepth("sphereFlamingoSpring", HOVER_FORWARD_DISTANCE);
+          scaleShape("waveSpringLime", HOVER_FOCUSED_SCALE);
+          scaleShape("sphereFlamingoSpring", HOVER_FOCUSED_SCALE);
           dimUnfocusedShapes(["waveSpringLime", "sphereFlamingoSpring"]);
           break;
         case "about":
-          shiftShapeDepth("semiLimeFlamingo", HOVER_FORWARD_DISTANCE);
-          shiftShapeDepth("torusSpringAzure", HOVER_FORWARD_DISTANCE);
+          scaleShape("semiLimeFlamingo", HOVER_FOCUSED_SCALE);
+          scaleShape("torusSpringAzure", HOVER_FOCUSED_SCALE);
           dimUnfocusedShapes(["semiLimeFlamingo", "torusSpringAzure"]);
           break;
         case "contact":
-          shiftShapeDepth("semiFlamingoAzure", HOVER_FORWARD_DISTANCE);
-          shiftShapeDepth("torusFlamingoLime", HOVER_FORWARD_DISTANCE);
+          scaleShape("semiFlamingoAzure", HOVER_FOCUSED_SCALE);
+          scaleShape("torusFlamingoLime", HOVER_FOCUSED_SCALE);
           dimUnfocusedShapes(["semiFlamingoAzure", "torusFlamingoLime"]);
           break;
         case "none":
