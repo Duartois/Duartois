@@ -26,6 +26,7 @@ import {
   type ShapeId,
   type ShapeOpacityState,
   type VariantState,
+  type Vector3Tuple,
 } from "@/components/three/types";
 
 type MenuProps = {
@@ -43,9 +44,11 @@ type NavigationItem = {
 };
 
 const MENU_MOBILE_BREAKPOINT = 1500;
-const HOVER_ALL_SCALE = 1.12;
-const HOVER_FOCUSED_SCALE = 1.14;
 const DIMMED_OPACITY = 0.35;
+const HOME_FORWARD_DISTANCE = 0.95;
+const FOCUSED_FORWARD_DISTANCE = 1.2;
+const HOME_ROTATION_DELTA: Vector3Tuple = [0.28, -0.24, 0.18];
+const FOCUSED_ROTATION_DELTA: Vector3Tuple = [0.32, -0.18, 0.22];
 const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
   "waveSpringLime",
@@ -132,15 +135,21 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         baseOpacityRef.current ?? ({ ...snapshot.shapeOpacity } as ShapeOpacityState);
       const nextOpacity: ShapeOpacityState = { ...baseOpacity };
 
-      const scaleShape = (shapeId: ShapeId, factor: number) => {
+      const transformShape = (
+        shapeId: ShapeId,
+        {
+          forwardBy = 0,
+          rotationDelta = [0, 0, 0] as Vector3Tuple,
+        }: { forwardBy?: number; rotationDelta?: Vector3Tuple },
+      ) => {
         const transform = nextVariant[shapeId];
-        const { scale } = transform;
+        const [x, y, z] = transform.position;
+        const [rx, ry, rz] = transform.rotation;
 
         nextVariant[shapeId] = {
           ...transform,
-          scale: Array.isArray(scale)
-            ? (scale.map((value) => value * factor) as typeof scale)
-            : scale * factor,
+          position: [x, y, z - forwardBy] as Vector3Tuple,
+          rotation: [rx + rotationDelta[0], ry + rotationDelta[1], rz + rotationDelta[2]] as Vector3Tuple,
         };
       };
 
@@ -156,23 +165,44 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       switch (target) {
         case "home":
           SHAPE_IDS.forEach((shapeId) => {
-            scaleShape(shapeId, HOVER_ALL_SCALE);
+            transformShape(shapeId, {
+              forwardBy: HOME_FORWARD_DISTANCE,
+              rotationDelta: HOME_ROTATION_DELTA,
+            });
             nextOpacity[shapeId] = baseOpacity[shapeId] ?? 1;
           });
           break;
         case "work":
-          scaleShape("waveSpringLime", HOVER_FOCUSED_SCALE);
-          scaleShape("sphereFlamingoSpring", HOVER_FOCUSED_SCALE);
+          transformShape("waveSpringLime", {
+            forwardBy: FOCUSED_FORWARD_DISTANCE,
+            rotationDelta: FOCUSED_ROTATION_DELTA,
+          });
+          transformShape("sphereFlamingoSpring", {
+            forwardBy: FOCUSED_FORWARD_DISTANCE,
+            rotationDelta: FOCUSED_ROTATION_DELTA,
+          });
           dimUnfocusedShapes(["waveSpringLime", "sphereFlamingoSpring"]);
           break;
         case "about":
-          scaleShape("semiLimeFlamingo", HOVER_FOCUSED_SCALE);
-          scaleShape("torusSpringAzure", HOVER_FOCUSED_SCALE);
+          transformShape("semiLimeFlamingo", {
+            forwardBy: FOCUSED_FORWARD_DISTANCE,
+            rotationDelta: FOCUSED_ROTATION_DELTA,
+          });
+          transformShape("torusSpringAzure", {
+            forwardBy: FOCUSED_FORWARD_DISTANCE,
+            rotationDelta: FOCUSED_ROTATION_DELTA,
+          });
           dimUnfocusedShapes(["semiLimeFlamingo", "torusSpringAzure"]);
           break;
         case "contact":
-          scaleShape("semiFlamingoAzure", HOVER_FOCUSED_SCALE);
-          scaleShape("torusFlamingoLime", HOVER_FOCUSED_SCALE);
+          transformShape("semiFlamingoAzure", {
+            forwardBy: FOCUSED_FORWARD_DISTANCE,
+            rotationDelta: FOCUSED_ROTATION_DELTA,
+          });
+          transformShape("torusFlamingoLime", {
+            forwardBy: FOCUSED_FORWARD_DISTANCE,
+            rotationDelta: FOCUSED_ROTATION_DELTA,
+          });
           dimUnfocusedShapes(["semiFlamingoAzure", "torusFlamingoLime"]);
           break;
         case "none":
