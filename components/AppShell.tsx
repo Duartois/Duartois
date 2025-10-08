@@ -10,6 +10,7 @@ import {
 import Preloader from "./Preloader";
 import CanvasRoot from "./three/CanvasRoot";
 import { MenuProvider } from "./MenuContext";
+import RoutePrefetcher from "./RoutePrefetcher";
 
 interface AppShellProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ interface AppShellProps {
 }
 
 const REVEAL_EVENT = "app-shell:reveal";
+const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 
 export default function AppShell({ children, navbar }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
@@ -65,6 +67,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       <div className="relative min-h-screen w-full overflow-hidden">
         {!isReady && <Preloader onComplete={handleComplete} />}
         <CanvasRoot isReady={isReady} />
+        <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
           className={isContentVisible ? "" : "pointer-events-none"}
           aria-hidden={!isContentVisible}
