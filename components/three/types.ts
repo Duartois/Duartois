@@ -137,7 +137,7 @@ export const MENU_OVERLAY_MONOGRAM = createMenuMonogramVariant();
 //Posição inicial
 const createFramedVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [2.85, -1.8, -0.2],
+    position: [2.85, -1.8, 1.2],
     rotation: [-1.36, 0.92, -0.2],
     scale: [0.75, 0.75, 0.75],
   },
@@ -308,6 +308,8 @@ export type ThemeName = "light" | "dark";
 
 export const DEFAULT_BRIGHTNESS = 2.3;
 
+export type ShapeOpacityState = Record<ShapeId, number>;
+
 export type ThreeAppState = {
   variantName: VariantName;
   variant: VariantState;
@@ -324,6 +326,7 @@ export type ThreeAppState = {
   pointerDriver: PointerDriver;
   manualPointer: PointerTarget;
   opacity: number;
+  shapeOpacity: ShapeOpacityState;
   brightness: number;
   ready: boolean;
 };
