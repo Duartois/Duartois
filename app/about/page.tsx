@@ -16,7 +16,9 @@ export default function AboutPage() {
   const { theme } = useTheme();
 
   const spotifyAccent = theme === "dark" ? "F3F2F9" : "606887";
-  const spotifyEmbedUrl = `https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23${spotifyAccent}`;
+  const spotifyEmbedUrl =
+    "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
+    spotifyAccent;
 
   useThreeSceneSetup("about");
 
@@ -108,7 +110,8 @@ export default function AboutPage() {
                   data-testid="embed-iframe"
                   height={80}
                   loading="lazy"
-                  src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=606887"
+                  key={theme}
+                  src={spotifyEmbedUrl}
                   style={{ borderRadius: "12px" }}
                   title="Abracadabra - Lady Gaga"
                   width="100%"

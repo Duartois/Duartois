@@ -1006,10 +1006,10 @@ body.dark .miniplayer-wrapper .miniplayer .miniplayer-inner .song-cover {
 }
 
 body.dark .miniplayer-wrapper .miniplayer .miniplayer-inner .song-infos {
-    color: #f3f2f9;
-    color: var(--light-vibrant);
-    background-color: #2b2b33;
-    background-color: var(--dark-muted)
+    color: #2b2b33;
+    color: var(--dark-muted);
+    background-color: #f3f2f9;
+    background-color: var(--light-vibrant)
 }
 
 :-webkit-full-screen {
