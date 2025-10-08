@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
+  type FocusEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -17,6 +19,53 @@ import {
   FALL_ITEM_STAGGER_DELAY,
   getFallItemStyle,
 } from "./fallAnimation";
+import {
+  createVariantState,
+  SHAPE_IDS,
+  SHAPES_GROUP_NAME,
+  type ShapeId,
+  type VariantState,
+  type ThreeAppHandle,
+  type ThreeAppState,
+} from "@/components/three/types";
+import type { Material, Mesh } from "three";
+
+type HoverTarget = "home" | "work" | "about" | "contact" | null;
+type MenuLinkTarget = Exclude<HoverTarget, null>;
+type HighlightTarget = Exclude<HoverTarget, "home" | null>;
+
+const HOVER_HIGHLIGHTS = {
+  work: ["waveSpringLime", "sphereFlamingoSpring"],
+  about: ["semiLimeFlamingo", "torusSpringAzure"],
+  contact: ["semiFlamingoAzure", "torusFlamingoLime"],
+} as const satisfies Record<HighlightTarget, readonly ShapeId[]>;
+
+const HOME_SCALE_FACTOR = 1.08;
+const HIGHLIGHT_SCALE_FACTOR = 1.12;
+const DIMMED_OPACITY = 0.3;
+
+const scaleShapes = (
+  variant: VariantState,
+  ids: readonly ShapeId[],
+  factor: number,
+) => {
+  ids.forEach((id) => {
+    const transform = variant[id];
+    if (!transform) {
+      return;
+    }
+
+    if (Array.isArray(transform.scale)) {
+      transform.scale[0] *= factor;
+      transform.scale[1] *= factor;
+      transform.scale[2] *= factor;
+      return;
+    }
+
+    const baseScale = transform.scale ?? 1;
+    transform.scale = baseScale * factor;
+  });
+};
 
 type MenuProps = {
   isOpen: boolean;
@@ -24,17 +73,153 @@ type MenuProps = {
   id?: string;
 };
 
+type MenuItem = {
+  href: string;
+  label: string;
+  hoverTarget: MenuLinkTarget;
+};
+
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   const { t } = useTranslation("common");
+  const appRef = useRef<ThreeAppHandle | null>(null);
+  const baseVariantRef = useRef<VariantState | null>(null);
+  const hoverTargetRef = useRef<HoverTarget>(null);
+  const shapeMeshesRef = useRef<Partial<Record<ShapeId, Mesh>> | null>(null);
+  const ignoreNextStateChangeRef = useRef(false);
 
-  const items = useMemo(
+  const ensureShapeMeshes = useCallback(() => {
+    if (shapeMeshesRef.current) {
+      return true;
+    }
+
+    const app = appRef.current;
+    if (!app) {
+      return false;
+    }
+
+    const group = app.bundle.scene.getObjectByName(SHAPES_GROUP_NAME);
+    if (!group) {
+      return false;
+    }
+
+    const meshes: Partial<Record<ShapeId, Mesh>> = {};
+    SHAPE_IDS.forEach((id) => {
+      const found = group.getObjectByName(id);
+      if (found && (found as Mesh).isMesh) {
+        meshes[id] = found as Mesh;
+      }
+    });
+
+    if (Object.keys(meshes).length === 0) {
+      return false;
+    }
+
+    shapeMeshesRef.current = meshes;
+    return true;
+  }, []);
+
+  const setShapesOpacity = useCallback(
+    (ids: readonly ShapeId[], opacity: number) => {
+      if (!ensureShapeMeshes()) {
+        return;
+      }
+
+      const meshes = shapeMeshesRef.current;
+      if (!meshes) {
+        return;
+      }
+
+      const applyToMaterial = (material: Material | undefined) => {
+        if (!material) {
+          return;
+        }
+
+        material.opacity = opacity;
+        material.transparent = opacity < 1;
+        material.needsUpdate = true;
+      };
+
+      ids.forEach((id) => {
+        const mesh = meshes[id];
+        if (!mesh) {
+          return;
+        }
+
+        const material = mesh.material;
+        if (Array.isArray(material)) {
+          material.forEach((mat) => applyToMaterial(mat));
+        } else {
+          applyToMaterial(material);
+        }
+      });
+    },
+    [ensureShapeMeshes],
+  );
+
+  const resetShapesOpacity = useCallback(() => {
+    setShapesOpacity(SHAPE_IDS, 1);
+  }, [setShapesOpacity]);
+
+  const applyHover = useCallback(
+    (target: HoverTarget) => {
+      hoverTargetRef.current = target;
+
+      if (target === null || target === "home") {
+        resetShapesOpacity();
+      } else {
+        const highlight = HOVER_HIGHLIGHTS[target];
+        setShapesOpacity(SHAPE_IDS, DIMMED_OPACITY);
+        setShapesOpacity(highlight, 1);
+      }
+
+      const app = appRef.current;
+      const baseVariant = baseVariantRef.current;
+      if (!app || !baseVariant) {
+        return;
+      }
+
+      if (target === null) {
+        ignoreNextStateChangeRef.current = true;
+        app.setState({ variant: createVariantState(baseVariant) });
+        return;
+      }
+
+      const variant = createVariantState(baseVariant);
+
+      if (target === "home") {
+        scaleShapes(variant, SHAPE_IDS, HOME_SCALE_FACTOR);
+      } else {
+        const highlight = HOVER_HIGHLIGHTS[target];
+        scaleShapes(variant, highlight, HIGHLIGHT_SCALE_FACTOR);
+      }
+
+      ignoreNextStateChangeRef.current = true;
+      app.setState({ variant });
+    },
+    [resetShapesOpacity, setShapesOpacity],
+  );
+
+  const handleNavBlur = useCallback(
+    (event: FocusEvent<HTMLElement>) => {
+      if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+        applyHover(null);
+      }
+    },
+    [applyHover],
+  );
+
+  const handleListMouseLeave = useCallback(() => {
+    applyHover(null);
+  }, [applyHover]);
+
+  const items = useMemo<MenuItem[]>(
     () => [
-      { href: "/", label: t("navigation.home") },
-      { href: "/work", label: t("navigation.work") },
-      { href: "/about", label: t("navigation.about") },
-      { href: "/contact", label: t("navigation.contact") },
+      { href: "/", label: t("navigation.home"), hoverTarget: "home" },
+      { href: "/work", label: t("navigation.work"), hoverTarget: "work" },
+      { href: "/about", label: t("navigation.about"), hoverTarget: "about" },
+      { href: "/contact", label: t("navigation.contact"), hoverTarget: "contact" },
     ],
-    [t]
+    [t],
   );
 
   // redes sociais â€“ iguais Ã  referÃªncia
@@ -49,6 +234,61 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const totalItems = items.length + socials.length;
   const hideTimeoutRef = useRef<number | undefined>(undefined);
   const [isVisible, setIsVisible] = useState(isOpen);
+
+  useEffect(() => {
+    if (!isOpen) {
+      applyHover(null);
+      hoverTargetRef.current = null;
+      ignoreNextStateChangeRef.current = false;
+      shapeMeshesRef.current = null;
+      return;
+    }
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const app = window.__THREE_APP__;
+    if (!app) {
+      appRef.current = null;
+      baseVariantRef.current = null;
+      shapeMeshesRef.current = null;
+      return;
+    }
+
+    appRef.current = app;
+
+    const snapshot = app.bundle.getState();
+    baseVariantRef.current = createVariantState(snapshot.variant);
+
+    ensureShapeMeshes();
+    resetShapesOpacity();
+
+    const handleStateChange = (event: Event) => {
+      const { detail } = event as CustomEvent<{ state: Readonly<ThreeAppState> }>;
+      if (!detail?.state) {
+        return;
+      }
+
+      if (ignoreNextStateChangeRef.current) {
+        ignoreNextStateChangeRef.current = false;
+        return;
+      }
+
+      baseVariantRef.current = createVariantState(detail.state.variant);
+
+      if (hoverTargetRef.current) {
+        applyHover(hoverTargetRef.current);
+      }
+    };
+
+    const { events } = app.bundle;
+    events.addEventListener("statechange", handleStateChange as EventListener);
+
+    return () => {
+      events.removeEventListener("statechange", handleStateChange as EventListener);
+    };
+  }, [isOpen, applyHover, ensureShapeMeshes, resetShapesOpacity]);
 
   useEffect(() => {
     if (hideTimeoutRef.current) {
@@ -110,12 +350,17 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     >
       <div className="menu-content" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
         <div className="menu-items">
-          <nav>
-            <ol>
+          <nav onBlur={handleNavBlur}>
+            <ol onMouseLeave={handleListMouseLeave}>
               {items.map((item, i) => (
                 <li key={item.href}>
                   <div className="item-inner" style={itemStyle(i)}>
-                    <Link href={item.href} onClick={onClose}>
+                    <Link
+                      href={item.href}
+                      onClick={onClose}
+                      onMouseEnter={() => applyHover(item.hoverTarget)}
+                      onFocus={() => applyHover(item.hoverTarget)}
+                    >
                       <h1>
                         {item.label}
                       </h1>
