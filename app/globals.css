@@ -30,6 +30,7 @@
     --border-radius: 48px;
     --border: 2px;
     --border-radius-content: 0;
+    --projects-arrow-offset: 1.5rem;
     
 }
 main {
@@ -1889,19 +1890,25 @@ body.dark .project-content-image {
 
 .projects-right ul .projects-row-left .projects-selected-wrapper {
     position: absolute;
-    overflow: hidden
+    overflow: hidden;
+    width: var(--projects-arrow-offset);
+    display: flex;
+    align-items: center;
+    justify-content: center
 }
 
 .projects-right ul .projects-row-left .projects-selected-wrapper .projects-selected {
     padding-right: 12px;
-    position: relative
+    position: relative;
+    transition: transform 450ms cubic-bezier(.34,1.56,.64,1)
 }
 
 .projects-right ul .projects-row-left .projects-title {
     margin-right: var(--left-right-internal-margin);
     text-overflow: ellipsis;
     white-space: nowrap;
-    overflow: hidden
+    overflow: hidden;
+    transition: transform 450ms cubic-bezier(.34,1.56,.64,1)
 }
 
 .projects-right ul .projects-row-left .projects-is-new {
