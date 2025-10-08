@@ -1879,6 +1879,22 @@ body.dark .project-content-image {
     }
 }
 
+@media(max-width: 56.24em) {
+    .projects-right {
+        height: auto;
+    }
+
+    .projects-right ul {
+        height: auto;
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    .projects-right ul .projects-row {
+        height: auto;
+    }
+}
+
 .projects-right ul {
     overflow-y: auto;
     height: 100%;
