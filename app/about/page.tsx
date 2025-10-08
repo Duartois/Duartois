@@ -38,35 +38,24 @@ export default function AboutPage() {
               className="profile-pic"
             />
           </div>
-
-          <div className="miniplayer-wrapper">
-            <div className="miniplayer-border">
-              <img
-                src="/miniplayer-border.svg"
-                alt=""
-                className="miniplayer-border-svg"
-                aria-hidden
-              />
-            </div>
-            <iframe
-              data-testid="embed-iframe"
-              style={{ borderRadius: "12px" }}
-              src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
-              width="100%"
-              height="152"
-              frameBorder={0}
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-            />
-          </div>
         </div>
 
         <div className="about-left" data-hero-index={1} style={fallStyle(1)}>
           <div>
             <div className="page-head">
               <h2 className="page-title">{t("navigation.about")}</h2>
+            
+            <div className="miniplayer">
+            <iframe
+              data-testid="embed-iframe"
+              style={{ borderRadius: "12px" }}
+              src="https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            />
             </div>
+          </div>
             <hr className="head-separator" />
           </div>
           <p className="presentation-text">{t("about.presentation")}</p>

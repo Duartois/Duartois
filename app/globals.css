@@ -803,7 +803,9 @@ body.dark .noise {
 
 .page-head {
     display: flex;
-    align-items: baseline
+    flex-direction: row;
+    align-items: baseline;
+    
 }
 
 .page-head .page-title {
@@ -837,11 +839,10 @@ body.dark .noise {
     margin-bottom: 0
 }
 
-.miniplayer-wrapper {
-    position: absolute;
-    top: 0;
-    width: 156px;
-    height: 156px;
+.miniplayer {
+    display: flex;
+    position: relative;
+    justify-content: flex-end;
     border-radius: 50%
 }
 
