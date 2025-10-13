@@ -108,6 +108,8 @@ type MenuProps = {
 };
 
 
+const HOVER_MEDIA_QUERY = "(min-width: 900px)";
+
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   const { t } = useTranslation("common");
   const items: MenuItem[] = useMemo(
@@ -133,6 +135,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const hideTimeoutRef = useRef<number | undefined>(undefined);
   const [isVisible, setIsVisible] = useState(isOpen);
   const [hoveredItem, setHoveredItem] = useState<MenuItemKey | null>(null);
+  const [isHoverEnabled, setIsHoverEnabled] = useState(false);
   const hoveredItemRef = useRef<MenuItemKey | null>(null);
   const baseVariantRef = useRef<VariantState | null>(null);
   const baseOpacityRef = useRef<ShapeOpacityState | null>(null);
@@ -140,6 +143,42 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   useEffect(() => {
     hoveredItemRef.current = hoveredItem;
   }, [hoveredItem]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia(HOVER_MEDIA_QUERY);
+
+    const updateHoverState = () => {
+      setIsHoverEnabled(mediaQuery.matches);
+    };
+
+    updateHoverState();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      const listener = (event: MediaQueryListEvent) => {
+        setIsHoverEnabled(event.matches);
+      };
+
+      mediaQuery.addEventListener("change", listener);
+      return () => mediaQuery.removeEventListener("change", listener);
+    }
+
+    const listener = (event: MediaQueryListEvent) => {
+      setIsHoverEnabled(event.matches);
+    };
+
+    mediaQuery.addListener(listener);
+    return () => mediaQuery.removeListener(listener);
+  }, []);
+
+  useEffect(() => {
+    if (!isHoverEnabled) {
+      setHoveredItem(null);
+    }
+  }, [isHoverEnabled]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -210,7 +249,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       ? { ...baseOpacityRef.current }
       : { ...FALLBACK_MENU_SHAPE_OPACITY };
 
-    if (!hoveredItem) {
+    if (!isHoverEnabled || !hoveredItem) {
       app.setState({
         variant: baseVariant,
         shapeOpacity: baseOpacity,
@@ -262,7 +301,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       variant: baseVariant,
       shapeOpacity: baseOpacity,
     });
-  }, [hoveredItem, isOpen]);
+  }, [hoveredItem, isHoverEnabled, isOpen]);
 
 
   useEffect(() => {
@@ -326,13 +365,23 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       <div className="menu-content" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
         <div className="menu-items">
           <nav>
-            <ol onPointerLeave={() => setHoveredItem(null)}>
+            <ol
+              onPointerLeave={() => {
+                if (isHoverEnabled) {
+                  setHoveredItem(null);
+                }
+              }}
+            >
               {items.map((item, i) => (
                 <li key={item.href}>
                   <div
                     className="item-inner"
                     style={itemStyle(i)}
-                    onPointerEnter={() => setHoveredItem(item.key)}
+                    onPointerEnter={() => {
+                      if (isHoverEnabled) {
+                        setHoveredItem(item.key);
+                      }
+                    }}
                   >
                     <Link href={item.href} onClick={onClose}>
                       <h1>
