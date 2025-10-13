@@ -202,6 +202,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       return;
     }
 
+    const isDesktopViewport = window.matchMedia("(min-width: 900px)").matches;
+
     const baseVariant = baseVariantRef.current
       ? createVariantState(baseVariantRef.current)
       : createVariantState(FALLBACK_MENU_VARIANT);
@@ -210,7 +212,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       ? { ...baseOpacityRef.current }
       : { ...FALLBACK_MENU_SHAPE_OPACITY };
 
-    if (!hoveredItem) {
+    if (!isDesktopViewport || !hoveredItem) {
       app.setState({
         variant: baseVariant,
         shapeOpacity: baseOpacity,
