@@ -522,16 +522,6 @@ body[data-preloading="true"] main {
     font-variation-settings: "wght" 800,"wdth" 100
 }
 
-@media (max-width: 56.25em) {
-    .menu .menu-items ol li a h1 {
-        transition: none;
-        font-variation-settings: "wght" 800,"wdth" 125
-    }
-
-    .menu .menu-items ol li a h1:hover {
-        font-variation-settings: "wght" 800,"wdth" 125
-    }
-}
 
 .menu .menu-items ol li a :before {
     content: "0" counter(counter);
