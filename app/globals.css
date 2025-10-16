@@ -1839,7 +1839,6 @@ body.dark .project-content-image {
 
 @media(max-width: 47.99em) {
     .projects {
-        padding:calc(var(--innerVh, 1vh)*40) 0 0;
         flex-direction: column;
         height: auto
     }
@@ -1847,7 +1846,6 @@ body.dark .project-content-image {
 
 @media(max-width: 61.99em)and (orientation:portrait) {
     .projects {
-        padding:calc(var(--innerVh, 1vh)*40) 0 0;
         flex-direction: column;
         height: auto
     }
