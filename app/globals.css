@@ -1585,23 +1585,30 @@ body[data-menu-open="true"] .home {
 
 .about-right .profile-pic-wrapper .profile-pic {
     position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border-radius: 0 0 0 var(--border-radius);
     background-color: #606887;
-    -o-object-position: 50% 25%;
-    object-position: 50% 25%;
     -o-object-fit: cover;
-    object-fit: cover
+    object-fit: cover;
+    -o-object-position: 50% 45%;
+    object-position: 50% 45%;
 }
 
 @media(max-width: 47.99em) {
     .about-right .profile-pic-wrapper .profile-pic {
-        border-radius:var(--border-radius)
+        border-radius:var(--border-radius);
+        -o-object-position: 50% 35%;
+        object-position: 50% 35%;
     }
 }
 
 @media(max-width: 61.99em)and (orientation:portrait) {
     .about-right .profile-pic-wrapper .profile-pic {
-        border-radius:var(--border-radius)
+        border-radius:var(--border-radius);
+        -o-object-position: 50% 35%;
+        object-position: 50% 35%;
     }
 }
 
@@ -2500,7 +2507,7 @@ table tr:last-child td {
 }
 
 .profile-pic-wrapper .profile-pic {
-    mix-blend-mode: lighten;
+    mix-blend-mode: normal;
     border-radius: var(--border-radius)
 }
 
@@ -2621,7 +2628,7 @@ body.dark .profile-pic-wrapper {
 }
 
 body.dark .profile-pic-wrapper .profile-pic {
-    mix-blend-mode: lighten
+    mix-blend-mode: normal
 }
 
 body.dark .link-underline {

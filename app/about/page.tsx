@@ -94,7 +94,7 @@ export default function AboutPage() {
           <div className="profile-pic-wrapper">
             <img
               alt={t("about.portraitAlt")}
-              src="https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rst67bqmro07urdf8a8sgu"
+              src="/about-01.avif"
               className="profile-pic"
             />
           </div>
