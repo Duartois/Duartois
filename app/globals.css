@@ -1310,6 +1310,40 @@ body.dark .player-wrapper .player-overlay .controls-wrapper .controls-bar .slide
     }
 }
 
+@media(max-width: 61.99em) {
+    .contact-content .contact-left .link-wrapper .link a {
+        font-size:.9rem
+    }
+}
+
+@media(max-width: 35.99em) {
+    .contact-content .contact-left .link-wrapper .link a {
+        font-size:.8rem
+    }
+}
+
+@media(max-width: 74.99em) {
+    .contact-content .contact-left table {
+        width: 100%;
+    }
+
+    .contact-content .contact-left td:last-child {
+        width: 100%;
+    }
+
+    .contact-content .contact-left .link-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow: visible;
+    }
+
+    .contact-content .contact-left .link-wrapper .link {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+}
+
 footer {
     padding: 0 var(--left-right-margin) 0;
     width: 100%
