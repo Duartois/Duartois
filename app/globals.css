@@ -1310,6 +1310,18 @@ body.dark .player-wrapper .player-overlay .controls-wrapper .controls-bar .slide
     }
 }
 
+@media(max-width: 61.99em) {
+    .contact-content .contact-left .link-wrapper .link a {
+        font-size:.9rem
+    }
+}
+
+@media(max-width: 35.99em) {
+    .contact-content .contact-left .link-wrapper .link a {
+        font-size:.8rem
+    }
+}
+
 footer {
     padding: 0 var(--left-right-margin) 0;
     width: 100%
