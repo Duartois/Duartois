@@ -115,16 +115,9 @@
     }
   },
   "about": {
-    "presentation": "Oi, meu nome é Charles Bruyerre e uso Sharlee como meu apelido nas redes sociais. Sou designer gráfico, designer UX/UI e desenvolvedor front-end da França. Também sou apaixonado por música pop e crio retratos e universos inspirados no que escuto, e estou sempre curioso para aprender mais sobre novas tecnologias e creative coding.",
+    "presentation": "Olá, meu nome é Matheus Duarte e, online, sou conhecido como Duartois. Sou um designer gráfico UX/UI brasileiro, além de desenvolvedor web full-stack. Crio interfaces, exploro programação criativa e construo experiências interativas de design 3D na web. Sempre aprendendo, sempre construindo.",
     "portraitAlt": "Retrato de Sharlee",
     "resumeUrl": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rsu2ktqxq608ur7jwp6an3",
-    "miniplayer": {
-      "href": "https://www.last.fm/music/Lady+Gaga/_/Abracadabra",
-      "cover": "https://lastfm.freetls.fastly.net/i/u/300x300/49b8e2ed4d250fd2923ae56a44f937c0.jpg",
-      "coverAlt": "Capa da música Abracadabra de Lady Gaga",
-      "song": "Abracadabra",
-      "artist": "Lady Gaga"
-    },
     "cta": {
       "resume": "↓ Currículo",
       "contact": "agendar uma chamada"
@@ -133,19 +126,19 @@
   "contact": {
     "mail": {
       "label": "E-mail",
-      "address": "hello@itssharl.ee",
-      "href": "mailto:hello@itssharl.ee"
+      "address": "matheusdugoncalves@gmail.com",
+      "href": "mailto:matheusdugoncalves@gmail.com?subject=new%20visitor"
     },
     "socials": {
       "label": "Redes sociais",
       "links": [
         {
           "label": "Instagram",
-          "href": "https://www.instagram.com/itssharl.ee/"
+          "href": "https://www.instagram.com/matheus.duarteg/"
         },
         {
           "label": "Behance",
-          "href": "https://www.behance.net/itssharlee"
+          "href": "https://www.behance.net/"
         }
       ]
     }
