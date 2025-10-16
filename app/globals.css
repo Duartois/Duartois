@@ -36,7 +36,6 @@
 main {
     position: relative;
     z-index: 1;
-    overflow: hidden;
     width: 100%
 }
 .body-scroll-control {
@@ -2480,13 +2479,12 @@ table tr:last-child td {
 .container {
     position: relative;
     z-index: 1;
-    overflow: hidden;
-    width: 100%;
+    height: 100vh;
 }
 
 .container .page-content {
     height: 100%;
-    width: 100%
+    width:100vw
 }
 
 @media(max-width: 47.99em) {
