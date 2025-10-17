@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
 
 const ROUTE_MODULE_LOADERS: Record<string, () => Promise<unknown>> = {
   "/work": () => import("@/app/work/page"),
@@ -24,7 +25,7 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
       }
 
       prefetchedRoutesRef.current.add(route);
-      void router.prefetch(route, { kind: "full" });
+      void router.prefetch(route, { kind: PrefetchKind.FULL });
 
       const warmRouteModule = ROUTE_MODULE_LOADERS[route];
       if (warmRouteModule) {
