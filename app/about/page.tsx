@@ -9,16 +9,26 @@ import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useTheme } from "../theme/ThemeContext";
 
+type ContactMail = {
+  label: string;
+  address: string;
+  href: string;
+};
+
 export default function AboutPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
-  const fallStyle = useMenuFallAnimation(2);
+  const fallStyle = useMenuFallAnimation(3);
   const { theme } = useTheme();
 
   const spotifyAccent = theme === "dark" ? "F3F2F9" : "606887";
   const spotifyEmbedUrl =
     "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
     spotifyAccent;
+
+  const mail = t("contact.mail", {
+    returnObjects: true,
+  }) as ContactMail;
 
   useThreeSceneSetup("about");
 
@@ -130,6 +140,27 @@ export default function AboutPage() {
               </div>
               <div className="link-underline" />
             </div>
+          </div>
+          <div className="contact-left" data-hero-index={2} style={fallStyle(2)}>
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    <h6>{mail.label}</h6>
+                  </td>
+                  <td>
+                    <div className="link-wrapper">
+                      <div className="link">
+                        <a href={mail.href} target="_blank" rel="noreferrer">
+                          ↗ {mail.address}
+                        </a>
+                      </div>
+                      <div className="link-underline" />
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
