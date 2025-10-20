@@ -1309,6 +1309,34 @@ body.dark .player-wrapper .player-overlay .controls-wrapper .controls-bar .slide
         width:100%
     }
 }
+
+.about-left .contact-left {
+    margin-top: var(--top-internal-margin);
+    width: 100%;
+}
+
+.about-left .contact-left table {
+    width: 100%;
+}
+
+@media(max-width: 47.99em) {
+    .contact-left table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr;
+        row-gap: 0.75rem;
+        justify-items: center;
+    }
+
+    .contact-left table td {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .contact-left .link-wrapper {
+        margin-inline: auto;
+    }
+}
 ;;;;;;;;;;;;;;;;;;;;;;
 
 footer {
