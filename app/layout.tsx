@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import classNames from "classnames";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import AppShell from "@/components/AppShell";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
@@ -14,7 +14,29 @@ type SupportedLang = "pt" | "en";
 function resolveLanguage(): SupportedLang {
   const cookieStore = cookies();
   const cookieLang = cookieStore.get("i18nextLng")?.value;
-  return cookieLang === "en" ? "en" : "pt";
+  if (cookieLang === "en" || cookieLang === "pt") {
+    return cookieLang;
+  }
+
+  const headerStore = headers();
+  const acceptLanguage = headerStore.get("accept-language");
+  if (acceptLanguage) {
+    const locales = acceptLanguage
+      .split(",")
+      .map((part) => part.trim().split(";")[0]?.toLowerCase())
+      .filter(Boolean) as string[];
+
+    for (const locale of locales) {
+      if (locale.startsWith("pt")) {
+        return "pt";
+      }
+      if (locale.startsWith("en")) {
+        return "en";
+      }
+    }
+  }
+
+  return "en";
 }
 
 
