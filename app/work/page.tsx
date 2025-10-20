@@ -11,12 +11,12 @@ import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
 const projectOrder = [
-  "sharlee",
-  "actResponsable",
-  "duaLipa",
-  "cocolyze",
-  "lesIndecis",
-  "gameOfTheGoose",
+  "Duartois",
+  "WealthComplex",
+  "RETROCHROMA",
+  "Bichinhos Ousados",
+  "Coverage",
+  "Evergreen",
   "lequipeExplore",
   "silhouette",
   "portraits",

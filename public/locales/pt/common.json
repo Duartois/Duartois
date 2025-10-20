@@ -40,52 +40,52 @@
     "subtitle": "Passe o cursor ou use o teclado para revelar snapshots do processo híbrido entre 3D, código e direção de arte.",
     "previewHint": "Escolha um projeto",
     "projects": {
-      "sharlee": {
-        "title": "Sharlee",
+      "Duartoi": {
+        "title": "Duartois",
         "category": "Branding",
-        "href": "/work/sharlee",
+        "href": "/work/Duartois",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr38gep0kx08ur49lovevv",
-        "coverAlt": "Capa do projeto Sharlee",
+        "coverAlt": "Capa do projeto Duartois",
         "coverPlaceholder": "rgb(91, 237, 199)"
       },
-      "actResponsable": {
-        "title": "ACT Responsable",
+      "WealthComplex": {
+        "title": "WealthComplex",
         "category": "Desenvolvimento Web",
-        "href": "/work/act-responsable",
+        "href": "/work/WealthComplex",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rq5glpo27o07ukwp1itrg2",
-        "coverAlt": "Capa do projeto ACT Responsable",
+        "coverAlt": "Capa do projeto WealthComplex",
         "coverPlaceholder": "rgb(231, 163, 167)"
       },
-      "duaLipa": {
-        "title": "Dua Lipa",
+      "RETROCHROMA": {
+        "title": "RETROCHROMA",
         "category": "Retrato",
-        "href": "/work/dua-lipa",
+        "href": "/work/RETROCHROMA",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs841tpy7n07ur7jivicon",
-        "coverAlt": "Capa do projeto Dua Lipa",
+        "coverAlt": "Capa do projeto RETROCHROMA",
         "coverPlaceholder": "rgb(248, 255, 129)"
       },
-      "cocolyze": {
-        "title": "Cocolyze",
-        "category": "Design UX/UI",
-        "href": "/work/cocolyze",
+      "Bichinhos Ousados": {
+        "title": "Bichinhos Ousados",
+        "category": "Desenvolvimento Web",
+        "href": "/work/Bichinhos Ousados",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqa5voo2gj08urw6x6qk8w",
-        "coverAlt": "Capa do projeto Cocolyze",
+        "coverAlt": "Capa do projeto Bichinhos Ousados",
         "coverPlaceholder": "rgb(137, 223, 214)"
       },
-      "lesIndecis": {
-        "title": "Les Indécis",
-        "category": "Branding",
-        "href": "/work/les-indecis",
+      "Coverage": {
+        "title": "Coverage",
+        "category": "Design UX/UI",
+        "href": "/work/Coverage",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs8yutpyup07ursumcy3r7",
-        "coverAlt": "Capa do projeto Les Indécis",
+        "coverAlt": "Capa do projeto Coverage",
         "coverPlaceholder": "rgb(119, 208, 206)"
       },
-      "gameOfTheGoose": {
-        "title": "Game of the goose",
-        "category": "Game Design",
-        "href": "/work/game-of-the-goose",
+      "Evergreen": {
+        "title": "Evergreen",
+        "category": "SaaS",
+        "href": "/work/Evergreen",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs7m8kpxp907urgq9ovkoo",
-        "coverAlt": "Capa do projeto Game of the Goose",
+        "coverAlt": "Capa do projeto Evergreen",
         "coverPlaceholder": "rgb(173, 188, 186)"
       },
       "lequipeExplore": {
@@ -116,7 +116,7 @@
   },
   "about": {
     "presentation": "Olá, meu nome é Matheus Duarte e, online, sou conhecido como Duartois. Sou um designer gráfico UX/UI brasileiro, além de desenvolvedor web full-stack. Crio interfaces, exploro programação criativa e construo experiências interativas de design 3D na web. Sempre aprendendo, sempre construindo.",
-    "portraitAlt": "Retrato de Sharlee",
+    "portraitAlt": "Retrato de Duarto",
     "resumeUrl": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rsu2ktqxq608ur7jwp6an3",
     "cta": {
       "resume": "↓ Currículo",

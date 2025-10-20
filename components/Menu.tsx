@@ -125,8 +125,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   // redes sociais â€“ iguais Ã  referÃªncia
   const socials = useMemo(
     () => [
-      { href: "https://www.instagram.com/itssharl.ee/", label: "Instagram" },
-      { href: "https://www.behance.net/itssharlee", label: "Behance" },
+      { href: "https://www.instagram.com/matheus.duarteg/", label: "Instagram" },
+      { href: "https://www.behance.net/", label: "Behance" },
     ],
     []
   );
