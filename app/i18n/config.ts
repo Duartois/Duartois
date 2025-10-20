@@ -26,13 +26,25 @@ function getInitialLng(): "pt" | "en" {
   }
 
   if (typeof navigator !== "undefined") {
-    const preferred = navigator.language?.slice(0, 2);
-    if (preferred === "en" || preferred === "pt") {
-      return preferred;
+    const preferredLanguages = Array.isArray(navigator.languages)
+      ? navigator.languages
+      : [navigator.language];
+
+    for (const language of preferredLanguages) {
+      if (typeof language !== "string") {
+        continue;
+      }
+      const normalized = language.slice(0, 2);
+      if (normalized === "pt") {
+        return "pt";
+      }
+      if (normalized === "en") {
+        return "en";
+      }
     }
   }
 
-  return "pt";
+  return "en";
 }
 
 if (!i18n.isInitialized) {

@@ -22,28 +22,8 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function getSystemTheme(): Theme {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 function resolveInitialTheme(): Theme {
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return "light";
-  }
-
-  const root = document.documentElement;
-  const fromDom = root.getAttribute("data-theme");
-
-  if (fromDom === "dark" || fromDom === "light") {
-    return fromDom;
-  }
-
-  const stored = window.localStorage.getItem("theme");
-  if (stored === "dark" || stored === "light") {
-    return stored;
-  }
-
-  return getSystemTheme();
+  return "light";
 }
 
 function syncThreeTheme(next: Theme) {
@@ -76,19 +56,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyTheme(theme);
     syncThreeTheme(theme);
   }, [theme]);
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (event: MediaQueryListEvent) => {
-      if (!window.localStorage.getItem("theme")) {
-        const next = event.matches ? "dark" : "light";
-        setThemeState(next);
-      }
-    };
-
-    media.addEventListener("change", handleChange);
-    return () => media.removeEventListener("change", handleChange);
-  }, []);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(() => {
