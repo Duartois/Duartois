@@ -15,11 +15,11 @@ const projectOrder = [
   "WealthComplex",
   "RETROCHROMA",
   "Bichinhos Ousados",
-  "Coverage",
+  "POV.Tessellum",
   "Evergreen",
-  "lequipeExplore",
-  "silhouette",
-  "portraits",
+  "Flowly",
+  "Coverage",
+  "Feature",
 ] as const;
 
 type ProjectKey = (typeof projectOrder)[number];

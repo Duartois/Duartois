@@ -154,62 +154,6 @@ export default function AboutPage() {
               <div className="link-underline" />
             </div>
           </div>
-          <div className="about-contact" data-hero-index={2} style={fallStyle(2)}>
-            <div className="page-head">
-              <h2 className="page-title">{t("navigation.contact")}</h2>
-            </div>
-            <hr className="head-separator" />
-            <div className="contact-content">
-              <div className="contact-left">
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <h6>{mail.label}</h6>
-                      </td>
-                      <td>
-                        <div className="link-wrapper">
-                          <div className="link">
-                            <a href={mail.href} target="_blank" rel="noreferrer">
-                              ↗ {mail.address}
-                            </a>
-                          </div>
-                          <div className="link-underline" />
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="contact-right">
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <h6>{socials.label}</h6>
-                      </td>
-                      <td>
-                        <ul>
-                          {socials.links.map((link) => (
-                            <li key={link.href}>
-                              <div className="link-wrapper">
-                                <div className="link">
-                                  <a href={link.href} target="_blank" rel="noreferrer">
-                                    ↗ {link.label}
-                                  </a>
-                                </div>
-                                <div className="link-underline" />
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </main>

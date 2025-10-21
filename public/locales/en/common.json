@@ -52,7 +52,7 @@
         "title": "WealthComplex",
         "category": "Web Development",
         "href": "/work/WealthComplex",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rq5glpo27o07ukwp1itrg2",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10iy470dyi08ph22lhoqox",
         "coverAlt": "Cover of the project WealthComplex",
         "coverPlaceholder": "rgb(231, 163, 167)"
       },
@@ -60,7 +60,7 @@
         "title": "RETROCHROMA",
         "category": "Portrait",
         "href": "/work/RETROCHROMA",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs841tpy7n07ur7jivicon",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10k9ki0do507plnoi22k6r",
         "coverAlt": "Cover of the project RETROCHROMA",
         "coverPlaceholder": "rgb(248, 255, 129)"
       },
@@ -68,48 +68,47 @@
         "title": "Bichinhos Ousados",
         "category": "Web Development",
         "href": "/work/Bichinhos Ousados",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqa5voo2gj08urw6x6qk8w",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmgzfbuoz2hf507o09k2nvvdn",
         "coverAlt": "Cover of the project Bichinhos Ousados",
         "coverPlaceholder": "rgb(137, 223, 214)"
       },
-      "Coverage": {
-        "title": "Coverage",
+      "POV.Tessellum": {
+        "title": "POV.Tessellum",
         "category": "UX/UI Design",
-        "href": "/work/Coverage",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs8yutpyup07ursumcy3r7",
-        "coverAlt": "Cover of the project Coverage",
-        "coverPlaceholder": "rgb(119, 208, 206)"
+        "href": "/work/POV.Tessellum",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loy30e2b08phhp6mxamw",
+        "coverAlt": "Cover of the project POV.Tessellum",
+        "coverPlaceholder": "rgb(163, 167, 185)"
       },
       "Evergreen": {
         "title": "Evergreen",
         "category": "SaaS",
         "href": "/work/Evergreen",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rs7m8kpxp907urgq9ovkoo",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loxu0dq807plgnfpkgot",
         "coverAlt": "Cover of the project Evergreen",
         "coverPlaceholder": "rgb(173, 188, 186)"
       },
-      "lequipeExplore": {
-        "title": "L’Équipe Explore",
-        "category": "Illustration",
-        "href": "/work/lequipe-explore",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rsa2f5qa8e08uroxavu02d",
-        "coverAlt": "Cover of the project L’Équipe Explore",
+      "Flowly": {
+        "title": "Flowly",
+        "category": "SaaS",
+        "href": "/work/Flowly",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loxy0e2608phm509dd7f",
+        "coverAlt": "Cover of the project Flowly",
         "coverPlaceholder": "rgb(233, 220, 97)"
+      },      "Coverage": {
+        "title": "Coverage",
+        "category": "UX/UI Design",
+        "href": "/work/Coverage",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh11p0lj0fi608phg4o006wu",
+        "coverAlt": "Cover of the project Coverage",
+        "coverPlaceholder": "rgb(119, 208, 206)"
       },
-      "silhouette": {
-        "title": "Silhouette",
+      "Feature": {
+        "title": "Feature",
         "category": "Portrait",
-        "href": "/work/silhouette",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr3xtxop0u07urwqls6szn",
-        "coverAlt": "Cover of the project Silhouette",
-        "coverPlaceholder": "rgb(163, 167, 185)"
-      },
-      "portraits": {
-        "title": "Portraits",
-        "category": "Portrait",
-        "href": "/work/portraits",
-        "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rsajlmq0e807uru9k9h1xu",
-        "coverAlt": "Cover of the project Portraits",
+        "href": "/work/Feature",
+        "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh11ek7i0ep407plwiaxyc23",
+        "coverAlt": "Cover of the project Feature",
         "coverPlaceholder": "rgb(248, 212, 195)"
       }
     }
