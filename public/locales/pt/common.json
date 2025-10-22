@@ -34,7 +34,7 @@
       "ctaProjects": "→ veja meus projetos",
       "ctaAbout": "→ mais sobre mim"
     }
-    },
+  },
   "work": {
     "title": "Experimentos selecionados",
     "subtitle": "Passe o cursor ou use o teclado para revelar snapshots do processo híbrido entre 3D, código e direção de arte.",
@@ -43,7 +43,7 @@
       "Duartois": {
         "title": "Duartois",
         "category": "Branding",
-        "href": "/work/Duartois",
+        "href": "/work/duartois",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr38gep0kx08ur49lovevv",
         "coverAlt": "Capa do projeto Duartois",
         "coverPlaceholder": "rgb(91, 237, 199)"
@@ -51,7 +51,7 @@
       "WealthComplex": {
         "title": "WealthComplex",
         "category": "Desenvolvimento Web",
-        "href": "/work/WealthComplex",
+        "href": "/work/wealthcomplex",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10iy470dyi08ph22lhoqox",
         "coverAlt": "Capa do projeto WealthComplex",
         "coverPlaceholder": "rgb(231, 163, 167)"
@@ -59,7 +59,7 @@
       "RETROCHROMA": {
         "title": "RETROCHROMA",
         "category": "Retrato",
-        "href": "/work/RETROCHROMA",
+        "href": "/work/retrochroma",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10k9ki0do507plnoi22k6r",
         "coverAlt": "Capa do projeto RETROCHROMA",
         "coverPlaceholder": "rgb(248, 255, 129)"
@@ -67,14 +67,15 @@
       "Bichinhos Ousados": {
         "title": "Bichinhos Ousados",
         "category": "Desenvolvimento Web",
-        "href": "/work/Bichinhos Ousados",
+        "href": "/work/bichinhos-ousados",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmgzfbuoz2hf507o09k2nvvdn",
         "coverAlt": "Capa do projeto Bichinhos Ousados",
         "coverPlaceholder": "rgb(137, 223, 214)"
-      },"POV.Tessellum": {
+      },
+      "POV.Tessellum": {
         "title": "POV.Tessellum",
         "category": "Design UX/UI",
-        "href": "/work/POV.Tessellum",
+        "href": "/work/pov-tessellum",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loy30e2b08phhp6mxamw",
         "coverAlt": "Capa do projeto POV.Tessellum",
         "coverPlaceholder": "rgb(163, 167, 185)"
@@ -82,7 +83,7 @@
       "Evergreen": {
         "title": "Evergreen",
         "category": "SaaS",
-        "href": "/work/Evergreen",
+        "href": "/work/evergreen",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loxu0dq807plgnfpkgot",
         "coverAlt": "Capa do projeto Evergreen",
         "coverPlaceholder": "rgb(173, 188, 186)"
@@ -90,14 +91,15 @@
       "Flowly": {
         "title": "Flowly",
         "category": "SaaS",
-        "href": "/work/Flowly",
+        "href": "/work/flowly",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loxy0e2608phm509dd7f",
         "coverAlt": "Capa do projeto Flowly",
         "coverPlaceholder": "rgb(233, 220, 97)"
-      },"Coverage": {
+      },
+      "Coverage": {
         "title": "Coverage",
         "category": "Design UX/UI",
-        "href": "/work/Coverage",
+        "href": "/work/coverage",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh11p0lj0fi608phg4o006wu",
         "coverAlt": "Capa do projeto Coverage",
         "coverPlaceholder": "rgb(119, 208, 206)"
@@ -105,7 +107,7 @@
       "Feature": {
         "title": "Feature",
         "category": "Retrato",
-        "href": "/work/Feature",
+        "href": "/work/feature",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh11ek7i0ep407plwiaxyc23",
         "coverAlt": "Capa do projeto Feature",
         "coverPlaceholder": "rgb(248, 212, 195)"
@@ -161,5 +163,15 @@
   },
   "navOverlay": {
     "socialHeading": "Redes"
+  },
+  "projectPage": {
+    "metadata": {
+      "category": "Categoria",
+      "year": "Ano",
+      "awards": "Prêmios",
+      "team": "Equipe",
+      "client": "Cliente"
+    },
+    "nextProject": "Próximo projeto"
   }
 }

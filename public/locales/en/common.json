@@ -43,7 +43,7 @@
       "Duartois": {
         "title": "Duartois",
         "category": "Branding",
-        "href": "/work/Duartois",
+        "href": "/work/duartois",
         "cover": "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr38gep0kx08ur49lovevv",
         "coverAlt": "Cover of the project Duartois",
         "coverPlaceholder": "rgb(91, 237, 199)"
@@ -51,7 +51,7 @@
       "WealthComplex": {
         "title": "WealthComplex",
         "category": "Web Development",
-        "href": "/work/WealthComplex",
+        "href": "/work/wealthcomplex",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10iy470dyi08ph22lhoqox",
         "coverAlt": "Cover of the project WealthComplex",
         "coverPlaceholder": "rgb(231, 163, 167)"
@@ -59,7 +59,7 @@
       "RETROCHROMA": {
         "title": "RETROCHROMA",
         "category": "Portrait",
-        "href": "/work/RETROCHROMA",
+        "href": "/work/retrochroma",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10k9ki0do507plnoi22k6r",
         "coverAlt": "Cover of the project RETROCHROMA",
         "coverPlaceholder": "rgb(248, 255, 129)"
@@ -67,7 +67,7 @@
       "Bichinhos Ousados": {
         "title": "Bichinhos Ousados",
         "category": "Web Development",
-        "href": "/work/Bichinhos Ousados",
+        "href": "/work/bichinhos-ousados",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmgzfbuoz2hf507o09k2nvvdn",
         "coverAlt": "Cover of the project Bichinhos Ousados",
         "coverPlaceholder": "rgb(137, 223, 214)"
@@ -75,7 +75,7 @@
       "POV.Tessellum": {
         "title": "POV.Tessellum",
         "category": "UX/UI Design",
-        "href": "/work/POV.Tessellum",
+        "href": "/work/pov-tessellum",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loy30e2b08phhp6mxamw",
         "coverAlt": "Cover of the project POV.Tessellum",
         "coverPlaceholder": "rgb(163, 167, 185)"
@@ -83,7 +83,7 @@
       "Evergreen": {
         "title": "Evergreen",
         "category": "SaaS",
-        "href": "/work/Evergreen",
+        "href": "/work/evergreen",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loxu0dq807plgnfpkgot",
         "coverAlt": "Cover of the project Evergreen",
         "coverPlaceholder": "rgb(173, 188, 186)"
@@ -91,14 +91,15 @@
       "Flowly": {
         "title": "Flowly",
         "category": "SaaS",
-        "href": "/work/Flowly",
+        "href": "/work/flowly",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10loxy0e2608phm509dd7f",
         "coverAlt": "Cover of the project Flowly",
         "coverPlaceholder": "rgb(233, 220, 97)"
-      },      "Coverage": {
+      },
+      "Coverage": {
         "title": "Coverage",
         "category": "UX/UI Design",
-        "href": "/work/Coverage",
+        "href": "/work/coverage",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh11p0lj0fi608phg4o006wu",
         "coverAlt": "Cover of the project Coverage",
         "coverPlaceholder": "rgb(119, 208, 206)"
@@ -106,7 +107,7 @@
       "Feature": {
         "title": "Feature",
         "category": "Portrait",
-        "href": "/work/Feature",
+        "href": "/work/feature",
         "cover": "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh11ek7i0ep407plwiaxyc23",
         "coverAlt": "Cover of the project Feature",
         "coverPlaceholder": "rgb(248, 212, 195)"
@@ -122,7 +123,6 @@
       "contact": "book a call"
     }
   },
-
   "contact": {
     "mail": {
       "label": "Mail",
@@ -163,5 +163,15 @@
   },
   "navOverlay": {
     "socialHeading": "Social"
+  },
+  "projectPage": {
+    "metadata": {
+      "category": "Category",
+      "year": "Year",
+      "awards": "Awards",
+      "team": "Team",
+      "client": "Client"
+    },
+    "nextProject": "Next project"
   }
 }
