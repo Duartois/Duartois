@@ -42,8 +42,16 @@ main {
     overflow-y: hidden
 }
 
+.body-scroll-control.body-scrollable {
+    overflow-y: auto
+}
+
 .app-shell {
     overflow: hidden
+}
+
+.app-shell.app-shell-scrollable {
+    overflow-y: auto
 }
 
 @media(max-width: 56.24em) {
