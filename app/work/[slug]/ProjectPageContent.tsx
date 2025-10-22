@@ -30,7 +30,46 @@ type ProjectCopy = {
 type DetailStyle = CSSProperties & {
   "--accentColor": string;
   "--accentColorDark": string;
+  "--accentColorTint": string;
+  "--accentColorSoft": string;
+  "--accentColorOutline": string;
+  "--accentColorStrong": string;
 };
+
+const ACCENT_FALLBACK_CHANNEL = "96, 104, 135";
+
+function hexToRgba(hex: string, alpha: number) {
+  const fallback = `rgba(${ACCENT_FALLBACK_CHANNEL}, ${alpha})`;
+
+  if (typeof hex !== "string") {
+    return fallback;
+  }
+
+  let normalized = hex.trim().replace(/^#/, "");
+
+  if (normalized.length === 3) {
+    normalized = normalized
+      .split("")
+      .map((char) => char + char)
+      .join("");
+  }
+
+  if (normalized.length !== 6) {
+    return fallback;
+  }
+
+  const value = Number.parseInt(normalized, 16);
+
+  if (Number.isNaN(value)) {
+    return fallback;
+  }
+
+  const red = (value >> 16) & 255;
+  const green = (value >> 8) & 255;
+  const blue = value & 255;
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
 
 export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const detail = getProjectDetailBySlug(slug);
@@ -47,13 +86,21 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
     });
   }, [detail.key]);
 
-  const projectStyle = useMemo<DetailStyle>(
-    () => ({
+  const projectStyle = useMemo<DetailStyle>(() => {
+    const accentTint = hexToRgba(detail.accentColor, 0.18);
+    const accentSoft = hexToRgba(detail.accentColor, 0.1);
+    const accentOutline = hexToRgba(detail.accentColorDark, 0.3);
+    const accentStrong = hexToRgba(detail.accentColorDark, 0.6);
+
+    return {
       "--accentColor": detail.accentColor,
       "--accentColorDark": detail.accentColorDark,
-    }),
-    [detail.accentColor, detail.accentColorDark],
-  );
+      "--accentColorTint": accentTint,
+      "--accentColorSoft": accentSoft,
+      "--accentColorOutline": accentOutline,
+      "--accentColorStrong": accentStrong,
+    };
+  }, [detail.accentColor, detail.accentColorDark]);
 
   const currentIndex = projectOrder.indexOf(detail.key);
   const nextKey =
