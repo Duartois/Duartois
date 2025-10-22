@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import "../../i18n/config";
 
 import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
+import { useMenu } from "@/components/MenuContext";
 
 import {
   projectOrder,
@@ -35,6 +36,7 @@ type DetailStyle = CSSProperties & {
 export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const detail = getProjectDetailBySlug(slug);
   const { t } = useTranslation("common");
+  const { isOpen: isMenuOpen } = useMenu();
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -43,9 +45,12 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
       variantName: projectPreviews[detail.key].variantName,
       parallax: false,
       hovered: false,
-      opacity: 0.3,
     });
   }, [detail.key]);
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [isMenuOpen]);
 
   const projectStyle = useMemo<DetailStyle>(
     () => ({
@@ -67,15 +72,23 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
 
   return (
     <main className="container work-container">
-      <div data-scroll-container="true" id="scroll-container">
-        <div
-          data-scroll-section="true"
-          data-scroll-section-id="section0"
-          data-scroll-section-inview=""
-        >
-          <div className="page-content" style={{ pointerEvents: "auto" }}>
-            <div className="project" style={projectStyle}>
-              <div className="header-project">
+      <div
+        style={{
+          pointerEvents: isMenuOpen ? "none" : "auto",
+          opacity: isMenuOpen ? 0 : 1,
+          transition: "opacity 300ms ease",
+        }}
+        aria-hidden={isMenuOpen}
+      >
+        <div data-scroll-container="true" id="scroll-container">
+          <div
+            data-scroll-section="true"
+            data-scroll-section-id="section0"
+            data-scroll-section-inview=""
+          >
+            <div className="page-content" style={{ pointerEvents: "auto" }}>
+              <div className="project" style={projectStyle}>
+                <div className="header-project">
                 <div className="hero-image-wrapper">
                   <img
                     alt={detail.heroImage.alt}
@@ -173,6 +186,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 </Link>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
