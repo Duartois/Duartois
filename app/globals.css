@@ -718,22 +718,10 @@ body[data-preloading="true"] main {
     background-size: 200px;
     background-repeat: repeat;
     pointer-events: none;
-    opacity: .22;
-    mix-blend-mode: multiply;
-    filter: contrast(1.35);
+    opacity: var(--noise-opacity, .22);
+    mix-blend-mode: var(--noise-blend-mode, multiply);
+    filter: var(--noise-filter, contrast(1.35));
     transition: opacity .3s ease,filter .3s ease,mix-blend-mode .3s ease
-}
-
-.noise--light {
-    opacity: .22;
-    mix-blend-mode: multiply;
-    filter: contrast(1.35)
-}
-
-.noise--dark {
-    opacity: .18;
-    mix-blend-mode: screen;
-    filter: invert(1) brightness(1.2) contrast(1.75)
 }
 
 @-webkit-keyframes grain {
@@ -2475,16 +2463,16 @@ body.dark .error-container .error-code {
 html[data-theme=light] {
     --background-color: #f3f2f9;
     --color: #606887;
-    --noise-opacity: .25;
-    --noise-filter: none;
-    --noise-blend-mode: normal
+    --noise-opacity: .22;
+    --noise-filter: contrast(1.35);
+    --noise-blend-mode: multiply
 }
 
 html[data-theme=dark] {
     --background-color: #2b2b33;
     --color: #f3f2f9;
-    --noise-opacity: .28;
-    --noise-filter: brightness(1.2) contrast(1.15);
+    --noise-opacity: .18;
+    --noise-filter: invert(1) brightness(1.2) contrast(1.75);
     --noise-blend-mode: screen
 }
 
