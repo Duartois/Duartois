@@ -66,7 +66,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const nextProjectSlug = projectSlugByKey[nextKey];
 
   return (
-    <main className="container">
+    <main className="container work-container">
       <div data-scroll-container="true" id="scroll-container">
         <div
           data-scroll-section="true"
