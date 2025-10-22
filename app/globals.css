@@ -717,8 +717,23 @@ body[data-preloading="true"] main {
     background-image: url(/noise.png);
     background-size: 200px;
     background-repeat: repeat;
-    opacity: .25;
-    pointer-events: none
+    pointer-events: none;
+    opacity: .22;
+    mix-blend-mode: multiply;
+    filter: contrast(1.35);
+    transition: opacity .3s ease,filter .3s ease,mix-blend-mode .3s ease
+}
+
+.noise--light {
+    opacity: .22;
+    mix-blend-mode: multiply;
+    filter: contrast(1.35)
+}
+
+.noise--dark {
+    opacity: .18;
+    mix-blend-mode: screen;
+    filter: invert(1) brightness(1.2) contrast(1.75)
 }
 
 @-webkit-keyframes grain {
@@ -803,10 +818,6 @@ body[data-preloading="true"] main {
     90% {
         transform: translate(-10%,10%)
     }
-}
-
-body.dark .noise {
-    opacity: .2
 }
 
 .page-head {
