@@ -5,28 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { type VariantName } from "../../components/three/types";
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
-const projectOrder = [
-  "Duartois",
-  "WealthComplex",
-  "RETROCHROMA",
-  "Bichinhos Ousados",
-  "POV.Tessellum",
-  "Evergreen",
-  "Flowly",
-  "Coverage",
-  "Feature",
-] as const;
-
-type ProjectKey = (typeof projectOrder)[number];
-
-type ProjectPreview = {
-  variantName: VariantName;
-};
+import {
+  projectOrder,
+  type ProjectKey,
+  projectPreviews,
+} from "./projects";
 
 type ProjectCopy = {
   title: string;
@@ -36,14 +23,6 @@ type ProjectCopy = {
   coverAlt: string;
   coverPlaceholder: string;
 };
-
-const projectPreviews: Record<ProjectKey, ProjectPreview> = projectOrder.reduce(
-  (previews, key) => {
-    previews[key] = { variantName: "work" };
-    return previews;
-  },
-  {} as Record<ProjectKey, ProjectPreview>,
-);
 
 export default function WorkPage() {
   const { t } = useTranslation("common");
