@@ -70,10 +70,7 @@ export default function WorkPage() {
         aria-hidden={isMenuOpen}
       >
         <div className="projects-left" style={fallStyle(0)}>
-          <div
-            className="projects-left-inside"
-            style={{ borderRadius: "0 48px 0 0", opacity: 1 }}
-          >
+          <div className="projects-left-inside">
             {projectOrder.map((projectKey) => {
               const copy = projectCopy[projectKey];
               const isActive = projectKey === activeProject;
@@ -84,14 +81,16 @@ export default function WorkPage() {
                   className="projects-image-wrapper"
                   style={{
                     opacity: isActive ? 1 : 0,
-                    transition: "opacity 400ms ease",
+                    transform: isActive ? "scale(1)" : "scale(1.02)",
+                    transition:
+                      "opacity 400ms ease, transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
                   <div
                     className="projects-image-scale"
                     style={{
                       transform: "none",
-                      transition: "transform 600ms ease",
+                      transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                     }}
                   >
                     <img
@@ -132,6 +131,7 @@ export default function WorkPage() {
                     className="projects-row"
                     onMouseEnter={() => setActiveProject(projectKey)}
                     onFocus={() => setActiveProject(projectKey)}
+                    aria-current={isActive ? "true" : undefined}
                   >
                     <div className="projects-row-left">
                       <div className="projects-selected-wrapper">
