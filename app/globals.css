@@ -2460,7 +2460,9 @@ body.dark .error-container .error-code {
     }
 }
 
-html[data-theme=light] {
+:root,
+html[data-theme=light],
+html.light {
     --background-color: #f3f2f9;
     --color: #606887;
     --noise-opacity: .22;
@@ -2468,7 +2470,9 @@ html[data-theme=light] {
     --noise-blend-mode: multiply
 }
 
-html[data-theme=dark] {
+:root.dark,
+html[data-theme=dark],
+html.dark {
     --background-color: #2b2b33;
     --color: #f3f2f9;
     --noise-opacity: .18;
