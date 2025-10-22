@@ -49,6 +49,29 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   }, [detail.key]);
 
   useEffect(() => {
+    const body = document.body;
+    const appShell = document.querySelector(".app-shell");
+
+    if (!body) {
+      return;
+    }
+
+    body.classList.add("body-scrollable");
+
+    if (appShell instanceof HTMLElement) {
+      appShell.classList.add("app-shell-scrollable");
+    }
+
+    return () => {
+      body.classList.remove("body-scrollable");
+
+      if (appShell instanceof HTMLElement) {
+        appShell.classList.remove("app-shell-scrollable");
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
   }, [isMenuOpen]);
 
