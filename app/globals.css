@@ -717,10 +717,23 @@ body[data-preloading="true"] main {
     background-image: url(/noise.png);
     background-size: 200px;
     background-repeat: repeat;
-    opacity: var(--noise-opacity, .25);
     pointer-events: none;
-    mix-blend-mode: var(--noise-blend-mode, normal);
-    filter: var(--noise-filter, none)
+    opacity: .22;
+    mix-blend-mode: multiply;
+    filter: contrast(1.35);
+    transition: opacity .3s ease,filter .3s ease,mix-blend-mode .3s ease
+}
+
+.noise--light {
+    opacity: .22;
+    mix-blend-mode: multiply;
+    filter: contrast(1.35)
+}
+
+.noise--dark {
+    opacity: .18;
+    mix-blend-mode: screen;
+    filter: invert(1) brightness(1.2) contrast(1.75)
 }
 
 @-webkit-keyframes grain {
