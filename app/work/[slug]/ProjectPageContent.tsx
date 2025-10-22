@@ -82,6 +82,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                     src={detail.heroImage.src}
                     className="hero-image"
                     loading="eager"
+                    decoding="async"
                   />
                 </div>
               </div>
@@ -145,6 +146,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                         src={block.src}
                         className="project-content-image"
                         loading="lazy"
+                        decoding="async"
                       />
                     </div>
                   );
