@@ -40,6 +40,7 @@ export default function Navbar() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hoverHold, setHoverHold] = useState(false);
   const animTimerRef = useRef<number | undefined>(undefined);
+  const hasAnnouncedMenuStateRef = useRef(false);
   const storedSceneStateRef = useRef<StoredSceneState | null>(null);
   const [menuSceneVersion, setMenuSceneVersion] = useState(0);
   const pathname = usePathname();
@@ -176,6 +177,23 @@ export default function Navbar() {
     getFallItemStyle(isFallActive, index, totalFallItems, {
       disable: disableFallAnimation,
     });
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!hasAnnouncedMenuStateRef.current) {
+      hasAnnouncedMenuStateRef.current = true;
+
+      if (!isOpen) {
+        return;
+      }
+    }
+
+    const eventName = isOpen ? "app-menu:open" : "app-menu:close";
+    window.dispatchEvent(new CustomEvent(eventName));
+  }, [isOpen]);
 
   function handleToggle() {
     setIsAnimating(true);
