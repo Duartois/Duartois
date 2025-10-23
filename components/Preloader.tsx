@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -13,8 +14,9 @@ import "@/app/i18n/config";
 import type { ThreeAppState } from "./three/types";
 import { getFallItemStyle } from "./fallAnimation";
 import { useReducedMotion } from "framer-motion";
+import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
 
-type PreloaderStatus = "fonts" | "scene" | "idle" | "ready";
+type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
 type PreloaderProps = {
   onComplete?: () => void;
@@ -24,6 +26,16 @@ const STATIC_PREVIEW_STYLES = "h-48 w-48 rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
 const MIN_VISIBLE_TIME = 3500;
 const READY_EXIT_BUFFER = 350;
+const FONT_PROGRESS_TARGET = 55;
+const ASSET_PROGRESS_START = 55;
+const ASSET_PROGRESS_END = 88;
+const STATUS_PROGRESS_CEILINGS: Record<PreloaderStatus, number> = {
+  fonts: 48,
+  assets: 88,
+  scene: 96,
+  idle: 100,
+  ready: 100,
+};
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
@@ -43,6 +55,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const [hasMounted, setHasMounted] = useState(false);
+  const criticalAssets = useMemo(() => CRITICAL_ASSET_URLS, []);
+  const totalAssets = criticalAssets.length;
+  const [fontsReady, setFontsReady] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(totalAssets === 0);
+  const [sceneReady, setSceneReady] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -154,8 +171,10 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       : Promise.resolve()
     ).then(() => {
       if (!isCancelled) {
-        setTargetProgress((current) => (current < 55 ? 55 : current));
-        setStatusKey((current) => (current === "fonts" ? "scene" : current));
+        setTargetProgress((current) =>
+          current < FONT_PROGRESS_TARGET ? FONT_PROGRESS_TARGET : current,
+        );
+        setFontsReady(true);
       }
     });
 
@@ -163,6 +182,77 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       isCancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!fontsReady) {
+      return;
+    }
+
+    if (!assetsReady) {
+      setStatusKey((current) => (current === "fonts" ? "assets" : current));
+      return;
+    }
+
+    setStatusKey((current) => {
+      if (current === "fonts" || current === "assets") {
+        return "scene";
+      }
+      return current;
+    });
+  }, [assetsReady, fontsReady]);
+
+  useEffect(() => {
+    if (!fontsReady || assetsReady) {
+      return;
+    }
+
+    let cancelled = false;
+    const uniqueAssets = Array.from(new Set(criticalAssets));
+
+    if (uniqueAssets.length === 0) {
+      setAssetsReady(true);
+      return;
+    }
+
+    let completed = 0;
+
+    const updateAssetProgress = () => {
+      if (uniqueAssets.length === 0) {
+        return;
+      }
+
+      const ratio = completed / uniqueAssets.length;
+      const span = ASSET_PROGRESS_END - ASSET_PROGRESS_START;
+      const nextTarget = ASSET_PROGRESS_START + span * ratio;
+      setTargetProgress((current) =>
+        current < nextTarget ? nextTarget : current,
+      );
+    };
+
+    const loaders = uniqueAssets.map((url) =>
+      preloadImage(url).then(() => {
+        if (cancelled) {
+          return;
+        }
+        completed += 1;
+        updateAssetProgress();
+      }),
+    );
+
+    Promise.all(loaders).then(() => {
+      if (cancelled) {
+        return;
+      }
+      setTargetProgress((current) =>
+        current < ASSET_PROGRESS_END ? ASSET_PROGRESS_END : current,
+      );
+      setAssetsReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [assetsReady, criticalAssets, fontsReady]);
 
   useEffect(() => {
     if (!hasMounted) return;
@@ -182,19 +272,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
         if (!detail) return;
         if (detail.state.ready) {
-          setTargetProgress(100);
-          setStatusKey((current) => {
-            if (current === "ready") return current;
-            return "idle";
-          });
-          finalizeLoading();
+          setSceneReady(true);
         }
       };
 
       const handleReady = () => {
-        setTargetProgress(100);
-        setStatusKey("idle");
-        finalizeLoading();
+        setSceneReady(true);
       };
 
       const events = app.bundle.events;
@@ -221,11 +304,27 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, [finalizeLoading, hasMounted]);
 
   useEffect(() => {
+    if (!fontsReady || !assetsReady || !sceneReady) {
+      return;
+    }
+
+    setTargetProgress((current) => (current < 100 ? 100 : current));
+    setStatusKey((current) => {
+      if (current === "ready") {
+        return current;
+      }
+
+      return "idle";
+    });
+    finalizeLoading();
+  }, [assetsReady, finalizeLoading, fontsReady, sceneReady]);
+
+  useEffect(() => {
     if (statusKey === "idle" || statusKey === "ready") {
       return;
     }
 
-    const ceiling = statusKey === "fonts" ? 48 : 96;
+    const ceiling = STATUS_PROGRESS_CEILINGS[statusKey];
 
     const interval = window.setInterval(() => {
       setTargetProgress((current) => {
@@ -309,6 +408,27 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       </div>
     </div>
   );
+}
+
+function preloadImage(url: string): Promise<void> {
+  return new Promise((resolve) => {
+    const image = new Image();
+
+    const cleanup = () => {
+      image.removeEventListener("load", cleanup);
+      image.removeEventListener("error", cleanup);
+      resolve();
+    };
+
+    image.addEventListener("load", cleanup);
+    image.addEventListener("error", cleanup);
+    image.decoding = "async";
+    image.src = url;
+
+    if (image.complete) {
+      cleanup();
+    }
+  });
 }
 
 function FallWordFragments({ text }: { text: string }) {
