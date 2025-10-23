@@ -1763,8 +1763,15 @@ body[data-menu-open="true"] .home {
     white-space: normal;
     overflow: visible;
     text-overflow: initial;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
     text-wrap: balance;
+}
+
+@media(max-width: 47.99em) {
+    .project .project-title .page-title {
+        font-size: clamp(1.75rem, 9vw, 3.5rem);
+    }
 }
 
 .project .project-title .head-separator {
@@ -1822,11 +1829,18 @@ body[data-menu-open="true"] .home {
 }
 
 .project .project-intro .project-data h6 {
-    text-transform: uppercase;
-    letter-spacing: .14em;
-    font-size: .85rem;
-    font-variation-settings: "wght" 700, "wdth" 100;
+    margin: 0;
+    text-transform: lowercase;
+    letter-spacing: 0;
+    font-size: 1.5rem;
+    font-variation-settings: "wght" 800, "wdth" 125;
     color: inherit;
+}
+
+@media(max-width: 35.99em) {
+    .project .project-intro .project-data h6 {
+        font-size: 1rem;
+    }
 }
 
 .project .project-intro .project-data td:last-child {
