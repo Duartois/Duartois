@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+} from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useFluidPageReveal } from "../helpers/useFluidPageReveal";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -26,10 +36,14 @@ type ProjectCopy = {
 
 export default function WorkPage() {
   const { t } = useTranslation("common");
+  const router = useRouter();
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
+  const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems);
+  const pageRevealStyle = useFluidPageReveal(80);
+  const navigationTimeoutRef = useRef<number>();
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -62,15 +76,61 @@ export default function WorkPage() {
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
 
+  useEffect(() => {
+    return () => {
+      if (navigationTimeoutRef.current) {
+        window.clearTimeout(navigationTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleProjectClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (isNavigatingAway) {
+        return;
+      }
+
+      setIsNavigatingAway(true);
+      window.dispatchEvent(new CustomEvent("app-navigation:start"));
+
+      navigationTimeoutRef.current = window.setTimeout(() => {
+        router.push(href);
+      }, 680);
+    },
+    [isNavigatingAway, router],
+  );
+
+  const projectsStyle = useMemo(() => {
+    const { transition, ...revealRest } = pageRevealStyle;
+
+    return {
+      ...revealRest,
+      transition: transition
+        ? `${transition}, opacity 360ms cubic-bezier(0.16, 1, 0.3, 1)`
+        : "opacity 360ms cubic-bezier(0.16, 1, 0.3, 1)",
+      pointerEvents: isMenuOpen || isNavigatingAway ? "none" : undefined,
+      opacity: isMenuOpen || isNavigatingAway ? 0 : 1,
+    } satisfies CSSProperties;
+  }, [isMenuOpen, isNavigatingAway, pageRevealStyle]);
+
   return (
     <main className="work-page relative z-10 flex min-h-screen w-full flex-col">
       <section
         className="projects"
-        style={{
-          pointerEvents: isMenuOpen ? "none" : undefined,
-          opacity: isMenuOpen ? 0 : 1,
-          transition: "opacity 300ms ease",
-        }}
+        style={projectsStyle}
         aria-hidden={isMenuOpen}
       >
         <div className="projects-left" style={nextFall()}>
@@ -136,6 +196,7 @@ export default function WorkPage() {
                     className="projects-row"
                     onMouseEnter={() => setActiveProject(projectKey)}
                     onFocus={() => setActiveProject(projectKey)}
+                    onClick={(event) => handleProjectClick(event, copy.href)}
                     aria-current={isActive ? "true" : undefined}
                   >
                     <div className="projects-row-left">
