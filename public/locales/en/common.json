@@ -148,6 +148,7 @@
     "progress": "Loading {{value}}%",
     "status": {
       "fonts": "Preparing typography…",
+      "assets": "Gathering visuals…",
       "scene": "Warming up the 3D preview…",
       "idle": "Stabilizing motion…",
       "ready": "Ready to start!"
