@@ -377,6 +377,7 @@ export const initScene = async ({
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
       shapes.applyTheme(partial.theme);
       renderer.toneMappingExposure = getToneMappingExposure(partial.theme);
+      updateAllMeshOpacities(pendingOpacity, pendingShapeOpacity);
       commit({ theme: partial.theme, palette: nextPalette });
     }
 
