@@ -45,6 +45,31 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
   const pageRevealStyle = useFluidPageReveal(80);
+  const pageContentStyle = useMemo(() => {
+    const { opacity, ...revealRest } = pageRevealStyle;
+    const revealOpacity =
+      typeof opacity === "number"
+        ? opacity
+        : opacity !== undefined
+          ? parseFloat(opacity)
+          : 1;
+
+    return {
+      ...revealRest,
+      pointerEvents: "auto",
+      opacity: revealOpacity,
+    } satisfies CSSProperties;
+  }, [pageRevealStyle]);
+
+  const contentWrapperStyle = useMemo(
+    () =>
+      ({
+        pointerEvents: isMenuOpen ? "none" : "auto",
+        opacity: isMenuOpen ? 0 : 1,
+        transition: "opacity 320ms cubic-bezier(0.16, 1, 0.3, 1)",
+      }) satisfies CSSProperties,
+    [isMenuOpen],
+  );
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -105,24 +130,14 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
 
   return (
     <main className="container work-container">
-      <div
-        style={{
-          pointerEvents: isMenuOpen ? "none" : "auto",
-          opacity: isMenuOpen ? 0 : 1,
-          transition: "opacity 300ms ease",
-        }}
-        aria-hidden={isMenuOpen}
-      >
+      <div style={contentWrapperStyle} aria-hidden={isMenuOpen}>
         <div data-scroll-container="true" id="scroll-container">
           <div
             data-scroll-section="true"
             data-scroll-section-id="section0"
             data-scroll-section-inview=""
           >
-            <div
-              className="page-content"
-              style={{ pointerEvents: "auto", ...pageRevealStyle }}
-            >
+            <div className="page-content" style={pageContentStyle}>
               <div className="project" style={projectStyle}>
                 <div className="header-project">
                   <div className="hero-image-wrapper" style={nextFall()}>

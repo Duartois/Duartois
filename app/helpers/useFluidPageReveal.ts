@@ -59,19 +59,24 @@ export function useFluidPageReveal(delay = 0): CSSProperties {
     if (prefersReducedMotion) {
       return {
         transform: "none",
+        opacity: 1,
         transition: "none",
       } satisfies CSSProperties;
     }
 
-    const transition = "transform 680ms cubic-bezier(0.16, 1, 0.3, 1)";
+    const transformTransition =
+      "transform 680ms cubic-bezier(0.16, 1, 0.3, 1)";
+    const opacityTransition =
+      "opacity 480ms cubic-bezier(0.16, 1, 0.3, 1)";
 
     return {
       transform: isRevealed
         ? "translate3d(0, 0, 0)"
         : "translate3d(0, 40px, 0)",
-      transition,
+      opacity: isRevealed ? 1 : 0,
+      transition: `${transformTransition}, ${opacityTransition}`,
       transitionDelay: delay > 0 ? `${delay}ms` : undefined,
-      willChange: "transform",
+      willChange: "transform, opacity",
     } satisfies CSSProperties;
   }, [delay, isRevealed, prefersReducedMotion]);
 }
