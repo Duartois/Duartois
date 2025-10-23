@@ -1745,7 +1745,7 @@ body[data-menu-open="true"] .home {
 .project .project-title {
     margin: 0 auto;
     padding: 0 var(--left-right-margin);
-    max-width: min(960px, 100%);
+    max-width: min(1060px, 100%);
     text-align: center;
     color: inherit;
 }
@@ -1758,8 +1758,7 @@ body[data-menu-open="true"] .home {
 }
 
 .project .project-title .page-title {
-    font-size: clamp(1.75rem, 8vw, 5.5rem);
-    font-variation-settings: "wght" 800, "wdth" 100;
+    font-size: clamp(1.15rem, 1.8vw, 6.5rem);
     white-space: normal;
     overflow: visible;
     text-overflow: initial;
@@ -1768,11 +1767,6 @@ body[data-menu-open="true"] .home {
     text-wrap: balance;
 }
 
-@media(max-width: 47.99em) {
-    .project .project-title .page-title {
-        font-size: clamp(1.75rem, 9vw, 3.5rem);
-    }
-}
 
 .project .project-title .head-separator {
     width: clamp(8rem, 18vw, 12rem);
