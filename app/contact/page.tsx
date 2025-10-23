@@ -27,7 +27,6 @@ type ContactSocials = {
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
-  const fallStyle = useMenuFallAnimation(3);
 
   useThreeSceneSetup("contact");
 
@@ -43,6 +42,11 @@ export default function ContactPage() {
     returnObjects: true,
   }) as ContactSocials;
 
+  const totalFallItems = 5 + socials.links.length;
+  const fallStyle = useMenuFallAnimation(totalFallItems);
+  let fallIndex = 0;
+  const nextFall = () => fallStyle(fallIndex++);
+
   return (
     <main className="container">
       <div
@@ -57,26 +61,22 @@ export default function ContactPage() {
           <div data-scroll-section="true">
             <div className="page-content" style={{ pointerEvents: "auto" }}>
               <div className="contact">
-                <div data-hero-index={0} style={fallStyle(0)}>
-                  <div className="page-head">
+                <div data-hero-index={0}>
+                  <div className="page-head" style={nextFall()}>
                     <h2 className="page-title">{t("navigation.contact")}</h2>
                   </div>
-                  <hr className="head-separator" />
+                  <hr className="head-separator" style={nextFall()} />
                 </div>
 
                 <div className="contact-content">
-                  <div
-                    className="contact-left"
-                    data-hero-index={1}
-                    style={fallStyle(1)}
-                  >
+                  <div className="contact-left" data-hero-index={1}>
                     <table>
                       <tbody>
                         <tr>
-                          <td>
+                          <td style={nextFall()}>
                             <h6>{mail.label}</h6>
                           </td>
-                          <td>
+                          <td style={nextFall()}>
                             <div className="link-wrapper">
                               <div className="link">
                                 <a
@@ -95,21 +95,17 @@ export default function ContactPage() {
                     </table>
                   </div>
 
-                  <div
-                    className="contact-right"
-                    data-hero-index={2}
-                    style={fallStyle(2)}
-                  >
+                  <div className="contact-right" data-hero-index={2}>
                     <table>
                       <tbody>
                         <tr>
-                          <td>
+                          <td style={nextFall()}>
                             <h6>{socials.label}</h6>
                           </td>
                           <td>
                             <ul>
                               {socials.links.map((link) => (
-                                <li key={link.href}>
+                                <li key={link.href} style={nextFall()}>
                                   <div className="link-wrapper">
                                     <div className="link">
                                       <a

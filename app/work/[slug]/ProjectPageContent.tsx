@@ -9,6 +9,7 @@ import "../../i18n/config";
 
 import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
+import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
 import {
   projectOrder,
@@ -37,6 +38,11 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const detail = getProjectDetailBySlug(slug);
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
+  const metadataCount = detail.metadata.length;
+  const descriptionCount = detail.description.length;
+  const contentCount = detail.content.length;
+  const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
+  const fallStyle = useMenuFallAnimation(totalFallItems);
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -92,6 +98,8 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
     returnObjects: true,
   }) as ProjectCopy;
   const nextProjectSlug = projectSlugByKey[nextKey];
+  let fallIndex = 0;
+  const nextFall = () => fallStyle(fallIndex++);
 
   return (
     <main className="container work-container">
@@ -112,23 +120,23 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
             <div className="page-content" style={{ pointerEvents: "auto" }}>
               <div className="project" style={projectStyle}>
                 <div className="header-project">
-                <div className="hero-image-wrapper">
-                  <img
-                    alt={detail.heroImage.alt}
-                    src={detail.heroImage.src}
-                    className="hero-image"
-                    loading="eager"
-                    decoding="async"
-                  />
+                  <div className="hero-image-wrapper" style={nextFall()}>
+                    <img
+                      alt={detail.heroImage.alt}
+                      src={detail.heroImage.src}
+                      className="hero-image"
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </div>
                 </div>
-              </div>
 
               <div className="project-title">
                 <div>
-                  <div className="page-head">
+                  <div className="page-head" style={nextFall()}>
                     <h2 className="page-title">{detail.title}</h2>
                   </div>
-                  <hr className="head-separator" />
+                  <hr className="head-separator" style={nextFall()} />
                 </div>
               </div>
 
@@ -137,7 +145,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                   <table>
                     <tbody>
                       {detail.metadata.map((entry, index) => (
-                        <tr key={`${entry.label}-${index}`}>
+                        <tr key={`${entry.label}-${index}`} style={nextFall()}>
                           <td>
                             <h6>{t(`projectPage.metadata.${entry.label}`)}</h6>
                           </td>
@@ -160,23 +168,42 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
 
                 <div className="project-description">
                   {detail.description.map((paragraph, index) => (
-                    <p key={`${detail.slug}-description-${index}`}>{paragraph}</p>
+                    <p
+                      key={`${detail.slug}-description-${index}`}
+                      style={nextFall()}
+                    >
+                      {paragraph}
+                    </p>
                   ))}
                 </div>
               </div>
 
               <div className="project-content">
                 {detail.content.map((block, index) => {
+                  const blockStyle = nextFall();
+
                   if (block.type === "heading") {
-                    return <h6 key={`heading-${index}`}>{block.text}</h6>;
+                    return (
+                      <h6 key={`heading-${index}`} style={blockStyle}>
+                        {block.text}
+                      </h6>
+                    );
                   }
 
                   if (block.type === "paragraph") {
-                    return <p key={`paragraph-${index}`}>{block.text}</p>;
+                    return (
+                      <p key={`paragraph-${index}`} style={blockStyle}>
+                        {block.text}
+                      </p>
+                    );
                   }
 
                   return (
-                    <div className="project-content-wrapper" key={`image-${index}`}>
+                    <div
+                      className="project-content-wrapper"
+                      key={`image-${index}`}
+                      style={blockStyle}
+                    >
                       <img
                         alt={block.alt}
                         src={block.src}
@@ -190,9 +217,9 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
               </div>
 
               <div className="next-project">
-                <hr />
+                <hr style={nextFall()} />
                 <Link href={`/work/${nextProjectSlug}`}>
-                  <div className="next-project-wrapper">
+                  <div className="next-project-wrapper" style={nextFall()}>
                     <div className="next-project-left">
                       <div className="next-project-selected-wrapper">
                         <h4 className="next-project-selected">→</h4>

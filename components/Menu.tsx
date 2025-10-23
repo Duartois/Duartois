@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
+  type MouseEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -139,6 +141,24 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const hoveredItemRef = useRef<MenuItemKey | null>(null);
   const baseVariantRef = useRef<VariantState | null>(null);
   const baseOpacityRef = useRef<ShapeOpacityState | null>(null);
+
+  const handleMenuLinkClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      const isModifiedClick =
+        event.button !== 0 ||
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey;
+
+      if (!event.defaultPrevented && !isModifiedClick && typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("app-navigation:start"));
+      }
+
+      onClose();
+    },
+    [onClose],
+  );
 
   useEffect(() => {
     hoveredItemRef.current = hoveredItem;
@@ -385,7 +405,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                       }
                     }}
                   >
-                    <Link href={item.href} onClick={onClose}>
+                    <Link href={item.href} onClick={handleMenuLinkClick}>
                       <h1>
                         {item.label}
                       </h1>

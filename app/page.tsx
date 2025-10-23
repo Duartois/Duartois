@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
@@ -10,10 +11,15 @@ import {
   useCallback,
   useRef,
   useState,
+  type MouseEvent,
 } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
-import { getFallItemStyle } from "@/components/fallAnimation";
+import {
+  FALL_ITEM_STAGGER_DELAY,
+  FALL_ITEM_TRANSITION_DURATION,
+  getFallItemStyle,
+} from "@/components/fallAnimation";
 
 const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 
@@ -233,10 +239,26 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
+  const router = useRouter();
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
+  const [isNavigatingAway, setIsNavigatingAway] = useState(false);
+  const navigationTimeoutRef = useRef<number | null>(null);
+  const totalFallItems = 6;
+  const totalFallDuration =
+    FALL_ITEM_TRANSITION_DURATION +
+    Math.max(totalFallItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
+
+  useEffect(() => {
+    return () => {
+      if (navigationTimeoutRef.current) {
+        window.clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -265,11 +287,100 @@ export default function HomePage() {
     };
   }, [disableFallAnimation]);
 
-  const totalFallItems = 6;
   const fallStyle = (index: number) =>
     getFallItemStyle(isFallActive, index, totalFallItems, {
       disable: disableFallAnimation,
     });
+
+  useEffect(() => {
+    if (disableFallAnimation) {
+      return undefined;
+    }
+
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const handleMenuOpen = () => {
+      setIsFallActive(false);
+    };
+
+    const handleMenuClose = () => {
+      if (isNavigatingAway) {
+        return;
+      }
+
+      setIsFallActive(true);
+    };
+
+    window.addEventListener("app-menu:open", handleMenuOpen);
+    window.addEventListener("app-menu:close", handleMenuClose);
+
+    return () => {
+      window.removeEventListener("app-menu:open", handleMenuOpen);
+      window.removeEventListener("app-menu:close", handleMenuClose);
+    };
+  }, [disableFallAnimation, isNavigatingAway]);
+
+  useEffect(() => {
+    if (disableFallAnimation) {
+      return undefined;
+    }
+
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const handleNavigationStart = () => {
+      setIsNavigatingAway(true);
+      setIsFallActive(false);
+    };
+
+    window.addEventListener("app-navigation:start", handleNavigationStart);
+
+    return () => {
+      window.removeEventListener(
+        "app-navigation:start",
+        handleNavigationStart,
+      );
+    };
+  }, [disableFallAnimation]);
+
+  const handleHeroLinkClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      if (disableFallAnimation) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (isNavigatingAway) {
+        return;
+      }
+
+      setIsNavigatingAway(true);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("app-navigation:start"));
+      }
+      setIsFallActive(false);
+
+      navigationTimeoutRef.current = window.setTimeout(() => {
+        router.push(href);
+      }, totalFallDuration);
+    },
+    [disableFallAnimation, isNavigatingAway, router, totalFallDuration],
+  );
 
   useThreeSceneSetup("home", { opacity: 1 });
 
@@ -355,7 +466,12 @@ export default function HomePage() {
                           <li style={fallStyle(4)}>
                             <div className="link-wrapper">
                               <div className="link">
-                                <Link href="/work">
+                                <Link
+                                  href="/work"
+                                  onClick={(event) =>
+                                    handleHeroLinkClick(event, "/work")
+                                  }
+                                >
                                   <span>
                                     {t("home.hero.ctaProjects")}
                                   </span>
@@ -372,7 +488,12 @@ export default function HomePage() {
                           <li style={fallStyle(5)}>
                             <div className="link-wrapper">
                               <div className="link">
-                                <Link href="/about">
+                                <Link
+                                  href="/about"
+                                  onClick={(event) =>
+                                    handleHeroLinkClick(event, "/about")
+                                  }
+                                >
                                   <span>
                                     {t("home.hero.ctaAbout")}
                                   </span>
