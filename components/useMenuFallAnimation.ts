@@ -4,12 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
 import { getFallItemStyle } from "./fallAnimation";
-import { useMenu } from "./MenuContext";
 
 const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 
 export function useMenuFallAnimation(totalItems: number) {
-  const { isOpen } = useMenu();
   const prefersReducedMotion = useReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
@@ -43,9 +41,9 @@ export function useMenuFallAnimation(totalItems: number) {
 
   return useCallback(
     (index: number) =>
-      getFallItemStyle(isFallActive && !isOpen, index, totalItems, {
+      getFallItemStyle(isFallActive, index, totalItems, {
         disable: disableFallAnimation,
       }),
-    [disableFallAnimation, isFallActive, isOpen, totalItems],
+    [disableFallAnimation, isFallActive, totalItems],
   );
 }
