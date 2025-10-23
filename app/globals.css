@@ -1758,8 +1758,13 @@ body[data-menu-open="true"] .home {
 }
 
 .project .project-title .page-title {
-    font-size: clamp(2.75rem, 7vw, 5.5rem);
+    font-size: clamp(1.75rem, 8vw, 5.5rem);
     font-variation-settings: "wght" 800, "wdth" 100;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
 }
 
 .project .project-title .head-separator {
