@@ -114,15 +114,18 @@ export default function WorkPage() {
   );
 
   const projectsStyle = useMemo(() => {
-    const { transition, ...revealRest } = pageRevealStyle;
+    const { opacity, ...revealRest } = pageRevealStyle;
+    const revealOpacity =
+      typeof opacity === "number"
+        ? opacity
+        : opacity !== undefined
+          ? parseFloat(opacity)
+          : 1;
 
     return {
       ...revealRest,
-      transition: transition
-        ? `${transition}, opacity 360ms cubic-bezier(0.16, 1, 0.3, 1)`
-        : "opacity 360ms cubic-bezier(0.16, 1, 0.3, 1)",
       pointerEvents: isMenuOpen || isNavigatingAway ? "none" : undefined,
-      opacity: isMenuOpen || isNavigatingAway ? 0 : 1,
+      opacity: isMenuOpen || isNavigatingAway ? 0 : revealOpacity,
     } satisfies CSSProperties;
   }, [isMenuOpen, isNavigatingAway, pageRevealStyle]);
 
