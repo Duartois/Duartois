@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import "../../i18n/config";
 
 import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
+import { useFluidPageReveal } from "../../helpers/useFluidPageReveal";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -43,6 +44,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
+  const pageRevealStyle = useFluidPageReveal(80);
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -117,7 +119,10 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
             data-scroll-section-id="section0"
             data-scroll-section-inview=""
           >
-            <div className="page-content" style={{ pointerEvents: "auto" }}>
+            <div
+              className="page-content"
+              style={{ pointerEvents: "auto", ...pageRevealStyle }}
+            >
               <div className="project" style={projectStyle}>
                 <div className="header-project">
                   <div className="hero-image-wrapper" style={nextFall()}>

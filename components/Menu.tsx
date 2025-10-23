@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -114,6 +115,7 @@ const HOVER_MEDIA_QUERY = "(min-width: 900px)";
 
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   const { t } = useTranslation("common");
+  const pathname = usePathname();
   const items: MenuItem[] = useMemo(
     () => [
       { key: "home", href: "/", label: t("navigation.home") },
@@ -143,7 +145,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const baseOpacityRef = useRef<ShapeOpacityState | null>(null);
 
   const handleMenuLinkClick = useCallback(
-    (event: MouseEvent<HTMLAnchorElement>) => {
+    (event: MouseEvent<HTMLAnchorElement>, href: string) => {
       const isModifiedClick =
         event.button !== 0 ||
         event.metaKey ||
@@ -151,13 +153,19 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         event.ctrlKey ||
         event.shiftKey;
 
+      if (href === pathname && !event.defaultPrevented && !isModifiedClick) {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+
       if (!event.defaultPrevented && !isModifiedClick && typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("app-navigation:start"));
       }
 
       onClose();
     },
-    [onClose],
+    [onClose, pathname],
   );
 
   useEffect(() => {
@@ -405,7 +413,10 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                       }
                     }}
                   >
-                    <Link href={item.href} onClick={handleMenuLinkClick}>
+                    <Link
+                      href={item.href}
+                      onClick={(event) => handleMenuLinkClick(event, item.href)}
+                    >
                       <h1>
                         {item.label}
                       </h1>
