@@ -28,7 +28,8 @@ export default function WorkPage() {
   const { t } = useTranslation("common");
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
   const { isOpen: isMenuOpen } = useMenu();
-  const fallStyle = useMenuFallAnimation(2);
+  const totalFallItems = 3 + projectOrder.length;
+  const fallStyle = useMenuFallAnimation(totalFallItems);
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -58,6 +59,9 @@ export default function WorkPage() {
     });
   }, [activePreview, isMenuOpen]);
 
+  let fallIndex = 0;
+  const nextFall = () => fallStyle(fallIndex++);
+
   return (
     <main className="work-page relative z-10 flex min-h-screen w-full flex-col">
       <section
@@ -69,7 +73,7 @@ export default function WorkPage() {
         }}
         aria-hidden={isMenuOpen}
       >
-        <div className="projects-left" style={fallStyle(0)}>
+        <div className="projects-left" style={nextFall()}>
           <div className="projects-left-inside">
             {projectOrder.map((projectKey) => {
               const copy = projectCopy[projectKey];
@@ -110,22 +114,23 @@ export default function WorkPage() {
           </div>
         </div>
 
-        <div className="projects-right" style={fallStyle(1)}>
+        <div className="projects-right">
           <div>
-            <div className="page-head">
+            <div className="page-head" style={nextFall()}>
               <h2 className="page-title">{t("navigation.work")}</h2>
               <h5 className="elements-number">{projectOrder.length}</h5>
             </div>
-            <hr className="head-separator" />
+            <hr className="head-separator" style={nextFall()} />
           </div>
 
           <ul>
             {projectOrder.map((projectKey) => {
               const copy = projectCopy[projectKey];
               const isActive = projectKey === activeProject;
+              const itemStyle = nextFall();
 
               return (
-                <li key={projectKey} style={{ opacity: 1 }}>
+                <li key={projectKey} style={itemStyle}>
                   <Link
                     href={copy.href}
                     className="projects-row"

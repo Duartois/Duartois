@@ -9,39 +9,16 @@ import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useTheme } from "../theme/ThemeContext";
 
-type ContactMail = {
-  label: string;
-  address: string;
-  href: string;
-};
-
-type ContactSocialLink = {
-  label: string;
-  href: string;
-};
-
-type ContactSocials = {
-  label: string;
-  links: ContactSocialLink[];
-};
-
 export default function AboutPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
-  const fallStyle = useMenuFallAnimation(3);
+  const fallStyle = useMenuFallAnimation(5);
   const { theme } = useTheme();
 
   const spotifyAccent = theme === "dark" ? "F3F2F9" : "606887";
   const spotifyEmbedUrl =
     "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
     spotifyAccent;
-
-  const mail = t("contact.mail", {
-    returnObjects: true,
-  }) as ContactMail;
-  const socials = t("contact.socials", {
-    returnObjects: true,
-  }) as ContactSocials;
 
   useThreeSceneSetup("about");
 
@@ -102,6 +79,9 @@ export default function AboutPage() {
     };
   }, []);
 
+  let fallIndex = 0;
+  const nextFall = () => fallStyle(fallIndex++);
+
   return (
     <main
       className="page-content"
@@ -113,7 +93,7 @@ export default function AboutPage() {
       aria-hidden={isMenuOpen}
     >
       <div className="about">
-        <div className="about-right" data-hero-index={0} style={fallStyle(0)}>
+        <div className="about-right" data-hero-index={0} style={nextFall()}>
           <div className="profile-pic-wrapper">
             <img
               alt={t("about.portraitAlt")}
@@ -123,8 +103,8 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="about-left" data-hero-index={1} style={fallStyle(1)}>
-          <div>
+        <div className="about-left" data-hero-index={1}>
+          <div style={nextFall()}>
             <div className="page-head">
               <h2 className="page-title">{t("navigation.about")}</h2>
               <div className="page-head-miniplayer" data-testid="miniplayer">
@@ -141,10 +121,12 @@ export default function AboutPage() {
                 />
               </div>
             </div>
-            <hr className="head-separator" />
           </div>
-          <p className="presentation-text">{t("about.presentation")}</p>
-          <div className="resume-link">
+          <hr className="head-separator" style={nextFall()} />
+          <p className="presentation-text" style={nextFall()}>
+            {t("about.presentation")}
+          </p>
+          <div className="resume-link" style={nextFall()}>
             <div className="link-wrapper">
               <div className="link">
                 <a href={t("about.resumeUrl")} target="_blank" rel="noreferrer">
