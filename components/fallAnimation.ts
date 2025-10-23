@@ -17,6 +17,7 @@ export function getFallItemStyle(
     return {
       transform: "none",
       transition: "none",
+      filter: "none",
     };
   }
 
