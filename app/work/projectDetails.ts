@@ -54,7 +54,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
     accentColor: "#606887",
     accentColorDark: "#5bedc7",
     heroImage: {
-      src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr38gep0kx08ur49lovevv",
+      src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh50r86s077108phi5x6kw9j",
       alt: "Cover of the project Duartois",
     },
     metadata: [
@@ -66,112 +66,113 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       {
         label: "awards",
         values: [
-          "1× Awwwards (Honors)",
-          "1× CSS Design Awards (Site of the day)",
+          "",
+          "",
         ],
       },
     ],
     description: [
-      "Sharlee is the nickname I use on social medias. The goal of this project was to create my own identity, adaptable and modular to work with both my real name and my nickname. First, the identity needed to be defined in brand guidelines and then had to be adapted for digital medias (website, wallpapers, social medias) and physical formats (business cards/stickers, letter paper and resume).",
+      "We are preparing the full case study for this project. Please check back soon to explore more details."
+      // "Duartois is the nickname I use on social medias. The goal of this project was to create my own identity, adaptable and modular to work with both my real name and my nickname. First, the identity needed to be defined in brand guidelines and then had to be adapted for digital medias (website, wallpapers, social medias) and physical formats (business cards/stickers, letter paper and resume).",
     ],
     content: [
-      { type: "heading", text: "Brand Guidelines" },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr1nxwomej07urrqtfty77",
-        alt: "Brand guidelines (Cover)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr0csop20m07ukhrfkbcu5",
-        alt: "Brand guidelines (Table of contents)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr2pibozzf08urvvzd7moi",
-        alt: "Brand guidelines (Concept)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr27huon5c07urcopci56n",
-        alt: "Brand guidelines (Shapes)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqstf1os5o07ukivtxjj4d",
-        alt: "Brand guidelines (Shapes)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqxdmaosbb08urq3j5m8tc",
-        alt: "Brand guidelines (Shapes)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr15q6p31x07uk9qd2cffe",
-        alt: "Brand guidelines (Shapes)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqtfdxoo6f08urz81yi9bi",
-        alt: "Brand guidelines (Logotype)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqymqtozg607ukfod0qppk",
-        alt: "Brand guidelines (Logotype)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rquuofoul807ukl2doox5t",
-        alt: "Brand guidelines (Logotypes)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqy524ogzi07ur4gqet46n",
-        alt: "Brand guidelines (Colours)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqw9f4ovz507uk2zcbja62",
-        alt: "Brand guidelines (Colours)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqz37zourw08ureb6njcqr",
-        alt: "Brand guidelines (Typography)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqu8zqop0108urxb7afe0a",
-        alt: "Brand guidelines (Website)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqzm6rp0ud07uky87bkat0",
-        alt: "Brand guidelines (Applications)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqvrdcoveu07uk7360v80j",
-        alt: "Brand guidelines (Applications)",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqvaygov1m07ukoq2r6mvs",
-        alt: "Brand guidelines (Applications)",
-      },
-      { type: "heading", text: "Stickers" },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqrj7pomkv08urjb1ay41p",
-        alt: "Stickers",
-      },
-      {
-        type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqs1qlorfc07ukn4p6rh9d",
-        alt: "Stickers",
-      },
+      // { type: "heading", text: "Brand Guidelines" },
+      // {
+      //   type: "image",
+      //   src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh50r86s077108phi5x6kw9j",
+      //   alt: "Brand guidelines (Cover)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr0csop20m07ukhrfkbcu5",
+      //   alt: "Brand guidelines (Table of contents)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr2pibozzf08urvvzd7moi",
+      //   alt: "Brand guidelines (Concept)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr27huon5c07urcopci56n",
+      //   alt: "Brand guidelines (Shapes)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqstf1os5o07ukivtxjj4d",
+      //   alt: "Brand guidelines (Shapes)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqxdmaosbb08urq3j5m8tc",
+      //   alt: "Brand guidelines (Shapes)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr15q6p31x07uk9qd2cffe",
+      //   alt: "Brand guidelines (Shapes)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqtfdxoo6f08urz81yi9bi",
+      //   alt: "Brand guidelines (Logotype)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqymqtozg607ukfod0qppk",
+      //   alt: "Brand guidelines (Logotype)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rquuofoul807ukl2doox5t",
+      //   alt: "Brand guidelines (Logotypes)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqy524ogzi07ur4gqet46n",
+      //   alt: "Brand guidelines (Colours)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqw9f4ovz507uk2zcbja62",
+      //   alt: "Brand guidelines (Colours)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqz37zourw08ureb6njcqr",
+      //   alt: "Brand guidelines (Typography)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqu8zqop0108urxb7afe0a",
+      //   alt: "Brand guidelines (Website)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqzm6rp0ud07uky87bkat0",
+      //   alt: "Brand guidelines (Applications)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqvrdcoveu07uk7360v80j",
+      //   alt: "Brand guidelines (Applications)",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqvaygov1m07ukoq2r6mvs",
+      //   alt: "Brand guidelines (Applications)",
+      // },
+      // { type: "heading", text: "Stickers" },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqrj7pomkv08urjb1ay41p",
+      //   alt: "Stickers",
+      // },
+      // {
+      //   type: "image",
+      //   src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqs1qlorfc07ukn4p6rh9d",
+      //   alt: "Stickers",
+      // },
     ],
   },
   wealthcomplex: {
