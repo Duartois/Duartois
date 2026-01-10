@@ -353,6 +353,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const exitLogoDuration = prefersReducedMotion ? 0.01 : 0.28;
   const staggerEntry = prefersReducedMotion ? 0 : 0.085;
   const staggerExit = prefersReducedMotion ? 0 : 0.03;
+  const idleEase: [number, number, number, number] = [0.42, 0, 0.58, 1];
   const idleConfig = useMemo(
     () => [
       { ampY: 3.4, ampR: 1.6, duration: 2.15 },
@@ -404,7 +405,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             rotate: [0, custom.ampR, 0],
             transition: {
               duration: custom.duration,
-              ease: "easeInOut",
+              ease: idleEase,
               repeat: Infinity,
             },
           },
