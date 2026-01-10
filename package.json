@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "verify:three": "tsx scripts/verify-three-core-only.ts",
+    "verify:three": "node scripts/verify-three-core-only.js",
     "prebuild": "npm run verify:three",
     "dev": "next dev",
     "build": "next build",
@@ -41,7 +41,6 @@
     "jsdom": "^24.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
-    "tsx": "^4.20.6",
     "typescript": "5.4.5",
     "vitest": "^1.6.0"
   }
