@@ -5,7 +5,12 @@ import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
 import type { ThreeAppState } from "./three/types";
-import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  type Variants,
+  useAnimationControls,
+  useReducedMotion,
+} from "framer-motion";
 import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
@@ -630,18 +635,8 @@ function PreloaderLogo({
   idleConfig,
 }: {
   controls: ReturnType<typeof useAnimationControls>;
-  groupVariants: {
-    initial: object;
-    enter: object;
-    idle: object;
-    exit: object;
-  };
-  pieceVariants: {
-    initial: object;
-    enter: object;
-    idle: (custom: { ampY: number; ampR: number; duration: number }) => object;
-    exit: object;
-  };
+  groupVariants: Variants;
+  pieceVariants: Variants;
   idleConfig: Array<{ ampY: number; ampR: number; duration: number }>;
 }) {
   return (
