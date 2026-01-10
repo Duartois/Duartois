@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
 import type { ThreeAppState } from "./three/types";
-import { getFallItemStyle } from "./fallAnimation";
-import { useReducedMotion } from "framer-motion";
+import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
@@ -41,20 +33,23 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
   const [progress, setProgress] = useState(INITIAL_PROGRESS);
   const [targetProgress, setTargetProgress] = useState(INITIAL_PROGRESS);
-  const hasCompletedRef = useRef(false);
-  const completionTimeoutRef = useRef<number>();
+  const hasFinalizedRef = useRef(false);
+  const hasSignaledCompletionRef = useRef(false);
   const readyTimeoutRef = useRef<number>();
   const progressFrameRef = useRef<number>();
   const targetProgressRef = useRef(INITIAL_PROGRESS);
   const progressRef = useRef(INITIAL_PROGRESS);
+  const entryStartedRef = useRef(false);
+  const isHidingRef = useRef(false);
   const mountTimeRef = useRef<number>(
     typeof performance !== "undefined" ? performance.now() : Date.now(),
   );
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
-  const disableFallAnimation = Boolean(prefersReducedMotion);
-  const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const [hasMounted, setHasMounted] = useState(false);
+  const logoControls = useAnimationControls();
+  const textControls = useAnimationControls();
+  const creditsControls = useAnimationControls();
   const criticalAssets = useMemo(() => CRITICAL_ASSET_URLS, []);
   const totalAssets = criticalAssets.length;
   const [fontsReady, setFontsReady] = useState(false);
@@ -76,11 +71,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, [targetProgress]);
 
   const finalizeLoading = useCallback(() => {
-    if (hasCompletedRef.current) {
+    if (hasFinalizedRef.current) {
       return;
     }
 
-    hasCompletedRef.current = true;
+    hasFinalizedRef.current = true;
 
     const now =
       typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -98,12 +93,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     } else {
       setStatusKey("ready");
     }
-
-    completionTimeoutRef.current = window.setTimeout(() => {
-      completionTimeoutRef.current = undefined;
-      onComplete?.();
-    }, remaining + READY_EXIT_BUFFER);
-  }, [onComplete]);
+  }, []);
 
   useEffect(() => {
     if (progressFrameRef.current) {
@@ -151,10 +141,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     return () => {
       if (progressFrameRef.current) {
         cancelAnimationFrame(progressFrameRef.current);
-      }
-      if (completionTimeoutRef.current !== undefined) {
-        window.clearTimeout(completionTimeoutRef.current);
-        completionTimeoutRef.current = undefined;
       }
       if (readyTimeoutRef.current !== undefined) {
         window.clearTimeout(readyTimeoutRef.current);
@@ -343,57 +329,238 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
+  const isHiding = statusKey === "ready";
+  useEffect(() => {
+    isHidingRef.current = isHiding;
+  }, [isHiding]);
   const statusLabel = t(`preloader.status.${statusKey}`);
   const progressLabel = Math.round(progress);
-  const isHiding = statusKey === "ready";
-  const splashStyle: CSSProperties = isHiding
-    ? { opacity: 0, pointerEvents: "none" }
-    : { opacity: 1 };
+  const entryEase = [0.22, 1, 0.36, 1];
+  const exitEase = [0.4, 0, 1, 1];
+  const entryOffset = -96;
+  const overlayExitDurationMs = prefersReducedMotion ? 0 : 450;
+  const entryLogoDuration = prefersReducedMotion ? 0.01 : 0.75;
+  const entryTextDuration = prefersReducedMotion ? 0.01 : 0.55;
+  const entryCreditsDuration = prefersReducedMotion ? 0.01 : 0.55;
+  const entryTextDelay = prefersReducedMotion ? 0 : 0.25;
+  const entryCreditsDelay = prefersReducedMotion ? 0 : 0.35;
+  const exitTextDuration = prefersReducedMotion ? 0.01 : 0.25;
+  const exitLogoDuration = prefersReducedMotion ? 0.01 : 0.28;
+  const staggerEntry = prefersReducedMotion ? 0 : 0.085;
+  const staggerExit = prefersReducedMotion ? 0 : 0.03;
+  const idleConfig = useMemo(
+    () => [
+      { ampY: 3.4, ampR: 1.6, duration: 2.15 },
+      { ampY: 4.6, ampR: 2.4, duration: 2.55 },
+      { ampY: 2.8, ampR: 1.2, duration: 1.95 },
+      { ampY: 5.0, ampR: 2.9, duration: 2.8 },
+      { ampY: 3.1, ampR: 2.1, duration: 2.35 },
+    ],
+    [],
+  );
+
+  const logoGroupVariants = {
+    initial: {},
+    enter: {
+      transition: {
+        staggerChildren: staggerEntry,
+        delayChildren: prefersReducedMotion ? 0 : 0.05,
+      },
+    },
+    idle: {},
+    exit: {
+      transition: {
+        staggerChildren: staggerExit,
+        staggerDirection: -1,
+      },
+    },
+  };
+
+  const logoPieceVariants = {
+    initial: {
+      opacity: 0,
+      y: entryOffset,
+      strokeDashoffset: 1,
+    },
+    enter: {
+      opacity: 1,
+      y: 0,
+      strokeDashoffset: 0,
+      transition: {
+        duration: entryLogoDuration,
+        ease: entryEase,
+      },
+    },
+    idle: (custom: { ampY: number; ampR: number; duration: number }) =>
+      prefersReducedMotion
+        ? {}
+        : {
+            y: [0, custom.ampY, 0],
+            rotate: [0, custom.ampR, 0],
+            transition: {
+              duration: custom.duration,
+              ease: "easeInOut",
+              repeat: Infinity,
+            },
+          },
+    exit: {
+      opacity: 0,
+      y: entryOffset,
+      strokeDashoffset: 1,
+      transition: {
+        duration: exitLogoDuration,
+        ease: exitEase,
+      },
+    },
+  };
+
+  const textVariants = {
+    initial: {
+      opacity: 0,
+      y: entryOffset,
+    },
+    enter: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: entryTextDuration,
+        delay: entryTextDelay,
+        ease: entryEase,
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: entryOffset,
+      transition: {
+        duration: exitTextDuration,
+        ease: exitEase,
+      },
+    },
+  };
+
+  const creditsVariants = {
+    initial: {
+      opacity: 0,
+      y: entryOffset,
+    },
+    enter: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: entryCreditsDuration,
+        delay: entryCreditsDelay,
+        ease: entryEase,
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: entryOffset,
+      transition: {
+        duration: exitTextDuration,
+        ease: exitEase,
+      },
+    },
+  };
 
   useEffect(() => {
-    if (disableFallAnimation) {
-      setIsFallActive(true);
+    let isCancelled = false;
+    if (entryStartedRef.current) {
+      return undefined;
+    }
+    entryStartedRef.current = true;
+
+    const startEntry = async () => {
+      await Promise.all([
+        logoControls.start("enter"),
+        textControls.start("enter"),
+        creditsControls.start("enter"),
+      ]);
+
+      if (!isCancelled && !prefersReducedMotion && !isHidingRef.current) {
+        logoControls.start("idle");
+      }
+    };
+
+    startEntry();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    creditsControls,
+    logoControls,
+    prefersReducedMotion,
+    textControls,
+  ]);
+
+  useEffect(() => {
+    if (!isHiding) {
       return;
     }
 
-    if (!isHiding) {
-      const frame = requestAnimationFrame(() => {
-        setIsFallActive(true);
-      });
-      return () => cancelAnimationFrame(frame);
-    }
+    let cancelled = false;
 
-    setIsFallActive(false);
-    return undefined;
-  }, [disableFallAnimation, isHiding]);
+    const runExit = async () => {
+      logoControls.stop();
+      textControls.stop();
+      creditsControls.stop();
 
-  const totalFallItems = 3;
-  const previewStyle = getFallItemStyle(isFallActive, 0, totalFallItems, {
-    disable: disableFallAnimation,
-  });
-  const textStyle = getFallItemStyle(isFallActive, 1, totalFallItems, {
-    disable: disableFallAnimation,
-  });
-  const creditsStyle = getFallItemStyle(isFallActive, 2, totalFallItems, {
-    disable: disableFallAnimation,
-  });
+      await Promise.all([
+        logoControls.start("exit"),
+        textControls.start("exit"),
+        creditsControls.start("exit"),
+      ]);
+
+      if (!prefersReducedMotion && overlayExitDurationMs > 0) {
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, overlayExitDurationMs);
+        });
+      }
+
+      if (!cancelled && !hasSignaledCompletionRef.current) {
+        hasSignaledCompletionRef.current = true;
+        onComplete?.();
+      }
+    };
+
+    runExit();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    creditsControls,
+    isHiding,
+    logoControls,
+    onComplete,
+    overlayExitDurationMs,
+    prefersReducedMotion,
+    textControls,
+  ]);
 
   return (
     <div
       className="splashscreen"
       data-fall-skip="true"
-      style={splashStyle}
       data-state={isHiding ? "hiding" : "visible"}
       aria-hidden={isHiding}
       data-preloader-root="true"
     >
-      <div className={previewClassName} aria-hidden="true" style={previewStyle}>
-        <PreloaderLogo />
+      <div className={previewClassName} aria-hidden="true">
+        <PreloaderLogo
+          controls={logoControls}
+          groupVariants={logoGroupVariants}
+          pieceVariants={logoPieceVariants}
+          idleConfig={idleConfig}
+        />
       </div>
-      <div
+      <motion.div
         className="loading-text-wrapper"
         aria-live="polite"
-        style={textStyle}
+        initial="initial"
+        animate={textControls}
+        variants={textVariants}
+        style={{ translateZ: 0 }}
       >
         <p className="loading-text">
           <FallWordFragments text={t("preloader.title")} />
@@ -402,10 +569,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
           {t("preloader.progress", { value: progressLabel })}
         </p>
         <p className="visually-hidden">{statusLabel}</p>
-      </div>
-      <div className="credits" style={creditsStyle}>
+      </motion.div>
+      <motion.div
+        className="credits"
+        initial="initial"
+        animate={creditsControls}
+        variants={creditsVariants}
+        style={{ translateZ: 0 }}
+      >
         <p>Designed and coded by Matheus Duarte © 2025</p>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -450,53 +623,87 @@ function FallWordFragments({ text }: { text: string }) {
   );
 }
 
-function PreloaderLogo() {
+function PreloaderLogo({
+  controls,
+  groupVariants,
+  pieceVariants,
+  idleConfig,
+}: {
+  controls: ReturnType<typeof useAnimationControls>;
+  groupVariants: {
+    initial: object;
+    enter: object;
+    idle: object;
+    exit: object;
+  };
+  pieceVariants: {
+    initial: object;
+    enter: object;
+    idle: (custom: { ampY: number; ampR: number; duration: number }) => object;
+    exit: object;
+  };
+  idleConfig: Array<{ ampY: number; ampR: number; duration: number }>;
+}) {
   return (
-    <svg
+    <motion.svg
       data-name="deconstructedLogo"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 72 72"
       width="72"
       height="72"
       className="icons-style"
+      initial="initial"
+      animate={controls}
+      variants={groupVariants}
+      style={{ translateZ: 0 }}
     >
-      {/* <circle
+      <motion.circle
         id="Sphere"
         cx="31.019"
         cy="18.93"
         r="3.555"
         pathLength={1}
-        strokeDashoffset="0px"
-        strokeDasharray="1px 1px"
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[0]}
+        style={{ transformOrigin: "center" }}
       />
-      <path
+      <motion.path
         id="Magnet1"
         d="M61.028,23.378a3.555,3.555,0,0,0-6.682-2.432,4.39,4.39,0,0,1-8.25-3,3.555,3.555,0,1,0-6.682-2.432,11.5,11.5,0,0,0,21.614,7.867Z"
         pathLength={1}
-        strokeDashoffset="0px"
-        strokeDasharray="1px 1px"
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[1]}
+        style={{ transformOrigin: "center" }}
       />
-      <path
+      <motion.path
         id="Wave"
         d="M24.221,27.153a4.387,4.387,0,0,1-5.607-1.76A11.436,11.436,0,0,0,13.56,20.8a3.555,3.555,0,1,0-3.005,6.444,4.358,4.358,0,0,1,1.925,1.748,11.5,11.5,0,0,0,14.7,4.627,4.389,4.389,0,0,1,5.608,1.759,11.43,11.43,0,0,0,5.053,4.595,3.556,3.556,0,0,0,3.006-6.445,4.353,4.353,0,0,1-1.926-1.747,11.5,11.5,0,0,0-14.7-4.627Z"
         pathLength={1}
-        strokeDashoffset="0px"
-        strokeDasharray="1px 1px"
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[2]}
+        style={{ transformOrigin: "center" }}
       />
-      <path
+      <motion.path
         id="Magnet2"
         d="M13.411,43.392a3.555,3.555,0,0,0,5.825,4.078,4.39,4.39,0,1,1,7.191,5.036,3.555,3.555,0,0,0,5.825,4.078A11.5,11.5,0,1,0,13.411,43.392Z"
         pathLength={1}
-        strokeDashoffset="0px"
-        strokeDasharray="1px 1px"
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[3]}
+        style={{ transformOrigin: "center" }}
       />
-      <path
+      <motion.path
         id="OpenLoop"
         d="M61.5,47.329A11.5,11.5,0,0,0,50,35.829a3.556,3.556,0,1,0,0,7.111,4.389,4.389,0,1,1-4.39,4.389,3.556,3.556,0,0,0-7.111,0,11.5,11.5,0,0,0,23,0Z"
         pathLength={1}
-        strokeDashoffset="0px"
-        strokeDasharray="1px 1px"
-      /> */}
-    </svg>
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[4]}
+        style={{ transformOrigin: "center" }}
+      />
+    </motion.svg>
   );
 }
