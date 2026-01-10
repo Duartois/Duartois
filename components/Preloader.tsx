@@ -335,8 +335,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, [isHiding]);
   const statusLabel = t(`preloader.status.${statusKey}`);
   const progressLabel = Math.round(progress);
-  const entryEase = [0.22, 1, 0.36, 1];
-  const exitEase = [0.4, 0, 1, 1];
+  const entryEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+  const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
   const entryOffset = -96;
   const overlayExitDurationMs = prefersReducedMotion ? 0 : 450;
   const entryLogoDuration = prefersReducedMotion ? 0.01 : 0.75;
