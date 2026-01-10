@@ -1,6 +1,5 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
-import ts from "typescript";
+const { readdir, readFile } = require("node:fs/promises");
+const path = require("node:path");
 
 const rootDir = path.resolve(__dirname, "..");
 const directoriesToScan = ["app", "components", "types"];
@@ -44,16 +43,15 @@ const bannedPackages = [
   },
 ];
 
-type Violation = {
-  file: string;
-  line: number;
-  specifier: string;
-  description: string;
-};
+const staticImportRegex =
+  /\b(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/g;
+const bareImportRegex = /\bimport\s+['"]([^'"]+)['"]/g;
+const requireRegex = /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
+const dynamicImportRegex = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 
-async function walk(dir: string): Promise<string[]> {
+async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
-  const files: string[] = [];
+  const files = [];
 
   for (const entry of entries) {
     if (entry.name.startsWith(".")) {
@@ -82,51 +80,32 @@ async function walk(dir: string): Promise<string[]> {
   return files;
 }
 
-function extractSpecifiers(
-  filePath: string,
-  content: string
-): Array<{ specifier: string; index: number }> {
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    content,
-    ts.ScriptTarget.Latest,
-    true,
-    filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : undefined
-  );
-
-  const specifiers: Array<{ specifier: string; index: number }> = [];
-
-  const record = (specifier: string, node: ts.Node) => {
-    specifiers.push({ specifier, index: node.getStart(sourceFile) });
+function extractSpecifiers(content) {
+  const specifiers = [];
+  const record = (specifier, index) => {
+    specifiers.push({ specifier, index });
   };
 
-  const visit = (node: ts.Node) => {
-    if (
-      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
-      node.moduleSpecifier &&
-      ts.isStringLiteralLike(node.moduleSpecifier)
-    ) {
-      record(node.moduleSpecifier.text, node.moduleSpecifier);
-    } else if (ts.isCallExpression(node)) {
-      const [firstArg] = node.arguments;
-      if (firstArg && ts.isStringLiteralLike(firstArg)) {
-        if (ts.isIdentifier(node.expression) && node.expression.text === "require") {
-          record(firstArg.text, firstArg);
-        } else if (node.expression.kind === ts.SyntaxKind.ImportKeyword) {
-          record(firstArg.text, firstArg);
-        }
-      }
+  const patterns = [
+    staticImportRegex,
+    bareImportRegex,
+    requireRegex,
+    dynamicImportRegex,
+  ];
+
+  for (const pattern of patterns) {
+    pattern.lastIndex = 0;
+    let match = pattern.exec(content);
+    while (match) {
+      record(match[1], match.index);
+      match = pattern.exec(content);
     }
-
-    ts.forEachChild(node, visit);
-  };
-
-  visit(sourceFile);
+  }
 
   return specifiers;
 }
 
-function checkSpecifier(specifier: string): { description: string } | null {
+function checkSpecifier(specifier) {
   for (const { pattern, description } of bannedPackages) {
     if (pattern.test(specifier)) {
       return { description };
@@ -135,18 +114,18 @@ function checkSpecifier(specifier: string): { description: string } | null {
   return null;
 }
 
-function computeLine(content: string, index: number): number {
+function computeLine(content, index) {
   return content.slice(0, index).split(/\r?\n/).length;
 }
 
-async function verify(): Promise<Violation[]> {
+async function verify() {
   const filesToCheck = await Promise.all(
     directoriesToScan.map(async (relativeDir) => {
       const absoluteDir = path.join(rootDir, relativeDir);
       try {
         return await walk(absoluteDir);
       } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        if (error && error.code === "ENOENT") {
           return [];
         }
         throw error;
@@ -155,12 +134,12 @@ async function verify(): Promise<Violation[]> {
   );
 
   const flattened = filesToCheck.flat();
-  const violations: Violation[] = [];
+  const violations = [];
 
   for (const filePath of flattened) {
     const content = await readFile(filePath, "utf8");
 
-    for (const { specifier, index } of extractSpecifiers(filePath, content)) {
+    for (const { specifier, index } of extractSpecifiers(content)) {
       const cleanedSpecifier = specifier.split("?", 1)[0];
       const violation = checkSpecifier(cleanedSpecifier);
       if (violation) {
