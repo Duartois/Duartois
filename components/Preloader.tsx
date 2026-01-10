@@ -646,8 +646,8 @@ function PreloaderLogo({
       data-name="deconstructedLogo"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 72 72"
-      width="72"
-      height="72"
+      width="112"
+      height="112"
       className="icons-style"
       initial="initial"
       animate={controls}
