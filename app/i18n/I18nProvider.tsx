@@ -7,16 +7,19 @@ import i18n from "./config";
 type SupportedLang = "pt" | "en";
 
 interface I18nProviderProps {
-  lang: SupportedLang;
+  lang?: SupportedLang;
   children: ReactNode;
 }
 
 export default function I18nProvider({ lang, children }: I18nProviderProps) {
-  if (typeof window === "undefined" && i18n.language !== lang) {
+  if (typeof window === "undefined" && lang && i18n.language !== lang) {
     i18n.changeLanguage(lang);
   }
 
   useEffect(() => {
+    if (!lang) {
+      return;
+    }
     if (i18n.language !== lang) {
       void i18n.changeLanguage(lang);
     }
