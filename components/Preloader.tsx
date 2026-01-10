@@ -5,13 +5,7 @@ import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
 import type { ThreeAppState } from "./three/types";
-import {
-  motion,
-  useAnimationControls,
-  useReducedMotion,
-  type Easing,
-  type Variants,
-} from "framer-motion";
+import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
@@ -341,8 +335,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, [isHiding]);
   const statusLabel = t(`preloader.status.${statusKey}`);
   const progressLabel = Math.round(progress);
-  const entryEase: Easing = [0.22, 1, 0.36, 1];
-  const exitEase: Easing = [0.4, 0, 1, 1];
+  const entryEase = [0.22, 1, 0.36, 1];
+  const exitEase = [0.4, 0, 1, 1];
   const entryOffset = -96;
   const overlayExitDurationMs = prefersReducedMotion ? 0 : 450;
   const entryLogoDuration = prefersReducedMotion ? 0.01 : 0.75;
@@ -365,7 +359,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     [],
   );
 
-  const logoGroupVariants: Variants = {
+  const logoGroupVariants = {
     initial: {},
     enter: {
       transition: {
@@ -382,7 +376,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     },
   };
 
-  const logoPieceVariants: Variants = {
+  const logoPieceVariants = {
     initial: {
       opacity: 0,
       y: entryOffset,
@@ -420,7 +414,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     },
   };
 
-  const textVariants: Variants = {
+  const textVariants = {
     initial: {
       opacity: 0,
       y: entryOffset,
@@ -444,7 +438,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     },
   };
 
-  const creditsVariants: Variants = {
+  const creditsVariants = {
     initial: {
       opacity: 0,
       y: entryOffset,
@@ -636,8 +630,18 @@ function PreloaderLogo({
   idleConfig,
 }: {
   controls: ReturnType<typeof useAnimationControls>;
-  groupVariants: Variants;
-  pieceVariants: Variants;
+  groupVariants: {
+    initial: object;
+    enter: object;
+    idle: object;
+    exit: object;
+  };
+  pieceVariants: {
+    initial: object;
+    enter: object;
+    idle: (custom: { ampY: number; ampR: number; duration: number }) => object;
+    exit: object;
+  };
   idleConfig: Array<{ ampY: number; ampR: number; duration: number }>;
 }) {
   return (
