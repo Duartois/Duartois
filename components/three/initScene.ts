@@ -197,9 +197,11 @@ export const initScene = async ({
   );
 
   const clock = new THREE.Clock();
+  let isVisible = !globalWindow.document.hidden;
   let readyDispatched = false;
   let animationId: number | null = null;
   let disposed = false;
+  const pointerListenerOptions = { passive: true } as const;
 
   const resize = () => {
     const width = canvas.clientWidth;
@@ -257,6 +259,11 @@ export const initScene = async ({
 
   const tick = () => {
     if (disposed) {
+      return;
+    }
+
+    if (!isVisible) {
+      animationId = null;
       return;
     }
 
@@ -334,6 +341,24 @@ export const initScene = async ({
     }
 
     if (!disposed) {
+      animationId = globalWindow.requestAnimationFrame(tick);
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    isVisible = !globalWindow.document.hidden;
+
+    if (!isVisible) {
+      if (animationId !== null) {
+        globalWindow.cancelAnimationFrame(animationId);
+        animationId = null;
+      }
+      clock.stop();
+      return;
+    }
+
+    clock.start();
+    if (!disposed && animationId === null) {
       animationId = globalWindow.requestAnimationFrame(tick);
     }
   };
@@ -489,6 +514,7 @@ export const initScene = async ({
     globalWindow.removeEventListener("pointermove", pointerMove);
     globalWindow.removeEventListener("pointerenter", pointerEnter);
     globalWindow.removeEventListener("pointerleave", pointerLeave);
+    globalWindow.removeEventListener("visibilitychange", handleVisibilityChange);
     shapes.dispose();
     // Keep the renderer cleanup quiet for devtools/extensions by avoiding a
     // forced context loss. `renderer.dispose()` is enough to release GPU
@@ -514,13 +540,16 @@ export const initScene = async ({
 
   resize();
   globalWindow.addEventListener("resize", resize);
-  globalWindow.addEventListener("pointermove", pointerMove);
-  globalWindow.addEventListener("pointerenter", pointerEnter);
-  globalWindow.addEventListener("pointerleave", pointerLeave);
+  globalWindow.addEventListener("pointermove", pointerMove, pointerListenerOptions);
+  globalWindow.addEventListener("pointerenter", pointerEnter, pointerListenerOptions);
+  globalWindow.addEventListener("pointerleave", pointerLeave, pointerListenerOptions);
+  globalWindow.addEventListener("visibilitychange", handleVisibilityChange);
 
   dispatchStateChange(eventTarget, state);
 
-  animationId = globalWindow.requestAnimationFrame(tick);
+  if (isVisible) {
+    animationId = globalWindow.requestAnimationFrame(tick);
+  }
 
   return handle;
 };
