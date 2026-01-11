@@ -654,15 +654,13 @@ function PreloaderLogo({
       variants={groupVariants}
       style={{ translateZ: 0 }}
     >
-      <motion.circle
-        id="Sphere"
-        cx="31.019"
-        cy="18.93"
-        r="3.555"
+      <motion.path
+        id="Wave"
+        d="M24.221,27.153a4.387,4.387,0,0,1-5.607-1.76A11.436,11.436,0,0,0,13.56,20.8a3.555,3.555,0,1,0-3.005,6.444,4.358,4.358,0,0,1,1.925,1.748,11.5,11.5,0,0,0,14.7,4.627,4.389,4.389,0,0,1,5.608,1.759,11.43,11.43,0,0,0,5.053,4.595,3.556,3.556,0,0,0,3.006-6.445,4.353,4.353,0,0,1-1.926-1.747,11.5,11.5,0,0,0-14.7-4.627Z"
         pathLength={1}
         strokeDasharray="1"
         variants={pieceVariants}
-        custom={idleConfig[0]}
+        custom={idleConfig[2]}
         style={{ transformOrigin: "center" }}
       />
       <motion.path
@@ -672,15 +670,6 @@ function PreloaderLogo({
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[1]}
-        style={{ transformOrigin: "center" }}
-      />
-      <motion.path
-        id="Wave"
-        d="M24.221,27.153a4.387,4.387,0,0,1-5.607-1.76A11.436,11.436,0,0,0,13.56,20.8a3.555,3.555,0,1,0-3.005,6.444,4.358,4.358,0,0,1,1.925,1.748,11.5,11.5,0,0,0,14.7,4.627,4.389,4.389,0,0,1,5.608,1.759,11.43,11.43,0,0,0,5.053,4.595,3.556,3.556,0,0,0,3.006-6.445,4.353,4.353,0,0,1-1.926-1.747,11.5,11.5,0,0,0-14.7-4.627Z"
-        pathLength={1}
-        strokeDasharray="1"
-        variants={pieceVariants}
-        custom={idleConfig[2]}
         style={{ transformOrigin: "center" }}
       />
       <motion.path
@@ -699,6 +688,17 @@ function PreloaderLogo({
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[4]}
+        style={{ transformOrigin: "center" }}
+      />
+      <motion.circle
+        id="Sphere"
+        cx="31.019"
+        cy="18.93"
+        r="3.555"
+        pathLength={1}
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[0]}
         style={{ transformOrigin: "center" }}
       />
     </motion.svg>
