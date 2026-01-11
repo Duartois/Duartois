@@ -556,7 +556,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       <div
         className={previewClassName}
         aria-hidden="true"
-        style={{ transform: "translateY(32px)" }}
+        style={{ transform: "translateY(52px)" }}
       >
         <PreloaderLogo
           controls={logoControls}
