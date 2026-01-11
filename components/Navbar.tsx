@@ -242,8 +242,8 @@ export default function Navbar() {
                 transform: "translateY(-100px) translateZ(0px)",
               }}
             >
-              <span className="nickname">sharlee</span>/
-              <span className="fullname">charles bruyerre</span>
+              <span className="nickname">Duartois</span>/
+              <span className="fullname">Matheus Duarte</span>
             </h5>
           </div>
 
