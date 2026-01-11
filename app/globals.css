@@ -304,7 +304,7 @@ header .header-content .left-part,header .header-content .right-part {
 
 header .header-content .left-part .logo {
     margin-right: 24px;
-    display:none;
+    display: block;
 }
 
 header .header-content .left-part .full-identity {
