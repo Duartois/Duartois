@@ -680,7 +680,7 @@ function PreloaderLogo({
         width="69.1299"
         height="230.201"
         rx="34.565"
-        transform="translate(4 4) matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 286.854)"
+        transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)"
         pathLength={1}
         strokeDasharray="1"
         variants={pieceVariants}
