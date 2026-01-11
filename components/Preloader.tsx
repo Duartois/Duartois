@@ -553,7 +553,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       aria-hidden={isHiding}
       data-preloader-root="true"
     >
-      <div className={previewClassName} aria-hidden="true">
+      <div
+        className={previewClassName}
+        aria-hidden="true"
+        style={{ transform: "translateY(12px)" }}
+      >
         <PreloaderLogo
           controls={logoControls}
           groupVariants={logoGroupVariants}
