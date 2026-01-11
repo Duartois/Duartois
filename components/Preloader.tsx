@@ -645,60 +645,69 @@ function PreloaderLogo({
     <motion.svg
       data-name="deconstructedLogo"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 72 72"
+      viewBox="0 0 474 358"
       width="112"
       height="112"
       className="icons-style"
       initial="initial"
       animate={controls}
       variants={groupVariants}
+      preserveAspectRatio="xMidYMid meet"
       style={{ translateZ: 0 }}
     >
       <motion.path
-        id="Wave"
-        d="M24.221,27.153a4.387,4.387,0,0,1-5.607-1.76A11.436,11.436,0,0,0,13.56,20.8a3.555,3.555,0,1,0-3.005,6.444,4.358,4.358,0,0,1,1.925,1.748,11.5,11.5,0,0,0,14.7,4.627,4.389,4.389,0,0,1,5.608,1.759,11.43,11.43,0,0,0,5.053,4.595,3.556,3.556,0,0,0,3.006-6.445,4.353,4.353,0,0,1-1.926-1.747,11.5,11.5,0,0,0-14.7-4.627Z"
+        id="BaseWave"
+        d="M152.983 347C94.2985 347 45.7051 306.564 37.2766 253.839C35.6219 243.488 40.2441 233.389 47.788 226.11C62.4297 211.983 85.5198 211.637 100.578 225.32L101.091 225.786C109.302 233.246 112.941 244.471 118.29 254.19C124.764 265.954 137.869 274 152.983 274C168.542 274 181.972 265.473 188.231 253.14C192.928 243.885 196.174 233.414 203.605 226.169C218.129 212.01 241.147 211.551 256.224 225.119L256.912 225.737C265.232 233.225 270.39 243.973 268.496 255.005C259.543 307.159 211.234 347 152.983 347Z"
         pathLength={1}
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[2]}
+        strokeWidth={10}
         style={{ transformOrigin: "center" }}
       />
       <motion.path
-        id="Magnet1"
-        d="M61.028,23.378a3.555,3.555,0,0,0-6.682-2.432,4.39,4.39,0,0,1-8.25-3,3.555,3.555,0,1,0-6.682-2.432,11.5,11.5,0,0,0,21.614,7.867Z"
-        pathLength={1}
-        strokeDasharray="1"
-        variants={pieceVariants}
-        custom={idleConfig[1]}
-        style={{ transformOrigin: "center" }}
-      />
-      <motion.path
-        id="Magnet2"
-        d="M13.411,43.392a3.555,3.555,0,0,0,5.825,4.078,4.39,4.39,0,1,1,7.191,5.036,3.555,3.555,0,0,0,5.825,4.078A11.5,11.5,0,1,0,13.411,43.392Z"
-        pathLength={1}
-        strokeDasharray="1"
-        variants={pieceVariants}
-        custom={idleConfig[3]}
-        style={{ transformOrigin: "center" }}
-      />
-      <motion.path
-        id="OpenLoop"
-        d="M61.5,47.329A11.5,11.5,0,0,0,50,35.829a3.556,3.556,0,1,0,0,7.111,4.389,4.389,0,1,1-4.39,4.389,3.556,3.556,0,0,0-7.111,0,11.5,11.5,0,0,0,23,0Z"
+        id="CoreShape"
+        d="M163.986 5C80.3013 5 13.5034 64.6834 5.21662 142.296C3.67664 156.72 10.532 170.78 21.2954 181.06C43.0688 201.856 76.7407 202.361 97.4656 182.201L98.1532 181.532C108.996 170.985 113.357 155.459 119.756 141.684C128.01 123.913 146.431 111.667 168.317 111.667C198.877 111.667 224.621 135.545 225.817 165C226.719 187.199 213.419 206.231 193.73 214.26C180.991 219.455 167.216 223.84 157.616 233.57C136.876 254.591 138.307 289.474 160.955 310.279C171.241 319.728 184.697 325.373 198.219 323.696C279.435 313.623 339.792 246.413 336.486 165C332.897 76.6344 255.666 5 163.986 5Z"
         pathLength={1}
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[4]}
+        strokeWidth={10}
+        style={{ transformOrigin: "center" }}
+      />
+      <motion.rect
+        id="SideBar"
+        width="69.1299"
+        height="230.201"
+        rx="34.565"
+        transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)"
+        pathLength={1}
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[1]}
+        strokeWidth={10}
+        style={{ transformOrigin: "center" }}
+      />
+      <motion.path
+        id="Accent"
+        d="M362.378 156.771C321.716 168.224 294.73 199.608 295.996 230.915C296.349 239.662 303.271 246.532 311.604 249.871C323.934 254.812 337.872 251.102 345.591 240.827L345.902 240.413C351.42 233.067 351.926 222.676 356.125 214.511C359.572 207.808 366.715 202.08 375.995 199.466C385.686 196.737 395.417 198.048 402.282 202.281C409.85 206.949 415.731 214.838 423.966 218.185C436.225 223.166 450.131 219.537 457.87 209.337L458.287 208.787C463.891 201.402 465.954 191.43 460.655 183.53C443.077 157.321 402.608 145.439 362.378 156.771Z"
+        pathLength={1}
+        strokeDasharray="1"
+        variants={pieceVariants}
+        custom={idleConfig[3]}
+        strokeWidth={10}
         style={{ transformOrigin: "center" }}
       />
       <motion.circle
-        id="Sphere"
-        cx="31.019"
-        cy="18.93"
-        r="3.555"
+        id="CoreDot"
+        cx="170.984"
+        cy="165"
+        r="34"
         pathLength={1}
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[0]}
+        strokeWidth={10}
         style={{ transformOrigin: "center" }}
       />
     </motion.svg>
