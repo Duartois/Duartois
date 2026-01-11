@@ -25,9 +25,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const lang = cookieLang ?? defaultLang;
 
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html lang={lang} translate="no" suppressHydrationWarning>
       <head>
         <ThemeScript />
+        <meta name="google" content="notranslate" />
         <link
           rel="preconnect"
           href="https://eu-central-1.graphassets.com"
