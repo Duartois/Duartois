@@ -662,7 +662,7 @@ function PreloaderLogo({
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[2]}
-        strokeWidth={13}
+        strokeWidth={12}
         style={{ transformOrigin: "center" }}
       />
       <motion.path
@@ -672,7 +672,7 @@ function PreloaderLogo({
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[4]}
-        strokeWidth={13}
+        strokeWidth={12}
         style={{ transformOrigin: "center" }}
       />
             <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
@@ -685,7 +685,7 @@ function PreloaderLogo({
           strokeDasharray="1"
           variants={pieceVariants}
           custom={idleConfig[1]}
-          strokeWidth={13}
+          strokeWidth={12}
           style={{
             transformOrigin: "center",
             transformBox: "fill-box",
@@ -700,7 +700,7 @@ function PreloaderLogo({
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[3]}
-        strokeWidth={13}
+        strokeWidth={12}
         style={{ transformOrigin: "center" }}
       />
       <motion.circle
@@ -712,7 +712,7 @@ function PreloaderLogo({
         strokeDasharray="1"
         variants={pieceVariants}
         custom={idleConfig[0]}
-        strokeWidth={13}
+        strokeWidth={12}
         style={{ transformOrigin: "center" }}
       />
     </motion.svg>
