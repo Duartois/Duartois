@@ -20,7 +20,7 @@ type PreloaderProps = {
 };
 
 const STATIC_PREVIEW_STYLES =
-  "mt-6 flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
+  "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
 const MIN_VISIBLE_TIME = 3500;
 const READY_EXIT_BUFFER = 350;
