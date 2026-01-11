@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import classNames from "classnames";
+import { cookies } from "next/headers";
 import AppShell from "@/components/AppShell";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
@@ -11,9 +12,20 @@ import I18nProvider from "./i18n/I18nProvider";
 type SupportedLang = "pt" | "en";
 const defaultLang: SupportedLang = "en";
 
+const normalizeLang = (value?: string | null): SupportedLang | null => {
+  if (value === "pt" || value === "en") {
+    return value;
+  }
+  return null;
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const cookieStore = cookies();
+  const cookieLang = normalizeLang(cookieStore.get("i18nextLng")?.value);
+  const lang = cookieLang ?? defaultLang;
+
   return (
-    <html lang={defaultLang} suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <ThemeScript />
         <link
@@ -44,7 +56,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         )}
       >
         <ThemeProvider>
-          <I18nProvider>
+          <I18nProvider lang={lang}>
             <CustomCursor />
             <AppShell navbar={<Navbar />}>{children}</AppShell>
           </I18nProvider>
