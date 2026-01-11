@@ -675,19 +675,24 @@ function PreloaderLogo({
         strokeWidth={10}
         style={{ transformOrigin: "center" }}
       />
-      <motion.rect
-        id="SideBar"
-        width="69.1299"
-        height="230.201"
-        rx="34.565"
-        transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)"
-        pathLength={1}
-        strokeDasharray="1"
-        variants={pieceVariants}
-        custom={idleConfig[1]}
-        strokeWidth={10}
-        style={{ transformOrigin: "center" }}
-      />
+            <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
+        <motion.rect
+          id="SideBar"
+          width="69.1299"
+          height="230.201"
+          rx="34.565"
+          pathLength={1}
+          strokeDasharray="1"
+          variants={pieceVariants}
+          custom={idleConfig[1]}
+          strokeWidth={10}
+          style={{
+            transformOrigin: "center",
+            transformBox: "fill-box",
+          }}
+        />
+      </g>
+
       <motion.path
         id="Accent"
         d="M362.378 156.771C321.716 168.224 294.73 199.608 295.996 230.915C296.349 239.662 303.271 246.532 311.604 249.871C323.934 254.812 337.872 251.102 345.591 240.827L345.902 240.413C351.42 233.067 351.926 222.676 356.125 214.511C359.572 207.808 366.715 202.08 375.995 199.466C385.686 196.737 395.417 198.048 402.282 202.281C409.85 206.949 415.731 214.838 423.966 218.185C436.225 223.166 450.131 219.537 457.87 209.337L458.287 208.787C463.891 201.402 465.954 191.43 460.655 183.53C443.077 157.321 402.608 145.439 362.378 156.771Z"
