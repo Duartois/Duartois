@@ -686,7 +686,7 @@ function PreloaderLogo({
         variants={pieceVariants}
         custom={idleConfig[1]}
         strokeWidth={10}
-        style={{ transformOrigin: "center", transformBox: "fill-box" }}
+        style={{ transformOrigin: "center" }}
       />
       <motion.path
         id="Accent"
