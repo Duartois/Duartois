@@ -62,6 +62,71 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     }
   }, [isContentVisible]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleNavigationClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      const target = event.target as Element | null;
+      const anchor = target?.closest("a");
+      if (!anchor) {
+        return;
+      }
+
+      if (anchor.hasAttribute("download")) {
+        return;
+      }
+
+      const targetAttr = anchor.getAttribute("target");
+      if (targetAttr && targetAttr !== "_self") {
+        return;
+      }
+
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#")) {
+        return;
+      }
+
+      if (href.startsWith("mailto:") || href.startsWith("tel:")) {
+        return;
+      }
+
+      const url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin) {
+        return;
+      }
+
+      const currentUrl = new URL(window.location.href);
+      if (
+        url.pathname === currentUrl.pathname &&
+        url.search === currentUrl.search &&
+        url.hash === currentUrl.hash
+      ) {
+        return;
+      }
+
+      window.dispatchEvent(new CustomEvent("app-navigation:start"));
+    };
+
+    document.addEventListener("click", handleNavigationClick);
+
+    return () => {
+      document.removeEventListener("click", handleNavigationClick);
+    };
+  }, []);
+
   return (
     <MenuProvider>
       <div className="app-shell relative min-h-screen w-full">
