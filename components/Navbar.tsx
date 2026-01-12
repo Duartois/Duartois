@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Menu from "./Menu";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
 import { useReducedMotion } from "framer-motion";
-import { getFallItemStyle } from "./fallAnimation";
+import {
+  FALL_ITEM_STAGGER_DELAY,
+  FALL_ITEM_TRANSITION_DURATION,
+  getFallItemStyle,
+} from "./fallAnimation";
 import { useMenu } from "./MenuContext";
 import {
   MENU_OVERLAY_MONOGRAM,
@@ -40,11 +44,21 @@ export default function Navbar() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hoverHold, setHoverHold] = useState(false);
   const animTimerRef = useRef<number | undefined>(undefined);
+  const navigationTimeoutRef = useRef<number | undefined>(undefined);
+  const isNavigatingRef = useRef(false);
   const hasAnnouncedMenuStateRef = useRef(false);
   const storedSceneStateRef = useRef<StoredSceneState | null>(null);
   const [menuSceneVersion, setMenuSceneVersion] = useState(0);
   const pathname = usePathname();
+  const router = useRouter();
   useEffect(() => setIsOpen(false), [pathname]);
+  useEffect(() => {
+    isNavigatingRef.current = false;
+    if (navigationTimeoutRef.current) {
+      window.clearTimeout(navigationTimeoutRef.current);
+      navigationTimeoutRef.current = undefined;
+    }
+  }, [pathname]);
   useEffect(() => {
     const body = document.body;
     if (!body) {
@@ -173,6 +187,10 @@ export default function Navbar() {
   }, [disableFallAnimation]);
 
   const totalFallItems = 4;
+  const navigationFallItems = 6;
+  const navigationFallDuration =
+    FALL_ITEM_TRANSITION_DURATION +
+    Math.max(navigationFallItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
   const fallStyle = (index: number) =>
     getFallItemStyle(isFallActive, index, totalFallItems, {
       disable: disableFallAnimation,
@@ -206,6 +224,37 @@ export default function Navbar() {
     }, 420);
   }
 
+  const handleLogoClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.shiftKey
+    ) {
+      return;
+    }
+
+    if (disableFallAnimation || pathname === "/") {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (isNavigatingRef.current) {
+      return;
+    }
+
+    isNavigatingRef.current = true;
+    setIsOpen(false);
+    window.dispatchEvent(new CustomEvent("app-navigation:start"));
+
+    navigationTimeoutRef.current = window.setTimeout(() => {
+      router.push("/");
+    }, navigationFallDuration);
+  };
+
   return (
     <>
       <header>
@@ -213,7 +262,7 @@ export default function Navbar() {
           {/* LEFT */}
           <div className="left-part flex transform-none">
             <div className="logo" style={fallStyle(0)}>
-              <Link href="/" aria-label="Home">
+              <Link href="/" aria-label="Home" onClick={handleLogoClick}>
                 <span className="visually-hidden">Home</span>
                 <svg
                   data-name="deconstructedLogo"
