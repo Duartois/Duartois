@@ -398,15 +398,15 @@ export const initScene = async ({
       commit({ palette: partial.palette });
     }
 
-    const resolveHoverState = () =>
-      typeof partial.hovered === "boolean" ? partial.hovered : state.hovered;
+
+
 
     if (partial.theme && partial.theme !== state.theme) {
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
-      const hovered = resolveHoverState();
-      shapes.applyTheme(partial.theme, {
-        forceLightColors: partial.theme === "dark" && hovered,
-      });
+      shapes.applyTheme(partial.theme);
+
+
+
       renderer.toneMappingExposure = getToneMappingExposure(partial.theme);
       updateAllMeshOpacities(pendingOpacity, pendingShapeOpacity);
       commit({ theme: partial.theme, palette: nextPalette });
@@ -425,9 +425,9 @@ export const initScene = async ({
     }
 
     if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
-      shapes.applyTheme(state.theme, {
-        forceLightColors: state.theme === "dark" && partial.hovered,
-      });
+
+
+
       commit({ hovered: partial.hovered });
     }
 
