@@ -119,7 +119,7 @@ export type ShapesHandle = {
   group: THREE.Group;
   meshes: Record<ShapeId, THREE.Mesh>;
   applyVariant: (variant: VariantState) => void;
-  applyTheme: (theme: ThemeName) => void;
+  applyTheme: (theme: ThemeName, options?: { forceLightColors?: boolean }) => void;
   setBrightness: (value: number) => void;
   dispose: () => void;
 };
@@ -417,13 +417,22 @@ export async function addDuartoisSignatureShapes(
   };
 
   let currentTheme: ThemeName = initialTheme;
+  let forceLightColors = false;
   let currentBrightness = 1.5;
 
-  const applyTheme = (theme: ThemeName) => {
+  const applyTheme = (
+    theme: ThemeName,
+    options: { forceLightColors?: boolean } = {},
+  ) => {
     currentTheme = theme;
-    const isDark = theme === "dark";
+    if (typeof options.forceLightColors === "boolean") {
+      forceLightColors = options.forceLightColors;
+    }
+    const isDarkTheme = theme === "dark";
+    const useLightPalette = !isDarkTheme || forceLightColors;
+    const isDarkMaterial = !useLightPalette;
 
-    const baseEmissive = isDark ? 0.012 : 0.04;
+    const baseEmissive = isDarkMaterial ? 0.012 : 0.04;
 
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
@@ -432,7 +441,7 @@ export async function addDuartoisSignatureShapes(
         mesh.material = material;
       }
 
-      if (isDark) {
+      if (isDarkMaterial) {
         material.vertexColors = false;
         material.color.set("#4a4d57");
       } else {
@@ -441,15 +450,15 @@ export async function addDuartoisSignatureShapes(
       }
       material.opacity = 1;
       material.transparent = false;
-      material.metalness = isDark ? 0.008 : 0.005;
-      material.roughness = isDark ? 0.26 : 0.3;
-      material.clearcoat = isDark ? 0.018 : 0.14;
-      material.clearcoatRoughness = isDark ? 0.02 : 0.016;
-      material.envMapIntensity = isDark ? 0.02 : 0.08;
-      material.specularIntensity = isDark ? 0.02 : 0.024;
+      material.metalness = isDarkMaterial ? 0.008 : 0.005;
+      material.roughness = isDarkMaterial ? 0.26 : 0.3;
+      material.clearcoat = isDarkMaterial ? 0.018 : 0.14;
+      material.clearcoatRoughness = isDarkMaterial ? 0.02 : 0.016;
+      material.envMapIntensity = isDarkMaterial ? 0.02 : 0.08;
+      material.specularIntensity = isDarkMaterial ? 0.02 : 0.024;
       material.sheen = 0.18;
-      material.sheenColor.set(isDark ? "#e6e9ff" : "#ffffff");
-      material.emissive.set(isDark ? "#090a13" : "#fafbff");
+      material.sheenColor.set(isDarkMaterial ? "#e6e9ff" : "#ffffff");
+      material.emissive.set(isDarkMaterial ? "#090a13" : "#fafbff");
       material.emissiveIntensity = baseEmissive * currentBrightness;
       material.needsUpdate = true;
     });
@@ -466,13 +475,13 @@ export async function addDuartoisSignatureShapes(
       rim: 0.28,
     } as const;
 
-    const lightSettings = isDark ? darkLightSettings : lightLightSettings;
+    const lightSettings = isDarkTheme ? darkLightSettings : lightLightSettings;
 
     ambient.color.set("#ffffff");
     ambient.intensity = lightSettings.ambient * currentBrightness;
-    keyLight.color.set(isDark ? "#ffffff" : "#ffe9d2");
+    keyLight.color.set(isDarkTheme ? "#ffffff" : "#ffe9d2");
     keyLight.intensity = lightSettings.key * currentBrightness;
-    rimLight.color.set(isDark ? "#9cc7ff" : "#cde2ff");
+    rimLight.color.set(isDarkTheme ? "#9cc7ff" : "#cde2ff");
     rimLight.intensity = lightSettings.rim * currentBrightness;
   };
 
