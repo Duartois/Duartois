@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
@@ -22,29 +22,21 @@ type PreloaderProps = {
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
-const MIN_VISIBLE_TIME = 3500;
-const READY_EXIT_BUFFER = 350;
-const FONT_PROGRESS_TARGET = 55;
-const ASSET_PROGRESS_START = 55;
-const ASSET_PROGRESS_END = 88;
-const STATUS_PROGRESS_CEILINGS: Record<PreloaderStatus, number> = {
-  fonts: 48,
-  assets: 88,
-  scene: 96,
-  idle: 100,
-  ready: 100,
-};
+const MIN_VISIBLE_TIME = 650;
+const STATUS_SEQUENCE: Array<{
+  delayMs: number;
+  progress: number;
+  status: PreloaderStatus;
+}> = [
+  { delayMs: 120, progress: 28, status: "fonts" },
+  { delayMs: 280, progress: 58, status: "assets" },
+  { delayMs: 480, progress: 82, status: "scene" },
+];
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
   const [progress, setProgress] = useState(INITIAL_PROGRESS);
-  const [targetProgress, setTargetProgress] = useState(INITIAL_PROGRESS);
-  const hasFinalizedRef = useRef(false);
   const hasSignaledCompletionRef = useRef(false);
-  const readyTimeoutRef = useRef<number>();
-  const progressFrameRef = useRef<number>();
-  const targetProgressRef = useRef(INITIAL_PROGRESS);
-  const progressRef = useRef(INITIAL_PROGRESS);
   const entryStartedRef = useRef(false);
   const isHidingRef = useRef(false);
   const mountTimeRef = useRef<number>(
@@ -57,10 +49,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const textControls = useAnimationControls();
   const creditsControls = useAnimationControls();
   const criticalAssets = useMemo(() => CRITICAL_ASSET_URLS, []);
-  const totalAssets = criticalAssets.length;
-  const [fontsReady, setFontsReady] = useState(false);
-  const [assetsReady, setAssetsReady] = useState(totalAssets === 0);
-  const [sceneReady, setSceneReady] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
@@ -69,182 +57,68 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, []);
 
   useEffect(() => {
-    progressRef.current = progress;
-  }, [progress]);
-
-  useEffect(() => {
-    targetProgressRef.current = targetProgress;
-  }, [targetProgress]);
-
-  const finalizeLoading = useCallback(() => {
-    if (hasFinalizedRef.current) {
+    if (!hasMounted) {
       return;
     }
 
-    hasFinalizedRef.current = true;
-
-    const now =
+    const timeoutIds: number[] = [];
+    const startTime =
       typeof performance !== "undefined" ? performance.now() : Date.now();
-    const elapsed = now - mountTimeRef.current;
-    const remaining = Math.max(MIN_VISIBLE_TIME - elapsed, 0);
-    const readyDelay = Math.max(remaining - READY_EXIT_BUFFER, 0);
 
-    setTargetProgress(100);
-
-    if (readyDelay > 0) {
-      readyTimeoutRef.current = window.setTimeout(() => {
-        readyTimeoutRef.current = undefined;
-        setStatusKey("ready");
-      }, readyDelay);
-    } else {
-      setStatusKey("ready");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (progressFrameRef.current) {
-      cancelAnimationFrame(progressFrameRef.current);
-      progressFrameRef.current = undefined;
-    }
-
-    if (targetProgressRef.current <= progressRef.current) {
-      return;
-    }
-
-    const step = () => {
-      setProgress((current) => {
-        const target = targetProgressRef.current;
-        if (current >= target) {
-          progressFrameRef.current = undefined;
-          return target;
-        }
-
-        const diff = target - current;
-        const increment = Math.max(diff * 0.18, 0.8);
-        const next = current + increment;
-
-        if (next < target) {
-          progressFrameRef.current = requestAnimationFrame(step);
-          return next;
-        }
-
-        progressFrameRef.current = undefined;
-        return target;
-      });
-    };
-
-    progressFrameRef.current = requestAnimationFrame(step);
-
-    return () => {
-      if (progressFrameRef.current) {
-        cancelAnimationFrame(progressFrameRef.current);
-        progressFrameRef.current = undefined;
-      }
-    };
-  }, [targetProgress]);
-
-  useEffect(() => {
-    return () => {
-      if (progressFrameRef.current) {
-        cancelAnimationFrame(progressFrameRef.current);
-      }
-      if (readyTimeoutRef.current !== undefined) {
-        window.clearTimeout(readyTimeoutRef.current);
-        readyTimeoutRef.current = undefined;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    let isCancelled = false;
-
-    (typeof document !== "undefined" && "fonts" in document
-      ? document.fonts.ready.catch(() => undefined)
-      : Promise.resolve()
-    ).then(() => {
-      if (!isCancelled) {
-        setTargetProgress((current) =>
-          current < FONT_PROGRESS_TARGET ? FONT_PROGRESS_TARGET : current,
-        );
-        setFontsReady(true);
-      }
-    });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!fontsReady) {
-      return;
-    }
-
-    if (!assetsReady) {
-      setStatusKey((current) => (current === "fonts" ? "assets" : current));
-      return;
-    }
-
-    setStatusKey((current) => {
-      if (current === "fonts" || current === "assets") {
-        return "scene";
-      }
-      return current;
-    });
-  }, [assetsReady, fontsReady]);
-
-  useEffect(() => {
-    if (!fontsReady || assetsReady) {
-      return;
-    }
-
-    let cancelled = false;
-    const uniqueAssets = Array.from(new Set(criticalAssets));
-
-    if (uniqueAssets.length === 0) {
-      setAssetsReady(true);
-      return;
-    }
-
-    let completed = 0;
-
-    const updateAssetProgress = () => {
-      if (uniqueAssets.length === 0) {
-        return;
-      }
-
-      const ratio = completed / uniqueAssets.length;
-      const span = ASSET_PROGRESS_END - ASSET_PROGRESS_START;
-      const nextTarget = ASSET_PROGRESS_START + span * ratio;
-      setTargetProgress((current) =>
-        current < nextTarget ? nextTarget : current,
+    STATUS_SEQUENCE.forEach(({ delayMs, progress: value, status }) => {
+      timeoutIds.push(
+        window.setTimeout(() => {
+          setProgress(value);
+          setStatusKey(status);
+        }, delayMs),
       );
-    };
+    });
 
-    const loaders = uniqueAssets.map((url) =>
-      preloadImage(url).then(() => {
-        if (cancelled) {
-          return;
-        }
-        completed += 1;
-        updateAssetProgress();
-      }),
+    const minimumWait = Math.max(MIN_VISIBLE_TIME - (startTime - mountTimeRef.current), 0);
+    const readyDelay = Math.max(minimumWait, 520);
+
+    timeoutIds.push(
+      window.setTimeout(() => {
+        setProgress(100);
+        setStatusKey("ready");
+      }, readyDelay),
     );
 
-    Promise.all(loaders).then(() => {
-      if (cancelled) {
-        return;
-      }
-      setTargetProgress((current) =>
-        current < ASSET_PROGRESS_END ? ASSET_PROGRESS_END : current,
-      );
-      setAssetsReady(true);
+    return () => {
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    };
+  }, [hasMounted]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const assets = Array.from(new Set(criticalAssets));
+    if (assets.length === 0) {
+      return;
+    }
+
+    const schedule =
+      "requestIdleCallback" in window
+        ? window.requestIdleCallback
+        : (callback: IdleRequestCallback) =>
+            window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 1200);
+
+    const handle = schedule(() => {
+      assets.forEach((url) => {
+        void preloadImage(url);
+      });
     });
 
     return () => {
-      cancelled = true;
+      if ("cancelIdleCallback" in window) {
+        window.cancelIdleCallback(handle as number);
+      } else {
+        window.clearTimeout(handle as number);
+      }
     };
-  }, [assetsReady, criticalAssets, fontsReady]);
+  }, [criticalAssets]);
 
   useEffect(() => {
     if (!hasMounted) return;
@@ -264,12 +138,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
         if (!detail) return;
         if (detail.state.ready) {
-          setSceneReady(true);
+          setStatusKey((current) => (current === "ready" ? current : "idle"));
         }
       };
 
       const handleReady = () => {
-        setSceneReady(true);
+        setStatusKey((current) => (current === "ready" ? current : "idle"));
       };
 
       const events = app.bundle.events;
@@ -293,45 +167,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       cancelled = true;
       detach?.();
     };
-  }, [finalizeLoading, hasMounted]);
-
-  useEffect(() => {
-    if (!fontsReady || !assetsReady || !sceneReady) {
-      return;
-    }
-
-    setTargetProgress((current) => (current < 100 ? 100 : current));
-    setStatusKey((current) => {
-      if (current === "ready") {
-        return current;
-      }
-
-      return "idle";
-    });
-    finalizeLoading();
-  }, [assetsReady, finalizeLoading, fontsReady, sceneReady]);
-
-  useEffect(() => {
-    if (statusKey === "idle" || statusKey === "ready") {
-      return;
-    }
-
-    const ceiling = STATUS_PROGRESS_CEILINGS[statusKey];
-
-    const interval = window.setInterval(() => {
-      setTargetProgress((current) => {
-        if (current >= ceiling) {
-          return current;
-        }
-
-        return Math.min(current + 1.5, ceiling);
-      });
-    }, 180);
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [statusKey]);
+  }, [hasMounted]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
