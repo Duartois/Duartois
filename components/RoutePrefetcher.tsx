@@ -34,9 +34,9 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
     const shouldDeferPrefetch =
       connection?.saveData || connection?.effectiveType === "2g";
 
-    const schedule =
+    const schedule: (callback: IdleRequestCallback) => number =
       "requestIdleCallback" in window
-        ? window.requestIdleCallback
+        ? window.requestIdleCallback.bind(window)
         : (callback: IdleRequestCallback) =>
             window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
 
@@ -62,9 +62,9 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
 
     return () => {
       if ("cancelIdleCallback" in window) {
-        window.cancelIdleCallback(handle as number);
+        window.cancelIdleCallback(handle);
       } else {
-        window.clearTimeout(handle as number);
+        window.clearTimeout(handle);
       }
     };
   }, [router, routes]);
