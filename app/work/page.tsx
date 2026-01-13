@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   useCallback,
@@ -153,23 +154,25 @@ export default function WorkPage() {
                       "opacity 400ms ease, transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
-                  <div
-                    className="projects-image-scale"
-                    style={{
-                      transform: "none",
-                      transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
-                    }}
-                  >
-                    <img
-                      alt={copy.coverAlt}
-                      src={copy.cover}
-                      className="projects-image"
+                    <div
+                      className="projects-image-scale"
                       style={{
                         backgroundColor: copy.coverPlaceholder,
-                        color: "transparent",
+                        transform: "none",
+                        transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                       }}
-                      loading={isActive ? "eager" : "lazy"}
-                    />
+                    >
+                      <Image
+                        alt={copy.coverAlt}
+                        src={copy.cover}
+                        className="projects-image"
+                        fill
+                        sizes="(max-width: 61.99em) 100vw, 50vw"
+                        placeholder="empty"
+                        priority={false}
+                        loading={isActive ? "eager" : "lazy"}
+                        style={{ color: "transparent" }}
+                      />
                   </div>
                 </div>
               );
@@ -197,6 +200,7 @@ export default function WorkPage() {
                   <Link
                     href={copy.href}
                     className="projects-row"
+                    prefetch={false}
                     onMouseEnter={() => setActiveProject(projectKey)}
                     onFocus={() => setActiveProject(projectKey)}
                     onClick={(event) => handleProjectClick(event, copy.href)}

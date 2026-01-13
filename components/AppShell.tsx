@@ -7,8 +7,8 @@ import {
   useRef,
   useState,
 } from "react";
+import dynamic from "next/dynamic";
 import Preloader from "./Preloader";
-import CanvasRoot from "./three/CanvasRoot";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
 
@@ -20,27 +20,28 @@ interface AppShellProps {
 const REVEAL_EVENT = "app-shell:reveal";
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 
+const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
+  ssr: false,
+});
+
 export default function AppShell({ children, navbar }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
   const [isContentVisible, setIsContentVisible] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
   const hasDispatchedRevealRef = useRef(false);
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
+    setShowPreloader(false);
   }, []);
 
   useEffect(() => {
-    if (!isReady) {
-      setIsContentVisible(false);
-      return;
-    }
-
     const id = requestAnimationFrame(() => {
       setIsContentVisible(true);
     });
 
     return () => cancelAnimationFrame(id);
-  }, [isReady]);
+  }, []);
 
   useEffect(() => {
     const body = document.body;
@@ -130,7 +131,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
   return (
     <MenuProvider>
       <div className="app-shell relative min-h-screen w-full">
-        {!isReady && <Preloader onComplete={handleComplete} />}
+        {showPreloader && <Preloader onComplete={handleComplete} />}
         <CanvasRoot isReady={isReady} />
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div

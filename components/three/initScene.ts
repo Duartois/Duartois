@@ -212,7 +212,7 @@ export const initScene = async ({
     }
 
     if (canvas.width !== width || canvas.height !== height) {
-      renderer.setPixelRatio(Math.min(globalWindow.devicePixelRatio, 1.8));
+      renderer.setPixelRatio(Math.min(globalWindow.devicePixelRatio, 1.5));
       renderer.setSize(width, height, false);
     }
 
