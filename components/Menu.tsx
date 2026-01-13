@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -104,6 +104,13 @@ type MenuItem = {
   label: string;
 };
 
+type NavigatorConnection = Navigator & {
+  connection?: {
+    saveData?: boolean;
+    effectiveType?: string;
+  };
+};
+
 type MenuProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -116,6 +123,7 @@ const HOVER_MEDIA_QUERY = "(min-width: 900px)";
 export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
   const { t } = useTranslation("common");
   const pathname = usePathname();
+  const router = useRouter();
   const items: MenuItem[] = useMemo(
     () => [
       { key: "home", href: "/", label: t("navigation.home") },
@@ -143,6 +151,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const hoveredItemRef = useRef<MenuItemKey | null>(null);
   const baseVariantRef = useRef<VariantState | null>(null);
   const baseOpacityRef = useRef<ShapeOpacityState | null>(null);
+  const prefetchedRoutesRef = useRef(new Set<string>());
 
   const handleMenuLinkClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -168,9 +177,48 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     [onClose, pathname],
   );
 
+  const shouldAllowPrefetch = useCallback(() => {
+    if (typeof navigator === "undefined") {
+      return false;
+    }
+
+    const connection = (navigator as NavigatorConnection).connection;
+    return !(connection?.saveData || connection?.effectiveType === "2g");
+  }, []);
+
+  const prefetchRoute = useCallback(
+    (href: string) => {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      if (href === pathname || !shouldAllowPrefetch()) {
+        return;
+      }
+
+      if (prefetchedRoutesRef.current.has(href)) {
+        return;
+      }
+
+      prefetchedRoutesRef.current.add(href);
+      void router.prefetch(href);
+    },
+    [pathname, router, shouldAllowPrefetch],
+  );
+
   useEffect(() => {
     hoveredItemRef.current = hoveredItem;
   }, [hoveredItem]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    items.forEach((item) => {
+      prefetchRoute(item.href);
+    });
+  }, [isOpen, items, prefetchRoute]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -411,6 +459,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                       if (isHoverEnabled) {
                         setHoveredItem(item.key);
                       }
+                      prefetchRoute(item.href);
                     }}
                   >
                     <Link
