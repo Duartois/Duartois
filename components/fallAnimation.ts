@@ -1,9 +1,9 @@
 import type { CSSProperties } from "react";
 
-export const FALL_ITEM_TRANSITION_DURATION = 440;
-export const FALL_ITEM_STAGGER_DELAY = 60;
+export const FALL_ITEM_TRANSITION_DURATION = 520;
+export const FALL_ITEM_STAGGER_DELAY = 80;
 
-const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1), opacity ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`;
+const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.25,.46,.45,.94), opacity ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.25,.46,.45,.94)`;
 
 const INACTIVE_TRANSFORM = "translate3d(0, -28px, 0)";
 

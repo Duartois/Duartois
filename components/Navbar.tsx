@@ -220,7 +220,7 @@ export default function Navbar() {
   }, [isOpen]);
 
   const isHome = pathname === "/";
-  const shouldShowControls = isHome && isOpen;
+  const shouldShowControls = isOpen || isHome;
   const [areControlsVisible, setAreControlsVisible] = useState(shouldShowControls);
 
   useEffect(() => {
