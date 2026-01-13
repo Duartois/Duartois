@@ -222,6 +222,7 @@ export default function Navbar() {
   const isHome = pathname === "/";
   const shouldShowControls = isOpen || isHome;
   const [areControlsVisible, setAreControlsVisible] = useState(shouldShowControls);
+  const [areControlsActive, setAreControlsActive] = useState(shouldShowControls);
 
   useEffect(() => {
     if (controlsHideTimeoutRef.current) {
@@ -231,13 +232,19 @@ export default function Navbar() {
 
     if (shouldShowControls) {
       setAreControlsVisible(true);
-      return;
+      const frame = window.requestAnimationFrame(() => {
+        setAreControlsActive(true);
+      });
+      return () => {
+        window.cancelAnimationFrame(frame);
+      };
     }
 
     const totalDelay =
       FALL_ITEM_TRANSITION_DURATION +
       Math.max(totalControlItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
 
+    setAreControlsActive(false);
     controlsHideTimeoutRef.current = window.setTimeout(() => {
       setAreControlsVisible(false);
     }, totalDelay);
@@ -356,7 +363,7 @@ export default function Navbar() {
               <li
                 className="language-switch flex transform-none"
                 style={{
-                  ...controlFallStyle(0, shouldShowControls),
+                  ...controlFallStyle(0, areControlsActive),
                   display: areControlsVisible ? "block" : "none",
                   pointerEvents: shouldShowControls ? "auto" : "none",
                 }}
@@ -368,7 +375,7 @@ export default function Navbar() {
               <li
                 className="theme-switch"
                 style={{
-                  ...controlFallStyle(1, shouldShowControls),
+                  ...controlFallStyle(1, areControlsActive),
                   display: areControlsVisible ? "block" : "none",
                   pointerEvents: shouldShowControls ? "auto" : "none",
                 }}
