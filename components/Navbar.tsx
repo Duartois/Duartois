@@ -158,6 +158,7 @@ export default function Navbar() {
   const prefersReducedMotion = useReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
+  const controlsHideTimeoutRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -188,11 +189,16 @@ export default function Navbar() {
 
   const totalFallItems = 4;
   const navigationFallItems = 6;
+  const totalControlItems = 2;
   const navigationFallDuration =
     FALL_ITEM_TRANSITION_DURATION +
     Math.max(navigationFallItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
   const fallStyle = (index: number) =>
     getFallItemStyle(isFallActive, index, totalFallItems, {
+      disable: disableFallAnimation,
+    });
+  const controlFallStyle = (index: number, isActive: boolean) =>
+    getFallItemStyle(isActive, index, totalControlItems, {
       disable: disableFallAnimation,
     });
 
@@ -212,6 +218,37 @@ export default function Navbar() {
     const eventName = isOpen ? "app-menu:open" : "app-menu:close";
     window.dispatchEvent(new CustomEvent(eventName));
   }, [isOpen]);
+
+  const isHome = pathname === "/";
+  const shouldShowControls = isHome && isOpen;
+  const [areControlsVisible, setAreControlsVisible] = useState(shouldShowControls);
+
+  useEffect(() => {
+    if (controlsHideTimeoutRef.current) {
+      window.clearTimeout(controlsHideTimeoutRef.current);
+      controlsHideTimeoutRef.current = undefined;
+    }
+
+    if (shouldShowControls) {
+      setAreControlsVisible(true);
+      return;
+    }
+
+    const totalDelay =
+      FALL_ITEM_TRANSITION_DURATION +
+      Math.max(totalControlItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
+
+    controlsHideTimeoutRef.current = window.setTimeout(() => {
+      setAreControlsVisible(false);
+    }, totalDelay);
+
+    return () => {
+      if (controlsHideTimeoutRef.current) {
+        window.clearTimeout(controlsHideTimeoutRef.current);
+        controlsHideTimeoutRef.current = undefined;
+      }
+    };
+  }, [shouldShowControls, totalControlItems]);
 
   function handleToggle() {
     setIsAnimating(true);
@@ -318,13 +355,24 @@ export default function Navbar() {
               {/* LanguageSwitcher no lugar do EN/PT estático */}
               <li
                 className="language-switch flex transform-none"
-                style={{ ...fallStyle(1), display: "block" }}
+                style={{
+                  ...controlFallStyle(0, shouldShowControls),
+                  display: areControlsVisible ? "block" : "none",
+                  pointerEvents: shouldShowControls ? "auto" : "none",
+                }}
               >
                 <LanguageSwitcher />
               </li>
 
               {/* ThemeToggle usando o mesmo ícone (lua/sol) da referência */}
-              <li className="theme-switch" style={{ ...fallStyle(2), display: "block" }}>
+              <li
+                className="theme-switch"
+                style={{
+                  ...controlFallStyle(1, shouldShowControls),
+                  display: areControlsVisible ? "block" : "none",
+                  pointerEvents: shouldShowControls ? "auto" : "none",
+                }}
+              >
                 <ThemeToggle />
               </li>
 
