@@ -99,23 +99,30 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       return;
     }
 
-    const schedule =
-      "requestIdleCallback" in window
-        ? window.requestIdleCallback
-        : (callback: IdleRequestCallback) =>
-            window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 1200);
+    const { requestIdleCallback, cancelIdleCallback } = window as Window & {
+      requestIdleCallback?: (callback: IdleRequestCallback) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const scheduleIdle = requestIdleCallback?.bind(window);
+    const cancelIdle = cancelIdleCallback?.bind(window);
 
-    const handle = schedule(() => {
-      assets.forEach((url) => {
-        void preloadImage(url);
-      });
-    });
+    const handle = scheduleIdle
+      ? scheduleIdle(() => {
+          assets.forEach((url) => {
+            void preloadImage(url);
+          });
+        })
+      : window.setTimeout(() => {
+          assets.forEach((url) => {
+            void preloadImage(url);
+          });
+        }, 1200);
 
     return () => {
-      if ("cancelIdleCallback" in window) {
-        window.cancelIdleCallback(handle as number);
+      if (cancelIdle) {
+        cancelIdle(handle);
       } else {
-        window.clearTimeout(handle as number);
+        window.clearTimeout(handle);
       }
     };
   }, [criticalAssets]);
