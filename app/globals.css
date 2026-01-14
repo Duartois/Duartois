@@ -397,7 +397,7 @@ body[data-preloading="true"] main {
 }
 
 .splashscreen {
-    z-index: 9998;
+    z-index: 10001;
     position: fixed;
     display: flex;
     flex-direction: column;
