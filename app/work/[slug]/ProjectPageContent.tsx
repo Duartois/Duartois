@@ -171,6 +171,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 fill
                 sizes="100vw"
                 priority
+                fetchPriority="high"
                 placeholder="empty"
               />
             </div>
@@ -244,6 +245,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 const currentImageIndex = imageIndex;
                 imageIndex += 1;
                 const isVisible = currentImageIndex < visibleImageCount;
+                const isHighPriority = currentImageIndex < 2;
 
                 return (
                   <div
@@ -259,7 +261,9 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                         width={1600}
                         height={900}
                         sizes="(max-width: 61.99em) 100vw, 70vw"
-                        loading="lazy"
+                        loading={isHighPriority ? "eager" : "lazy"}
+                        fetchPriority={isHighPriority ? "high" : "auto"}
+                        priority={isHighPriority}
                         placeholder="empty"
                         style={{ width: "100%", height: "auto" }}
                       />
