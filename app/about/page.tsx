@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
@@ -95,10 +96,15 @@ export default function AboutPage() {
       <div className="about">
         <div className="about-right" data-hero-index={0} style={nextFall()}>
           <div className="profile-pic-wrapper">
-            <img
+            <Image
               alt={t("about.portraitAlt")}
               src="/about-01.avif"
               className="profile-pic"
+              fill
+              sizes="(max-width: 61.99em) 100vw, 50vw"
+              priority
+              fetchPriority="high"
+              unoptimized
             />
           </div>
         </div>

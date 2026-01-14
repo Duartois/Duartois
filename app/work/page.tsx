@@ -169,8 +169,9 @@ export default function WorkPage() {
                         fill
                         sizes="(max-width: 61.99em) 100vw, 50vw"
                         placeholder="empty"
-                        priority={false}
+                        priority={isActive}
                         loading={isActive ? "eager" : "lazy"}
+                        fetchPriority={isActive ? "high" : "auto"}
                         style={{ color: "transparent" }}
                       />
                   </div>
