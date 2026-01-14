@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import "../../i18n/config";
@@ -35,8 +35,6 @@ type DetailStyle = CSSProperties & {
   "--accentColor": string;
   "--accentColorDark": string;
 };
-
-const IMAGE_BATCH_SIZE = 10;
 
 export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const detail = getProjectDetailBySlug(slug);
@@ -122,42 +120,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
   let imageIndex = 0;
-  const totalImages = detail.content.filter((block) => block.type === "image").length;
-  const [visibleImageCount, setVisibleImageCount] = useState(
-    Math.min(IMAGE_BATCH_SIZE, totalImages),
-  );
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
-  const handleLoadMore = useCallback(() => {
-    setVisibleImageCount((current) =>
-      Math.min(current + IMAGE_BATCH_SIZE, totalImages),
-    );
-  }, [totalImages]);
-
-  useEffect(() => {
-    if (visibleImageCount >= totalImages) {
-      return;
-    }
-
-    const target = loadMoreRef.current;
-    if (!target) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          handleLoadMore();
-        }
-      },
-      { rootMargin: "600px" },
-    );
-
-    observer.observe(target);
-
-    return () => observer.disconnect();
-  }, [handleLoadMore, totalImages, visibleImageCount]);
-
   return (
     <main className="container work-container">
       <div className="page-content" style={pageContentStyle} aria-hidden={isMenuOpen}>
@@ -244,7 +206,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
               if (block.type === "image") {
                 const currentImageIndex = imageIndex;
                 imageIndex += 1;
-                const isVisible = currentImageIndex < visibleImageCount;
                 const isHighPriority = currentImageIndex < 4;
 
                 return (
@@ -253,37 +214,26 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                     key={`image-${index}`}
                     style={blockStyle}
                   >
-                    {isVisible ? (
-                      <Image
-                        alt={block.alt}
-                        src={block.src}
-                        className="project-content-image"
-                        width={1600}
-                        height={900}
-                        sizes="(max-width: 61.99em) 100vw, 70vw"
-                        loading={isHighPriority ? "eager" : "lazy"}
-                        fetchPriority={isHighPriority ? "high" : "auto"}
-                        priority={isHighPriority}
-                        quality={70}
-                        placeholder="empty"
-                        style={{ width: "100%", height: "auto" }}
-                      />
-                    ) : (
-                      <div
-                        className="project-content-image"
-                        aria-hidden="true"
-                        style={{ width: "100%", height: "auto", aspectRatio: "16 / 9" }}
-                      />
-                    )}
+                    <Image
+                      alt={block.alt}
+                      src={block.src}
+                      className="project-content-image"
+                      width={1600}
+                      height={900}
+                      sizes="(max-width: 61.99em) 100vw, 70vw"
+                      loading={isHighPriority ? "eager" : "lazy"}
+                      fetchPriority={isHighPriority ? "high" : "auto"}
+                      priority={isHighPriority}
+                      quality={70}
+                      placeholder="empty"
+                      style={{ width: "100%", height: "auto" }}
+                    />
                   </div>
                 );
               }
 
               return null;
             })}
-            {visibleImageCount < totalImages && (
-              <div ref={loadMoreRef} aria-hidden="true" />
-            )}
           </div>
 
           <div className="next-project">
