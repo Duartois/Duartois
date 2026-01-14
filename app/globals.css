@@ -1357,6 +1357,12 @@ body.dark .player-wrapper .player-overlay .controls-wrapper .controls-bar .slide
         text-align: center;
     }
 }
+
+@media(max-width: 47.99em) {
+    .about .page-head .page-title {
+        text-align: center;
+    }
+}
 ;;;;;;;;;;;;;;;;;;;;;;
 
 footer {
