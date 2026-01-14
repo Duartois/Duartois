@@ -26,21 +26,13 @@ const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
 
 export default function AppShell({ children, navbar }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
-  const [isContentVisible, setIsContentVisible] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
   const hasDispatchedRevealRef = useRef(false);
+  const isContentVisible = !showPreloader;
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
     setShowPreloader(false);
-  }, []);
-
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      setIsContentVisible(true);
-    });
-
-    return () => cancelAnimationFrame(id);
   }, []);
 
   useEffect(() => {
@@ -49,7 +41,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       return;
     }
 
-    if (!isContentVisible) {
+    if (showPreloader) {
       body.dataset.preloading = "true";
       hasDispatchedRevealRef.current = false;
       return;
@@ -61,7 +53,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       hasDispatchedRevealRef.current = true;
       window.dispatchEvent(new Event(REVEAL_EVENT));
     }
-  }, [isContentVisible]);
+  }, [showPreloader]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -135,7 +127,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         <CanvasRoot isReady={isReady} />
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
-          className={isContentVisible ? "" : "pointer-events-none"}
+          className={isContentVisible ? "" : "pointer-events-none opacity-0"}
           aria-hidden={!isContentVisible}
           aria-busy={!isContentVisible}
         >
