@@ -40,7 +40,7 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
       : (callback: IdleRequestCallback) =>
           window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
 
-    const handle = schedule(() => {
+    const prefetchRoutes = () => {
       if (shouldDeferPrefetch) {
         return;
       }
@@ -58,7 +58,11 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
           void warmRouteModule().catch(() => {});
         }
       });
-    });
+    };
+
+    prefetchRoutes();
+
+    const handle = schedule(prefetchRoutes);
 
     return () => {
       if (hasIdleCallback && typeof window.cancelIdleCallback === "function") {
