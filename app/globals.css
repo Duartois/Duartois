@@ -826,13 +826,15 @@ body[data-preloading="true"] main {
 
 @media(min-width: 36em)and (max-width:61.99em) {
     .page-head .page-title {
-        font-size:3rem
+        font-size:3rem;
+        text-align: center;
     }
 }
 
 @media(max-width: 35.99em) {
     .page-head .page-title {
-        font-size:2rem
+        font-size:2rem;
+        text-align: center;
     }
 }
 
