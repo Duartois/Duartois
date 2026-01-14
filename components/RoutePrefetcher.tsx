@@ -34,13 +34,13 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
     const shouldDeferPrefetch =
       connection?.saveData || connection?.effectiveType === "2g";
 
-    const schedule: (callback: IdleRequestCallback) => number =
-      "requestIdleCallback" in window
-        ? window.requestIdleCallback.bind(window)
-        : (callback: IdleRequestCallback) =>
-            window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
+    const hasIdleCallback = typeof window.requestIdleCallback === "function";
+    const schedule: (callback: IdleRequestCallback) => number = hasIdleCallback
+      ? window.requestIdleCallback.bind(window)
+      : (callback: IdleRequestCallback) =>
+          window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
 
-    const handle = schedule(() => {
+    const prefetchRoutes = () => {
       if (shouldDeferPrefetch) {
         return;
       }
@@ -58,14 +58,19 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
           void warmRouteModule().catch(() => {});
         }
       });
-    });
+    };
+
+    prefetchRoutes();
+
+    const handle = schedule(prefetchRoutes);
 
     return () => {
-      if ("cancelIdleCallback" in window) {
+      if (hasIdleCallback && typeof window.cancelIdleCallback === "function") {
         window.cancelIdleCallback(handle);
-      } else {
-        window.clearTimeout(handle);
+        return;
       }
+
+      window.clearTimeout(handle);
     };
   }, [router, routes]);
 
