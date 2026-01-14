@@ -36,7 +36,7 @@ type DetailStyle = CSSProperties & {
   "--accentColorDark": string;
 };
 
-const IMAGE_BATCH_SIZE = 6;
+const IMAGE_BATCH_SIZE = 10;
 
 export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const detail = getProjectDetailBySlug(slug);
@@ -150,7 +150,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
           handleLoadMore();
         }
       },
-      { rootMargin: "200px" },
+      { rootMargin: "600px" },
     );
 
     observer.observe(target);
@@ -245,7 +245,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 const currentImageIndex = imageIndex;
                 imageIndex += 1;
                 const isVisible = currentImageIndex < visibleImageCount;
-                const isHighPriority = currentImageIndex < 2;
+                const isHighPriority = currentImageIndex < 4;
 
                 return (
                   <div
@@ -264,6 +264,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                         loading={isHighPriority ? "eager" : "lazy"}
                         fetchPriority={isHighPriority ? "high" : "auto"}
                         priority={isHighPriority}
+                        quality={70}
                         placeholder="empty"
                         style={{ width: "100%", height: "auto" }}
                       />
