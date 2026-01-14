@@ -22,15 +22,16 @@ type PreloaderProps = {
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
-const MIN_VISIBLE_TIME = 650;
+const MIN_VISIBLE_TIME = 2000;
+const MAX_VISIBLE_TIME = 3000;
 const STATUS_SEQUENCE: Array<{
   delayMs: number;
   progress: number;
   status: PreloaderStatus;
 }> = [
-  { delayMs: 120, progress: 28, status: "fonts" },
-  { delayMs: 280, progress: 58, status: "assets" },
-  { delayMs: 480, progress: 82, status: "scene" },
+  { delayMs: 400, progress: 32, status: "fonts" },
+  { delayMs: 1050, progress: 68, status: "assets" },
+  { delayMs: 1700, progress: 92, status: "scene" },
 ];
 
 export default function Preloader({ onComplete }: PreloaderProps) {
@@ -74,8 +75,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       );
     });
 
-    const minimumWait = Math.max(MIN_VISIBLE_TIME - (startTime - mountTimeRef.current), 0);
-    const readyDelay = Math.max(minimumWait, 520);
+    const minimumWait = Math.max(
+      MIN_VISIBLE_TIME - (startTime - mountTimeRef.current),
+      0,
+    );
+    const readyDelay = Math.min(
+      Math.max(minimumWait, MIN_VISIBLE_TIME),
+      MAX_VISIBLE_TIME,
+    );
 
     timeoutIds.push(
       window.setTimeout(() => {
