@@ -244,7 +244,7 @@ header {
     pointer-events: none;
     mix-blend-mode: multiply;
     position: fixed;
-    z-index: 5;
+    z-index: 60;
     top: 96px;
     left: 0;
     right: 0
