@@ -229,7 +229,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       },
       {
         type: "image",
-        src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh50r86s077108phi5x6kw9j",
+        src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmkln4kau0fek07pfrnyf7zk6",
         alt: "Brand guidelines (Cover)",
       },
       {
@@ -309,7 +309,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       },
       {
         type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rqvaygov1m07ukoq2r6mvs",
+        src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmkctukhv06xx07ocfzy9gibe",
         alt: "Brand guidelines (Applications)",
       },
       { type: "heading", text: "Stickers" },
