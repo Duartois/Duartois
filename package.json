@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "perf:report": "next build && tsx scripts/generate-perf-summary.ts"
   },
   "dependencies": {
     "classnames": "^2.5.1",

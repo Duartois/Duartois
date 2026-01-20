@@ -360,12 +360,6 @@ body.dark header {
     mix-blend-mode: difference
 }
 
-body[data-preloading="true"] header,
-body[data-preloading="true"] main {
-    opacity: 0;
-    pointer-events: none
-}
-
 .fall-animated {
     opacity: 0;
     transform: translateY(-100px) translateZ(0);
@@ -1817,6 +1811,42 @@ body[data-menu-open="true"] .home {
 
 .project .project-content-wrapper:last-of-type {
     margin-bottom: 0;
+}
+
+.project .guidelines-toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--top-internal-margin);
+}
+
+.project .guidelines-toggle,
+.project .guidelines-load-more {
+    margin: var(--top-internal-margin) auto 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(96, 104, 135, .3);
+    background: rgba(96, 104, 135, .08);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition: transform .3s ease, background-color .3s ease, border-color .3s ease;
+}
+
+.project .guidelines-toggle:hover,
+.project .guidelines-load-more:hover {
+    transform: translateY(-1px);
+    background: rgba(96, 104, 135, .16);
+    border-color: rgba(96, 104, 135, .45);
+}
+
+.project .guidelines-toggle:disabled,
+.project .guidelines-load-more:disabled {
+    opacity: .5;
+    cursor: default;
 }
 
 .project .project-content-image {

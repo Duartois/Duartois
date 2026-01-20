@@ -173,6 +173,8 @@
       "team": "Equipe",
       "client": "Cliente"
     },
-    "nextProject": "Próximo projeto"
+    "nextProject": "Próximo projeto",
+    "guidelinesCta": "Ver brand guidelines",
+    "guidelinesLoadMore": "Carregar mais guidelines"
   }
 }

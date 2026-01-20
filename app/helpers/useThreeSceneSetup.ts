@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 
 import { getDefaultPalette, type VariantName } from "@/components/three/types";
+import { useAnimationQuality } from "@/components/AnimationQualityContext";
 
 type SceneOptions = {
   opacity?: number;
@@ -47,13 +48,16 @@ export function useThreeSceneSetup(
     resetOnUnmount = false,
   }: SceneOptions = {},
 ) {
+  const { resolvedQuality } = useAnimationQuality();
+
   useEffect(() => {
     let animationFrame: number | undefined;
+    const resolvedParallax = resolvedQuality === "low" ? false : parallax;
 
     const apply = () => {
       const applied = applySceneState(variantName, {
         opacity,
-        parallax,
+        parallax: resolvedParallax,
         hovered,
       });
 
@@ -69,7 +73,7 @@ export function useThreeSceneSetup(
         window.cancelAnimationFrame(animationFrame);
       }
     };
-  }, [hovered, opacity, parallax, variantName]);
+  }, [hovered, opacity, parallax, variantName, resolvedQuality]);
 
   useEffect(() => {
     if (!resetOnUnmount) {
@@ -77,7 +81,11 @@ export function useThreeSceneSetup(
     }
 
     return () => {
-      applySceneState(variantName, { opacity, parallax, hovered });
+      applySceneState(variantName, {
+        opacity,
+        parallax: resolvedQuality === "low" ? false : parallax,
+        hovered,
+      });
     };
-  }, [hovered, opacity, parallax, resetOnUnmount, variantName]);
+  }, [hovered, opacity, parallax, resetOnUnmount, variantName, resolvedQuality]);
 }
