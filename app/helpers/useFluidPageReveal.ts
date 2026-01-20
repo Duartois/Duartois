@@ -3,19 +3,14 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useReducedMotion } from "framer-motion";
 
-import { useAnimationQuality } from "@/components/AnimationQualityContext";
-
 const APP_NAVIGATION_START_EVENT = "app-navigation:start";
 
 export function useFluidPageReveal(delay = 0): CSSProperties {
   const prefersReducedMotion = useReducedMotion();
-  const { resolvedQuality } = useAnimationQuality();
-  const disableAnimation =
-    prefersReducedMotion || resolvedQuality === "low";
-  const [isRevealed, setIsRevealed] = useState(disableAnimation);
+  const [isRevealed, setIsRevealed] = useState(prefersReducedMotion);
 
   useEffect(() => {
-    if (disableAnimation) {
+    if (prefersReducedMotion) {
       setIsRevealed(true);
       return;
     }
@@ -39,10 +34,10 @@ export function useFluidPageReveal(delay = 0): CSSProperties {
         window.clearTimeout(timeout);
       }
     };
-  }, [delay, disableAnimation]);
+  }, [delay, prefersReducedMotion]);
 
   useEffect(() => {
-    if (disableAnimation) {
+    if (prefersReducedMotion) {
       return;
     }
 
@@ -58,10 +53,10 @@ export function useFluidPageReveal(delay = 0): CSSProperties {
         handleNavigationStart,
       );
     };
-  }, [disableAnimation]);
+  }, [prefersReducedMotion]);
 
   return useMemo(() => {
-    if (disableAnimation) {
+    if (prefersReducedMotion) {
       return {
         transform: "none",
         opacity: 1,
@@ -81,7 +76,7 @@ export function useFluidPageReveal(delay = 0): CSSProperties {
       opacity: isRevealed ? 1 : 0,
       transition: `${transformTransition}, ${opacityTransition}`,
       transitionDelay: delay > 0 ? `${delay}ms` : undefined,
-      willChange: isRevealed ? "auto" : "transform, opacity",
+      willChange: "transform, opacity",
     } satisfies CSSProperties;
-  }, [delay, isRevealed, disableAnimation]);
+  }, [delay, isRevealed, prefersReducedMotion]);
 }

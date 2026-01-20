@@ -39,9 +39,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           href="https://ap-south-1.graphassets.com"
           crossOrigin=""
         />
+        <link rel="preload" href="/about-01.avif" as="image" type="image/avif" />
+        <link rel="preload" href="/noise.png" as="image" type="image/png" />
+        <link
+          rel="preload"
+          href="/wave-light.svg"
+          as="image"
+          type="image/svg+xml"
+        />
+        <link rel="preload" href="/wave.svg" as="image" type="image/svg+xml" />
       </head>
       <body
-        data-preloading="false"
+        data-preloading="true"
         className={classNames(
           "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
           "body-scroll-control",

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
+import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useTheme } from "../theme/ThemeContext";
@@ -19,6 +20,12 @@ export default function AboutPage() {
   const spotifyEmbedUrl =
     "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
     spotifyAccent;
+
+  useThreeSceneSetup("about");
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const originalRequestMediaKeySystemAccess =
@@ -97,6 +104,7 @@ export default function AboutPage() {
               sizes="(max-width: 61.99em) 100vw, 50vw"
               priority
               fetchPriority="high"
+              unoptimized
             />
           </div>
         </div>

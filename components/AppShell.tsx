@@ -4,16 +4,13 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
-import PerfDebugLogger from "./PerfDebugLogger";
-import { AnimationQualityProvider } from "./AnimationQualityContext";
-import { isPerfDebugEnabled, logPerf } from "@/app/helpers/perfDebug";
+import RoutePrefetcher from "./RoutePrefetcher";
 
 interface AppShellProps {
   children: ReactNode;
@@ -21,35 +18,22 @@ interface AppShellProps {
 }
 
 const REVEAL_EVENT = "app-shell:reveal";
+const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
 });
 
-const Preloader = dynamic(() => import("./Preloader"), {
-  ssr: false,
-});
-
 export default function AppShell({ children, navbar }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
-  const showPreloader = useMemo(
-    () => process.env.NEXT_PUBLIC_SHOW_PRELOADER === "true",
-    [],
-  );
+  const [showPreloader, setShowPreloader] = useState(true);
   const hasDispatchedRevealRef = useRef(false);
-  const pathname = usePathname();
-  const showCanvas =
-    pathname === "/" || pathname?.startsWith("/work");
+  const isContentVisible = !showPreloader;
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
+    setShowPreloader(false);
   }, []);
-
-  useEffect(() => {
-    if (!showPreloader) {
-      setIsReady(true);
-    }
-  }, [showPreloader]);
 
   useEffect(() => {
     const body = document.body;
@@ -57,22 +41,19 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       return;
     }
 
-    body.dataset.preloading = showPreloader ? "true" : "false";
+    if (showPreloader) {
+      body.dataset.preloading = "true";
+      hasDispatchedRevealRef.current = false;
+      return;
+    }
+
+    body.dataset.preloading = "false";
 
     if (!hasDispatchedRevealRef.current) {
       hasDispatchedRevealRef.current = true;
       window.dispatchEvent(new Event(REVEAL_EVENT));
     }
   }, [showPreloader]);
-
-  useEffect(() => {
-    if (!isPerfDebugEnabled || typeof window === "undefined") {
-      return;
-    }
-
-    performance.mark("app:content-visible");
-    logPerf("Content visible marker set.");
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -141,17 +122,19 @@ export default function AppShell({ children, navbar }: AppShellProps) {
 
   return (
     <MenuProvider>
-      <AnimationQualityProvider>
-        <div className="app-shell relative min-h-screen w-full">
-          <PerfDebugLogger />
-          {showPreloader && <Preloader onComplete={handleComplete} />}
-          {showCanvas ? <CanvasRoot isReady={isReady} /> : null}
-          <div>
-            {navbar}
-            {children}
-          </div>
+      <div className="app-shell relative min-h-screen w-full">
+        {showPreloader && <Preloader onComplete={handleComplete} />}
+        <CanvasRoot isReady={isReady} />
+        <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
+        <div
+          className={isContentVisible ? "" : "pointer-events-none opacity-0"}
+          aria-hidden={!isContentVisible}
+          aria-busy={!isContentVisible}
+        >
+          {navbar}
+          {children}
         </div>
-      </AnimationQualityProvider>
+      </div>
     </MenuProvider>
   );
 }

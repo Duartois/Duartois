@@ -1,0 +1,78 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
+
+const ROUTE_MODULE_LOADERS: Record<string, () => Promise<unknown>> = {
+  "/work": () => import("@/app/work/page"),
+  "/about": () => import("@/app/about/page"),
+  "/contact": () => import("@/app/contact/page"),
+} as const;
+
+export type RoutePrefetcherProps = {
+  routes: readonly string[];
+};
+
+type NavigatorConnection = Navigator & {
+  connection?: {
+    saveData?: boolean;
+    effectiveType?: string;
+  };
+};
+
+export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
+  const router = useRouter();
+  const prefetchedRoutesRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const connection = (navigator as NavigatorConnection).connection;
+    const shouldDeferPrefetch =
+      connection?.saveData || connection?.effectiveType === "2g";
+
+    const hasIdleCallback = typeof window.requestIdleCallback === "function";
+    const schedule: (callback: IdleRequestCallback) => number = hasIdleCallback
+      ? window.requestIdleCallback.bind(window)
+      : (callback: IdleRequestCallback) =>
+          window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
+
+    const prefetchRoutes = () => {
+      if (shouldDeferPrefetch) {
+        return;
+      }
+
+      routes.forEach((route) => {
+        if (prefetchedRoutesRef.current.has(route)) {
+          return;
+        }
+
+        prefetchedRoutesRef.current.add(route);
+        void router.prefetch(route, { kind: PrefetchKind.FULL });
+
+        const warmRouteModule = ROUTE_MODULE_LOADERS[route];
+        if (warmRouteModule) {
+          void warmRouteModule().catch(() => {});
+        }
+      });
+    };
+
+    prefetchRoutes();
+
+    const handle = schedule(prefetchRoutes);
+
+    return () => {
+      if (hasIdleCallback && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(handle);
+        return;
+      }
+
+      window.clearTimeout(handle);
+    };
+  }, [router, routes]);
+
+  return null;
+}

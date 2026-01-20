@@ -3,9 +3,8 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import dynamic from "next/dynamic";
 
 import "../../i18n/config";
 
@@ -20,10 +19,7 @@ import {
   projectSlugByKey,
   type ProjectSlug,
 } from "../projects";
-import {
-  getProjectDetailBySlug,
-  type ProjectContentBlock,
-} from "../projectDetails";
+import { getProjectDetailBySlug } from "../projectDetails";
 
 type ProjectPageContentProps = {
   slug: ProjectSlug;
@@ -40,68 +36,14 @@ type DetailStyle = CSSProperties & {
   "--accentColorDark": string;
 };
 
-const BrandGuidelinesGallery = dynamic(
-  () => import("./BrandGuidelinesGallery"),
-  { suspense: true },
-);
-
 export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const detail = getProjectDetailBySlug(slug);
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
-  const [showGuidelines, setShowGuidelines] = useState(false);
   const metadataCount = detail.metadata.length;
   const descriptionCount = detail.description.length;
-  const contentSplit = useMemo(() => {
-    const content = detail.content;
-    const guidelineHeadingIndex = content.findIndex(
-      (block) => block.type === "heading" && block.text === "Brand Guidelines",
-    );
-
-    if (guidelineHeadingIndex === -1) {
-      return {
-        leading: content,
-        guidelines: [],
-        trailing: [],
-      };
-    }
-
-    const afterHeading = content.slice(guidelineHeadingIndex + 1);
-    const nextHeadingIndex = afterHeading.findIndex(
-      (block) => block.type === "heading",
-    );
-
-    const guidelines =
-      nextHeadingIndex === -1
-        ? afterHeading
-        : afterHeading.slice(0, nextHeadingIndex);
-    const trailing =
-      nextHeadingIndex === -1 ? [] : afterHeading.slice(nextHeadingIndex);
-
-    return {
-      leading: content.slice(0, guidelineHeadingIndex + 1),
-      guidelines,
-      trailing,
-    };
-  }, [detail.content]);
-
-  const guidelinesImages = useMemo(
-    () =>
-      contentSplit.guidelines.filter(
-        (block) => block.type === "image",
-      ) as Array<{ type: "image"; src: string; alt: string }>,
-    [contentSplit.guidelines],
-  );
-
-  const guidelinesPreview = guidelinesImages.slice(0, 2);
-  const guidelinesRemaining = guidelinesImages.slice(2);
-  const initialContentCount =
-    contentSplit.leading.length +
-    guidelinesPreview.length +
-    contentSplit.trailing.length +
-    (guidelinesRemaining.length > 0 ? 1 : 0);
-  const totalFallItems =
-    5 + metadataCount + descriptionCount + initialContentCount;
+  const contentCount = detail.content.length;
+  const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
   const pageRevealStyle = useFluidPageReveal(80);
   const pageContentStyle = useMemo(() => {
@@ -178,58 +120,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
   let imageIndex = 0;
-
-  const renderBlock = (block: ProjectContentBlock, index: number) => {
-    const blockStyle = nextFall();
-
-    if (block.type === "heading") {
-      return (
-        <h6 key={`heading-${index}`} style={blockStyle}>
-          {block.text}
-        </h6>
-      );
-    }
-
-    if (block.type === "paragraph") {
-      return (
-        <p key={`paragraph-${index}`} style={blockStyle}>
-          {block.text}
-        </p>
-      );
-    }
-
-    if (block.type === "image") {
-      const currentImageIndex = imageIndex;
-      imageIndex += 1;
-      const isHighPriority = currentImageIndex < 2;
-
-      return (
-        <div
-          className="project-content-wrapper"
-          key={`image-${index}`}
-          style={blockStyle}
-        >
-          <Image
-            alt={block.alt}
-            src={block.src}
-            className="project-content-image"
-            width={1600}
-            height={900}
-            sizes="(max-width: 61.99em) 100vw, 70vw"
-            loading={isHighPriority ? "eager" : "lazy"}
-            fetchPriority={isHighPriority ? "high" : "auto"}
-            priority={isHighPriority}
-            quality={70}
-            placeholder="empty"
-            style={{ width: "100%", height: "auto" }}
-          />
-        </div>
-      );
-    }
-
-    return null;
-  };
-
   return (
     <main className="container work-container">
       <div className="page-content" style={pageContentStyle} aria-hidden={isMenuOpen}>
@@ -294,49 +184,56 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
           </div>
 
           <div className="project-content">
-            {contentSplit.leading.map((block, index) =>
-              renderBlock(block, index),
-            )}
-            {guidelinesPreview.map((block, index) =>
-              renderBlock(block, contentSplit.leading.length + index),
-            )}
-            {guidelinesRemaining.length > 0 ? (
-              <div
-                className="guidelines-toggle-wrapper"
-                style={nextFall()}
-                key="guidelines-toggle"
-              >
-                <button
-                  type="button"
-                  className="guidelines-toggle"
-                  onClick={() => setShowGuidelines(true)}
-                  aria-expanded={showGuidelines}
-                  disabled={showGuidelines}
-                >
-                  {t("projectPage.guidelinesCta")}
-                </button>
-              </div>
-            ) : null}
-            {showGuidelines && guidelinesRemaining.length > 0 ? (
-              <Suspense fallback={<div />}>
-                <BrandGuidelinesGallery
-                  images={guidelinesRemaining.map((image) => ({
-                    src: image.src,
-                    alt: image.alt,
-                  }))}
-                  loadMoreLabel={t("projectPage.guidelinesLoadMore")}
-                />
-              </Suspense>
-            ) : null}
-            {contentSplit.trailing.map((block, index) =>
-              renderBlock(
-                block,
-                contentSplit.leading.length +
-                  guidelinesPreview.length +
-                  guidelinesRemaining.length +
-                  index,
-              ),
-            )}
+            {detail.content.map((block, index) => {
+              const blockStyle = nextFall();
+
+              if (block.type === "heading") {
+                return (
+                  <h6 key={`heading-${index}`} style={blockStyle}>
+                    {block.text}
+                  </h6>
+                );
+              }
+
+              if (block.type === "paragraph") {
+                return (
+                  <p key={`paragraph-${index}`} style={blockStyle}>
+                    {block.text}
+                  </p>
+                );
+              }
+
+              if (block.type === "image") {
+                const currentImageIndex = imageIndex;
+                imageIndex += 1;
+                const isHighPriority = currentImageIndex < 4;
+
+                return (
+                  <div
+                    className="project-content-wrapper"
+                    key={`image-${index}`}
+                    style={blockStyle}
+                  >
+                    <Image
+                      alt={block.alt}
+                      src={block.src}
+                      className="project-content-image"
+                      width={1600}
+                      height={900}
+                      sizes="(max-width: 61.99em) 100vw, 70vw"
+                      loading={isHighPriority ? "eager" : "lazy"}
+                      fetchPriority={isHighPriority ? "high" : "auto"}
+                      priority={isHighPriority}
+                      quality={70}
+                      placeholder="empty"
+                      style={{ width: "100%", height: "auto" }}
+                    />
+                  </div>
+                );
+              }
+
+              return null;
+            })}
           </div>
 
           <div className="next-project">

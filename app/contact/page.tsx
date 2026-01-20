@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
+import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -25,6 +27,12 @@ type ContactSocials = {
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
+
+  useThreeSceneSetup("contact");
+
+  useEffect(() => {
+    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [isMenuOpen]);
 
   const mail = t("contact.mail", {
     returnObjects: true,
