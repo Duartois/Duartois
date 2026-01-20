@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
 import { getFallItemStyle } from "./fallAnimation";
+import { useAnimationQuality } from "./AnimationQualityContext";
 
 const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 const APP_MENU_OPEN_EVENT = "app-menu:open";
@@ -12,7 +13,10 @@ const APP_NAVIGATION_START_EVENT = "app-navigation:start";
 
 export function useMenuFallAnimation(totalItems: number) {
   const prefersReducedMotion = useReducedMotion();
-  const disableFallAnimation = Boolean(prefersReducedMotion);
+  const { resolvedQuality } = useAnimationQuality();
+  const disableFallAnimation = Boolean(
+    prefersReducedMotion || resolvedQuality === "low",
+  );
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const isNavigatingAwayRef = useRef(false);
 
