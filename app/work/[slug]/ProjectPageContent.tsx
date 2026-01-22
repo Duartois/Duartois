@@ -139,6 +139,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 fetchPriority="high"
                 placeholder="blur"
                 blurDataURL={heroPlaceholder}
+                unoptimized
                 quality={85}
               />
             </div>
@@ -232,6 +233,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                       quality={85}
                       placeholder="blur"
                       blurDataURL={contentPlaceholder}
+                      unoptimized
                       style={{ width: "100%", height: "auto" }}
                     />
                   </div>
