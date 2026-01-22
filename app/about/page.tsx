@@ -9,12 +9,14 @@ import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useTheme } from "../theme/ThemeContext";
+import { getShimmerDataURL } from "../helpers/imagePlaceholders";
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
   const fallStyle = useMenuFallAnimation(5);
   const { theme } = useTheme();
+  const portraitPlaceholder = getShimmerDataURL(900, 1200);
 
   const spotifyAccent = theme === "dark" ? "F3F2F9" : "606887";
   const spotifyEmbedUrl =
@@ -104,7 +106,9 @@ export default function AboutPage() {
               sizes="(max-width: 61.99em) 100vw, 50vw"
               priority
               fetchPriority="high"
-              unoptimized
+              placeholder="blur"
+              blurDataURL={portraitPlaceholder}
+              quality={90}
             />
           </div>
         </div>

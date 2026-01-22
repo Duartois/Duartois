@@ -12,6 +12,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
+import { useAnimationQuality } from "./AnimationQualityContext";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
@@ -45,6 +46,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   );
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
+  const { resolvedQuality } = useAnimationQuality();
+  const reduceMotion = prefersReducedMotion || resolvedQuality === "low";
   const [hasMounted, setHasMounted] = useState(false);
   const logoControls = useAnimationControls();
   const textControls = useAnimationControls();
@@ -194,16 +197,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const entryEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
   const entryOffset = -96;
-  const overlayExitDurationMs = prefersReducedMotion ? 0 : 450;
-  const entryLogoDuration = prefersReducedMotion ? 0.01 : 0.75;
-  const entryTextDuration = prefersReducedMotion ? 0.01 : 0.55;
-  const entryCreditsDuration = prefersReducedMotion ? 0.01 : 0.55;
-  const entryTextDelay = prefersReducedMotion ? 0 : 0.25;
-  const entryCreditsDelay = prefersReducedMotion ? 0 : 0.35;
-  const exitTextDuration = prefersReducedMotion ? 0.01 : 0.25;
-  const exitLogoDuration = prefersReducedMotion ? 0.01 : 0.28;
-  const staggerEntry = prefersReducedMotion ? 0 : 0.085;
-  const staggerExit = prefersReducedMotion ? 0 : 0.03;
+  const overlayExitDurationMs = reduceMotion ? 0 : 450;
+  const entryLogoDuration = reduceMotion ? 0.01 : 0.75;
+  const entryTextDuration = reduceMotion ? 0.01 : 0.55;
+  const entryCreditsDuration = reduceMotion ? 0.01 : 0.55;
+  const entryTextDelay = reduceMotion ? 0 : 0.25;
+  const entryCreditsDelay = reduceMotion ? 0 : 0.35;
+  const exitTextDuration = reduceMotion ? 0.01 : 0.25;
+  const exitLogoDuration = reduceMotion ? 0.01 : 0.28;
+  const staggerEntry = reduceMotion ? 0 : 0.085;
+  const staggerExit = reduceMotion ? 0 : 0.03;
   const idleEase: [number, number, number, number] = [0.42, 0, 0.58, 1];
   const idleConfig = useMemo(
     () => [
@@ -249,7 +252,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       },
     },
     idle: (custom: { ampY: number; ampR: number; duration: number }) =>
-      prefersReducedMotion
+      reduceMotion
         ? {}
         : {
             y: [0, custom.ampY, 0],
@@ -333,7 +336,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         creditsControls.start("enter"),
       ]);
 
-      if (!isCancelled && !prefersReducedMotion && !isHidingRef.current) {
+      if (!isCancelled && !reduceMotion && !isHidingRef.current) {
         logoControls.start("idle");
       }
     };
@@ -346,7 +349,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   }, [
     creditsControls,
     logoControls,
-    prefersReducedMotion,
+    reduceMotion,
     textControls,
   ]);
 
@@ -368,7 +371,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         creditsControls.start("exit"),
       ]);
 
-      if (!prefersReducedMotion && overlayExitDurationMs > 0) {
+      if (!reduceMotion && overlayExitDurationMs > 0) {
         await new Promise((resolve) => {
           window.setTimeout(resolve, overlayExitDurationMs);
         });
@@ -391,7 +394,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     logoControls,
     onComplete,
     overlayExitDurationMs,
-    prefersReducedMotion,
+    reduceMotion,
     textControls,
   ]);
 

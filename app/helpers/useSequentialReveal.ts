@@ -1,6 +1,7 @@
 "use client";
 
 import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
+import { useAnimationQuality } from "@/components/AnimationQualityContext";
 
 interface Options {
   distance?: number;
@@ -54,13 +55,13 @@ const applyAnimationState = (
   elements: HTMLElement[],
   state: AnimationState,
   immediate: boolean,
+  reduceMotion: boolean,
   options?: Options,
 ) => {
   if (!elements.length) {
     return;
   }
 
-  const reduceMotion = getReduceMotionPreference();
   const distance = options?.distance ?? DEFAULT_DISTANCE;
   const duration = options?.duration ?? DEFAULT_DURATION;
   const delayStep = options?.delayStep ?? DEFAULT_DELAY_STEP;
@@ -101,6 +102,9 @@ export default function useSequentialReveal(
 ) {
   const elementsRef = useRef<HTMLElement[]>([]);
   const hasSetupRef = useRef(false);
+  const { resolvedQuality } = useAnimationQuality();
+  const reduceMotion =
+    resolvedQuality === "low" || getReduceMotionPreference();
 
   const distance = options?.distance;
   const duration = options?.duration;
@@ -122,14 +126,14 @@ export default function useSequentialReveal(
     elementsRef.current = ordered;
     hasSetupRef.current = true;
 
-    applyAnimationState(ordered, "exit", true, options);
+    applyAnimationState(ordered, "exit", true, reduceMotion, options);
 
     return () => {
       ordered.forEach(resetElementStyles);
       elementsRef.current = [];
       hasSetupRef.current = false;
     };
-  }, [ref, distance, duration, delayStep]);
+  }, [ref, distance, duration, delayStep, reduceMotion]);
 
   useEffect(() => {
     if (!hasSetupRef.current) {
@@ -143,9 +147,15 @@ export default function useSequentialReveal(
     }
 
     const frame = requestAnimationFrame(() => {
-      applyAnimationState(elements, active ? "enter" : "exit", false, options);
+      applyAnimationState(
+        elements,
+        active ? "enter" : "exit",
+        false,
+        reduceMotion,
+        options,
+      );
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [active, distance, duration, delayStep]);
+  }, [active, distance, duration, delayStep, reduceMotion]);
 }

@@ -1813,6 +1813,8 @@ body[data-menu-open="true"] .home {
     margin-bottom: var(--top-internal-margin);
     display: flex;
     box-shadow: 0 0 20px rgba(96, 104, 135, .25);
+    content-visibility: auto;
+    contain-intrinsic-size: 900px;
 }
 
 .project .project-content-wrapper:last-of-type {

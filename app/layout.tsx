@@ -8,6 +8,7 @@ import { ThemeProvider } from "./theme/ThemeContext";
 import Navbar from "@/components/Navbar";
 import CustomCursor from "@/components/CustomCursor";
 import I18nProvider from "./i18n/I18nProvider";
+import { AnimationQualityProvider } from "@/components/AnimationQualityContext";
 
 type SupportedLang = "pt" | "en";
 const defaultLang: SupportedLang = "en";
@@ -57,10 +58,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         )}
       >
         <ThemeProvider>
-          <I18nProvider lang={lang}>
-            <CustomCursor />
-            <AppShell navbar={<Navbar />}>{children}</AppShell>
-          </I18nProvider>
+          <AnimationQualityProvider>
+            <I18nProvider lang={lang}>
+              <CustomCursor />
+              <AppShell navbar={<Navbar />}>{children}</AppShell>
+            </I18nProvider>
+          </AnimationQualityProvider>
         </ThemeProvider>
       </body>
     </html>
