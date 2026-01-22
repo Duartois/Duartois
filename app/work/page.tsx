@@ -42,7 +42,7 @@ export default function WorkPage() {
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
-  const fallStyle = useMenuFallAnimation(totalFallItems);
+  const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
   const pageRevealStyle = useFluidPageReveal(80);
   const navigationTimeoutRef = useRef<number>();
 
@@ -146,20 +146,12 @@ export default function WorkPage() {
               return (
                 <div
                   key={projectKey}
-                  className="projects-image-wrapper"
-                  style={{
-                    opacity: isActive ? 1 : 0,
-                    transform: isActive ? "scale(1)" : "scale(1.02)",
-                    transition:
-                      "opacity 400ms ease, transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
-                  }}
+                  className={`projects-image-wrapper${isActive ? " is-active" : ""}`}
                 >
                     <div
                       className="projects-image-scale"
                       style={{
                         backgroundColor: copy.coverPlaceholder,
-                        transform: "none",
-                        transition: "transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
                       }}
                     >
                       <Image
@@ -211,24 +203,12 @@ export default function WorkPage() {
                       <div className="projects-selected-wrapper">
                         <h4
                           className="projects-selected"
-                          style={{
-                            transform: isActive
-                              ? "translateX(0) translateZ(0)"
-                              : "translateX(-100%) translateZ(0)",
-                            transition:
-                              "transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                          }}
                         >
                           →
                         </h4>
                       </div>
                       <h4
                         className="projects-title"
-                        style={{
-                          transform: isActive
-                            ? "translateX(var(--projects-arrow-offset))"
-                            : "translateX(0)",
-                        }}
                       >
                         {copy.title}
                       </h4>

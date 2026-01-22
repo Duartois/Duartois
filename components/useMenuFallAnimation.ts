@@ -11,7 +11,10 @@ const APP_MENU_OPEN_EVENT = "app-menu:open";
 const APP_MENU_CLOSE_EVENT = "app-menu:close";
 const APP_NAVIGATION_START_EVENT = "app-navigation:start";
 
-export function useMenuFallAnimation(totalItems: number) {
+export function useMenuFallAnimation(
+  totalItems: number,
+  options?: { variant?: "default" | "work" },
+) {
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
   const disableFallAnimation = Boolean(
@@ -93,7 +96,8 @@ export function useMenuFallAnimation(totalItems: number) {
     (index: number) =>
       getFallItemStyle(isFallActive, index, totalItems, {
         disable: disableFallAnimation,
+        variant: options?.variant,
       }),
-    [disableFallAnimation, isFallActive, totalItems],
+    [disableFallAnimation, isFallActive, options?.variant, totalItems],
   );
 }
