@@ -5,10 +5,13 @@ export const FALL_ITEM_STAGGER_DELAY = 80;
 const WORK_ITEM_TRANSITION_DURATION = 720;
 const WORK_ITEM_STAGGER_DELAY = 100;
 
-const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.25,.46,.45,.94), opacity ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.25,.46,.45,.94)`;
-const WORK_TRANSITION = `transform ${WORK_ITEM_TRANSITION_DURATION}ms cubic-bezier(0.16, 1, 0.3, 1), opacity ${WORK_ITEM_TRANSITION_DURATION}ms cubic-bezier(0.16, 1, 0.3, 1), filter ${WORK_ITEM_TRANSITION_DURATION}ms cubic-bezier(0.16, 1, 0.3, 1)`;
+const DEFAULT_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, opacity ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}`;
+const WORK_TRANSITION = `transform ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, opacity ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, filter ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}`;
 
-const WORK_INACTIVE_TRANSFORM = "translateY(-60px) translateZ(0px) scale(0.98)";
+const ACTIVE_TRANSFORM = "translate3d(0, 0, 0) scale(1)";
+const WORK_INACTIVE_TRANSFORM = "translate3d(0, -60px, 0) scale(0.98)";
+const DEFAULT_INACTIVE_TRANSFORM = "translate3d(0, -100px, 0)";
 
 export function getFallItemStyle(
   isActive: boolean,
@@ -35,10 +38,10 @@ export function getFallItemStyle(
   return {
     opacity: isActive ? 1 : 0,
     transform: isActive
-      ? "translateY(0px) translateZ(0px) scale(1)"
+      ? ACTIVE_TRANSFORM
       : isWorkVariant
         ? WORK_INACTIVE_TRANSFORM
-        : "translateY(-100px) translateZ(0px)",
+        : DEFAULT_INACTIVE_TRANSFORM,
     filter: isWorkVariant ? (isActive ? "blur(0px)" : "blur(6px)") : "none",
     transition: isWorkVariant
       ? WORK_TRANSITION

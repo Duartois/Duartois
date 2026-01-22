@@ -10,6 +10,7 @@ import "../../i18n/config";
 
 import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
 import { useFluidPageReveal } from "../../helpers/useFluidPageReveal";
+import { getShimmerDataURL } from "../../helpers/imagePlaceholders";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -46,6 +47,8 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
   const pageRevealStyle = useFluidPageReveal(80);
+  const heroPlaceholder = getShimmerDataURL(1600, 900);
+  const contentPlaceholder = getShimmerDataURL(1600, 900);
   const pageContentStyle = useMemo(() => {
     const { opacity, ...revealRest } = pageRevealStyle;
     const revealOpacity =
@@ -134,7 +137,9 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 sizes="100vw"
                 priority
                 fetchPriority="high"
-                placeholder="empty"
+                placeholder="blur"
+                blurDataURL={heroPlaceholder}
+                quality={85}
               />
             </div>
           </div>
@@ -224,8 +229,9 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                       loading={isHighPriority ? "eager" : "lazy"}
                       fetchPriority={isHighPriority ? "high" : "auto"}
                       priority={isHighPriority}
-                      quality={70}
-                      placeholder="empty"
+                      quality={85}
+                      placeholder="blur"
+                      blurDataURL={contentPlaceholder}
                       style={{ width: "100%", height: "auto" }}
                     />
                   </div>
