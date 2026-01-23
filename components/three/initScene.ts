@@ -29,6 +29,7 @@ export type InitSceneOptions = {
   theme: ThemeName;
   palette?: GradientPalette;
   parallax?: boolean;
+  quality?: "high" | "low";
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -46,6 +47,7 @@ export const initScene = async ({
   theme,
   palette,
   parallax = true,
+  quality = "high",
 }: InitSceneOptions): Promise<ThreeAppHandle> => {
   const globalWindow = resolveWindow();
 
@@ -67,6 +69,7 @@ export const initScene = async ({
     antialias: true,
     alpha: true,
   });
+  const isLowQuality = quality === "low";
 
   const gl = renderer.getContext();
 
@@ -114,9 +117,10 @@ export const initScene = async ({
   const shapesGroup = shapes.group;
   const baseGroupZ = shapesGroup.position.z;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
+  const visibleShapeIds = isLowQuality ? shapeIds.slice(0, 3) : shapeIds;
   const initialShapeOpacity = shapeIds.reduce(
     (acc, id) => {
-      acc[id] = 1;
+      acc[id] = visibleShapeIds.includes(id) ? 1 : 0;
       return acc;
     },
     {} as Record<ShapeId, number>,
@@ -203,6 +207,7 @@ export const initScene = async ({
   let disposed = false;
   const pointerListenerOptions = { passive: true } as const;
 
+  let resizeRaf: number | null = null;
   const resize = () => {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
@@ -212,7 +217,8 @@ export const initScene = async ({
     }
 
     if (canvas.width !== width || canvas.height !== height) {
-      renderer.setPixelRatio(Math.min(globalWindow.devicePixelRatio, 1.5));
+      const maxPixelRatio = isLowQuality ? 1 : 1.5;
+      renderer.setPixelRatio(Math.min(globalWindow.devicePixelRatio, maxPixelRatio));
       renderer.setSize(width, height, false);
     }
 
@@ -233,20 +239,45 @@ export const initScene = async ({
       ),
     }));
   };
+  const handleResize = () => {
+    if (resizeRaf !== null) {
+      return;
+    }
+    resizeRaf = globalWindow.requestAnimationFrame(() => {
+      resize();
+      resizeRaf = null;
+    });
+  };
 
-
+  let pointerRaf: number | null = null;
+  let pendingPointer: { x: number; y: number } | null = null;
   const pointerMove = (event: PointerEvent) => {
     const width = globalWindow.innerWidth;
     const height = globalWindow.innerHeight;
     const x = (event.clientX / width) * 2 - 1;
     const y = -((event.clientY / height) * 2 - 1);
-    devicePointerTarget.set(x, y);
-    if (state.pointerDriver === "device") {
-      state = {
-        ...state,
-        pointer: { x, y },
-      };
+    pendingPointer = { x, y };
+
+    if (pointerRaf !== null) {
+      return;
     }
+
+    pointerRaf = globalWindow.requestAnimationFrame(() => {
+      if (!pendingPointer) {
+        pointerRaf = null;
+        return;
+      }
+      const { x: nextX, y: nextY } = pendingPointer;
+      pendingPointer = null;
+      devicePointerTarget.set(nextX, nextY);
+      if (state.pointerDriver === "device") {
+        state = {
+          ...state,
+          pointer: { x: nextX, y: nextY },
+        };
+      }
+      pointerRaf = null;
+    });
   };
 
   const pointerEnter = () => {
@@ -270,9 +301,14 @@ export const initScene = async ({
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
-    const variantLerp = clamp(delta * (state.hovered ? 7 : 5), 0, 1);
+    const motionMultiplier = isLowQuality ? 0.55 : 1;
+    const variantLerp = clamp(
+      delta * (state.hovered ? 7 : 5) * motionMultiplier,
+      0,
+      1,
+    );
     if (variantLerp > 0) {
-      shapeIds.forEach((id) => {
+      visibleShapeIds.forEach((id) => {
         const mesh = shapes.meshes[id];
         const target = targetVariantState[id];
         if (!target) {
@@ -307,22 +343,25 @@ export const initScene = async ({
     const targetPointer =
       state.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
 
-    pointer.lerp(targetPointer, clamp(delta * 7, 0, 1));
+    pointer.lerp(targetPointer, clamp(delta * 7 * motionMultiplier, 0, 1));
 
     const mobile = isMobile;
     const baseTilt = mobile ? 0.18 : 0.32;
     const parallaxStrength = state.parallax ? baseTilt : 0;
-    const breathe = (mobile ? 0.006 : 0.01) * Math.sin(elapsed * 0.85);
-    const hoverBoost = state.hovered ? 0.045 : 0;
+    const breatheBase = mobile ? 0.006 : 0.01;
+    const breathe = breatheBase * motionMultiplier * Math.sin(elapsed * 0.85);
+    const hoverBoost = state.hovered ? 0.045 * motionMultiplier : 0;
 
     const targetPosX = pointer.x * parallaxStrength;
     const targetPosY = pointer.y * parallaxStrength * 0.75;
 
-    shapesGroup.position.x += (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
-    shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
+    shapesGroup.position.x +=
+      (targetPosX - shapesGroup.position.x) * clamp(delta * 6 * motionMultiplier, 0, 1);
+    shapesGroup.position.y +=
+      (targetPosY - shapesGroup.position.y) * clamp(delta * 6 * motionMultiplier, 0, 1);
 
-     const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
-    const lerpScale = clamp(delta * 4, 0, 1);
+    const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
+    const lerpScale = clamp(delta * 4 * motionMultiplier, 0, 1);
     const currentScale = shapesGroup.scale.x;
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
     shapesGroup.scale.setScalar(nextScale);
@@ -518,8 +557,16 @@ export const initScene = async ({
       globalWindow.cancelAnimationFrame(animationId);
       animationId = null;
     }
+    if (pointerRaf !== null) {
+      globalWindow.cancelAnimationFrame(pointerRaf);
+      pointerRaf = null;
+    }
+    if (resizeRaf !== null) {
+      globalWindow.cancelAnimationFrame(resizeRaf);
+      resizeRaf = null;
+    }
     mobileQuery.removeEventListener("change", handleMobileChange);
-    globalWindow.removeEventListener("resize", resize);
+    globalWindow.removeEventListener("resize", handleResize);
     globalWindow.removeEventListener("pointermove", pointerMove);
     globalWindow.removeEventListener("pointerenter", pointerEnter);
     globalWindow.removeEventListener("pointerleave", pointerLeave);
@@ -548,7 +595,7 @@ export const initScene = async ({
   attachToWindow(handle);
 
   resize();
-  globalWindow.addEventListener("resize", resize);
+  globalWindow.addEventListener("resize", handleResize);
   globalWindow.addEventListener("pointermove", pointerMove, pointerListenerOptions);
   globalWindow.addEventListener("pointerenter", pointerEnter, pointerListenerOptions);
   globalWindow.addEventListener("pointerleave", pointerLeave, pointerListenerOptions);
