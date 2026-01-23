@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation"; // <-- ADD
 import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
@@ -25,10 +26,22 @@ const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
 });
 
 export default function AppShell({ children, navbar }: AppShellProps) {
+  const pathname = usePathname(); // <-- ADD
+  const isExportRoute = (pathname ?? "").startsWith("/export"); // <-- ADD
+
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
   const hasDispatchedRevealRef = useRef(false);
-  const isContentVisible = !showPreloader;
+
+  // Export tool não precisa de preloader nem do canvas global
+  useEffect(() => {
+    if (isExportRoute) {
+      setIsReady(true);
+      setShowPreloader(false);
+    }
+  }, [isExportRoute]);
+
+  const isContentVisible = isExportRoute ? true : !showPreloader;
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -37,11 +50,9 @@ export default function AppShell({ children, navbar }: AppShellProps) {
 
   useEffect(() => {
     const body = document.body;
-    if (!body) {
-      return;
-    }
+    if (!body) return;
 
-    if (showPreloader) {
+    if (!isExportRoute && showPreloader) {
       body.dataset.preloading = "true";
       hasDispatchedRevealRef.current = false;
       return;
@@ -53,7 +64,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       hasDispatchedRevealRef.current = true;
       window.dispatchEvent(new Event(REVEAL_EVENT));
     }
-  }, [showPreloader]);
+  }, [isExportRoute, showPreloader]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -120,12 +131,14 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     };
   }, []);
 
-  return (
+    return (
     <MenuProvider>
       <div className="app-shell relative min-h-screen w-full">
-        {showPreloader && <Preloader onComplete={handleComplete} />}
-        <CanvasRoot isReady={isReady} />
-        <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
+        {!isExportRoute && showPreloader && <Preloader onComplete={handleComplete} />}
+        {!isExportRoute && <CanvasRoot isReady={isReady} />}
+
+        {!isExportRoute && <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />}
+
         <div
           className={isContentVisible ? "" : "pointer-events-none opacity-0"}
           aria-hidden={!isContentVisible}
