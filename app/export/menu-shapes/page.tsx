@@ -418,14 +418,14 @@ export default function MenuShapesExportPage() {
     };
 
     const shadowTex = makeRadialTex([
-      [0.0, "rgba(0,0,0,0.34)"],
-      [0.55, "rgba(0,0,0,0.13)"],
+      [0.0, "rgba(0,0,0,0.26)"],
+      [0.55, "rgba(0,0,0,0.10)"],
       [1.0, "rgba(0,0,0,0.0)"],
     ]);
 
     const hazeTex = makeRadialTex([
-      [0.0, "rgba(255,255,255,0.22)"],
-      [0.48, "rgba(255,255,255,0.10)"],
+      [0.0, "rgba(255,255,255,0.12)"],
+      [0.48, "rgba(255,255,255,0.05)"],
       [1.0, "rgba(255,255,255,0.0)"],
     ]);
 
@@ -444,22 +444,22 @@ export default function MenuShapesExportPage() {
       const shadowMat = new THREE.MeshBasicMaterial({
         map: shadowTex,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.16,
         depthWrite: false,
         depthTest: false,
       });
       extraMaterials.add(shadowMat);
 
       const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMat);
-      shadow.scale.set(w * 1.95, h * 1.95, 1);
-      shadow.position.set(0, 0, -0.42);
+      shadow.scale.set(w * 1.7, h * 1.7, 1);
+      shadow.position.set(0, 0, -0.36);
       shadow.renderOrder = -30;
 
       // haze (a “névoa” ao redor, imagem 1)
       const hazeMat = new THREE.MeshBasicMaterial({
         map: hazeTex,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.12,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         depthTest: false,
@@ -467,8 +467,8 @@ export default function MenuShapesExportPage() {
       extraMaterials.add(hazeMat);
 
       const haze = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), hazeMat);
-      haze.scale.set(w * 2.55, h * 2.55, 1);
-      haze.position.set(0, 0, -0.62);
+      haze.scale.set(w * 2.05, h * 2.05, 1);
+      haze.position.set(0, 0, -0.52);
       haze.renderOrder = -29;
 
       mesh.add(shadow);
@@ -485,14 +485,14 @@ export default function MenuShapesExportPage() {
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: new THREE.Color("#ffffff"),
         metalness: 0.0,
-        roughness: 0.62, // soft highlight (sem streak duro)
+        roughness: 0.5, // mais brilho, menos névoa
         transmission: 1.0,
-        thickness: 0.28,
-        ior: 1.33,
+        thickness: 0.22,
+        ior: 1.36,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.28,
+        clearcoatRoughness: 0.18,
         transparent: true,
-        opacity: 0.20, // contorno transparente visível
+        opacity: 0.18, // contorno transparente visível
         depthWrite: false,
       });
       extraMaterials.add(glassMat);
@@ -511,16 +511,16 @@ export default function MenuShapesExportPage() {
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
         uniforms: {
-          uTop: { value: new THREE.Color("#BFFFE7") },
-          uBot: { value: new THREE.Color("#FFC1E6") },
-          uPower: { value: 2.35 },
-          uAlpha: { value: 0.56 },
+          uTop: { value: new THREE.Color("#7BFFE7") },
+          uBot: { value: new THREE.Color("#FF7ED5") },
+          uPower: { value: 2.75 },
+          uAlpha: { value: 0.62 },
         },
       });
       extraMaterials.add(rimThinMat);
 
       const bubbleRimThin = new THREE.Mesh(mesh.geometry, rimThinMat);
-      bubbleRimThin.scale.set(1.07, 1.07, 1.07);
+      bubbleRimThin.scale.set(1.06, 1.06, 1.06);
       bubbleRimThin.renderOrder = 11;
       bubbleRimThin.frustumCulled = false;
 
@@ -533,16 +533,16 @@ export default function MenuShapesExportPage() {
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
         uniforms: {
-          uTop: { value: new THREE.Color("#EFFFFA") },
-          uBot: { value: new THREE.Color("#FFE3F2") },
-          uPower: { value: 1.55 },
-          uAlpha: { value: 0.22 },
+          uTop: { value: new THREE.Color("#CFFBFF") },
+          uBot: { value: new THREE.Color("#FFD4F1") },
+          uPower: { value: 1.4 },
+          uAlpha: { value: 0.3 },
         },
       });
       extraMaterials.add(rimGlowMat);
 
       const bubbleRimGlow = new THREE.Mesh(mesh.geometry, rimGlowMat);
-      bubbleRimGlow.scale.set(1.16, 1.16, 1.16);
+      bubbleRimGlow.scale.set(1.12, 1.12, 1.12);
       bubbleRimGlow.renderOrder = 12;
       bubbleRimGlow.frustumCulled = false;
 
