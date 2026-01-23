@@ -48,7 +48,12 @@ export default function WorkPage() {
   const coverPlaceholder = getShimmerDataURL(1200, 800);
   const navigationTimeoutRef = useRef<number>();
 
-  useThreeSceneSetup("work", { resetOnUnmount: true });
+  useThreeSceneSetup("work", {
+    opacity: 0,
+    parallax: false,
+    hovered: false,
+    resetOnUnmount: true,
+  });
 
   const projectCopy = useMemo(
     () =>
@@ -167,7 +172,6 @@ export default function WorkPage() {
                         priority={isActive}
                         loading={isActive ? "eager" : "lazy"}
                         fetchPriority={isActive ? "high" : "auto"}
-                        unoptimized
                         quality={85}
                         style={{ color: "transparent" }}
                       />
