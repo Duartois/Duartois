@@ -23,8 +23,8 @@ type PreloaderProps = {
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
-const MIN_VISIBLE_TIME = 900;
-const MAX_VISIBLE_TIME = 1800;
+const FIXED_VISIBLE_TIME = 1600;
+const FIXED_VISIBLE_TIME_REDUCED = 900;
 const PROGRESS_BY_STATUS: Record<PreloaderStatus, number> = {
   fonts: 32,
   assets: 68,
@@ -226,11 +226,10 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const startTime =
       typeof performance !== "undefined" ? performance.now() : Date.now();
     const elapsed = startTime - mountTimeRef.current;
-    const minVisible = reduceMotion ? 300 : MIN_VISIBLE_TIME;
-    const maxVisible = reduceMotion ? 900 : MAX_VISIBLE_TIME;
-    const minimumWait = Math.max(minVisible - elapsed, 0);
-    const maximumWait = Math.max(maxVisible - elapsed, 0);
-    const readyDelay = Math.min(minimumWait, maximumWait);
+    const fixedVisible = reduceMotion
+      ? FIXED_VISIBLE_TIME_REDUCED
+      : FIXED_VISIBLE_TIME;
+    const readyDelay = Math.max(fixedVisible - elapsed, 0);
 
     const timeoutId = window.setTimeout(() => {
       setProgress(PROGRESS_BY_STATUS.ready);
