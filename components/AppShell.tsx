@@ -8,9 +8,14 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
+import {
+  FALL_ITEM_STAGGER_DELAY,
+  FALL_ITEM_TRANSITION_DURATION,
+} from "./fallAnimation";
 
 interface AppShellProps {
   children: ReactNode;
@@ -19,16 +24,21 @@ interface AppShellProps {
 
 const REVEAL_EVENT = "app-shell:reveal";
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
+const NAVIGATION_EXIT_DURATION =
+  FALL_ITEM_TRANSITION_DURATION + FALL_ITEM_STAGGER_DELAY * 6;
 
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
 });
 
 export default function AppShell({ children, navbar }: AppShellProps) {
+  const router = useRouter();
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
   const hasDispatchedRevealRef = useRef(false);
   const isContentVisible = !showPreloader;
+  const navigationTimeoutRef = useRef<number | undefined>(undefined);
+  const isNavigatingRef = useRef(false);
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -110,15 +120,44 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         return;
       }
 
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
       window.dispatchEvent(new CustomEvent("app-navigation:start"));
+
+      if (prefersReducedMotion) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (isNavigatingRef.current) {
+        return;
+      }
+
+      isNavigatingRef.current = true;
+
+      if (navigationTimeoutRef.current) {
+        window.clearTimeout(navigationTimeoutRef.current);
+      }
+
+      navigationTimeoutRef.current = window.setTimeout(() => {
+        router.push(`${url.pathname}${url.search}${url.hash}`);
+      }, NAVIGATION_EXIT_DURATION);
     };
 
-    document.addEventListener("click", handleNavigationClick);
+    document.addEventListener("click", handleNavigationClick, true);
 
     return () => {
-      document.removeEventListener("click", handleNavigationClick);
+      document.removeEventListener("click", handleNavigationClick, true);
+      if (navigationTimeoutRef.current) {
+        window.clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = undefined;
+      }
+      isNavigatingRef.current = false;
     };
-  }, []);
+  }, [router]);
 
   return (
     <MenuProvider>
