@@ -2,7 +2,12 @@
 
 import { useEffect } from "react";
 
-import { getDefaultPalette, type VariantName } from "@/components/three/types";
+import {
+  createResponsiveVariantState,
+  getDefaultPalette,
+  type VariantName,
+  variantMapping,
+} from "@/components/three/types";
 
 type SceneOptions = {
   opacity?: number;
@@ -27,8 +32,15 @@ const applySceneState = (
     return false;
   }
 
+  const responsiveVariant = createResponsiveVariantState(
+    variantMapping[variantName],
+    window.innerWidth,
+    window.innerHeight,
+  );
+
   app.setState((previous) => ({
     variantName,
+    variant: responsiveVariant,
     palette: getDefaultPalette(previous.theme),
     parallax,
     hovered,
