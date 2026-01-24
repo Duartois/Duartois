@@ -50,10 +50,12 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
     }
 
     const handleInteraction = () => setShouldStart(true);
+    const fallbackStart = window.setTimeout(() => setShouldStart(true), 400);
     window.addEventListener("pointerdown", handleInteraction, { once: true });
     window.addEventListener("keydown", handleInteraction, { once: true });
 
     return () => {
+      window.clearTimeout(fallbackStart);
       window.removeEventListener("pointerdown", handleInteraction);
       window.removeEventListener("keydown", handleInteraction);
     };
