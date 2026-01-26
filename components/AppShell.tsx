@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
@@ -23,6 +23,7 @@ interface AppShellProps {
 }
 
 const REVEAL_EVENT = "app-shell:reveal";
+const NAVIGATION_END_EVENT = "app-navigation:end";
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 const NAVIGATION_EXIT_DURATION =
   FALL_ITEM_TRANSITION_DURATION + FALL_ITEM_STAGGER_DELAY * 6;
@@ -33,6 +34,7 @@ const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
 
 export default function AppShell({ children, navbar }: AppShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
   const hasDispatchedRevealRef = useRef(false);
@@ -161,6 +163,20 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       isNavigatingRef.current = false;
     };
   }, [router, showPreloader]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (navigationTimeoutRef.current) {
+      window.clearTimeout(navigationTimeoutRef.current);
+      navigationTimeoutRef.current = undefined;
+    }
+
+    isNavigatingRef.current = false;
+    window.dispatchEvent(new CustomEvent(NAVIGATION_END_EVENT));
+  }, [pathname]);
 
   return (
     <MenuProvider>

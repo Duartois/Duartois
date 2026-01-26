@@ -5,6 +5,7 @@ import { useReducedMotion } from "framer-motion";
 import { useAnimationQuality } from "@/components/AnimationQualityContext";
 
 const APP_NAVIGATION_START_EVENT = "app-navigation:start";
+const APP_NAVIGATION_END_EVENT = "app-navigation:end";
 
 export function useFluidPageReveal(delay = 0): CSSProperties {
   const prefersReducedMotion = useReducedMotion();
@@ -48,12 +49,21 @@ export function useFluidPageReveal(delay = 0): CSSProperties {
       setIsRevealed(false);
     };
 
+    const handleNavigationEnd = () => {
+      setIsRevealed(true);
+    };
+
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
 
     return () => {
       window.removeEventListener(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
+      );
+      window.removeEventListener(
+        APP_NAVIGATION_END_EVENT,
+        handleNavigationEnd,
       );
     };
   }, [reduceMotion]);

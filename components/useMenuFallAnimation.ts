@@ -10,6 +10,7 @@ const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 const APP_MENU_OPEN_EVENT = "app-menu:open";
 const APP_MENU_CLOSE_EVENT = "app-menu:close";
 const APP_NAVIGATION_START_EVENT = "app-navigation:start";
+const APP_NAVIGATION_END_EVENT = "app-navigation:end";
 
 export function useMenuFallAnimation(
   totalItems: number,
@@ -81,9 +82,15 @@ export function useMenuFallAnimation(
       setIsFallActive(false);
     };
 
+    const handleNavigationEnd = () => {
+      isNavigatingAwayRef.current = false;
+      setIsFallActive(true);
+    };
+
     window.addEventListener(APP_MENU_OPEN_EVENT, handleMenuOpen);
     window.addEventListener(APP_MENU_CLOSE_EVENT, handleMenuClose);
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
 
     return () => {
       window.removeEventListener(APP_MENU_OPEN_EVENT, handleMenuOpen);
@@ -91,6 +98,10 @@ export function useMenuFallAnimation(
       window.removeEventListener(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
+      );
+      window.removeEventListener(
+        APP_NAVIGATION_END_EVENT,
+        handleNavigationEnd,
       );
     };
   }, [disableFallAnimation]);
