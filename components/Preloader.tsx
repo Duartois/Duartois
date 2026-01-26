@@ -13,7 +13,10 @@ import {
   useAnimationControls,
   useReducedMotion,
 } from "framer-motion";
-import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
+import {
+  BACKGROUND_ASSET_URLS,
+  ESSENTIAL_ASSET_URLS,
+} from "@/app/helpers/criticalAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
 import { projectSlugs } from "@/app/work/projectDetails";
 
@@ -31,7 +34,7 @@ const PRELOAD_ROUTES = [
   "/contact",
   ...projectSlugs.map((slug) => `/work/${slug}`),
 ] as const;
-const PRELOAD_MODULES = [
+const PRELOAD_MODULES: Array<() => Promise<unknown>> = [
   () => import("@/app/work/page"),
   () => import("@/app/about/page"),
   () => import("@/app/contact/page"),
@@ -53,7 +56,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const logoControls = useAnimationControls();
   const textControls = useAnimationControls();
   const creditsControls = useAnimationControls();
-  const criticalAssets = useMemo(() => CRITICAL_ASSET_URLS, []);
+  const essentialAssets = useMemo(() => ESSENTIAL_ASSET_URLS, []);
+  const backgroundAssets = useMemo(() => BACKGROUND_ASSET_URLS, []);
   const progressRatio = totalCount > 0 ? loadedCount / totalCount : 0;
   const isComplete = totalCount > 0 && loadedCount >= totalCount;
   const statusKey: PreloaderStatus = useMemo(() => {
@@ -88,40 +92,117 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     }
 
     let cancelled = false;
-    const tasks: Array<Promise<unknown>> = [];
+    const essentialTasks: Array<Promise<unknown>> = [];
 
-    const addTask = (task: Promise<unknown>) => {
-      tasks.push(task);
-      task.finally(() => {
-        if (!cancelled) {
-          setLoadedCount((current) => current + 1);
-        }
-      });
+    const addTask = (
+      task: Promise<unknown>,
+      { background = false }: { background?: boolean } = {},
+    ) => {
+      if (!background) {
+        essentialTasks.push(task);
+        task.finally(() => {
+          if (!cancelled) {
+            setLoadedCount((current) => current + 1);
+          }
+        });
+      }
     };
 
-    // Pré-carrega imagens e rotas para exibir o site apenas quando pronto.
-    const assets = Array.from(new Set(criticalAssets));
-    assets.forEach((url) => addTask(preloadImage(url)));
+    const withTimeout = <T,>(
+      promise: Promise<T>,
+      {
+        label,
+        timeoutMs,
+      }: {
+        label: string;
+        timeoutMs: number;
+      },
+    ) => {
+      let timeoutId: number | null = null;
+      const timeoutPromise = new Promise<void>((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          console.warn(
+            `[preloader] Tempo esgotado ao carregar ${label}. Continuando...`,
+          );
+          resolve();
+        }, timeoutMs);
+      });
+
+      const taskPromise = promise
+        .then(() => undefined)
+        .catch((error) => {
+          console.warn(`[preloader] Falha ao carregar ${label}.`, error);
+        })
+        .finally(() => {
+          if (timeoutId !== null) {
+            window.clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+        });
+
+      return Promise.race([taskPromise, timeoutPromise]);
+    };
+
+    const uniqueEssentialAssets = Array.from(new Set(essentialAssets));
+    const uniqueBackgroundAssets = Array.from(new Set(backgroundAssets));
+
+    uniqueEssentialAssets.forEach((url) => {
+      const timeoutMs = url.startsWith("http") ? 4500 : 2500;
+      addTask(
+        withTimeout(preloadImage(url), {
+          label: `imagem crítica (${url})`,
+          timeoutMs,
+        }),
+      );
+    });
+
+    uniqueBackgroundAssets.forEach((url) => {
+      const timeoutMs = url.startsWith("http") ? 4500 : 2500;
+      addTask(
+        withTimeout(preloadImage(url), {
+          label: `imagem em background (${url})`,
+          timeoutMs,
+        }),
+        { background: true },
+      );
+    });
 
     PRELOAD_ROUTES.forEach((route) => {
       const prefetchPromise = Promise.resolve(
         router.prefetch(route, { kind: PrefetchKind.FULL }),
-      ).catch(() => undefined);
-      addTask(prefetchPromise);
+      );
+      addTask(
+        withTimeout(prefetchPromise, {
+          label: `prefetch da rota ${route}`,
+          timeoutMs: 5000,
+        }),
+        { background: true },
+      );
     });
 
-    PRELOAD_MODULES.forEach((loadModule) => {
-      addTask(loadModule().catch(() => undefined));
+    PRELOAD_MODULES.forEach((loadModule, index) => {
+      addTask(
+        withTimeout(loadModule(), {
+          label: `módulo ${index + 1}`,
+          timeoutMs: 5000,
+        }),
+        { background: true },
+      );
     });
 
-    addTask(waitForThreeReady());
+    addTask(
+      withTimeout(waitForThreeReady(), {
+        label: "cena 3D",
+        timeoutMs: 12000,
+      }),
+    );
 
-    setTotalCount(tasks.length);
+    setTotalCount(essentialTasks.length);
 
     return () => {
       cancelled = true;
     };
-  }, [criticalAssets, hasMounted, router]);
+  }, [backgroundAssets, essentialAssets, hasMounted, router]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 

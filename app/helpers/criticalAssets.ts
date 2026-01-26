@@ -30,8 +30,9 @@ const projectDetailImages = Object.values(projectDetails).flatMap((detail) => {
   return [detail.heroImage.src, ...contentImages];
 });
 
-const uniqueAssets = Array.from(
-  new Set([...STATIC_ASSETS, ...workProjectCovers, ...projectDetailImages]),
+const backgroundAssets = Array.from(
+  new Set([...workProjectCovers, ...projectDetailImages]),
 );
 
-export const CRITICAL_ASSET_URLS = Object.freeze(uniqueAssets);
+export const ESSENTIAL_ASSET_URLS = Object.freeze([...STATIC_ASSETS]);
+export const BACKGROUND_ASSET_URLS = Object.freeze(backgroundAssets);
