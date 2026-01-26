@@ -40,6 +40,7 @@ export default function WorkPage() {
   const { t } = useTranslation("common");
   const router = useRouter();
   const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
+  const [previousProject, setPreviousProject] = useState<ProjectKey | null>(null);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
@@ -47,6 +48,7 @@ export default function WorkPage() {
   const pageRevealStyle = useFluidPageReveal(80);
   const coverPlaceholder = getShimmerDataURL(1200, 800);
   const navigationTimeoutRef = useRef<number>();
+  const previousProjectTimeoutRef = useRef<number>();
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 
@@ -84,8 +86,31 @@ export default function WorkPage() {
       if (navigationTimeoutRef.current) {
         window.clearTimeout(navigationTimeoutRef.current);
       }
+      if (previousProjectTimeoutRef.current) {
+        window.clearTimeout(previousProjectTimeoutRef.current);
+      }
     };
   }, []);
+
+  const handleProjectActivate = useCallback(
+    (projectKey: ProjectKey) => {
+      if (projectKey === activeProject) {
+        return;
+      }
+
+      if (previousProjectTimeoutRef.current) {
+        window.clearTimeout(previousProjectTimeoutRef.current);
+      }
+
+      setPreviousProject(activeProject);
+      setActiveProject(projectKey);
+
+      previousProjectTimeoutRef.current = window.setTimeout(() => {
+        setPreviousProject(null);
+      }, 1000);
+    },
+    [activeProject],
+  );
 
   const handleProjectClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -141,15 +166,17 @@ export default function WorkPage() {
       >
         <div className="projects-left" style={nextFall()}>
           <div className="projects-left-inside">
-            {projectOrder.map((projectKey) => {
-              const copy = projectCopy[projectKey];
-              const isActive = projectKey === activeProject;
+            {[previousProject, activeProject]
+              .filter((projectKey): projectKey is ProjectKey => Boolean(projectKey))
+              .map((projectKey) => {
+                const copy = projectCopy[projectKey];
+                const isActive = projectKey === activeProject;
 
-              return (
-                <div
-                  key={projectKey}
-                  className={`projects-image-wrapper${isActive ? " is-active" : ""}`}
-                >
+                return (
+                  <div
+                    key={projectKey}
+                    className={`projects-image-wrapper${isActive ? " is-active" : ""}`}
+                  >
                     <div
                       className="projects-image-scale"
                       style={{
@@ -167,14 +194,13 @@ export default function WorkPage() {
                         priority={isActive}
                         loading={isActive ? "eager" : "lazy"}
                         fetchPriority={isActive ? "high" : "auto"}
-                        unoptimized
                         quality={85}
                         style={{ color: "transparent" }}
                       />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 
@@ -199,8 +225,8 @@ export default function WorkPage() {
                     href={copy.href}
                     className="projects-row"
                     prefetch={false}
-                    onMouseEnter={() => setActiveProject(projectKey)}
-                    onFocus={() => setActiveProject(projectKey)}
+                    onMouseEnter={() => handleProjectActivate(projectKey)}
+                    onFocus={() => handleProjectActivate(projectKey)}
                     onClick={(event) => handleProjectClick(event, copy.href)}
                     aria-current={isActive ? "true" : undefined}
                   >
