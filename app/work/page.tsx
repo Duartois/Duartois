@@ -110,6 +110,14 @@ export default function WorkPage() {
     [activeProject],
   );
 
+  const handleProjectHover = useCallback(
+    (projectKey: ProjectKey, href: string) => {
+      handleProjectActivate(projectKey);
+      router.prefetch(href);
+    },
+    [handleProjectActivate, router],
+  );
+
   const handleProjectClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>, href: string) => {
       if (
@@ -126,9 +134,6 @@ export default function WorkPage() {
       event.preventDefault();
 
       if (isNavigatingAway) {
-        return;
-      }
-      if (document.body?.dataset.preloading === "true") {
         return;
       }
 
@@ -224,24 +229,16 @@ export default function WorkPage() {
                   <Link
                     href={copy.href}
                     className="projects-row"
-                    onMouseEnter={() => handleProjectActivate(projectKey)}
-                    onFocus={() => handleProjectActivate(projectKey)}
+                    onMouseEnter={() => handleProjectHover(projectKey, copy.href)}
+                    onFocus={() => handleProjectHover(projectKey, copy.href)}
                     onClick={(event) => handleProjectClick(event, copy.href)}
                     aria-current={isActive ? "true" : undefined}
                   >
                     <div className="projects-row-left">
                       <div className="projects-selected-wrapper">
-                        <h4
-                          className="projects-selected"
-                        >
-                          →
-                        </h4>
+                        <h4 className="projects-selected">→</h4>
                       </div>
-                      <h4
-                        className="projects-title"
-                      >
-                        {copy.title}
-                      </h4>
+                      <h4 className="projects-title">{copy.title}</h4>
                     </div>
                     <div className="projects-row-right">
                       <p className="projects-category">{copy.category}</p>

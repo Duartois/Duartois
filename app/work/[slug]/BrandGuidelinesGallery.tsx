@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getShimmerDataURL } from "../../helpers/imagePlaceholders";
 
 export type BrandGuidelinesImage = {
   src: string;
@@ -24,7 +23,6 @@ export default function BrandGuidelinesGallery({
 }: BrandGuidelinesGalleryProps) {
   const [visibleCount, setVisibleCount] = useState(initialCount);
   const loadMoreRef = useRef<HTMLButtonElement | null>(null);
-  const placeholder = getShimmerDataURL(1600, 900);
 
   const visibleImages = useMemo(
     () => images.slice(0, visibleCount),
@@ -76,8 +74,7 @@ export default function BrandGuidelinesGallery({
             loading="lazy"
             fetchPriority="auto"
             quality={85}
-            placeholder="blur"
-            blurDataURL={placeholder}
+            placeholder="empty"
             style={{ width: "100%", height: "auto" }}
           />
         </div>

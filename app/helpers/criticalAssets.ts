@@ -26,13 +26,20 @@ const projectDetailImages = Object.values(projectDetails).flatMap((detail) => {
   const contentImages = detail.content.flatMap((block) =>
     block.type === "image" ? [block.src] : [],
   );
+  const firstTwoImages = [detail.heroImage.src, ...contentImages].filter(
+    Boolean,
+  );
 
-  return [detail.heroImage.src, ...contentImages];
+  return firstTwoImages.slice(0, 2);
 });
 
 const backgroundAssets = Array.from(
   new Set([...workProjectCovers, ...projectDetailImages]),
 );
+const workHeroCover = workProjectCovers[0];
 
-export const ESSENTIAL_ASSET_URLS = Object.freeze([...STATIC_ASSETS]);
+export const ESSENTIAL_ASSET_URLS = Object.freeze([
+  ...STATIC_ASSETS,
+  ...(workHeroCover ? [workHeroCover] : []),
+]);
 export const BACKGROUND_ASSET_URLS = Object.freeze(backgroundAssets);

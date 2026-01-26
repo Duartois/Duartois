@@ -275,7 +275,7 @@ export default function HomePage() {
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
     };
 
-    if (document.body?.dataset.preloading === "false") {
+    if (document.body?.dataset.preloading !== "true") {
       activateFall();
       return undefined;
     }
