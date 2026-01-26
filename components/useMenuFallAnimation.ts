@@ -40,7 +40,10 @@ export function useMenuFallAnimation(
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
     };
 
-    if (typeof document !== "undefined" && document.body?.dataset.preloading === "false") {
+    if (
+      typeof document !== "undefined" &&
+      document.body?.dataset.preloading !== "true"
+    ) {
       activateFall();
       return;
     }

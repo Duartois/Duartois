@@ -32,13 +32,12 @@ const PRELOAD_ROUTES = [
   "/work",
   "/about",
   "/contact",
-  ...projectSlugs.map((slug) => `/work/${slug}`),
+  `/work/${projectSlugs[0]}`,
 ] as const;
 const PRELOAD_MODULES: Array<() => Promise<unknown>> = [
   () => import("@/app/work/page"),
   () => import("@/app/about/page"),
   () => import("@/app/contact/page"),
-  () => import("@/app/work/[slug]/ProjectPageContent"),
 ] as const;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
@@ -146,8 +145,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const uniqueEssentialAssets = Array.from(new Set(essentialAssets));
     const uniqueBackgroundAssets = Array.from(new Set(backgroundAssets));
 
+    // Carrega apenas o necessário para liberar a home (assets críticos + cena 3D).
     uniqueEssentialAssets.forEach((url) => {
-      const timeoutMs = url.startsWith("http") ? 4500 : 2500;
+      const timeoutMs = url.startsWith("http") ? 5000 : 3500;
       addTask(
         withTimeout(preloadImage(url), {
           label: `imagem crítica (${url})`,
@@ -156,8 +156,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       );
     });
 
+    // Pré-carrega somente imagens-chave e rotas essenciais sem bloquear o progresso.
     uniqueBackgroundAssets.forEach((url) => {
-      const timeoutMs = url.startsWith("http") ? 4500 : 2500;
+      const timeoutMs = url.startsWith("http") ? 5000 : 3500;
       addTask(
         withTimeout(preloadImage(url), {
           label: `imagem em background (${url})`,
@@ -174,7 +175,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       addTask(
         withTimeout(prefetchPromise, {
           label: `prefetch da rota ${route}`,
-          timeoutMs: 5000,
+          timeoutMs: 4000,
         }),
         { background: true },
       );
@@ -184,7 +185,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       addTask(
         withTimeout(loadModule(), {
           label: `módulo ${index + 1}`,
-          timeoutMs: 5000,
+          timeoutMs: 4000,
         }),
         { background: true },
       );

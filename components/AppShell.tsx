@@ -57,7 +57,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       return;
     }
 
-    body.dataset.preloading = "false";
+    body.removeAttribute("data-preloading");
 
     if (!hasDispatchedRevealRef.current) {
       hasDispatchedRevealRef.current = true;
