@@ -249,10 +249,10 @@ const createGlossyMaterial = () =>
   });
 
 
-const THICKNESS = 0.64;
-const TORUS_RADIUS = 1.28;
-const TORUS_RADIAL_SEGMENTS = 128;
-const TORUS_TUBULAR_SEGMENTS = 220;
+const THICKNESS = 0.52;
+const TORUS_RADIUS = 1.38;
+const TORUS_RADIAL_SEGMENTS = 120;
+const TORUS_TUBULAR_SEGMENTS = 210;
 const CAP_SEGMENTS = 64;
 
 class CircularArcCurve extends THREE.Curve<THREE.Vector3> {
@@ -343,7 +343,7 @@ export async function addDuartoisSignatureShapes(
   scene.add(group);
   group.scale.setScalar(1.2);
 
-  const waveCurve = new WaveCurve(3.8, 0.4);
+  const waveCurve = new WaveCurve(4.5, 0.45);
 
   const geometryFactories: Record<ShapeId, () => THREE.BufferGeometry> = {
     torusSpringAzure: () => createPartialTorusGeometry((3 * Math.PI) / 2),

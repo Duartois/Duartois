@@ -50,7 +50,12 @@ export default function WorkPage() {
   const navigationTimeoutRef = useRef<number>();
   const previousProjectTimeoutRef = useRef<number>();
 
-  useThreeSceneSetup("work", { resetOnUnmount: true });
+  useThreeSceneSetup("work", {
+    opacity: 0,
+    parallax: false,
+    hovered: false,
+    resetOnUnmount: true,
+  });
 
   const projectCopy = useMemo(
     () =>

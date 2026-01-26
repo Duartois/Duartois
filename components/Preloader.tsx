@@ -23,17 +23,15 @@ type PreloaderProps = {
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
 const INITIAL_PROGRESS = 12;
-const MIN_VISIBLE_TIME = 2000;
-const MAX_VISIBLE_TIME = 3000;
-const STATUS_SEQUENCE: Array<{
-  delayMs: number;
-  progress: number;
-  status: PreloaderStatus;
-}> = [
-  { delayMs: 400, progress: 32, status: "fonts" },
-  { delayMs: 1050, progress: 68, status: "assets" },
-  { delayMs: 1700, progress: 92, status: "scene" },
-];
+const MIN_VISIBLE_TIME = 900;
+const MAX_VISIBLE_TIME = 1800;
+const PROGRESS_BY_STATUS: Record<PreloaderStatus, number> = {
+  fonts: 32,
+  assets: 68,
+  scene: 92,
+  idle: 96,
+  ready: 100,
+};
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
@@ -48,6 +46,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
   const reduceMotion = prefersReducedMotion || resolvedQuality === "low";
+  const [fontsReady, setFontsReady] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
+  const [sceneReady, setSceneReady] = useState(resolvedQuality === "low");
   const [hasMounted, setHasMounted] = useState(false);
   const logoControls = useAnimationControls();
   const textControls = useAnimationControls();
@@ -65,37 +66,26 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       return;
     }
 
-    const timeoutIds: number[] = [];
-    const startTime =
-      typeof performance !== "undefined" ? performance.now() : Date.now();
+    if (typeof document === "undefined" || !document.fonts?.ready) {
+      setFontsReady(true);
+      return;
+    }
 
-    STATUS_SEQUENCE.forEach(({ delayMs, progress: value, status }) => {
-      timeoutIds.push(
-        window.setTimeout(() => {
-          setProgress(value);
-          setStatusKey(status);
-        }, delayMs),
-      );
-    });
-
-    const minimumWait = Math.max(
-      MIN_VISIBLE_TIME - (startTime - mountTimeRef.current),
-      0,
-    );
-    const readyDelay = Math.min(
-      Math.max(minimumWait, MIN_VISIBLE_TIME),
-      MAX_VISIBLE_TIME,
-    );
-
-    timeoutIds.push(
-      window.setTimeout(() => {
-        setProgress(100);
-        setStatusKey("ready");
-      }, readyDelay),
-    );
+    let cancelled = false;
+    document.fonts.ready
+      .then(() => {
+        if (!cancelled) {
+          setFontsReady(true);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setFontsReady(true);
+        }
+      });
 
     return () => {
-      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+      cancelled = true;
     };
   }, [hasMounted]);
 
@@ -106,6 +96,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
     const assets = Array.from(new Set(criticalAssets));
     if (assets.length === 0) {
+      setAssetsReady(true);
       return;
     }
 
@@ -116,19 +107,24 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const scheduleIdle = requestIdleCallback?.bind(window);
     const cancelIdle = cancelIdleCallback?.bind(window);
 
+    let cancelled = false;
+
+    const startPreload = () => {
+      Promise.all(assets.map((url) => preloadImage(url)))
+        .catch(() => undefined)
+        .finally(() => {
+          if (!cancelled) {
+            setAssetsReady(true);
+          }
+        });
+    };
+
     const handle = scheduleIdle
-      ? scheduleIdle(() => {
-          assets.forEach((url) => {
-            void preloadImage(url);
-          });
-        })
-      : window.setTimeout(() => {
-          assets.forEach((url) => {
-            void preloadImage(url);
-          });
-        }, 1200);
+      ? scheduleIdle(startPreload)
+      : window.setTimeout(startPreload, 600);
 
     return () => {
+      cancelled = true;
       if (cancelIdle) {
         cancelIdle(handle);
       } else {
@@ -139,6 +135,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   useEffect(() => {
     if (!hasMounted) return;
+
+    if (resolvedQuality === "low") {
+      setSceneReady(true);
+      return;
+    }
 
     let cancelled = false;
     let detach: (() => void) | null = null;
@@ -155,12 +156,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
         if (!detail) return;
         if (detail.state.ready) {
-          setStatusKey((current) => (current === "ready" ? current : "idle"));
+          setSceneReady(true);
         }
       };
 
       const handleReady = () => {
-        setStatusKey((current) => (current === "ready" ? current : "idle"));
+        setSceneReady(true);
       };
 
       const events = app.bundle.events;
@@ -169,7 +170,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
       const snapshot = app.bundle.getState();
       if (snapshot.ready) {
-        handleReady();
+        setSceneReady(true);
       }
 
       detach = () => {
@@ -184,7 +185,62 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       cancelled = true;
       detach?.();
     };
-  }, [hasMounted]);
+  }, [hasMounted, resolvedQuality]);
+
+  useEffect(() => {
+    if (!hasMounted) {
+      return;
+    }
+
+    if (statusKey === "ready") {
+      return;
+    }
+
+    if (!fontsReady) {
+      setStatusKey("fonts");
+      setProgress(PROGRESS_BY_STATUS.fonts);
+      return;
+    }
+
+    if (!assetsReady) {
+      setStatusKey("assets");
+      setProgress(PROGRESS_BY_STATUS.assets);
+      return;
+    }
+
+    if (!sceneReady) {
+      setStatusKey("scene");
+      setProgress(PROGRESS_BY_STATUS.scene);
+      return;
+    }
+
+    setStatusKey("idle");
+    setProgress(PROGRESS_BY_STATUS.idle);
+  }, [assetsReady, fontsReady, hasMounted, sceneReady, statusKey]);
+
+  useEffect(() => {
+    if (!hasMounted || !fontsReady || !assetsReady || !sceneReady) {
+      return;
+    }
+
+    const startTime =
+      typeof performance !== "undefined" ? performance.now() : Date.now();
+    const elapsed = startTime - mountTimeRef.current;
+    const minVisible = reduceMotion ? 300 : MIN_VISIBLE_TIME;
+    const maxVisible = reduceMotion ? 900 : MAX_VISIBLE_TIME;
+    const minimumWait = Math.max(minVisible - elapsed, 0);
+    const maximumWait = Math.max(maxVisible - elapsed, 0);
+    const readyDelay = Math.min(minimumWait, maximumWait);
+
+    const timeoutId = window.setTimeout(() => {
+      setProgress(PROGRESS_BY_STATUS.ready);
+      setStatusKey("ready");
+    }, readyDelay);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [assetsReady, fontsReady, hasMounted, reduceMotion, sceneReady]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 

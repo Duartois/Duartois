@@ -8,11 +8,7 @@ import type { ThreeAppHandle } from "./types";
 import { useAnimationQuality } from "@/components/AnimationQualityContext";
 import { logPerf, isPerfDebugEnabled } from "@/app/helpers/perfDebug";
 
-interface CoreCanvasProps {
-  isReady: boolean;
-}
-
-export default function CoreCanvas({ isReady }: CoreCanvasProps) {
+export default function CoreCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const handleRef = useRef<ThreeAppHandle | null>(null);
   const initializedRef = useRef(false);
@@ -62,7 +58,7 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
   }, [resolvedQuality]);
 
   useEffect(() => {
-    if (!shouldStart || !isReady || initializedRef.current) {
+    if (!shouldStart || initializedRef.current) {
       return;
     }
 
@@ -79,7 +75,7 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
       logPerf("3D scene init started.", { timeMs: Math.round(performance.now()) });
     }
 
-    void initScene({ canvas, theme }).then((handle) => {
+    void initScene({ canvas, theme, quality: resolvedQuality }).then((handle) => {
       if (cancelled) {
         handle.dispose();
         return;
@@ -95,7 +91,7 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
         handleRef.current = null;
       }
     };
-  }, [shouldStart, theme, isReady]);
+  }, [resolvedQuality, shouldStart, theme]);
 
   useEffect(() => {
     if (!handleRef.current) return;

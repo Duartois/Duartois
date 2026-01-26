@@ -46,7 +46,7 @@ export default function CanvasRoot({ isReady }: CanvasRootProps) {
       <div className="relative h-full w-full">
         <div className="absolute inset-0 z-0">
           <Noise />
-          <CoreCanvas isReady={isReady} />
+          <CoreCanvas />
         </div>
       </div>
     </div>
