@@ -1,3 +1,11 @@
+import { projectDetails } from "@/app/work/projectDetails";
+import enCommon from "@/public/locales/en/common.json";
+import ptCommon from "@/public/locales/pt/common.json";
+
+type WorkProjectCopy = {
+  cover?: string;
+};
+
 const STATIC_ASSETS = [
   "/about-01.avif",
   "/about-portrait.svg",
@@ -7,4 +15,23 @@ const STATIC_ASSETS = [
   "/wave.svg",
 ] as const;
 
-export const CRITICAL_ASSET_URLS = Object.freeze([...STATIC_ASSETS]);
+const workProjectCovers = [
+  ...Object.values(enCommon.work?.projects ?? {}),
+  ...Object.values(ptCommon.work?.projects ?? {}),
+]
+  .map((project) => (project as WorkProjectCopy).cover)
+  .filter(Boolean) as string[];
+
+const projectDetailImages = Object.values(projectDetails).flatMap((detail) => {
+  const contentImages = detail.content.flatMap((block) =>
+    block.type === "image" ? [block.src] : [],
+  );
+
+  return [detail.heroImage.src, ...contentImages];
+});
+
+const uniqueAssets = Array.from(
+  new Set([...STATIC_ASSETS, ...workProjectCovers, ...projectDetailImages]),
+);
+
+export const CRITICAL_ASSET_URLS = Object.freeze(uniqueAssets);

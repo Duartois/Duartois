@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
@@ -13,6 +15,7 @@ import {
 } from "framer-motion";
 import { CRITICAL_ASSET_URLS } from "@/app/helpers/criticalAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
+import { projectSlugs } from "@/app/work/projectDetails";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
@@ -22,28 +25,26 @@ type PreloaderProps = {
 
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
-const INITIAL_PROGRESS = 12;
-const MIN_VISIBLE_TIME = 2000;
-const MAX_VISIBLE_TIME = 3000;
-const STATUS_SEQUENCE: Array<{
-  delayMs: number;
-  progress: number;
-  status: PreloaderStatus;
-}> = [
-  { delayMs: 400, progress: 32, status: "fonts" },
-  { delayMs: 1050, progress: 68, status: "assets" },
-  { delayMs: 1700, progress: 92, status: "scene" },
-];
+const PRELOAD_ROUTES = [
+  "/work",
+  "/about",
+  "/contact",
+  ...projectSlugs.map((slug) => `/work/${slug}`),
+] as const;
+const PRELOAD_MODULES = [
+  () => import("@/app/work/page"),
+  () => import("@/app/about/page"),
+  () => import("@/app/contact/page"),
+  () => import("@/app/work/[slug]/ProjectPageContent"),
+] as const;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
-  const [statusKey, setStatusKey] = useState<PreloaderStatus>("fonts");
-  const [progress, setProgress] = useState(INITIAL_PROGRESS);
+  const router = useRouter();
+  const [loadedCount, setLoadedCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const hasSignaledCompletionRef = useRef(false);
   const entryStartedRef = useRef(false);
   const isHidingRef = useRef(false);
-  const mountTimeRef = useRef<number>(
-    typeof performance !== "undefined" ? performance.now() : Date.now(),
-  );
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
@@ -53,138 +54,74 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const textControls = useAnimationControls();
   const creditsControls = useAnimationControls();
   const criticalAssets = useMemo(() => CRITICAL_ASSET_URLS, []);
+  const progressRatio = totalCount > 0 ? loadedCount / totalCount : 0;
+  const isComplete = totalCount > 0 && loadedCount >= totalCount;
+  const statusKey: PreloaderStatus = useMemo(() => {
+    if (!hasMounted) {
+      return "fonts";
+    }
+    if (isComplete) {
+      return "ready";
+    }
+    if (progressRatio < 0.3) {
+      return "fonts";
+    }
+    if (progressRatio < 0.65) {
+      return "assets";
+    }
+    if (progressRatio < 0.9) {
+      return "scene";
+    }
+    return "idle";
+  }, [hasMounted, isComplete, progressRatio]);
 
   useEffect(() => {
     setHasMounted(true);
-    mountTimeRef.current =
-      typeof performance !== "undefined" ? performance.now() : Date.now();
   }, []);
 
   useEffect(() => {
     if (!hasMounted) {
       return;
     }
-
-    const timeoutIds: number[] = [];
-    const startTime =
-      typeof performance !== "undefined" ? performance.now() : Date.now();
-
-    STATUS_SEQUENCE.forEach(({ delayMs, progress: value, status }) => {
-      timeoutIds.push(
-        window.setTimeout(() => {
-          setProgress(value);
-          setStatusKey(status);
-        }, delayMs),
-      );
-    });
-
-    const minimumWait = Math.max(
-      MIN_VISIBLE_TIME - (startTime - mountTimeRef.current),
-      0,
-    );
-    const readyDelay = Math.min(
-      Math.max(minimumWait, MIN_VISIBLE_TIME),
-      MAX_VISIBLE_TIME,
-    );
-
-    timeoutIds.push(
-      window.setTimeout(() => {
-        setProgress(100);
-        setStatusKey("ready");
-      }, readyDelay),
-    );
-
-    return () => {
-      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
-    };
-  }, [hasMounted]);
-
-  useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
 
-    const assets = Array.from(new Set(criticalAssets));
-    if (assets.length === 0) {
-      return;
-    }
-
-    const { requestIdleCallback, cancelIdleCallback } = window as Window & {
-      requestIdleCallback?: (callback: IdleRequestCallback) => number;
-      cancelIdleCallback?: (handle: number) => void;
-    };
-    const scheduleIdle = requestIdleCallback?.bind(window);
-    const cancelIdle = cancelIdleCallback?.bind(window);
-
-    const handle = scheduleIdle
-      ? scheduleIdle(() => {
-          assets.forEach((url) => {
-            void preloadImage(url);
-          });
-        })
-      : window.setTimeout(() => {
-          assets.forEach((url) => {
-            void preloadImage(url);
-          });
-        }, 1200);
-
-    return () => {
-      if (cancelIdle) {
-        cancelIdle(handle);
-      } else {
-        window.clearTimeout(handle);
-      }
-    };
-  }, [criticalAssets]);
-
-  useEffect(() => {
-    if (!hasMounted) return;
-
     let cancelled = false;
-    let detach: (() => void) | null = null;
+    const tasks: Array<Promise<unknown>> = [];
 
-    const connect = () => {
-      if (cancelled) return;
-      const app = window.__THREE_APP__;
-      if (!app) {
-        requestAnimationFrame(connect);
-        return;
-      }
-
-      const handleStateChange = (event: Event) => {
-        const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
-        if (!detail) return;
-        if (detail.state.ready) {
-          setStatusKey((current) => (current === "ready" ? current : "idle"));
+    const addTask = (task: Promise<unknown>) => {
+      tasks.push(task);
+      task.finally(() => {
+        if (!cancelled) {
+          setLoadedCount((current) => current + 1);
         }
-      };
-
-      const handleReady = () => {
-        setStatusKey((current) => (current === "ready" ? current : "idle"));
-      };
-
-      const events = app.bundle.events;
-      events.addEventListener("ready", handleReady);
-      events.addEventListener("statechange", handleStateChange);
-
-      const snapshot = app.bundle.getState();
-      if (snapshot.ready) {
-        handleReady();
-      }
-
-      detach = () => {
-        events.removeEventListener("ready", handleReady);
-        events.removeEventListener("statechange", handleStateChange);
-      };
+      });
     };
 
-    connect();
+    // Pré-carrega imagens e rotas para exibir o site apenas quando pronto.
+    const assets = Array.from(new Set(criticalAssets));
+    assets.forEach((url) => addTask(preloadImage(url)));
+
+    PRELOAD_ROUTES.forEach((route) => {
+      const prefetchPromise = Promise.resolve(
+        router.prefetch(route, { kind: PrefetchKind.FULL }),
+      ).catch(() => undefined);
+      addTask(prefetchPromise);
+    });
+
+    PRELOAD_MODULES.forEach((loadModule) => {
+      addTask(loadModule().catch(() => undefined));
+    });
+
+    addTask(waitForThreeReady());
+
+    setTotalCount(tasks.length);
 
     return () => {
       cancelled = true;
-      detach?.();
     };
-  }, [hasMounted]);
+  }, [criticalAssets, hasMounted, router]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
@@ -193,7 +130,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     isHidingRef.current = isHiding;
   }, [isHiding]);
   const statusLabel = t(`preloader.status.${statusKey}`);
-  const progressLabel = Math.round(progress);
+  const progressLabel = Math.round(progressRatio * 100);
   const entryEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
   const entryOffset = -96;
@@ -465,6 +402,55 @@ function preloadImage(url: string): Promise<void> {
     if (image.complete) {
       cleanup();
     }
+  });
+}
+
+function waitForThreeReady(): Promise<void> {
+  if (typeof window === "undefined") {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    let timeoutId: number | null = null;
+
+    const resolveOnce = () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      resolve();
+    };
+
+    const connect = () => {
+      const app = window.__THREE_APP__;
+      if (!app) {
+        requestAnimationFrame(connect);
+        return;
+      }
+
+      const handleReady = () => {
+        app.bundle.events.removeEventListener("ready", handleReady);
+        app.bundle.events.removeEventListener("statechange", handleStateChange);
+        resolveOnce();
+      };
+
+      const handleStateChange = (event: Event) => {
+        const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
+        if (detail?.state.ready) {
+          handleReady();
+        }
+      };
+
+      app.bundle.events.addEventListener("ready", handleReady);
+      app.bundle.events.addEventListener("statechange", handleStateChange);
+
+      if (app.bundle.getState().ready) {
+        handleReady();
+      }
+    };
+
+    timeoutId = window.setTimeout(resolveOnce, 12000);
+    connect();
   });
 }
 

@@ -71,6 +71,9 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     }
 
     const handleNavigationClick = (event: MouseEvent) => {
+      if (showPreloader) {
+        return;
+      }
       if (
         event.defaultPrevented ||
         event.button !== 0 ||
@@ -157,7 +160,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       }
       isNavigatingRef.current = false;
     };
-  }, [router]);
+  }, [router, showPreloader]);
 
   return (
     <MenuProvider>

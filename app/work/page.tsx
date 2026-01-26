@@ -17,7 +17,6 @@ import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useFluidPageReveal } from "../helpers/useFluidPageReveal";
-import { getShimmerDataURL } from "../helpers/imagePlaceholders";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -46,7 +45,6 @@ export default function WorkPage() {
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
   const pageRevealStyle = useFluidPageReveal(80);
-  const coverPlaceholder = getShimmerDataURL(1200, 800);
   const navigationTimeoutRef = useRef<number>();
   const previousProjectTimeoutRef = useRef<number>();
 
@@ -130,6 +128,9 @@ export default function WorkPage() {
       if (isNavigatingAway) {
         return;
       }
+      if (document.body?.dataset.preloading === "true") {
+        return;
+      }
 
       setIsNavigatingAway(true);
       window.dispatchEvent(new CustomEvent("app-navigation:start"));
@@ -189,12 +190,11 @@ export default function WorkPage() {
                         className="projects-image"
                         fill
                         sizes="(max-width: 61.99em) 100vw, 50vw"
-                        placeholder="blur"
-                        blurDataURL={coverPlaceholder}
                         priority={isActive}
                         loading={isActive ? "eager" : "lazy"}
                         fetchPriority={isActive ? "high" : "auto"}
-                        quality={85}
+                        placeholder="empty"
+                        quality={80}
                         style={{ color: "transparent" }}
                       />
                     </div>
@@ -224,7 +224,6 @@ export default function WorkPage() {
                   <Link
                     href={copy.href}
                     className="projects-row"
-                    prefetch={false}
                     onMouseEnter={() => handleProjectActivate(projectKey)}
                     onFocus={() => handleProjectActivate(projectKey)}
                     onClick={(event) => handleProjectClick(event, copy.href)}
