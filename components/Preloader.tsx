@@ -34,7 +34,7 @@ const PRELOAD_ROUTES = [
   "/contact",
   ...projectSlugs.map((slug) => `/work/${slug}`),
 ] as const;
-const PRELOAD_MODULES = [
+const PRELOAD_MODULES: Array<() => Promise<unknown>> = [
   () => import("@/app/work/page"),
   () => import("@/app/about/page"),
   () => import("@/app/contact/page"),
