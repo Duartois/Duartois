@@ -39,6 +39,7 @@ const PRELOAD_MODULES: Array<() => Promise<unknown>> = [
   () => import("@/app/about/page"),
   () => import("@/app/contact/page"),
 ] as const;
+const PRELOADER_MAX_DURATION_MS = 4500;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const hasSignaledCompletionRef = useRef(false);
   const entryStartedRef = useRef(false);
   const isHidingRef = useRef(false);
+  const forceCompleteTimeoutRef = useRef<number | null>(null);
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
@@ -194,8 +196,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     addTask(
       withTimeout(waitForThreeReady(), {
         label: "cena 3D",
-        timeoutMs: 12000,
+        timeoutMs: 8000,
       }),
+      { background: true },
     );
 
     setTotalCount(essentialTasks.length);
@@ -204,6 +207,31 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       cancelled = true;
     };
   }, [backgroundAssets, essentialAssets, hasMounted, router]);
+
+  useEffect(() => {
+    if (!hasMounted || totalCount === 0) {
+      return undefined;
+    }
+
+    if (isComplete) {
+      return undefined;
+    }
+
+    if (forceCompleteTimeoutRef.current) {
+      window.clearTimeout(forceCompleteTimeoutRef.current);
+    }
+
+    forceCompleteTimeoutRef.current = window.setTimeout(() => {
+      setLoadedCount((current) => (current < totalCount ? totalCount : current));
+    }, PRELOADER_MAX_DURATION_MS);
+
+    return () => {
+      if (forceCompleteTimeoutRef.current) {
+        window.clearTimeout(forceCompleteTimeoutRef.current);
+        forceCompleteTimeoutRef.current = null;
+      }
+    };
+  }, [hasMounted, isComplete, totalCount]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
