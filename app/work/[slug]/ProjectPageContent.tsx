@@ -122,6 +122,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const nextProjectSlug = projectSlugByKey[nextKey];
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
+  const eagerImageCount = 2;
   let imageIndex = 0;
   return (
     <main className="container work-container">
@@ -139,7 +140,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 fetchPriority="high"
                 placeholder="blur"
                 blurDataURL={heroPlaceholder}
-                unoptimized
                 quality={85}
               />
             </div>
@@ -212,7 +212,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
               if (block.type === "image") {
                 const currentImageIndex = imageIndex;
                 imageIndex += 1;
-                const isHighPriority = currentImageIndex < 4;
+                const isHighPriority = currentImageIndex < eagerImageCount;
 
                 return (
                   <div
@@ -233,7 +233,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                       quality={85}
                       placeholder="blur"
                       blurDataURL={contentPlaceholder}
-                      unoptimized
                       style={{ width: "100%", height: "auto" }}
                     />
                   </div>
