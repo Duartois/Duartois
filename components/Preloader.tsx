@@ -16,6 +16,7 @@ import {
 import {
   BACKGROUND_ASSET_URLS,
   ESSENTIAL_ASSET_URLS,
+  WORK_PROJECT_COVER_URLS,
 } from "@/app/helpers/criticalAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
 import { projectSlugs } from "@/app/work/projectDetails";
@@ -59,6 +60,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const creditsControls = useAnimationControls();
   const essentialAssets = useMemo(() => ESSENTIAL_ASSET_URLS, []);
   const backgroundAssets = useMemo(() => BACKGROUND_ASSET_URLS, []);
+  const projectCoverAssets = useMemo(() => WORK_PROJECT_COVER_URLS, []);
   const progressRatio = totalCount > 0 ? loadedCount / totalCount : 0;
   const isComplete = totalCount > 0 && loadedCount >= totalCount;
   const statusKey: PreloaderStatus = useMemo(() => {
@@ -146,6 +148,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
     const uniqueEssentialAssets = Array.from(new Set(essentialAssets));
     const uniqueBackgroundAssets = Array.from(new Set(backgroundAssets));
+    const uniqueProjectCovers = Array.from(new Set(projectCoverAssets));
 
     // Carrega apenas o necessário para liberar a home (assets críticos + cena 3D).
     uniqueEssentialAssets.forEach((url) => {
@@ -164,6 +167,18 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       addTask(
         withTimeout(preloadImage(url), {
           label: `imagem em background (${url})`,
+          timeoutMs,
+        }),
+        { background: true },
+      );
+    });
+
+    // Garante que as capas da listagem de Work já estejam no cache ao entrar na página.
+    uniqueProjectCovers.forEach((url) => {
+      const timeoutMs = url.startsWith("http") ? 5000 : 3500;
+      addTask(
+        withTimeout(preloadImage(url), {
+          label: `capa do Work (${url})`,
           timeoutMs,
         }),
         { background: true },
@@ -206,7 +221,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     return () => {
       cancelled = true;
     };
-  }, [backgroundAssets, essentialAssets, hasMounted, router]);
+  }, [backgroundAssets, essentialAssets, hasMounted, projectCoverAssets, router]);
 
   useEffect(() => {
     if (!hasMounted || totalCount === 0) {
