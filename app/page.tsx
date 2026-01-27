@@ -19,6 +19,7 @@ import {
   WORK_ITEM_STAGGER_DELAY,
   WORK_ITEM_TRANSITION_DURATION,
   getFallItemStyle,
+  getFallSequenceDuration,
 } from "@/components/fallAnimation";
 import {
   APP_MENU_CLOSE_EVENT,
@@ -255,6 +256,27 @@ export default function HomePage() {
   const totalFallDuration =
     WORK_ITEM_TRANSITION_DURATION +
     Math.max(totalFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const duration = getFallSequenceDuration(totalFallItems, "work");
+    const body = document.body;
+    const previous = body.dataset.fallExitDuration;
+    body.dataset.fallExitDuration = `${duration}`;
+
+    return () => {
+      if (body.dataset.fallExitDuration === `${duration}`) {
+        if (previous) {
+          body.dataset.fallExitDuration = previous;
+        } else {
+          delete body.dataset.fallExitDuration;
+        }
+      }
+    };
+  }, [totalFallItems]);
 
   useEffect(() => {
     return () => {

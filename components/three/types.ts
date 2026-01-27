@@ -97,41 +97,40 @@ const createSecondaryMonogramVariant = (): VariantState => ({
 
 const createMenuMonogramVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [-1.7, 0.01, -1],
-    rotation: [Math.PI / 2, Math.PI * -1.7, 0],
-    scale: [0.26, 0.26, 0.26],
+    position: [-0.85, -0.45, -0.85],
+    rotation: [Math.PI / 2, Math.PI * -1.35, 0.2],
+    scale: [0.3, 0.3, 0.3],
   },
   waveSpringLime: {
-    position: [-2.3, 0.97, -0.8],
-    rotation: [-2.5, 0, -0.5],
-    scale: [0.25, 0.25, 0.25],
+    position: [-2.55, 0.35, -0.7],
+    rotation: [-2.1, 0.25, -0.35],
+    scale: [0.22, 0.22, 0.22],
   },
   semiLimeFlamingo: {
-    position: [-2.7, -0.02, -0.9],
-    rotation: [Math.PI / 2, Math.PI * -0.15, 0],
-    scale: [0.24, 0.24, 0.24],
+    position: [-2.1, 0.75, -1.1],
+    rotation: [Math.PI / 2, Math.PI * -0.35, 0.15],
+    scale: [0.26, 0.26, 0.26],
   },
   torusFlamingoLime: {
-    position: [-1.35, -0.92, -0.7],
-    rotation: [Math.PI / 2, Math.PI * -1.2, 0],
-    scale: [0.18, 0.18, 0.18],
+    position: [-1.05, -1.05, -0.55],
+    rotation: [Math.PI / 2, Math.PI * -1.05, -0.15],
+    scale: [0.2, 0.2, 0.2],
   },
   semiFlamingoAzure: {
-    position: [-2.25, -0.97, -0.65],
-    rotation: [Math.PI / 2, Math.PI * -1.45, 0],
-    scale: [0.24, 0.24, 0.24],
+    position: [-2.7, -0.75, -0.4],
+    rotation: [Math.PI / 2, Math.PI * -1.65, 0.1],
+    scale: [0.22, 0.22, 0.22],
   },
   sphereFlamingoSpring: {
-    position: [-1.8, 0.73, -0.6],
+    position: [-1.35, 1.05, -0.4],
     rotation: [0, 0, 0],
-    scale: 0.28,
+    scale: 0.25,
   },
 });
 
 export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
 export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
 export const MENU_OVERLAY_MONOGRAM = createMenuMonogramVariant();
-
 
 //Posição inicial
 const createFramedVariant = (): VariantState => ({
@@ -167,11 +166,77 @@ const createFramedVariant = (): VariantState => ({
   },
 });
 
+const createAboutVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.1, -0.9, 0.8],
+    rotation: [-1.1, 1.2, 0.15],
+    scale: [0.7, 0.7, 0.7],
+  },
+  waveSpringLime: {
+    position: [-3.1, 1.2, -0.7],
+    rotation: [-0.2, 0.55, -0.1],
+    scale: [0.68, 0.68, 0.68],
+  },
+  semiLimeFlamingo: {
+    position: [2.6, 1.6, -0.35],
+    rotation: [1.05, -0.35, 0.1],
+    scale: [0.72, 0.72, 0.72],
+  },
+  torusFlamingoLime: {
+    position: [0.35, -2.15, -0.8],
+    rotation: [-0.4, 0.35, 0.75],
+    scale: [0.7, 0.7, 0.7],
+  },
+  semiFlamingoAzure: {
+    position: [-2.2, -1.25, -0.6],
+    rotation: [1.25, 0.2, -0.1],
+    scale: [0.7, 0.7, 0.7],
+  },
+  sphereFlamingoSpring: {
+    position: [-0.3, 1.85, 0.2],
+    rotation: [0, 0, 0],
+    scale: [0.7, 0.7, 0.7],
+  },
+});
+
+const createContactVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.6, -1.3, 1.0],
+    rotation: [-1.35, 0.75, -0.05],
+    scale: [0.72, 0.72, 0.72],
+  },
+  waveSpringLime: {
+    position: [-2.9, 1.65, -0.9],
+    rotation: [-0.1, 0.4, -0.25],
+    scale: [0.7, 0.7, 0.7],
+  },
+  semiLimeFlamingo: {
+    position: [1.6, 2.1, -0.15],
+    rotation: [1.2, -0.5, 0.05],
+    scale: [0.74, 0.74, 0.74],
+  },
+  torusFlamingoLime: {
+    position: [-0.4, -2.25, -0.5],
+    rotation: [-0.15, 0.5, 0.95],
+    scale: [0.7, 0.7, 0.7],
+  },
+  semiFlamingoAzure: {
+    position: [-3.1, -1.6, -0.9],
+    rotation: [1.4, -0.05, -0.25],
+    scale: [0.68, 0.68, 0.68],
+  },
+  sphereFlamingoSpring: {
+    position: [0.6, 1.4, 0.3],
+    rotation: [0, 0, 0],
+    scale: [0.72, 0.72, 0.72],
+  },
+});
+
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
-  about: createFramedVariant(),
+  about: createAboutVariant(),
   work: createFramedVariant(),
-  contact: createFramedVariant(),
+  contact: createContactVariant(),
 };
 
 const clamp = (value: number, min: number, max: number) =>

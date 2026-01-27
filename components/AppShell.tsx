@@ -45,6 +45,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
   const isContentVisible = !showPreloader;
   const navigationTimeoutRef = useRef<number | undefined>(undefined);
   const isNavigatingRef = useRef(false);
+  const exitDurationRef = useRef<number>(NAVIGATION_EXIT_DURATION);
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -135,6 +136,11 @@ export default function AppShell({ children, navbar }: AppShellProps) {
 
       dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
+      const exitDuration = Number(document.body?.dataset.fallExitDuration);
+      exitDurationRef.current = Number.isFinite(exitDuration)
+        ? exitDuration
+        : NAVIGATION_EXIT_DURATION;
+
       if (prefersReducedMotion) {
         return;
       }
@@ -153,7 +159,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
 
       navigationTimeoutRef.current = window.setTimeout(() => {
         router.push(`${url.pathname}${url.search}${url.hash}`);
-      }, NAVIGATION_EXIT_DURATION);
+      }, exitDurationRef.current);
     };
 
     document.addEventListener("click", handleNavigationClick, true);

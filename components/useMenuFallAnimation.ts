@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
-import { getFallItemStyle } from "./fallAnimation";
+import { getFallItemStyle, getFallSequenceDuration } from "./fallAnimation";
 import { useAnimationQuality } from "./AnimationQualityContext";
 import {
   APP_MENU_CLOSE_EVENT,
@@ -24,6 +24,28 @@ export function useMenuFallAnimation(
   );
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const isNavigatingAwayRef = useRef(false);
+  const variant = options?.variant ?? "work";
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const duration = getFallSequenceDuration(totalItems, variant);
+    const body = document.body;
+    const previous = body.dataset.fallExitDuration;
+    body.dataset.fallExitDuration = `${duration}`;
+
+    return () => {
+      if (body.dataset.fallExitDuration === `${duration}`) {
+        if (previous) {
+          body.dataset.fallExitDuration = previous;
+        } else {
+          delete body.dataset.fallExitDuration;
+        }
+      }
+    };
+  }, [totalItems, variant]);
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -106,8 +128,6 @@ export function useMenuFallAnimation(
       );
     };
   }, [disableFallAnimation]);
-
-  const variant = options?.variant ?? "work";
 
   return useCallback(
     (index: number) =>
