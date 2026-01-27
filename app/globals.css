@@ -2,7 +2,7 @@
 
 @font-face {
     font-family: studiofeixen-variable;
-    src: url(./fonts/studio-feixen-sans-variable.woff2) format("woff2");
+    src: url(/fonts/studio-feixen-sans-variable.woff2) format("woff2");
     font-weight: 400;
     font-style: normal;
     font-display: swap
@@ -10,7 +10,7 @@
 
 @font-face {
     font-family: studiofeixen;
-    src: url(./fonts/StudioFeixenSans-Bold.woff2) format("woff2");
+    src: url(/fonts/StudioFeixenSans-Bold.woff2) format("woff2");
     font-weight: 700;
     font-style: normal;
     font-display: swap
@@ -19,7 +19,7 @@
 
 @font-face {
     font-family: studiofeixen-writer;
-    src: url(./fonts/StudioFeixenSansWriter-Regular.woff2) format("woff2");
+    src: url(/fonts/StudioFeixenSansWriter-Regular.woff2) format("woff2");
     font-weight: 400;
     font-style: normal;
     font-display: swap
@@ -76,22 +76,24 @@ main {
 .cursor,
 .cursor-dot {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
     box-sizing: border-box;
     pointer-events: none;
-    border-radius: 9999px;
-    transform: translate3d(-50%,-50%,0);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
     opacity: 0;
     transition: opacity .2s ease;
     z-index: 999;
-    mix-blend-mode: multiply
+    mix-blend-mode: multiply;
+    overflow: hidden
 }
 
 .cursor {
     width: 24px;
     height: 24px;
-    border: 1.5px solid rgb(96,104,135 );
+    background-color: #606887;
+    border: 1.5px solid #606887;
     transition: opacity .2s ease,background-color .2s ease,border-color .2s ease;
     will-change: transform
 }
@@ -118,8 +120,8 @@ body.cursor-enabled,body.cursor-enabled * {
 }
 
 body.dark .cursor {
-    border-color: rgba(243,242,249,.7);
-    background-color: rgba(243,242,249,.08);
+    background-color: #f3f2f9;
+    border-color: #f3f2f9;
     mix-blend-mode: difference
 }
 
@@ -244,7 +246,7 @@ header {
     pointer-events: none;
     mix-blend-mode: multiply;
     position: fixed;
-    z-index: 60;
+    z-index: 5;
     top: 96px;
     left: 0;
     right: 0
@@ -397,7 +399,7 @@ body[data-preloading="true"] main {
 }
 
 .splashscreen {
-    z-index: 10001;
+    z-index: 9998;
     position: fixed;
     display: flex;
     flex-direction: column;
@@ -409,13 +411,18 @@ body[data-preloading="true"] main {
     align-items: center;
     justify-content: center;
     row-gap: var(--top-internal-margin);
-    background-color: rgb(var(--color-bg) / 1);
+    background-color: var(--background-color);
     transition: opacity .45s cubic-bezier(.22,.61,.36,1);
+    will-change: opacity
 }
 
 .splashscreen[data-state="hiding"] {
     opacity: 0;
     pointer-events: none
+}
+
+.splashscreen[data-state="hidden"] {
+    display: none
 }
 
 .splashscreen .loading-text-wrapper {
