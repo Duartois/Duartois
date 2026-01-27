@@ -43,3 +43,4 @@ export const ESSENTIAL_ASSET_URLS = Object.freeze([
   ...(workHeroCover ? [workHeroCover] : []),
 ]);
 export const BACKGROUND_ASSET_URLS = Object.freeze(backgroundAssets);
+export const WORK_PROJECT_COVER_URLS = Object.freeze(workProjectCovers);
