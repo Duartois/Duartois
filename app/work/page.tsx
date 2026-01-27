@@ -202,7 +202,6 @@ export default function WorkPage() {
                         priority={isActive}
                         loading={isActive ? "eager" : "lazy"}
                         fetchPriority={isActive ? "high" : "auto"}
-                        placeholder="empty"
                         quality={80}
                         style={{ color: "transparent" }}
                       />

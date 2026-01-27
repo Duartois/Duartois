@@ -74,7 +74,6 @@ export default function BrandGuidelinesGallery({
             loading="lazy"
             fetchPriority="auto"
             quality={85}
-            placeholder="empty"
             style={{ width: "100%", height: "auto" }}
           />
         </div>
