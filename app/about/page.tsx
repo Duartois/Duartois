@@ -106,6 +106,7 @@ export default function AboutPage() {
               loading="eager"
               fetchPriority="high"
               quality={80}
+              unoptimized
             />
           </div>
         </div>
