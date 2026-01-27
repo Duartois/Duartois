@@ -40,7 +40,11 @@ const PRELOAD_MODULES: Array<() => Promise<unknown>> = [
   () => import("@/app/about/page"),
   () => import("@/app/contact/page"),
 ] as const;
-const PRELOADER_MAX_DURATION_MS = 4500;
+const FONT_FAMILIES = [
+  "studiofeixen-variable",
+  "studiofeixen",
+  "studiofeixen-writer",
+] as const;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
   const router = useRouter();
@@ -49,7 +53,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const hasSignaledCompletionRef = useRef(false);
   const entryStartedRef = useRef(false);
   const isHidingRef = useRef(false);
-  const forceCompleteTimeoutRef = useRef<number | null>(null);
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
@@ -58,6 +61,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const logoControls = useAnimationControls();
   const textControls = useAnimationControls();
   const creditsControls = useAnimationControls();
+  const [isHidden, setIsHidden] = useState(false);
   const essentialAssets = useMemo(() => ESSENTIAL_ASSET_URLS, []);
   const backgroundAssets = useMemo(() => BACKGROUND_ASSET_URLS, []);
   const projectCoverAssets = useMemo(() => WORK_PROJECT_COVER_URLS, []);
@@ -96,125 +100,48 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
     let cancelled = false;
     const essentialTasks: Array<Promise<unknown>> = [];
+    setLoadedCount(0);
+    setTotalCount(0);
 
-    const addTask = (
-      task: Promise<unknown>,
-      { background = false }: { background?: boolean } = {},
-    ) => {
-      if (!background) {
-        essentialTasks.push(task);
-        task.finally(() => {
-          if (!cancelled) {
-            setLoadedCount((current) => current + 1);
-          }
-        });
-      }
-    };
-
-    const withTimeout = <T,>(
-      promise: Promise<T>,
-      {
-        label,
-        timeoutMs,
-      }: {
-        label: string;
-        timeoutMs: number;
-      },
-    ) => {
-      let timeoutId: number | null = null;
-      const timeoutPromise = new Promise<void>((resolve) => {
-        timeoutId = window.setTimeout(() => {
-          console.warn(
-            `[preloader] Tempo esgotado ao carregar ${label}. Continuando...`,
-          );
-          resolve();
-        }, timeoutMs);
+    const addTask = (task: Promise<unknown>, label: string) => {
+      const safeTask = task.catch((error) => {
+        console.warn(`[preloader] Falha ao carregar ${label}.`, error);
       });
 
-      const taskPromise = promise
-        .then(() => undefined)
-        .catch((error) => {
-          console.warn(`[preloader] Falha ao carregar ${label}.`, error);
-        })
-        .finally(() => {
-          if (timeoutId !== null) {
-            window.clearTimeout(timeoutId);
-            timeoutId = null;
-          }
-        });
-
-      return Promise.race([taskPromise, timeoutPromise]);
+      essentialTasks.push(safeTask);
+      safeTask.finally(() => {
+        if (!cancelled) {
+          setLoadedCount((current) => current + 1);
+        }
+      });
     };
 
-    const uniqueEssentialAssets = Array.from(new Set(essentialAssets));
-    const uniqueBackgroundAssets = Array.from(new Set(backgroundAssets));
-    const uniqueProjectCovers = Array.from(new Set(projectCoverAssets));
+    const uniqueImageAssets = Array.from(
+      new Set([
+        ...essentialAssets,
+        ...backgroundAssets,
+        ...projectCoverAssets,
+      ]),
+    );
 
-    // Carrega apenas o necessário para liberar a home (assets críticos + cena 3D).
-    uniqueEssentialAssets.forEach((url) => {
-      const timeoutMs = url.startsWith("http") ? 5000 : 3500;
-      addTask(
-        withTimeout(preloadImage(url), {
-          label: `imagem crítica (${url})`,
-          timeoutMs,
-        }),
-      );
-    });
+    addTask(preloadFonts(), "fontes");
 
-    // Pré-carrega somente imagens-chave e rotas essenciais sem bloquear o progresso.
-    uniqueBackgroundAssets.forEach((url) => {
-      const timeoutMs = url.startsWith("http") ? 5000 : 3500;
-      addTask(
-        withTimeout(preloadImage(url), {
-          label: `imagem em background (${url})`,
-          timeoutMs,
-        }),
-        { background: true },
-      );
-    });
-
-    // Garante que as capas da listagem de Work já estejam no cache ao entrar na página.
-    uniqueProjectCovers.forEach((url) => {
-      const timeoutMs = url.startsWith("http") ? 5000 : 3500;
-      addTask(
-        withTimeout(preloadImage(url), {
-          label: `capa do Work (${url})`,
-          timeoutMs,
-        }),
-        { background: true },
-      );
+    uniqueImageAssets.forEach((url) => {
+      addTask(preloadImage(url), `imagem (${url})`);
     });
 
     PRELOAD_ROUTES.forEach((route) => {
       const prefetchPromise = Promise.resolve(
         router.prefetch(route, { kind: PrefetchKind.FULL }),
       );
-      addTask(
-        withTimeout(prefetchPromise, {
-          label: `prefetch da rota ${route}`,
-          timeoutMs: 4000,
-        }),
-        { background: true },
-      );
+      addTask(prefetchPromise, `prefetch da rota ${route}`);
     });
 
     PRELOAD_MODULES.forEach((loadModule, index) => {
-      addTask(
-        withTimeout(loadModule(), {
-          label: `módulo ${index + 1}`,
-          timeoutMs: 4000,
-        }),
-        { background: true },
-      );
+      addTask(loadModule(), `módulo ${index + 1}`);
     });
 
-    addTask(
-      withTimeout(waitForThreeReady(), {
-        label: "cena 3D",
-        timeoutMs: 8000,
-      }),
-      { background: true },
-    );
+    addTask(waitForThreeReady(), "cena 3D");
 
     setTotalCount(essentialTasks.length);
 
@@ -222,31 +149,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       cancelled = true;
     };
   }, [backgroundAssets, essentialAssets, hasMounted, projectCoverAssets, router]);
-
-  useEffect(() => {
-    if (!hasMounted || totalCount === 0) {
-      return undefined;
-    }
-
-    if (isComplete) {
-      return undefined;
-    }
-
-    if (forceCompleteTimeoutRef.current) {
-      window.clearTimeout(forceCompleteTimeoutRef.current);
-    }
-
-    forceCompleteTimeoutRef.current = window.setTimeout(() => {
-      setLoadedCount((current) => (current < totalCount ? totalCount : current));
-    }, PRELOADER_MAX_DURATION_MS);
-
-    return () => {
-      if (forceCompleteTimeoutRef.current) {
-        window.clearTimeout(forceCompleteTimeoutRef.current);
-        forceCompleteTimeoutRef.current = null;
-      }
-    };
-  }, [hasMounted, isComplete, totalCount]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
@@ -439,9 +341,15 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         });
       }
 
-      if (!cancelled && !hasSignaledCompletionRef.current) {
-        hasSignaledCompletionRef.current = true;
-        onComplete?.();
+      if (!cancelled) {
+        setIsHidden(true);
+
+        window.requestAnimationFrame(() => {
+          if (!cancelled && !hasSignaledCompletionRef.current) {
+            hasSignaledCompletionRef.current = true;
+            onComplete?.();
+          }
+        });
       }
     };
 
@@ -464,8 +372,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     <div
       className="splashscreen"
       data-fall-skip="true"
-      data-state={isHiding ? "hiding" : "visible"}
-      aria-hidden={isHiding}
+      data-state={isHidden ? "hidden" : isHiding ? "hiding" : "visible"}
+      aria-hidden={isHiding || isHidden}
       data-preloader-root="true"
     >
       <div
@@ -522,12 +430,31 @@ function preloadImage(url: string): Promise<void> {
     image.addEventListener("load", cleanup);
     image.addEventListener("error", cleanup);
     image.decoding = "async";
+    image.loading = "eager";
+    if ("fetchPriority" in image) {
+      (image as HTMLImageElement & { fetchPriority?: string }).fetchPriority =
+        "high";
+    }
     image.src = url;
 
     if (image.complete) {
       cleanup();
     }
   });
+}
+
+function preloadFonts(): Promise<void> {
+  if (typeof document === "undefined" || !document.fonts) {
+    return Promise.resolve();
+  }
+
+  const fontPromises = FONT_FAMILIES.map((family) =>
+    document.fonts.load(`1em ${family}`),
+  );
+
+  return Promise.allSettled([...fontPromises, document.fonts.ready]).then(
+    () => undefined,
+  );
 }
 
 function waitForThreeReady(): Promise<void> {
@@ -537,6 +464,7 @@ function waitForThreeReady(): Promise<void> {
 
   return new Promise((resolve) => {
     let timeoutId: number | null = null;
+    const timeoutMs = 30000;
 
     const resolveOnce = () => {
       if (timeoutId) {
@@ -574,7 +502,7 @@ function waitForThreeReady(): Promise<void> {
       }
     };
 
-    timeoutId = window.setTimeout(resolveOnce, 12000);
+    timeoutId = window.setTimeout(resolveOnce, timeoutMs);
     connect();
   });
 }

@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 function applyTransform(element: HTMLDivElement, x: number, y: number) {
-  element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+  const offsetX = x - window.innerWidth / 2;
+  const offsetY = y - window.innerHeight / 2;
+  element.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0) translate(-50%, -50%)`;
 }
 
 export default function CustomCursor() {

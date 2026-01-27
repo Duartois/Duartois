@@ -40,6 +40,27 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           href="https://ap-south-1.graphassets.com"
           crossOrigin=""
         />
+        <link
+          rel="preload"
+          href="/fonts/studio-feixen-sans-variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin=""
+        />
+        <link
+          rel="preload"
+          href="/fonts/StudioFeixenSans-Bold.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin=""
+        />
+        <link
+          rel="preload"
+          href="/fonts/StudioFeixenSansWriter-Regular.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin=""
+        />
         <link rel="preload" href="/about-01.avif" as="image" type="image/avif" />
         <link rel="preload" href="/noise.png" as="image" type="image/png" />
         <link
