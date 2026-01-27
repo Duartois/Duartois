@@ -16,9 +16,7 @@ import {
   ESSENTIAL_ASSET_URLS,
   WORK_PROJECT_COVER_URLS,
 } from "@/app/helpers/criticalAssets";
-import { DRACO_MODEL_URLS } from "@/app/helpers/threeAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
-import { loadDracoGLTF } from "./three/loaders";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
@@ -51,7 +49,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const textControls = useAnimationControls();
   const creditsControls = useAnimationControls();
   const [isHidden, setIsHidden] = useState(false);
-  const dracoModelAssets = useMemo(() => DRACO_MODEL_URLS, []);
   const essentialAssets = useMemo(() => ESSENTIAL_ASSET_URLS, []);
   const backgroundAssets = useMemo(() => BACKGROUND_ASSET_URLS, []);
   const projectCoverAssets = useMemo(() => WORK_PROJECT_COVER_URLS, []);
@@ -123,12 +120,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       addTask(preloadImage(url), `imagem (${url})`);
     });
 
-    const uniqueDracoModels = Array.from(new Set([...dracoModelAssets]));
-
-    uniqueDracoModels.forEach((url) => {
-      addTask(preloadDracoModel(url), `modelo 3D (${url})`);
-    });
-
     addTask(waitForThreeReady(), "cena 3D");
 
     setTotalCount(essentialTasks.length);
@@ -174,13 +165,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         }
       }
     };
- }, [
-    backgroundAssets,
-    dracoModelAssets,
-    essentialAssets,
-    hasMounted,
-    projectCoverAssets,
-  ])
+  }, [backgroundAssets, essentialAssets, hasMounted, projectCoverAssets]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
@@ -487,9 +472,6 @@ function preloadFonts(): Promise<void> {
   return Promise.allSettled([...fontPromises, document.fonts.ready]).then(
     () => undefined,
   );
-}
-function preloadDracoModel(url: string): Promise<void> {
-  return loadDracoGLTF(url).then(() => undefined);
 }
 
 
