@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
 import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
@@ -19,7 +17,6 @@ import {
   WORK_PROJECT_COVER_URLS,
 } from "@/app/helpers/criticalAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
-import { projectSlugs } from "@/app/work/projectDetails";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
@@ -29,17 +26,7 @@ type PreloaderProps = {
 
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
-const PRELOAD_ROUTES = [
-  "/work",
-  "/about",
-  "/contact",
-  `/work/${projectSlugs[0]}`,
-] as const;
-const PRELOAD_MODULES: Array<() => Promise<unknown>> = [
-  () => import("@/app/work/page"),
-  () => import("@/app/about/page"),
-  () => import("@/app/contact/page"),
-] as const;
+const PRELOADER_MAX_DURATION_MS = 6500;
 const FONT_FAMILIES = [
   "studiofeixen-variable",
   "studiofeixen",
@@ -47,9 +34,9 @@ const FONT_FAMILIES = [
 ] as const;
 
 export default function Preloader({ onComplete }: PreloaderProps) {
-  const router = useRouter();
   const [loadedCount, setLoadedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
   const hasSignaledCompletionRef = useRef(false);
   const entryStartedRef = useRef(false);
   const isHidingRef = useRef(false);
@@ -65,8 +52,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const essentialAssets = useMemo(() => ESSENTIAL_ASSET_URLS, []);
   const backgroundAssets = useMemo(() => BACKGROUND_ASSET_URLS, []);
   const projectCoverAssets = useMemo(() => WORK_PROJECT_COVER_URLS, []);
-  const progressRatio = totalCount > 0 ? loadedCount / totalCount : 0;
-  const isComplete = totalCount > 0 && loadedCount >= totalCount;
+  const progressRatio = useMemo(() => {
+    if (hasTimedOut) {
+      return 1;
+    }
+    return totalCount > 0 ? loadedCount / totalCount : 0;
+  }, [hasTimedOut, loadedCount, totalCount]);
+  const isComplete =
+    (totalCount > 0 && loadedCount >= totalCount) || hasTimedOut;
   const statusKey: PreloaderStatus = useMemo(() => {
     if (!hasMounted) {
       return "fonts";
@@ -99,9 +92,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     }
 
     let cancelled = false;
+    let timeoutId: number | null = null;
+    let idleHandle: number | null = null;
     const essentialTasks: Array<Promise<unknown>> = [];
     setLoadedCount(0);
     setTotalCount(0);
+    setHasTimedOut(false);
 
     const addTask = (task: Promise<unknown>, label: string) => {
       const safeTask = task.catch((error) => {
@@ -116,39 +112,60 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       });
     };
 
-    const uniqueImageAssets = Array.from(
-      new Set([
-        ...essentialAssets,
-        ...backgroundAssets,
-        ...projectCoverAssets,
-      ]),
-    );
+    const uniqueEssentialAssets = Array.from(new Set([...essentialAssets]));
 
     addTask(preloadFonts(), "fontes");
 
-    uniqueImageAssets.forEach((url) => {
+    uniqueEssentialAssets.forEach((url) => {
       addTask(preloadImage(url), `imagem (${url})`);
-    });
-
-    PRELOAD_ROUTES.forEach((route) => {
-      const prefetchPromise = Promise.resolve(
-        router.prefetch(route, { kind: PrefetchKind.FULL }),
-      );
-      addTask(prefetchPromise, `prefetch da rota ${route}`);
-    });
-
-    PRELOAD_MODULES.forEach((loadModule, index) => {
-      addTask(loadModule(), `módulo ${index + 1}`);
     });
 
     addTask(waitForThreeReady(), "cena 3D");
 
     setTotalCount(essentialTasks.length);
 
+    timeoutId = window.setTimeout(() => {
+      if (!cancelled) {
+        setHasTimedOut(true);
+      }
+    }, PRELOADER_MAX_DURATION_MS);
+
+    const preloadBackgroundAssets = () => {
+      if (cancelled) {
+        return;
+      }
+
+      const backgroundImages = Array.from(
+        new Set([...backgroundAssets, ...projectCoverAssets]),
+      );
+
+      backgroundImages.forEach((url) => {
+        void preloadImage(url);
+      });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      idleHandle = window.requestIdleCallback(() => preloadBackgroundAssets(), {
+        timeout: 1200,
+      });
+    } else {
+      idleHandle = window.setTimeout(preloadBackgroundAssets, 300);
+    }
+
     return () => {
       cancelled = true;
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+      if (idleHandle) {
+        if (typeof window.cancelIdleCallback === "function") {
+          window.cancelIdleCallback(idleHandle);
+        } else {
+          window.clearTimeout(idleHandle);
+        }
+      }
     };
-  }, [backgroundAssets, essentialAssets, hasMounted, projectCoverAssets, router]);
+  }, [backgroundAssets, essentialAssets, hasMounted, projectCoverAssets]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
@@ -464,7 +481,7 @@ function waitForThreeReady(): Promise<void> {
 
   return new Promise((resolve) => {
     let timeoutId: number | null = null;
-    const timeoutMs = 30000;
+    const timeoutMs = PRELOADER_MAX_DURATION_MS;
 
     const resolveOnce = () => {
       if (timeoutId) {

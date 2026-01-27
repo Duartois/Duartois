@@ -24,18 +24,6 @@
     font-style: normal;
     font-display: swap
 }
-:root {
-    --left-right-margin: 240px;
-    --left-right-internal-margin: 24px;
-    --top-margin: 240px;
-    --top-margin-mobile: 40vh;
-    --top-internal-margin: 24px;
-    --border-radius: 48px;
-    --border: 2px;
-    --border-radius-content: 0;
-    --projects-arrow-offset: 1.5rem;
-    
-}
 main {
     position: relative;
     z-index: 1;
@@ -147,7 +135,7 @@ body.dark .cursor-dot {
 }
 
 #nprogress .bar {
-    background: #606887;
+    background: var(--color);
     position: fixed;
     z-index: 1031;
     top: 0;
@@ -155,10 +143,6 @@ body.dark .cursor-dot {
     width: 100%;
     height: 4px;
     border-radius: 0 4px 4px 0
-}
-
-body.dark #nprogress .bar {
-    background: #f3f2f9
 }
 
 /*! locomotive-scroll v4.1.1 | MIT License | https://github.com/locomotivemtl/locomotive-scroll */
@@ -358,8 +342,9 @@ header .header-content .right-part .hamburger-btn {
     padding: 0
 }
 
-body.dark header {
-    mix-blend-mode: difference
+header,
+.menu {
+    mix-blend-mode: var(--header-blend-mode)
 }
 
 body[data-preloading="true"] header,
@@ -2269,7 +2254,11 @@ body.dark .error-container .error-code {
     --top-internal-margin: 24px;
     --border-radius: 48px;
     --border: 2px;
-    --border-radius-content: 0
+    --border-radius-content: 0;
+    --projects-arrow-offset: 1.5rem;
+    --accentColor: #606887;
+    --accentColorDark: #5bedc7;
+    --header-blend-mode: normal;
 }
 
 @media(min-width: 62em)and (max-width:74.99em) {
@@ -2313,7 +2302,8 @@ html.dark {
     --color: #f3f2f9;
     --noise-opacity: .18;
     --noise-filter: invert(1) brightness(1.2) contrast(1.75);
-    --noise-blend-mode: screen
+    --noise-blend-mode: screen;
+    --header-blend-mode: difference
 }
 
 * {

@@ -135,7 +135,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 sizes="100vw"
                 priority
                 fetchPriority="high"
-                placeholder="empty"
                 quality={85}
               />
             </div>
@@ -227,7 +226,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                       fetchPriority={isHighPriority ? "high" : "auto"}
                       priority={isHighPriority}
                       quality={85}
-                      placeholder="empty"
                       style={{ width: "100%", height: "auto" }}
                     />
                   </div>
