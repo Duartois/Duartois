@@ -5,12 +5,13 @@ import { useReducedMotion } from "framer-motion";
 
 import { getFallItemStyle } from "./fallAnimation";
 import { useAnimationQuality } from "./AnimationQualityContext";
-
-const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
-const APP_MENU_OPEN_EVENT = "app-menu:open";
-const APP_MENU_CLOSE_EVENT = "app-menu:close";
-const APP_NAVIGATION_START_EVENT = "app-navigation:start";
-const APP_NAVIGATION_END_EVENT = "app-navigation:end";
+import {
+  APP_MENU_CLOSE_EVENT,
+  APP_MENU_OPEN_EVENT,
+  APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_START_EVENT,
+  APP_SHELL_REVEAL_EVENT,
+} from "@/app/helpers/appEvents";
 
 export function useMenuFallAnimation(
   totalItems: number,

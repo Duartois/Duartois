@@ -28,6 +28,10 @@ import {
   type ThreeAppState,
   type VariantState,
 } from "@/components/three/types";
+import {
+  APP_NAVIGATION_START_EVENT,
+  dispatchAppEvent,
+} from "@/app/helpers/appEvents";
 
 const MENU_SHAPE_IDS: ShapeId[] = [
   "torusSpringAzure",
@@ -168,8 +172,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         return;
       }
 
-      if (!event.defaultPrevented && !isModifiedClick && typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("app-navigation:start"));
+      if (!event.defaultPrevented && !isModifiedClick) {
+        dispatchAppEvent(APP_NAVIGATION_START_EVENT);
       }
 
       onClose();

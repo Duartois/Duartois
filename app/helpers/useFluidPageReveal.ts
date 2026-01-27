@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useAnimationQuality } from "@/components/AnimationQualityContext";
-
-const APP_NAVIGATION_START_EVENT = "app-navigation:start";
-const APP_NAVIGATION_END_EVENT = "app-navigation:end";
+import {
+  APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_START_EVENT,
+} from "./appEvents";
 
 export function useFluidPageReveal(delay = 0): CSSProperties {
   const prefersReducedMotion = useReducedMotion();

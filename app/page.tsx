@@ -20,8 +20,13 @@ import {
   FALL_ITEM_TRANSITION_DURATION,
   getFallItemStyle,
 } from "@/components/fallAnimation";
-
-const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
+import {
+  APP_MENU_CLOSE_EVENT,
+  APP_MENU_OPEN_EVENT,
+  APP_NAVIGATION_START_EVENT,
+  APP_SHELL_REVEAL_EVENT,
+  dispatchAppEvent,
+} from "@/app/helpers/appEvents";
 
 import {
   HERO_LINE_ONE_MONOGRAM,
@@ -313,12 +318,12 @@ export default function HomePage() {
       setIsFallActive(true);
     };
 
-    window.addEventListener("app-menu:open", handleMenuOpen);
-    window.addEventListener("app-menu:close", handleMenuClose);
+    window.addEventListener(APP_MENU_OPEN_EVENT, handleMenuOpen);
+    window.addEventListener(APP_MENU_CLOSE_EVENT, handleMenuClose);
 
     return () => {
-      window.removeEventListener("app-menu:open", handleMenuOpen);
-      window.removeEventListener("app-menu:close", handleMenuClose);
+      window.removeEventListener(APP_MENU_OPEN_EVENT, handleMenuOpen);
+      window.removeEventListener(APP_MENU_CLOSE_EVENT, handleMenuClose);
     };
   }, [disableFallAnimation, isNavigatingAway]);
 
@@ -336,11 +341,11 @@ export default function HomePage() {
       setIsFallActive(false);
     };
 
-    window.addEventListener("app-navigation:start", handleNavigationStart);
+    window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
 
     return () => {
       window.removeEventListener(
-        "app-navigation:start",
+        APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
     };
@@ -370,9 +375,7 @@ export default function HomePage() {
       }
 
       setIsNavigatingAway(true);
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("app-navigation:start"));
-      }
+      dispatchAppEvent(APP_NAVIGATION_START_EVENT);
       setIsFallActive(false);
 
       navigationTimeoutRef.current = window.setTimeout(() => {
