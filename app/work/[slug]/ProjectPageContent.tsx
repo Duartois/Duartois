@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import "../../i18n/config";
 
 import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
-import { useFluidPageReveal } from "../../helpers/useFluidPageReveal";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -45,23 +44,15 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
-  const pageRevealStyle = useFluidPageReveal(80);
-  const pageContentStyle = useMemo(() => {
-    const { opacity, ...revealRest } = pageRevealStyle;
-    const revealOpacity =
-      typeof opacity === "number"
-        ? opacity
-        : opacity !== undefined
-          ? parseFloat(opacity)
-          : 1;
-
-    return {
-      ...revealRest,
-      pointerEvents: isMenuOpen ? "none" : "auto",
-      opacity: isMenuOpen ? 0 : revealOpacity,
-      transition: "opacity 320ms cubic-bezier(0.16, 1, 0.3, 1)",
-    } satisfies CSSProperties;
-  }, [isMenuOpen, pageRevealStyle]);
+  const pageContentStyle = useMemo(
+    () =>
+      ({
+        pointerEvents: isMenuOpen ? "none" : "auto",
+        opacity: isMenuOpen ? 0 : 1,
+        transition: "opacity 320ms cubic-bezier(0.16, 1, 0.3, 1)",
+      }) satisfies CSSProperties,
+    [isMenuOpen],
+  );
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
 

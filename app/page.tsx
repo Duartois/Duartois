@@ -16,8 +16,8 @@ import {
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
 import {
-  FALL_ITEM_STAGGER_DELAY,
-  FALL_ITEM_TRANSITION_DURATION,
+  WORK_ITEM_STAGGER_DELAY,
+  WORK_ITEM_TRANSITION_DURATION,
   getFallItemStyle,
 } from "@/components/fallAnimation";
 import {
@@ -253,8 +253,8 @@ export default function HomePage() {
   const navigationTimeoutRef = useRef<number | null>(null);
   const totalFallItems = 6;
   const totalFallDuration =
-    FALL_ITEM_TRANSITION_DURATION +
-    Math.max(totalFallItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
+    WORK_ITEM_TRANSITION_DURATION +
+    Math.max(totalFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
 
   useEffect(() => {
     return () => {
@@ -295,6 +295,7 @@ export default function HomePage() {
   const fallStyle = (index: number) =>
     getFallItemStyle(isFallActive, index, totalFallItems, {
       disable: disableFallAnimation,
+      variant: "work",
     });
 
   useEffect(() => {

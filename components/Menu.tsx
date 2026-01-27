@@ -16,8 +16,8 @@ import { useTranslation } from "react-i18next";
 import "@/app/i18n/config";
 
 import {
-  FALL_ITEM_TRANSITION_DURATION,
-  FALL_ITEM_STAGGER_DELAY,
+  WORK_ITEM_TRANSITION_DURATION,
+  WORK_ITEM_STAGGER_DELAY,
   getFallItemStyle,
 } from "./fallAnimation";
 import {
@@ -398,8 +398,8 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     }
 
     const totalDelay =
-      FALL_ITEM_TRANSITION_DURATION +
-      Math.max(totalItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
+      WORK_ITEM_TRANSITION_DURATION +
+      Math.max(totalItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
 
     hideTimeoutRef.current = window.setTimeout(() => {
       setIsVisible(false);
@@ -427,7 +427,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
 
   // animaÃ§Ã£o de entrada 1:1 com a referÃªncia: translateY(-100px) -> 0
   const itemStyle = (i: number): CSSProperties =>
-    getFallItemStyle(isOpen, i, totalItems);
+    getFallItemStyle(isOpen, i, totalItems, { variant: "work" });
 
   return (
     // estrutura e classes iguais Ã  referÃªncia
@@ -438,7 +438,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         opacity: isOpen ? 1 : 0,
         visibility: isOpen || isVisible ? "visible" : "hidden",
         pointerEvents: isOpen ? "auto" : "none",
-        transition: `opacity ${FALL_ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
+        transition: `opacity ${WORK_ITEM_TRANSITION_DURATION}ms cubic-bezier(.22,.61,.36,1)`,
       }}
       role="dialog"
       aria-modal="true"

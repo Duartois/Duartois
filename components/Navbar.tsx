@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
 import { useReducedMotion } from "framer-motion";
 import {
-  FALL_ITEM_STAGGER_DELAY,
-  FALL_ITEM_TRANSITION_DURATION,
+  WORK_ITEM_STAGGER_DELAY,
+  WORK_ITEM_TRANSITION_DURATION,
   getFallItemStyle,
 } from "./fallAnimation";
 import { useMenu } from "./MenuContext";
@@ -200,15 +200,17 @@ export default function Navbar() {
   const navigationFallItems = 6;
   const totalControlItems = 2;
   const navigationFallDuration =
-    FALL_ITEM_TRANSITION_DURATION +
-    Math.max(navigationFallItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
+    WORK_ITEM_TRANSITION_DURATION +
+    Math.max(navigationFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
   const fallStyle = (index: number) =>
     getFallItemStyle(isFallActive, index, totalFallItems, {
       disable: disableFallAnimation,
+      variant: "work",
     });
   const controlFallStyle = (index: number, isActive: boolean) =>
     getFallItemStyle(isActive, index, totalControlItems, {
       disable: disableFallAnimation,
+      variant: "work",
     });
 
   useEffect(() => {
@@ -250,8 +252,8 @@ export default function Navbar() {
     }
 
     const totalDelay =
-      FALL_ITEM_TRANSITION_DURATION +
-      Math.max(totalControlItems - 1, 0) * FALL_ITEM_STAGGER_DELAY;
+      WORK_ITEM_TRANSITION_DURATION +
+      Math.max(totalControlItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
 
     setAreControlsActive(false);
     controlsHideTimeoutRef.current = window.setTimeout(() => {
