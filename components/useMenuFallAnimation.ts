@@ -107,12 +107,14 @@ export function useMenuFallAnimation(
     };
   }, [disableFallAnimation]);
 
+  const variant = options?.variant ?? "work";
+
   return useCallback(
     (index: number) =>
       getFallItemStyle(isFallActive, index, totalItems, {
         disable: disableFallAnimation,
-        variant: options?.variant,
+        variant,
       }),
-    [disableFallAnimation, isFallActive, options?.variant, totalItems],
+    [disableFallAnimation, isFallActive, totalItems, variant],
   );
 }

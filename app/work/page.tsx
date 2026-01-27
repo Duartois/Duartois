@@ -16,7 +16,6 @@ import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
-import { useFluidPageReveal } from "../helpers/useFluidPageReveal";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import {
@@ -48,7 +47,6 @@ export default function WorkPage() {
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
-  const pageRevealStyle = useFluidPageReveal(80);
   const navigationTimeoutRef = useRef<number>();
   const previousProjectTimeoutRef = useRef<number>();
 
@@ -152,20 +150,12 @@ export default function WorkPage() {
   );
 
   const projectsStyle = useMemo(() => {
-    const { opacity, ...revealRest } = pageRevealStyle;
-    const revealOpacity =
-      typeof opacity === "number"
-        ? opacity
-        : opacity !== undefined
-          ? parseFloat(opacity)
-          : 1;
-
     return {
-      ...revealRest,
       pointerEvents: isMenuOpen || isNavigatingAway ? "none" : undefined,
-      opacity: isMenuOpen || isNavigatingAway ? 0 : revealOpacity,
+      opacity: isMenuOpen || isNavigatingAway ? 0 : 1,
+      transition: "opacity 320ms cubic-bezier(0.16, 1, 0.3, 1)",
     } satisfies CSSProperties;
-  }, [isMenuOpen, isNavigatingAway, pageRevealStyle]);
+  }, [isMenuOpen, isNavigatingAway]);
 
   return (
     <main className="work-page relative z-10 flex min-h-screen w-full flex-col">

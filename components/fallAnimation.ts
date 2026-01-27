@@ -2,8 +2,8 @@ import type { CSSProperties } from "react";
 
 export const FALL_ITEM_TRANSITION_DURATION = 520;
 export const FALL_ITEM_STAGGER_DELAY = 80;
-const WORK_ITEM_TRANSITION_DURATION = 720;
-const WORK_ITEM_STAGGER_DELAY = 100;
+export const WORK_ITEM_TRANSITION_DURATION = 720;
+export const WORK_ITEM_STAGGER_DELAY = 100;
 
 const DEFAULT_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, opacity ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}`;

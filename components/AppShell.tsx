@@ -13,8 +13,8 @@ import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
 import {
-  FALL_ITEM_STAGGER_DELAY,
-  FALL_ITEM_TRANSITION_DURATION,
+  WORK_ITEM_STAGGER_DELAY,
+  WORK_ITEM_TRANSITION_DURATION,
 } from "./fallAnimation";
 import {
   APP_NAVIGATION_END_EVENT,
@@ -30,7 +30,7 @@ interface AppShellProps {
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 const NAVIGATION_EXIT_DURATION =
-  FALL_ITEM_TRANSITION_DURATION + FALL_ITEM_STAGGER_DELAY * 6;
+  WORK_ITEM_TRANSITION_DURATION + WORK_ITEM_STAGGER_DELAY * 6;
 
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
