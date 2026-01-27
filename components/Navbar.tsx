@@ -24,8 +24,14 @@ import {
   type ShapeOpacityState,
   type VariantState,
 } from "@/components/three/types";
+import {
+  APP_MENU_CLOSE_EVENT,
+  APP_MENU_OPEN_EVENT,
+  APP_NAVIGATION_START_EVENT,
+  APP_SHELL_REVEAL_EVENT,
+  dispatchAppEvent,
+} from "@/app/helpers/appEvents";
 
-const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 const MENU_MOBILE_BREAKPOINT = 1500;
 
 type StoredSceneState = {
@@ -218,8 +224,8 @@ export default function Navbar() {
       }
     }
 
-    const eventName = isOpen ? "app-menu:open" : "app-menu:close";
-    window.dispatchEvent(new CustomEvent(eventName));
+    const eventName = isOpen ? APP_MENU_OPEN_EVENT : APP_MENU_CLOSE_EVENT;
+    dispatchAppEvent(eventName);
   }, [isOpen]);
 
   const isHome = pathname === "/";
@@ -295,7 +301,7 @@ export default function Navbar() {
 
     isNavigatingRef.current = true;
     setIsOpen(false);
-    window.dispatchEvent(new CustomEvent("app-navigation:start"));
+    dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
     navigationTimeoutRef.current = window.setTimeout(() => {
       router.push("/");

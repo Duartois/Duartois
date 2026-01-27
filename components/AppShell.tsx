@@ -16,14 +16,18 @@ import {
   FALL_ITEM_STAGGER_DELAY,
   FALL_ITEM_TRANSITION_DURATION,
 } from "./fallAnimation";
+import {
+  APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_START_EVENT,
+  APP_SHELL_REVEAL_EVENT,
+  dispatchAppEvent,
+} from "@/app/helpers/appEvents";
 
 interface AppShellProps {
   children: ReactNode;
   navbar?: ReactNode;
 }
 
-const REVEAL_EVENT = "app-shell:reveal";
-const NAVIGATION_END_EVENT = "app-navigation:end";
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 const NAVIGATION_EXIT_DURATION =
   FALL_ITEM_TRANSITION_DURATION + FALL_ITEM_STAGGER_DELAY * 6;
@@ -63,7 +67,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
 
     if (!hasDispatchedRevealRef.current) {
       hasDispatchedRevealRef.current = true;
-      window.dispatchEvent(new Event(REVEAL_EVENT));
+      dispatchAppEvent(APP_SHELL_REVEAL_EVENT);
     }
   }, [showPreloader]);
 
@@ -129,7 +133,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      window.dispatchEvent(new CustomEvent("app-navigation:start"));
+      dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
       if (prefersReducedMotion) {
         return;
@@ -175,7 +179,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     }
 
     isNavigatingRef.current = false;
-    window.dispatchEvent(new CustomEvent(NAVIGATION_END_EVENT));
+    dispatchAppEvent(APP_NAVIGATION_END_EVENT);
   }, [pathname]);
 
   return (

@@ -19,6 +19,10 @@ import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useFluidPageReveal } from "../helpers/useFluidPageReveal";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import {
+  APP_NAVIGATION_START_EVENT,
+  dispatchAppEvent,
+} from "@/app/helpers/appEvents";
 
 import {
   projectOrder,
@@ -138,7 +142,7 @@ export default function WorkPage() {
       }
 
       setIsNavigatingAway(true);
-      window.dispatchEvent(new CustomEvent("app-navigation:start"));
+      dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
       navigationTimeoutRef.current = window.setTimeout(() => {
         router.push(href);
