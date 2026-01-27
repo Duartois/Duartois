@@ -31,6 +31,22 @@ interface AppShellProps {
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 const NAVIGATION_EXIT_DURATION =
   WORK_ITEM_TRANSITION_DURATION + WORK_ITEM_STAGGER_DELAY * 6;
+const SCENE_REVEAL_DELAY = 420;
+
+const getNavigationExitDuration = () => {
+  if (typeof document === "undefined") {
+    return NAVIGATION_EXIT_DURATION;
+  }
+
+  const rawDuration = document.body?.dataset.fallDuration ?? "";
+  const parsed = Number.parseInt(rawDuration, 10);
+
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  return NAVIGATION_EXIT_DURATION;
+};
 
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
@@ -44,6 +60,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
   const hasDispatchedRevealRef = useRef(false);
   const isContentVisible = !showPreloader;
   const navigationTimeoutRef = useRef<number | undefined>(undefined);
+  const revealTimeoutRef = useRef<number | undefined>(undefined);
   const isNavigatingRef = useRef(false);
 
   const handleComplete = useCallback(() => {
@@ -134,6 +151,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       ).matches;
 
       dispatchAppEvent(APP_NAVIGATION_START_EVENT);
+      document.body.dataset.navigating = "true";
 
       if (prefersReducedMotion) {
         return;
@@ -151,9 +169,11 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         window.clearTimeout(navigationTimeoutRef.current);
       }
 
+      const exitDuration = getNavigationExitDuration();
+
       navigationTimeoutRef.current = window.setTimeout(() => {
         router.push(`${url.pathname}${url.search}${url.hash}`);
-      }, NAVIGATION_EXIT_DURATION);
+      }, exitDuration);
     };
 
     document.addEventListener("click", handleNavigationClick, true);
@@ -163,6 +183,10 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       if (navigationTimeoutRef.current) {
         window.clearTimeout(navigationTimeoutRef.current);
         navigationTimeoutRef.current = undefined;
+      }
+      if (revealTimeoutRef.current) {
+        window.clearTimeout(revealTimeoutRef.current);
+        revealTimeoutRef.current = undefined;
       }
       isNavigatingRef.current = false;
     };
@@ -179,7 +203,16 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     }
 
     isNavigatingRef.current = false;
-    dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+
+    if (revealTimeoutRef.current) {
+      window.clearTimeout(revealTimeoutRef.current);
+    }
+
+    revealTimeoutRef.current = window.setTimeout(() => {
+      dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+      delete document.body.dataset.navigating;
+      revealTimeoutRef.current = undefined;
+    }, SCENE_REVEAL_DELAY);
   }, [pathname]);
 
   return (
