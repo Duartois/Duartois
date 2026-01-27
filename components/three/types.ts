@@ -167,11 +167,110 @@ const createFramedVariant = (): VariantState => ({
   },
 });
 
+const createWorkMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [1.9, -1.4, 1.6],
+    rotation: [-1.1, 1.1, 0.15],
+    scale: [0.75, 0.75, 0.75],
+  },
+  waveSpringLime: {
+    position: [-2.9, 1.8, -0.6],
+    rotation: [-0.1, 0.48, -0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiLimeFlamingo: {
+    position: [2.4, 1.2, -0.8],
+    rotation: [1.02, -0.3, 0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  torusFlamingoLime: {
+    position: [0.2, -2.2, -0.3],
+    rotation: [-0.4, 0.6, 0.8],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiFlamingoAzure: {
+    position: [-3.1, -1.4, -0.2],
+    rotation: [1.4, -0.2, -0.1],
+    scale: [0.75, 0.75, 0.75],
+  },
+  sphereFlamingoSpring: {
+    position: [0.5, 1.7, 0.6],
+    rotation: [0.2, 0.3, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
+});
+
+const createAboutMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.3, -1.1, 1.1],
+    rotation: [-1.4, 0.5, 0.3],
+    scale: [0.75, 0.75, 0.75],
+  },
+  waveSpringLime: {
+    position: [-3.1, 1.2, -1.4],
+    rotation: [-0.25, 0.4, 0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiLimeFlamingo: {
+    position: [1.4, 2.2, 0.2],
+    rotation: [1.3, -0.6, 0.1],
+    scale: [0.75, 0.75, 0.75],
+  },
+  torusFlamingoLime: {
+    position: [0.6, -2.1, -1.1],
+    rotation: [-0.2, 0.9, 1.1],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiFlamingoAzure: {
+    position: [-2.3, -1.9, -0.4],
+    rotation: [1.2, 0.2, -0.3],
+    scale: [0.75, 0.75, 0.75],
+  },
+  sphereFlamingoSpring: {
+    position: [-0.6, 1.6, 0.2],
+    rotation: [0, 0.2, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
+});
+
+const createContactMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.1, -2.0, 0.4],
+    rotation: [-1.1, 1.4, -0.1],
+    scale: [0.75, 0.75, 0.75],
+  },
+  waveSpringLime: {
+    position: [-3.7, 0.9, -0.6],
+    rotation: [-0.4, 0.2, -0.4],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiLimeFlamingo: {
+    position: [1.1, 1.6, -1.1],
+    rotation: [1.0, -0.1, -0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  torusFlamingoLime: {
+    position: [-0.4, -2.4, -0.9],
+    rotation: [-0.5, 0.3, 1.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiFlamingoAzure: {
+    position: [-2.6, -0.9, -1.2],
+    rotation: [1.5, -0.1, 0.1],
+    scale: [0.75, 0.75, 0.75],
+  },
+  sphereFlamingoSpring: {
+    position: [0.2, 1.1, 0.8],
+    rotation: [0.1, 0.1, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
+});
+
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
-  about: createFramedVariant(),
-  work: createFramedVariant(),
-  contact: createFramedVariant(),
+  about: createAboutMonogramVariant(),
+  work: createWorkMonogramVariant(),
+  contact: createContactMonogramVariant(),
 };
 
 const clamp = (value: number, min: number, max: number) =>

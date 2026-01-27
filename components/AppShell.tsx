@@ -32,6 +32,21 @@ const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 const NAVIGATION_EXIT_DURATION =
   WORK_ITEM_TRANSITION_DURATION + WORK_ITEM_STAGGER_DELAY * 6;
 
+const getNavigationExitDuration = () => {
+  if (typeof document === "undefined") {
+    return NAVIGATION_EXIT_DURATION;
+  }
+
+  const rawDuration = document.body?.dataset.fallDuration ?? "";
+  const parsed = Number.parseInt(rawDuration, 10);
+
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return parsed;
+  }
+
+  return NAVIGATION_EXIT_DURATION;
+};
+
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
 });
@@ -151,9 +166,11 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         window.clearTimeout(navigationTimeoutRef.current);
       }
 
+      const exitDuration = getNavigationExitDuration();
+
       navigationTimeoutRef.current = window.setTimeout(() => {
         router.push(`${url.pathname}${url.search}${url.hash}`);
-      }, NAVIGATION_EXIT_DURATION);
+      }, exitDuration);
     };
 
     document.addEventListener("click", handleNavigationClick, true);

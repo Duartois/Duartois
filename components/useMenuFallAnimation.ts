@@ -3,7 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
-import { getFallItemStyle } from "./fallAnimation";
+import {
+  FALL_ITEM_STAGGER_DELAY,
+  FALL_ITEM_TRANSITION_DURATION,
+  WORK_ITEM_STAGGER_DELAY,
+  WORK_ITEM_TRANSITION_DURATION,
+  getFallItemStyle,
+} from "./fallAnimation";
 import { useAnimationQuality } from "./AnimationQualityContext";
 import {
   APP_MENU_CLOSE_EVENT,
@@ -24,6 +30,13 @@ export function useMenuFallAnimation(
   );
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const isNavigatingAwayRef = useRef(false);
+  const variant = options?.variant ?? "work";
+  const totalFallDuration =
+    (variant === "work"
+      ? WORK_ITEM_TRANSITION_DURATION
+      : FALL_ITEM_TRANSITION_DURATION) +
+    Math.max(totalItems - 1, 0) *
+      (variant === "work" ? WORK_ITEM_STAGGER_DELAY : FALL_ITEM_STAGGER_DELAY);
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -56,6 +69,26 @@ export function useMenuFallAnimation(
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
     };
   }, [disableFallAnimation]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const { body } = document;
+    if (!body) {
+      return;
+    }
+
+    const durationValue = `${totalFallDuration}`;
+    body.dataset.fallDuration = durationValue;
+
+    return () => {
+      if (body.dataset.fallDuration === durationValue) {
+        delete body.dataset.fallDuration;
+      }
+    };
+  }, [totalFallDuration]);
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -106,8 +139,6 @@ export function useMenuFallAnimation(
       );
     };
   }, [disableFallAnimation]);
-
-  const variant = options?.variant ?? "work";
 
   return useCallback(
     (index: number) =>
