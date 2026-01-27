@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
@@ -44,6 +45,7 @@ export default function ContactPage() {
 
   const totalFallItems = 5 + socials.links.length;
   const fallStyle = useMenuFallAnimation(totalFallItems);
+  useNavigationExitDuration(totalFallItems, { variant: "work" });
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
 

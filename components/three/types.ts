@@ -128,6 +128,105 @@ const createMenuMonogramVariant = (): VariantState => ({
   },
 });
 
+const createWorkMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [-2.15, -0.12, -1.05],
+    rotation: [Math.PI / 2, Math.PI * -1.3, 0.2],
+    scale: [0.24, 0.24, 0.24],
+  },
+  waveSpringLime: {
+    position: [-1.2, 0.92, -0.65],
+    rotation: [-2.2, 0.2, -0.35],
+    scale: [0.22, 0.22, 0.22],
+  },
+  semiLimeFlamingo: {
+    position: [-2.75, 0.38, -0.78],
+    rotation: [Math.PI / 2, Math.PI * -0.05, 0.1],
+    scale: [0.22, 0.22, 0.22],
+  },
+  torusFlamingoLime: {
+    position: [-1.4, -0.88, -0.62],
+    rotation: [Math.PI / 2, Math.PI * -1.1, 0],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [-2.1, -0.92, -0.42],
+    rotation: [Math.PI / 2, Math.PI * -1.35, 0.12],
+    scale: [0.22, 0.22, 0.22],
+  },
+  sphereFlamingoSpring: {
+    position: [-1.1, 0.42, -0.2],
+    rotation: [0, 0, 0],
+    scale: 0.24,
+  },
+});
+
+const createAboutMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.1, 0.2, 0.6],
+    rotation: [Math.PI / 2, Math.PI * -0.6, 0.2],
+    scale: [0.22, 0.22, 0.22],
+  },
+  waveSpringLime: {
+    position: [1.1, 0.95, -0.2],
+    rotation: [-2.4, 0.4, -0.1],
+    scale: [0.2, 0.2, 0.2],
+  },
+  semiLimeFlamingo: {
+    position: [2.6, -0.12, -0.45],
+    rotation: [Math.PI / 2, Math.PI * -0.25, -0.1],
+    scale: [0.22, 0.22, 0.22],
+  },
+  torusFlamingoLime: {
+    position: [1.6, -0.82, 0.25],
+    rotation: [Math.PI / 2, Math.PI * -1.5, 0.1],
+    scale: [0.2, 0.2, 0.2],
+  },
+  semiFlamingoAzure: {
+    position: [2.35, -0.92, 0.4],
+    rotation: [Math.PI / 2, Math.PI * -0.9, 0],
+    scale: [0.21, 0.21, 0.21],
+  },
+  sphereFlamingoSpring: {
+    position: [1.25, 0.48, 0.2],
+    rotation: [0, 0, 0],
+    scale: 0.23,
+  },
+});
+
+const createContactMonogramVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [0.4, -0.32, -0.95],
+    rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
+    scale: [0.26, 0.26, 0.26],
+  },
+  waveSpringLime: {
+    position: [-0.8, 0.78, -0.7],
+    rotation: [-2.1, 0.3, -0.6],
+    scale: [0.22, 0.22, 0.22],
+  },
+  semiLimeFlamingo: {
+    position: [1.0, 0.45, -0.5],
+    rotation: [Math.PI / 2, Math.PI * -0.35, 0.15],
+    scale: [0.2, 0.2, 0.2],
+  },
+  torusFlamingoLime: {
+    position: [0.1, -1.02, -0.4],
+    rotation: [Math.PI / 2, Math.PI * -1.35, -0.1],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [-0.7, -0.88, -0.25],
+    rotation: [Math.PI / 2, Math.PI * -1.55, 0.2],
+    scale: [0.24, 0.24, 0.24],
+  },
+  sphereFlamingoSpring: {
+    position: [0.8, 0.1, -0.1],
+    rotation: [0, 0, 0],
+    scale: 0.22,
+  },
+});
+
 export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
 export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
 export const MENU_OVERLAY_MONOGRAM = createMenuMonogramVariant();
@@ -169,9 +268,9 @@ const createFramedVariant = (): VariantState => ({
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
-  about: createFramedVariant(),
-  work: createFramedVariant(),
-  contact: createFramedVariant(),
+  about: createAboutMonogramVariant(),
+  work: createWorkMonogramVariant(),
+  contact: createContactMonogramVariant(),
 };
 
 const clamp = (value: number, min: number, max: number) =>

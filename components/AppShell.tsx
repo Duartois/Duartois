@@ -13,8 +13,7 @@ import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
 import {
-  WORK_ITEM_STAGGER_DELAY,
-  WORK_ITEM_TRANSITION_DURATION,
+  getFallExitDuration,
 } from "./fallAnimation";
 import {
   APP_NAVIGATION_END_EVENT,
@@ -22,6 +21,7 @@ import {
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
+import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
 
 interface AppShellProps {
   children: ReactNode;
@@ -29,8 +29,7 @@ interface AppShellProps {
 }
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
-const NAVIGATION_EXIT_DURATION =
-  WORK_ITEM_TRANSITION_DURATION + WORK_ITEM_STAGGER_DELAY * 6;
+const NAVIGATION_EXIT_DURATION = getFallExitDuration(6, "work");
 
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
@@ -133,6 +132,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
+      applyNavigationSceneVariant(url.pathname);
       dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
       if (prefersReducedMotion) {
@@ -151,9 +151,16 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         window.clearTimeout(navigationTimeoutRef.current);
       }
 
+      const navigationExitDuration = Number(
+        document.body?.dataset.navigationExitDuration,
+      );
+      const exitDuration = Number.isFinite(navigationExitDuration)
+        ? navigationExitDuration
+        : NAVIGATION_EXIT_DURATION;
+
       navigationTimeoutRef.current = window.setTimeout(() => {
         router.push(`${url.pathname}${url.search}${url.hash}`);
-      }, NAVIGATION_EXIT_DURATION);
+      }, exitDuration);
     };
 
     document.addEventListener("click", handleNavigationClick, true);

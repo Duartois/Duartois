@@ -31,6 +31,7 @@ import {
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
+import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
 
 const MENU_MOBILE_BREAKPOINT = 1500;
 
@@ -303,6 +304,7 @@ export default function Navbar() {
 
     isNavigatingRef.current = true;
     setIsOpen(false);
+    applyNavigationSceneVariant("/");
     dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
     navigationTimeoutRef.current = window.setTimeout(() => {

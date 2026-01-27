@@ -16,6 +16,8 @@ import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
+import { applyNavigationSceneVariant } from "../helpers/threeNavigation";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import {
@@ -51,6 +53,7 @@ export default function WorkPage() {
   const previousProjectTimeoutRef = useRef<number>();
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
+  useNavigationExitDuration(totalFallItems, { variant: "work" });
 
   const projectCopy = useMemo(
     () =>
@@ -140,6 +143,7 @@ export default function WorkPage() {
       }
 
       setIsNavigatingAway(true);
+      applyNavigationSceneVariant(new URL(href, window.location.href).pathname);
       dispatchAppEvent(APP_NAVIGATION_START_EVENT);
 
       navigationTimeoutRef.current = window.setTimeout(() => {

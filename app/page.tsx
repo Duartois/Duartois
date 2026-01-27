@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
+import { useNavigationExitDuration } from "./helpers/useNavigationExitDuration";
+import { applyNavigationSceneVariant } from "./helpers/threeNavigation";
 import {
   useEffect,
   PropsWithChildren,
@@ -256,6 +258,8 @@ export default function HomePage() {
     WORK_ITEM_TRANSITION_DURATION +
     Math.max(totalFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
 
+  useNavigationExitDuration(totalFallItems, { variant: "work" });
+
   useEffect(() => {
     return () => {
       if (navigationTimeoutRef.current) {
@@ -376,6 +380,7 @@ export default function HomePage() {
       }
 
       setIsNavigatingAway(true);
+      applyNavigationSceneVariant(new URL(href, window.location.href).pathname);
       dispatchAppEvent(APP_NAVIGATION_START_EVENT);
       setIsFallActive(false);
 

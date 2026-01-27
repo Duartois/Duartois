@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
+import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useTheme } from "../theme/ThemeContext";
@@ -22,6 +23,7 @@ export default function AboutPage() {
     spotifyAccent;
 
   useThreeSceneSetup("about");
+  useNavigationExitDuration(5, { variant: "work" });
 
   useEffect(() => {
     window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });

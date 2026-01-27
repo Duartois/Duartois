@@ -13,6 +13,18 @@ const ACTIVE_TRANSFORM = "translate3d(0, 0, 0) scale(1)";
 const WORK_INACTIVE_TRANSFORM = "translate3d(0, -60px, 0) scale(0.98)";
 const DEFAULT_INACTIVE_TRANSFORM = "translate3d(0, -100px, 0)";
 
+export const getFallExitDuration = (
+  totalItems: number,
+  variant: "default" | "work" = "default",
+) => {
+  const duration =
+    variant === "work"
+      ? WORK_ITEM_TRANSITION_DURATION
+      : FALL_ITEM_TRANSITION_DURATION;
+  const stagger = variant === "work" ? WORK_ITEM_STAGGER_DELAY : FALL_ITEM_STAGGER_DELAY;
+  return duration + Math.max(totalItems - 1, 0) * stagger;
+};
+
 export function getFallItemStyle(
   isActive: boolean,
   index: number,
