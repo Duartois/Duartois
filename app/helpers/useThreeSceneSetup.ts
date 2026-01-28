@@ -4,10 +4,15 @@ import { useEffect } from "react";
 
 import {
   createResponsiveVariantState,
+  createVariantState,
   getDefaultPalette,
   type VariantName,
   variantMapping,
 } from "@/components/three/types";
+import {
+  getStoredSceneState,
+  updateStoredSceneState,
+} from "@/app/helpers/threeSceneStore";
 
 type SceneOptions = {
   opacity?: number;
@@ -29,14 +34,29 @@ const applySceneState = (
   const app = window.__THREE_APP__;
 
   if (!app) {
+    const responsiveVariant = createResponsiveVariantState(
+      variantMapping[variantName],
+      window.innerWidth,
+      window.innerHeight,
+    );
+
+    updateStoredSceneState({
+      variantName,
+      variant: responsiveVariant,
+      opacity,
+    });
     return false;
   }
 
-  const responsiveVariant = createResponsiveVariantState(
-    variantMapping[variantName],
-    window.innerWidth,
-    window.innerHeight,
-  );
+  const stored = getStoredSceneState();
+  const responsiveVariant =
+    stored.variantName === variantName && stored.variant
+      ? createVariantState(stored.variant)
+      : createResponsiveVariantState(
+          variantMapping[variantName],
+          window.innerWidth,
+          window.innerHeight,
+        );
 
   app.setState((previous) => ({
     variantName,
@@ -46,6 +66,12 @@ const applySceneState = (
     hovered,
     opacity,
   }));
+
+  updateStoredSceneState({
+    variantName,
+    variant: responsiveVariant,
+    opacity,
+  });
 
   return true;
 };

@@ -5,6 +5,7 @@ import {
   type VariantName,
   variantMapping,
 } from "@/components/three/types";
+import { applyStoredSceneState, updateStoredSceneState } from "./threeSceneStore";
 
 export const resolveVariantFromPath = (pathname: string): VariantName | null => {
   if (pathname === "/") {
@@ -33,6 +34,21 @@ export const applyNavigationSceneVariant = (pathname: string) => {
 
   const app = window.__THREE_APP__;
   if (!app) {
+    const variantName = resolveVariantFromPath(pathname);
+    if (!variantName) {
+      return;
+    }
+
+    const responsiveVariant = createResponsiveVariantState(
+      variantMapping[variantName],
+      window.innerWidth,
+      window.innerHeight,
+    );
+
+    updateStoredSceneState({
+      variantName,
+      variant: responsiveVariant,
+    });
     return;
   }
 
@@ -47,7 +63,12 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     window.innerHeight,
   );
 
-  app.setState({
+  updateStoredSceneState({
+    variantName,
+    variant: responsiveVariant,
+  });
+
+  applyStoredSceneState(app, {
     variantName,
     variant: responsiveVariant,
   });

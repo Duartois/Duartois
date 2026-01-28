@@ -59,23 +59,43 @@ const ensureNavigationEndListener = () => {
 };
 
 const getNavigationExitDuration = (durationOverride?: number) => {
-  if (typeof document === "undefined") {
+  if (typeof document === "undefined" || typeof window === "undefined") {
     return durationOverride ?? getFallExitDuration(6, "work");
   }
 
-  const fromBody = Number(document.body?.dataset.navigationExitDuration);
   if (Number.isFinite(durationOverride)) {
     return durationOverride as number;
   }
 
-  if (Number.isFinite(fromBody)) {
-    return fromBody;
+  const fromBody = Number(document.body?.dataset.navigationExitDuration);
+  const totalItems = Number(document.body?.dataset.navigationExitItems);
+  const fallbackItems = Number.isFinite(totalItems) ? totalItems : 6;
+  const baseDuration = Number.isFinite(fromBody)
+    ? fromBody
+    : getFallExitDuration(fallbackItems, "work");
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  const isMobile = window.innerWidth < 900;
+  const scaleFactor =
+    Number.isFinite(fallbackItems) && fallbackItems > 6
+      ? 6 / fallbackItems
+      : 1;
+  let adjustedDuration = Math.round(baseDuration * scaleFactor);
+
+  if (prefersReducedMotion) {
+    adjustedDuration = Math.min(adjustedDuration, 220);
   }
 
-  return getFallExitDuration(6, "work");
+  if (isMobile) {
+    adjustedDuration = Math.min(adjustedDuration, 400);
+  }
+
+  return Math.max(adjustedDuration, 0);
 };
 
-const shouldReduceExitDelay = () => {
+const shouldBypassExitDelay = () => {
   if (typeof window === "undefined") {
     return true;
   }
@@ -85,7 +105,7 @@ const shouldReduceExitDelay = () => {
   ).matches;
 
   if (reduceMotion) {
-    return true;
+    return false;
   }
 
   const connection = (navigator as NavigatorConnection).connection;
@@ -119,14 +139,19 @@ export const navigateWithExit = (
   dispatchAppEvent(APP_NAVIGATION_START_EVENT);
   onExitStart?.();
 
-  if (shouldReduceExitDelay()) {
+  const navigate = () => {
     router.push(`${url.pathname}${url.search}${url.hash}`);
-    return;
-  }
+    window.requestAnimationFrame(() => {
+      dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+    });
+  };
 
   clearNavigationTimeout();
 
-  navigationTimeout = window.setTimeout(() => {
-    router.push(`${url.pathname}${url.search}${url.hash}`);
-  }, Math.max(exitDuration, 0));
+  if (shouldBypassExitDelay()) {
+    navigate();
+    return;
+  }
+
+  navigationTimeout = window.setTimeout(navigate, Math.max(exitDuration, 0));
 };

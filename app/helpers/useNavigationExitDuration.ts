@@ -20,16 +20,24 @@ export const useNavigationExitDuration = (
     const duration = getFallExitDuration(totalItems, variant);
     const { body } = document;
     const previous = body.dataset.navigationExitDuration;
+    const previousItems = body.dataset.navigationExitItems;
 
     body.dataset.navigationExitDuration = String(duration);
+    body.dataset.navigationExitItems = String(totalItems);
 
     return () => {
       if (previous === undefined) {
         delete body.dataset.navigationExitDuration;
+      } else {
+        body.dataset.navigationExitDuration = previous;
+      }
+
+      if (previousItems === undefined) {
+        delete body.dataset.navigationExitItems;
         return;
       }
 
-      body.dataset.navigationExitDuration = previous;
+      body.dataset.navigationExitItems = previousItems;
     };
   }, [totalItems, variant]);
 };
