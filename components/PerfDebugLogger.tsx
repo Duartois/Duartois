@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-import { isPerfDebugEnabled, logPerf } from "@/app/helpers/perfDebug";
+import { logPerf, shouldLogPerf } from "@/app/helpers/perfDebug";
 
 const IMAGE_INITIATORS = new Set(["img", "image"]);
 
@@ -13,7 +13,7 @@ export default function PerfDebugLogger() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!isPerfDebugEnabled || typeof window === "undefined") {
+    if (!shouldLogPerf()) {
       return;
     }
 
@@ -61,7 +61,7 @@ export default function PerfDebugLogger() {
   }, [pathname]);
 
   useEffect(() => {
-    if (!isPerfDebugEnabled || typeof window === "undefined") {
+    if (!shouldLogPerf()) {
       return;
     }
 

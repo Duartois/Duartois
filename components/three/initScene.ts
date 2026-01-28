@@ -22,6 +22,10 @@ import {
 } from "./types";
 import { createCamera, ensurePalette } from "./factories";
 import { addDuartoisSignatureShapes } from "@/components/three/addShapes";
+import { getWindow } from "@/app/helpers/runtime/browser";
+import { clamp } from "@/app/helpers/runtime/math";
+import { updateAllMeshOpacities } from "./materialOpacity";
+import { getPointerTargetVector } from "./pointerDriver";
 
 export type InitSceneOptions = {
   canvas: HTMLCanvasElement;
@@ -31,14 +35,8 @@ export type InitSceneOptions = {
   parallax?: boolean;
 };
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.max(min, Math.min(max, value));
-
 const getToneMappingExposure = (theme: ThemeName) =>
   theme === "light" ? 1.1 : 1.5;
-
-const resolveWindow = () =>
-  (typeof window === "undefined" ? null : window);
 
 export const initScene = async ({
   canvas,
@@ -47,7 +45,7 @@ export const initScene = async ({
   palette,
   parallax = true,
 }: InitSceneOptions): Promise<ThreeAppHandle> => {
-  const globalWindow = resolveWindow();
+  const globalWindow = getWindow();
 
   if (!globalWindow) {
     throw new Error("initScene requires a browser environment");
@@ -123,45 +121,6 @@ export const initScene = async ({
   );
   const initialVariantClone = createVariantState(initialVariantState);
   let targetVariantState = initialVariantClone;
-  type MaterialWithOpacity = THREE.Material & {
-    opacity: number;
-    transparent: boolean;
-  };
-
-  const hasOpacity = (material: THREE.Material): material is MaterialWithOpacity =>
-    "opacity" in material && "transparent" in material;
-
-  const applyOpacityToMaterial = (material: THREE.Material, opacity: number) => {
-    if (!hasOpacity(material)) {
-      return;
-    }
-
-    material.opacity = opacity;
-    material.transparent = opacity < 1 ? true : material.transparent;
-    material.needsUpdate = true;
-  };
-
-  const applyOpacityToMesh = (mesh: THREE.Mesh, opacity: number) => {
-    const material = mesh.material;
-
-    if (Array.isArray(material)) {
-      material.forEach((mat) => applyOpacityToMaterial(mat, opacity));
-      return;
-    }
-
-    applyOpacityToMaterial(material, opacity);
-  };
-
-  const updateAllMeshOpacities = (
-    globalOpacity: number,
-    shapeOpacity: Record<ShapeId, number>,
-  ) => {
-    shapeIds.forEach((id) => {
-      const mesh = shapes.meshes[id];
-      const combinedOpacity = clamp(globalOpacity * shapeOpacity[id], 0, 1);
-      applyOpacityToMesh(mesh, combinedOpacity);
-    });
-  };
   const initialState: ThreeAppState = {
     variantName: initialVariant,
     variant: createVariantState(initialVariantClone),
@@ -180,7 +139,12 @@ export const initScene = async ({
     ready: false,
   };
 
-  updateAllMeshOpacities(initialState.opacity, initialState.shapeOpacity);
+  updateAllMeshOpacities(
+    shapeIds,
+    shapes.meshes,
+    initialState.opacity,
+    initialState.shapeOpacity,
+  );
 
   const eventTarget = new EventTarget();
 
@@ -304,8 +268,11 @@ export const initScene = async ({
       });
     }
 
-    const targetPointer =
-      state.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
+    const targetPointer = getPointerTargetVector(
+      state.pointerDriver,
+      manualPointerTarget,
+      devicePointerTarget,
+    );
 
     pointer.lerp(targetPointer, clamp(delta * 7, 0, 1));
 
@@ -398,17 +365,17 @@ export const initScene = async ({
       commit({ palette: partial.palette });
     }
 
-
-
-
     if (partial.theme && partial.theme !== state.theme) {
       const nextPalette = partial.palette ?? getDefaultPalette(partial.theme);
       shapes.applyTheme(partial.theme);
 
-
-
       renderer.toneMappingExposure = getToneMappingExposure(partial.theme);
-      updateAllMeshOpacities(pendingOpacity, pendingShapeOpacity);
+      updateAllMeshOpacities(
+        shapeIds,
+        shapes.meshes,
+        pendingOpacity,
+        pendingShapeOpacity,
+      );
       commit({ theme: partial.theme, palette: nextPalette });
     }
 
@@ -425,9 +392,6 @@ export const initScene = async ({
     }
 
     if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
-
-
-
       commit({ hovered: partial.hovered });
     }
 
@@ -448,8 +412,11 @@ export const initScene = async ({
     }
 
     if (partial.pointerDriver && partial.pointerDriver !== state.pointerDriver) {
-      const source =
-        partial.pointerDriver === "manual" ? manualPointerTarget : devicePointerTarget;
+      const source = getPointerTargetVector(
+        partial.pointerDriver,
+        manualPointerTarget,
+        devicePointerTarget,
+      );
       commit({
         pointerDriver: partial.pointerDriver,
         pointer: { x: source.x, y: source.y },
@@ -491,7 +458,12 @@ export const initScene = async ({
     }
 
     if (opacityChanged || shapeOpacityChanged) {
-      updateAllMeshOpacities(pendingOpacity, pendingShapeOpacity);
+      updateAllMeshOpacities(
+        shapeIds,
+        shapes.meshes,
+        pendingOpacity,
+        pendingShapeOpacity,
+      );
     }
 
     if (partial.variant) {

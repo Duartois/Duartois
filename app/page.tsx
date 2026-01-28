@@ -17,11 +17,11 @@ import {
 } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
+import { getFallItemStyle } from "@/components/fallAnimation";
 import {
   WORK_ITEM_STAGGER_DELAY,
   WORK_ITEM_TRANSITION_DURATION,
-  getFallItemStyle,
-} from "@/components/fallAnimation";
+} from "@/components/animation/fallConstants";
 import {
   APP_MENU_CLOSE_EVENT,
   APP_MENU_OPEN_EVENT,
