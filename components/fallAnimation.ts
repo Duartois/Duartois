@@ -2,8 +2,8 @@ import type { CSSProperties } from "react";
 
 export const FALL_ITEM_TRANSITION_DURATION = 520;
 export const FALL_ITEM_STAGGER_DELAY = 80;
-const WORK_ITEM_TRANSITION_DURATION = 720;
-const WORK_ITEM_STAGGER_DELAY = 100;
+export const WORK_ITEM_TRANSITION_DURATION = 720;
+export const WORK_ITEM_STAGGER_DELAY = 100;
 
 const DEFAULT_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, opacity ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}`;
@@ -12,6 +12,18 @@ const WORK_TRANSITION = `transform ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_
 const ACTIVE_TRANSFORM = "translate3d(0, 0, 0) scale(1)";
 const WORK_INACTIVE_TRANSFORM = "translate3d(0, -60px, 0) scale(0.98)";
 const DEFAULT_INACTIVE_TRANSFORM = "translate3d(0, -100px, 0)";
+
+export const getFallExitDuration = (
+  totalItems: number,
+  variant: "default" | "work" = "default",
+) => {
+  const duration =
+    variant === "work"
+      ? WORK_ITEM_TRANSITION_DURATION
+      : FALL_ITEM_TRANSITION_DURATION;
+  const stagger = variant === "work" ? WORK_ITEM_STAGGER_DELAY : FALL_ITEM_STAGGER_DELAY;
+  return duration + Math.max(totalItems - 1, 0) * stagger;
+};
 
 export function getFallItemStyle(
   isActive: boolean,
