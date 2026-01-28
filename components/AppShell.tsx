@@ -13,15 +13,16 @@ import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
 import {
-  getFallExitDuration,
-} from "./fallAnimation";
-import {
   APP_NAVIGATION_END_EVENT,
   APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
-import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
+import {
+  EXIT_NAVIGATION_ATTRIBUTE,
+  navigateWithExit,
+  resetNavigationState,
+} from "@/app/helpers/navigateWithExit";
 
 interface AppShellProps {
   children: ReactNode;
@@ -29,7 +30,6 @@ interface AppShellProps {
 }
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
-const NAVIGATION_EXIT_DURATION = getFallExitDuration(6, "work");
 
 const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
@@ -40,10 +40,9 @@ export default function AppShell({ children, navbar }: AppShellProps) {
   const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
+  const [isNavigationExiting, setIsNavigationExiting] = useState(false);
   const hasDispatchedRevealRef = useRef(false);
   const isContentVisible = !showPreloader;
-  const navigationTimeoutRef = useRef<number | undefined>(undefined);
-  const isNavigatingRef = useRef(false);
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -96,6 +95,10 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         return;
       }
 
+      if (anchor.hasAttribute(EXIT_NAVIGATION_ATTRIBUTE)) {
+        return;
+      }
+
       if (anchor.hasAttribute("download")) {
         return;
       }
@@ -128,50 +131,14 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         return;
       }
 
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      applyNavigationSceneVariant(url.pathname);
-      dispatchAppEvent(APP_NAVIGATION_START_EVENT);
-
-      if (prefersReducedMotion) {
-        return;
-      }
-
       event.preventDefault();
-
-      if (isNavigatingRef.current) {
-        return;
-      }
-
-      isNavigatingRef.current = true;
-
-      if (navigationTimeoutRef.current) {
-        window.clearTimeout(navigationTimeoutRef.current);
-      }
-
-      const navigationExitDuration = Number(
-        document.body?.dataset.navigationExitDuration,
-      );
-      const exitDuration = Number.isFinite(navigationExitDuration)
-        ? navigationExitDuration
-        : NAVIGATION_EXIT_DURATION;
-
-      navigationTimeoutRef.current = window.setTimeout(() => {
-        router.push(`${url.pathname}${url.search}${url.hash}`);
-      }, exitDuration);
+      navigateWithExit(router, `${url.pathname}${url.search}${url.hash}`);
     };
 
     document.addEventListener("click", handleNavigationClick, true);
 
     return () => {
       document.removeEventListener("click", handleNavigationClick, true);
-      if (navigationTimeoutRef.current) {
-        window.clearTimeout(navigationTimeoutRef.current);
-        navigationTimeoutRef.current = undefined;
-      }
-      isNavigatingRef.current = false;
     };
   }, [router, showPreloader]);
 
@@ -180,14 +147,64 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       return;
     }
 
-    if (navigationTimeoutRef.current) {
-      window.clearTimeout(navigationTimeoutRef.current);
-      navigationTimeoutRef.current = undefined;
+    resetNavigationState();
+    const frame = window.requestAnimationFrame(() => {
+      dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
     }
 
-    isNavigatingRef.current = false;
-    dispatchAppEvent(APP_NAVIGATION_END_EVENT);
-  }, [pathname]);
+    const handleNavigationStart = () => {
+      setIsNavigationExiting(true);
+    };
+
+    const handleNavigationEnd = () => {
+      setIsNavigationExiting(false);
+    };
+
+    window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+
+    return () => {
+      window.removeEventListener(
+        APP_NAVIGATION_START_EVENT,
+        handleNavigationStart,
+      );
+      window.removeEventListener(
+        APP_NAVIGATION_END_EVENT,
+        handleNavigationEnd,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    const body = document.body;
+    if (!body) {
+      return;
+    }
+
+    if (isNavigationExiting) {
+      body.dataset.navigationExiting = "true";
+      return;
+    }
+
+    delete body.dataset.navigationExiting;
+  }, [isNavigationExiting]);
+
+  const contentClassName = [
+    isContentVisible ? "" : "pointer-events-none opacity-0",
+    isNavigationExiting ? "pointer-events-none" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <MenuProvider>
@@ -196,9 +213,18 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         <CanvasRoot isReady={isReady} />
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
-          className={isContentVisible ? "" : "pointer-events-none opacity-0"}
+          className={contentClassName}
+          style={
+            isNavigationExiting
+              ? {
+                  willChange: "transform, opacity",
+                  transform: "translateZ(0)",
+                }
+              : undefined
+          }
+          data-navigation-exiting={isNavigationExiting ? "true" : undefined}
           aria-hidden={!isContentVisible}
-          aria-busy={!isContentVisible}
+          aria-busy={!isContentVisible || isNavigationExiting}
         >
           {navbar}
           {children}

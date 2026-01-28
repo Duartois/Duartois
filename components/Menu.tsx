@@ -29,9 +29,9 @@ import {
   type VariantState,
 } from "@/components/three/types";
 import {
-  APP_NAVIGATION_START_EVENT,
-  dispatchAppEvent,
-} from "@/app/helpers/appEvents";
+  EXIT_NAVIGATION_ATTRIBUTE,
+  navigateWithExit,
+} from "@/app/helpers/navigateWithExit";
 
 const MENU_SHAPE_IDS: ShapeId[] = [
   "torusSpringAzure",
@@ -166,19 +166,22 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
         event.ctrlKey ||
         event.shiftKey;
 
-      if (href === pathname && !event.defaultPrevented && !isModifiedClick) {
+      if (event.defaultPrevented || isModifiedClick) {
+        return;
+      }
+
+      if (href === pathname) {
         event.preventDefault();
         onClose();
         return;
       }
 
-      if (!event.defaultPrevented && !isModifiedClick) {
-        dispatchAppEvent(APP_NAVIGATION_START_EVENT);
-      }
-
-      onClose();
+      event.preventDefault();
+      navigateWithExit(router, href, {
+        onExitStart: onClose,
+      });
     },
-    [onClose, pathname],
+    [onClose, pathname, router],
   );
 
   const shouldAllowPrefetch = useCallback(() => {
@@ -468,6 +471,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                   >
                     <Link
                       href={item.href}
+                      {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                       onClick={(event) => handleMenuLinkClick(event, item.href)}
                     >
                       <h1>

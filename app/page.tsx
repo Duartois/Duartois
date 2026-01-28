@@ -6,7 +6,7 @@ import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "./helpers/useNavigationExitDuration";
-import { applyNavigationSceneVariant } from "./helpers/threeNavigation";
+import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "./helpers/navigateWithExit";
 import {
   useEffect,
   PropsWithChildren,
@@ -27,7 +27,6 @@ import {
   APP_MENU_OPEN_EVENT,
   APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
-  dispatchAppEvent,
 } from "@/app/helpers/appEvents";
 
 import {
@@ -252,22 +251,12 @@ export default function HomePage() {
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
-  const navigationTimeoutRef = useRef<number | null>(null);
   const totalFallItems = 6;
   const totalFallDuration =
     WORK_ITEM_TRANSITION_DURATION +
     Math.max(totalFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
 
   useNavigationExitDuration(totalFallItems, { variant: "work" });
-
-  useEffect(() => {
-    return () => {
-      if (navigationTimeoutRef.current) {
-        window.clearTimeout(navigationTimeoutRef.current);
-        navigationTimeoutRef.current = null;
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -379,14 +368,13 @@ export default function HomePage() {
         return;
       }
 
-      setIsNavigatingAway(true);
-      applyNavigationSceneVariant(new URL(href, window.location.href).pathname);
-      dispatchAppEvent(APP_NAVIGATION_START_EVENT);
-      setIsFallActive(false);
-
-      navigationTimeoutRef.current = window.setTimeout(() => {
-        router.push(href);
-      }, totalFallDuration);
+      navigateWithExit(router, href, {
+        duration: totalFallDuration,
+        onExitStart: () => {
+          setIsNavigatingAway(true);
+          setIsFallActive(false);
+        },
+      });
     },
     [disableFallAnimation, isNavigatingAway, router, totalFallDuration],
   );
@@ -477,6 +465,7 @@ export default function HomePage() {
                               <div className="link">
                                 <Link
                                   href="/work"
+                                  {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                                   onClick={(event) =>
                                     handleHeroLinkClick(event, "/work")
                                   }
@@ -499,6 +488,7 @@ export default function HomePage() {
                               <div className="link">
                                 <Link
                                   href="/about"
+                                  {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                                   onClick={(event) =>
                                     handleHeroLinkClick(event, "/about")
                                   }
