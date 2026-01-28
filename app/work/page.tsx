@@ -47,7 +47,7 @@ export default function WorkPage() {
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
   const previousProjectTimeoutRef = useRef<number>();
 
-  useThreeSceneSetup("work", { resetOnUnmount: true });
+  useThreeSceneSetup("work");
   useNavigationExitDuration(totalFallItems, { variant: "work" });
 
   const projectCopy = useMemo(

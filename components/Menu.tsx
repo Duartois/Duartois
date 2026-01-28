@@ -32,6 +32,7 @@ import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
+import { workProjects } from "@/app/work/projects";
 
 const MENU_SHAPE_IDS: ShapeId[] = [
   "torusSpringAzure",
@@ -137,6 +138,13 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     ],
     [t],
   );
+  const prefetchRoutes = useMemo(
+    () => [
+      ...items.map((item) => item.href),
+      ...workProjects.map((project) => `/work/${project.slug}`),
+    ],
+    [items],
+  );
 
   // redes sociais â€“ iguais Ã  referÃªncia
   const socials = useMemo(
@@ -222,10 +230,14 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       return;
     }
 
-    items.forEach((item) => {
-      prefetchRoute(item.href);
+    if (!shouldAllowPrefetch()) {
+      return;
+    }
+
+    prefetchRoutes.forEach((href) => {
+      prefetchRoute(href);
     });
-  }, [isOpen, items, prefetchRoute]);
+  }, [isOpen, prefetchRoute, prefetchRoutes, shouldAllowPrefetch]);
 
   useEffect(() => {
     if (typeof window === "undefined") {

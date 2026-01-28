@@ -56,7 +56,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
     [isMenuOpen],
   );
 
-  useThreeSceneSetup("work", { resetOnUnmount: true });
+  useThreeSceneSetup("work");
 
   useEffect(() => {
     window.__THREE_APP__?.setState({

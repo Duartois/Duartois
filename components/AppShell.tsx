@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import dynamic from "next/dynamic";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
@@ -21,8 +21,14 @@ import {
 import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
-  resetNavigationState,
 } from "@/app/helpers/navigateWithExit";
+import {
+  applyStoredSceneState,
+  getStoredSceneState,
+  hasStoredSceneState,
+  updateStoredSceneState,
+} from "@/app/helpers/threeSceneStore";
+import type { ThreeAppState } from "@/components/three/types";
 
 interface AppShellProps {
   children: ReactNode;
@@ -37,11 +43,11 @@ const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
 
 export default function AppShell({ children, navbar }: AppShellProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
   const [isNavigationExiting, setIsNavigationExiting] = useState(false);
   const hasDispatchedRevealRef = useRef(false);
+  const navigationScrollRef = useRef(0);
   const isContentVisible = !showPreloader;
 
   const handleComplete = useCallback(() => {
@@ -147,27 +153,14 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       return;
     }
 
-    resetNavigationState();
-    const frame = window.requestAnimationFrame(() => {
-      dispatchAppEvent(APP_NAVIGATION_END_EVENT);
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-    };
-  }, [pathname]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     const handleNavigationStart = () => {
+      navigationScrollRef.current = window.scrollY || 0;
       setIsNavigationExiting(true);
     };
 
     const handleNavigationEnd = () => {
       setIsNavigationExiting(false);
+      navigationScrollRef.current = 0;
     };
 
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
@@ -199,12 +192,78 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     delete body.dataset.navigationExiting;
   }, [isNavigationExiting]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let app: Window["__THREE_APP__"] | undefined;
+    let animationFrame: number | undefined;
+
+    const syncState = (state: Readonly<ThreeAppState>) => {
+      updateStoredSceneState({
+        variantName: state.variantName,
+        variant: state.variant,
+        shapeOpacity: state.shapeOpacity,
+        opacity: state.opacity,
+      });
+    };
+
+    const handleStateChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ state: Readonly<ThreeAppState> }>;
+      if (!customEvent.detail?.state) {
+        return;
+      }
+
+      syncState(customEvent.detail.state);
+    };
+
+    const attach = () => {
+      app = window.__THREE_APP__;
+      if (!app) {
+        animationFrame = window.requestAnimationFrame(attach);
+        return;
+      }
+
+      const snapshot = app.bundle.getState();
+      if (hasStoredSceneState()) {
+        applyStoredSceneState(app, getStoredSceneState());
+      } else {
+        syncState(snapshot);
+      }
+      app.bundle.events.addEventListener("statechange", handleStateChange);
+    };
+
+    attach();
+
+    return () => {
+      if (animationFrame) {
+        window.cancelAnimationFrame(animationFrame);
+      }
+      if (app) {
+        app.bundle.events.removeEventListener("statechange", handleStateChange);
+      }
+    };
+  }, []);
+
   const contentClassName = [
     isContentVisible ? "" : "pointer-events-none opacity-0",
     isNavigationExiting ? "pointer-events-none" : "",
   ]
     .filter(Boolean)
     .join(" ");
+  const exitStyle = isNavigationExiting
+    ? {
+        willChange: "transform, opacity",
+        transform: "translateZ(0)",
+        position: "fixed" as const,
+        top: `-${navigationScrollRef.current}px`,
+        left: 0,
+        right: 0,
+        height: "100%",
+        width: "100%",
+      }
+    : undefined;
 
   return (
     <MenuProvider>
@@ -214,14 +273,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
           className={contentClassName}
-          style={
-            isNavigationExiting
-              ? {
-                  willChange: "transform, opacity",
-                  transform: "translateZ(0)",
-                }
-              : undefined
-          }
+          style={exitStyle}
           data-navigation-exiting={isNavigationExiting ? "true" : undefined}
           aria-hidden={!isContentVisible}
           aria-busy={!isContentVisible || isNavigationExiting}
