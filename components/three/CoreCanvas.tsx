@@ -6,7 +6,7 @@ import { useTheme } from "@/app/theme/ThemeContext";
 import { initScene } from "./initScene";
 import type { ThreeAppHandle } from "./types";
 import { useAnimationQuality } from "@/components/AnimationQualityContext";
-import { logPerf, isPerfDebugEnabled } from "@/app/helpers/perfDebug";
+import { logPerf, shouldLogPerf } from "@/app/helpers/perfDebug";
 
 interface CoreCanvasProps {
   isReady: boolean;
@@ -74,7 +74,7 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
     initializedRef.current = true;
     let cancelled = false;
 
-    if (isPerfDebugEnabled) {
+    if (shouldLogPerf()) {
       performance.mark("three:init-start");
       logPerf("3D scene init started.", { timeMs: Math.round(performance.now()) });
     }

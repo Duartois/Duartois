@@ -15,11 +15,11 @@ import { useTranslation } from "react-i18next";
 
 import "@/app/i18n/config";
 
+import { getFallItemStyle } from "./fallAnimation";
 import {
-  WORK_ITEM_TRANSITION_DURATION,
   WORK_ITEM_STAGGER_DELAY,
-  getFallItemStyle,
-} from "./fallAnimation";
+  WORK_ITEM_TRANSITION_DURATION,
+} from "./animation/fallConstants";
 import {
   MENU_OVERLAY_MONOGRAM,
   createVariantState,

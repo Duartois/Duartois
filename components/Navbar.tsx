@@ -9,11 +9,11 @@ import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
 import { useReducedMotion } from "framer-motion";
+import { getFallItemStyle } from "./fallAnimation";
 import {
   WORK_ITEM_STAGGER_DELAY,
   WORK_ITEM_TRANSITION_DURATION,
-  getFallItemStyle,
-} from "./fallAnimation";
+} from "./animation/fallConstants";
 import { useMenu } from "./MenuContext";
 import {
   MENU_OVERLAY_MONOGRAM,

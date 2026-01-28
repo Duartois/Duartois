@@ -1,8 +1,12 @@
+import { isBrowser } from "@/app/helpers/runtime/browser";
+
 export const isPerfDebugEnabled =
   process.env.NEXT_PUBLIC_PERF_DEBUG === "true";
 
+export const shouldLogPerf = () => isPerfDebugEnabled && isBrowser();
+
 export const logPerf = (message: string, data?: Record<string, unknown>) => {
-  if (!isPerfDebugEnabled || typeof window === "undefined") {
+  if (!shouldLogPerf()) {
     return;
   }
 

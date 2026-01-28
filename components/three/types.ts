@@ -1,4 +1,5 @@
 import type { OrthographicCamera, Scene, WebGLRenderer } from "three";
+import { clamp } from "@/app/helpers/runtime/math";
 
 export type Vector3Tuple = [number, number, number];
 
@@ -272,9 +273,6 @@ export const variantMapping: Record<VariantName, VariantState> = {
   work: createWorkMonogramVariant(),
   contact: createContactMonogramVariant(),
 };
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
 
 const BASE_VIEWPORT_WIDTH = 1440;
 const BASE_VIEWPORT_HEIGHT = 900;

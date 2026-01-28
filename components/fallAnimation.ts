@@ -1,13 +1,12 @@
 import type { CSSProperties } from "react";
-
-export const FALL_ITEM_TRANSITION_DURATION = 520;
-export const FALL_ITEM_STAGGER_DELAY = 80;
-export const WORK_ITEM_TRANSITION_DURATION = 720;
-export const WORK_ITEM_STAGGER_DELAY = 100;
-
-const DEFAULT_EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
-const TRANSITION = `transform ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, opacity ${FALL_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}`;
-const WORK_TRANSITION = `transform ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, opacity ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}, filter ${WORK_ITEM_TRANSITION_DURATION}ms ${DEFAULT_EASE}`;
+import {
+  FALL_ITEM_STAGGER_DELAY,
+  FALL_ITEM_TRANSITION_DURATION,
+  FALL_TRANSITION,
+  WORK_ITEM_STAGGER_DELAY,
+  WORK_ITEM_TRANSITION_DURATION,
+  WORK_TRANSITION,
+} from "./animation/fallConstants";
 
 const ACTIVE_TRANSFORM = "translate3d(0, 0, 0) scale(1)";
 const WORK_INACTIVE_TRANSFORM = "translate3d(0, -60px, 0) scale(0.98)";
@@ -55,9 +54,7 @@ export function getFallItemStyle(
         ? WORK_INACTIVE_TRANSFORM
         : DEFAULT_INACTIVE_TRANSFORM,
     filter: isWorkVariant ? (isActive ? "blur(0px)" : "blur(6px)") : "none",
-    transition: isWorkVariant
-      ? WORK_TRANSITION
-      : TRANSITION,
+    transition: isWorkVariant ? WORK_TRANSITION : FALL_TRANSITION,
     transitionDelay: `${delay}ms`,
     willChange: isWorkVariant ? "transform, opacity, filter" : "transform",
   };
