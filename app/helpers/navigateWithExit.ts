@@ -77,7 +77,6 @@ const getNavigationExitDuration = (durationOverride?: number) => {
   const prefersReducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
-  const isMobile = window.innerWidth < 900;
   const scaleFactor =
     Number.isFinite(fallbackItems) && fallbackItems > 6
       ? 6 / fallbackItems
@@ -86,10 +85,6 @@ const getNavigationExitDuration = (durationOverride?: number) => {
 
   if (prefersReducedMotion) {
     adjustedDuration = Math.min(adjustedDuration, 220);
-  }
-
-  if (isMobile) {
-    adjustedDuration = Math.min(adjustedDuration, 400);
   }
 
   return Math.max(adjustedDuration, 0);
