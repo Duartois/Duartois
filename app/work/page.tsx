@@ -17,13 +17,9 @@ import "../i18n/config";
 
 import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
-import { applyNavigationSceneVariant } from "../helpers/threeNavigation";
+import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "../helpers/navigateWithExit";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
-import {
-  APP_NAVIGATION_START_EVENT,
-  dispatchAppEvent,
-} from "@/app/helpers/appEvents";
 
 import {
   projectOrder,
@@ -49,7 +45,6 @@ export default function WorkPage() {
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
-  const navigationTimeoutRef = useRef<number>();
   const previousProjectTimeoutRef = useRef<number>();
 
   useThreeSceneSetup("work", { resetOnUnmount: true });
@@ -86,9 +81,6 @@ export default function WorkPage() {
 
   useEffect(() => {
     return () => {
-      if (navigationTimeoutRef.current) {
-        window.clearTimeout(navigationTimeoutRef.current);
-      }
       if (previousProjectTimeoutRef.current) {
         window.clearTimeout(previousProjectTimeoutRef.current);
       }
@@ -142,13 +134,12 @@ export default function WorkPage() {
         return;
       }
 
-      setIsNavigatingAway(true);
-      applyNavigationSceneVariant(new URL(href, window.location.href).pathname);
-      dispatchAppEvent(APP_NAVIGATION_START_EVENT);
-
-      navigationTimeoutRef.current = window.setTimeout(() => {
-        router.push(href);
-      }, 680);
+      navigateWithExit(router, href, {
+        duration: 680,
+        onExitStart: () => {
+          setIsNavigatingAway(true);
+        },
+      });
     },
     [isNavigatingAway, router],
   );
@@ -225,6 +216,7 @@ export default function WorkPage() {
                 <li key={projectKey} style={itemStyle}>
                   <Link
                     href={copy.href}
+                    {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                     className="projects-row"
                     onMouseEnter={() => handleProjectHover(projectKey, copy.href)}
                     onFocus={() => handleProjectHover(projectKey, copy.href)}

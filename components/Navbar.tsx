@@ -27,11 +27,13 @@ import {
 import {
   APP_MENU_CLOSE_EVENT,
   APP_MENU_OPEN_EVENT,
-  APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
-import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
+import {
+  EXIT_NAVIGATION_ATTRIBUTE,
+  navigateWithExit,
+} from "@/app/helpers/navigateWithExit";
 
 const MENU_MOBILE_BREAKPOINT = 1500;
 
@@ -51,21 +53,12 @@ export default function Navbar() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [hoverHold, setHoverHold] = useState(false);
   const animTimerRef = useRef<number | undefined>(undefined);
-  const navigationTimeoutRef = useRef<number | undefined>(undefined);
-  const isNavigatingRef = useRef(false);
   const hasAnnouncedMenuStateRef = useRef(false);
   const storedSceneStateRef = useRef<StoredSceneState | null>(null);
   const [menuSceneVersion, setMenuSceneVersion] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   useEffect(() => setIsOpen(false), [pathname]);
-  useEffect(() => {
-    isNavigatingRef.current = false;
-    if (navigationTimeoutRef.current) {
-      window.clearTimeout(navigationTimeoutRef.current);
-      navigationTimeoutRef.current = undefined;
-    }
-  }, [pathname]);
   useEffect(() => {
     const body = document.body;
     if (!body) {
@@ -297,19 +290,11 @@ export default function Navbar() {
     }
 
     event.preventDefault();
-
-    if (isNavigatingRef.current) {
-      return;
-    }
-
-    isNavigatingRef.current = true;
-    setIsOpen(false);
-    applyNavigationSceneVariant("/");
-    dispatchAppEvent(APP_NAVIGATION_START_EVENT);
-
-    navigationTimeoutRef.current = window.setTimeout(() => {
-      router.push("/");
-    }, navigationFallDuration);
+    navigateWithExit(router, "/", {
+      duration: navigationFallDuration,
+      onExitStart: () => setIsOpen(false),
+      scenePathname: "/",
+    });
   };
 
   return (
@@ -319,7 +304,12 @@ export default function Navbar() {
           {/* LEFT */}
           <div className="left-part flex transform-none">
             <div className="logo" style={fallStyle(0)}>
-              <Link href="/" aria-label="Home" onClick={handleLogoClick}>
+              <Link
+                href="/"
+                aria-label="Home"
+                {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
+                onClick={handleLogoClick}
+              >
                 <span className="visually-hidden">Home</span>
                 <svg
                   data-name="deconstructedLogo"
