@@ -33,6 +33,8 @@ import {
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
 import { workProjects } from "@/app/work/projects";
+import { shouldAllowPrefetch } from "@/app/helpers/prefetch";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 const MENU_SHAPE_IDS: ShapeId[] = [
   "torusSpringAzure",
@@ -109,13 +111,6 @@ type MenuItem = {
   label: string;
 };
 
-type NavigatorConnection = Navigator & {
-  connection?: {
-    saveData?: boolean;
-    effectiveType?: string;
-  };
-};
-
 type MenuProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -164,6 +159,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   const baseVariantRef = useRef<VariantState | null>(null);
   const baseOpacityRef = useRef<ShapeOpacityState | null>(null);
   const prefetchedRoutesRef = useRef(new Set<string>());
+  const { app } = useThreeApp();
 
   const handleMenuLinkClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -192,15 +188,6 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     [onClose, pathname, router],
   );
 
-  const shouldAllowPrefetch = useCallback(() => {
-    if (typeof navigator === "undefined") {
-      return false;
-    }
-
-    const connection = (navigator as NavigatorConnection).connection;
-    return !(connection?.saveData || connection?.effectiveType === "2g");
-  }, []);
-
   const prefetchRoute = useCallback(
     (href: string) => {
       if (typeof window === "undefined") {
@@ -218,7 +205,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       prefetchedRoutesRef.current.add(href);
       void router.prefetch(href);
     },
-    [pathname, router, shouldAllowPrefetch],
+    [pathname, router],
   );
 
   useEffect(() => {
@@ -237,7 +224,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     prefetchRoutes.forEach((href) => {
       prefetchRoute(href);
     });
-  }, [isOpen, prefetchRoute, prefetchRoutes, shouldAllowPrefetch]);
+  }, [isOpen, prefetchRoute, prefetchRoutes]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -283,11 +270,6 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       return;
     }
 
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const app = window.__THREE_APP__;
     if (!app) {
       return;
     }
@@ -295,14 +277,13 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     const snapshot = app.bundle.getState();
     baseVariantRef.current = createVariantState(snapshot.variant);
     baseOpacityRef.current = { ...snapshot.shapeOpacity };
-  }, [isOpen]);
+  }, [app, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || typeof window === "undefined") {
+    if (!isOpen) {
       return;
     }
 
-    const app = window.__THREE_APP__;
     if (!app) {
       return;
     }
@@ -324,14 +305,13 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     return () => {
       app.bundle.events.removeEventListener("statechange", handleStateChange);
     };
-  }, [isOpen]);
+  }, [app, isOpen]);
 
   useEffect(() => {
-    if (!isOpen || typeof window === "undefined") {
+    if (!isOpen) {
       return;
     }
 
-    const app = window.__THREE_APP__;
     if (!app) {
       return;
     }
@@ -398,7 +378,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       variant: baseVariant,
       shapeOpacity: baseOpacity,
     });
-  }, [hoveredItem, isHoverEnabled, isOpen]);
+  }, [app, hoveredItem, isHoverEnabled, isOpen]);
 
 
   useEffect(() => {

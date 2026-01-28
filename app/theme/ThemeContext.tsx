@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { getDefaultPalette } from "@/components/three/types";
+import { getThreeAppInstance } from "@/app/helpers/threeAppStore";
 
 export type Theme = "light" | "dark";
 
@@ -32,7 +33,7 @@ function syncThreeTheme(next: Theme) {
   }
 
   const palette = getDefaultPalette(next);
-  window.__THREE_APP__?.setState({ theme: next, palette });
+  getThreeAppInstance()?.setState({ theme: next, palette });
 }
 
 function persistTheme(next: Theme) {

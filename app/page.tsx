@@ -38,6 +38,7 @@ import {
   variantMapping,
   type VariantState,
 } from "@/components/three/types";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 
 type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
@@ -46,13 +47,13 @@ type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
   const storedVariantRef = useRef<VariantState | null>(null);
   const spanRef = useRef<HTMLSpanElement | null>(null);
+  const { app } = useThreeApp();
 
   const applyHoverVariant = useCallback(() => {
     if (typeof window === "undefined") {
       return;
     }
 
-    const app = window.__THREE_APP__;
     if (!app) {
       return;
     }
@@ -72,7 +73,7 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
         variant: responsiveHover,
       };
     });
-  }, [hoverVariant]);
+  }, [app, hoverVariant]);
 
   const restoreVariant = useCallback(() => {
     if (typeof window === "undefined") {
@@ -80,7 +81,6 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
       return;
     }
 
-    const app = window.__THREE_APP__;
     if (!app) {
       storedVariantRef.current = null;
       return;
@@ -102,7 +102,7 @@ function NameWithWave({ children, hoverVariant }: NameWithWaveProps) {
         variant: fallback,
       };
     });
-  }, []);
+  }, [app]);
 
   const handlePointerEnter = useCallback(() => {
     if (typeof window === "undefined") {

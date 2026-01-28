@@ -13,26 +13,33 @@ import {
   getStoredSceneState,
   updateStoredSceneState,
 } from "@/app/helpers/threeSceneStore";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
+import type { ThreeAppHandle } from "@/components/three/types";
 
 type SceneOptions = {
   opacity?: number;
   parallax?: boolean;
   hovered?: boolean;
   resetOnUnmount?: boolean;
+  enableScene?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
   opacity: 0.3,
   parallax: true,
   hovered: false,
+  enableScene: true,
 } as const;
 
 const applySceneState = (
   variantName: VariantName,
-  { opacity, parallax, hovered }: Required<Omit<SceneOptions, "resetOnUnmount">>,
+  {
+    opacity,
+    parallax,
+    hovered,
+  }: Required<Omit<SceneOptions, "resetOnUnmount" | "enableScene">>,
+  app: ThreeAppHandle | null,
 ) => {
-  const app = window.__THREE_APP__;
-
   if (!app) {
     const responsiveVariant = createResponsiveVariantState(
       variantMapping[variantName],
@@ -83,8 +90,23 @@ export function useThreeSceneSetup(
     parallax = DEFAULT_OPTIONS.parallax,
     hovered = DEFAULT_OPTIONS.hovered,
     resetOnUnmount = false,
+    enableScene = DEFAULT_OPTIONS.enableScene,
   }: SceneOptions = {},
 ) {
+  const { app, setSceneActive } = useThreeApp();
+
+  useEffect(() => {
+    if (!enableScene) {
+      return;
+    }
+
+    setSceneActive(true);
+
+    return () => {
+      setSceneActive(false);
+    };
+  }, [enableScene, setSceneActive]);
+
   useEffect(() => {
     let animationFrame: number | undefined;
 
@@ -93,7 +115,7 @@ export function useThreeSceneSetup(
         opacity,
         parallax,
         hovered,
-      });
+      }, app);
 
       if (!applied) {
         animationFrame = window.requestAnimationFrame(apply);
@@ -107,7 +129,7 @@ export function useThreeSceneSetup(
         window.cancelAnimationFrame(animationFrame);
       }
     };
-  }, [hovered, opacity, parallax, variantName]);
+  }, [app, hovered, opacity, parallax, variantName]);
 
   useEffect(() => {
     if (!resetOnUnmount) {
@@ -115,7 +137,11 @@ export function useThreeSceneSetup(
     }
 
     return () => {
-      applySceneState(variantName, { opacity, parallax, hovered });
+      applySceneState(
+        variantName,
+        { opacity, parallax, hovered },
+        app,
+      );
     };
-  }, [hovered, opacity, parallax, resetOnUnmount, variantName]);
+  }, [app, hovered, opacity, parallax, resetOnUnmount, variantName]);
 }

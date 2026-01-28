@@ -20,6 +20,7 @@ import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration"
 import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "../helpers/navigateWithExit";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 import {
   projectOrder,
@@ -43,6 +44,7 @@ export default function WorkPage() {
   const [previousProject, setPreviousProject] = useState<ProjectKey | null>(null);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const { isOpen: isMenuOpen } = useMenu();
+  const { app } = useThreeApp();
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
   const previousProjectTimeoutRef = useRef<number>();
@@ -68,13 +70,13 @@ export default function WorkPage() {
   const activeCopy = projectCopy[activeProject];
 
   useEffect(() => {
-    window.__THREE_APP__?.setState({
+    app?.setState({
       variantName: activePreview.variantName,
       parallax: false,
       hovered: true,
       opacity: isMenuOpen ? 1 : 0.3,
     });
-  }, [activePreview, isMenuOpen]);
+  }, [activePreview, app, isMenuOpen]);
 
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);

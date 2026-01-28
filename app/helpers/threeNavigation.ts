@@ -6,6 +6,7 @@ import {
   variantMapping,
 } from "@/components/three/types";
 import { applyStoredSceneState, updateStoredSceneState } from "./threeSceneStore";
+import { getThreeAppInstance } from "./threeAppStore";
 
 export const resolveVariantFromPath = (pathname: string): VariantName | null => {
   if (pathname === "/") {
@@ -32,7 +33,7 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     return;
   }
 
-  const app = window.__THREE_APP__;
+  const app = getThreeAppInstance();
   if (!app) {
     const variantName = resolveVariantFromPath(pathname);
     if (!variantName) {

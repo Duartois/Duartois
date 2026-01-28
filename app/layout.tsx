@@ -5,7 +5,6 @@ import { cookies } from "next/headers";
 import AppShell from "@/components/AppShell";
 import ThemeScript from "./theme/ThemeScript";
 import { ThemeProvider } from "./theme/ThemeContext";
-import Navbar from "@/components/Navbar";
 import CustomCursor from "@/components/CustomCursor";
 import I18nProvider from "./i18n/I18nProvider";
 import { AnimationQualityProvider } from "@/components/AnimationQualityContext";
@@ -82,7 +81,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <AnimationQualityProvider>
             <I18nProvider lang={lang}>
               <CustomCursor />
-              <AppShell navbar={<Navbar />}>{children}</AppShell>
+              <AppShell>{children}</AppShell>
             </I18nProvider>
           </AnimationQualityProvider>
         </ThemeProvider>

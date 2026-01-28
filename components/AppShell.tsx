@@ -29,10 +29,10 @@ import {
   updateStoredSceneState,
 } from "@/app/helpers/threeSceneStore";
 import type { ThreeAppState } from "@/components/three/types";
+import { ThreeAppProvider, useThreeApp } from "@/app/helpers/threeAppContext";
 
 interface AppShellProps {
   children: ReactNode;
-  navbar?: ReactNode;
 }
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
@@ -41,7 +41,9 @@ const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
   ssr: false,
 });
 
-export default function AppShell({ children, navbar }: AppShellProps) {
+const Navbar = dynamic(() => import("./Navbar"), { ssr: false });
+
+function AppShellContent({ children }: AppShellProps) {
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
@@ -49,6 +51,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
   const hasDispatchedRevealRef = useRef(false);
   const navigationScrollRef = useRef(0);
   const isContentVisible = !showPreloader;
+  const { app, isSceneActive } = useThreeApp();
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -197,7 +200,6 @@ export default function AppShell({ children, navbar }: AppShellProps) {
       return;
     }
 
-    let app: Window["__THREE_APP__"] | undefined;
     let animationFrame: number | undefined;
 
     const syncState = (state: Readonly<ThreeAppState>) => {
@@ -219,7 +221,6 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     };
 
     const attach = () => {
-      app = window.__THREE_APP__;
       if (!app) {
         animationFrame = window.requestAnimationFrame(attach);
         return;
@@ -244,7 +245,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
         app.bundle.events.removeEventListener("statechange", handleStateChange);
       }
     };
-  }, []);
+  }, [app]);
 
   const contentClassName = [
     isContentVisible ? "" : "pointer-events-none opacity-0",
@@ -269,7 +270,7 @@ export default function AppShell({ children, navbar }: AppShellProps) {
     <MenuProvider>
       <div className="app-shell relative min-h-screen w-full">
         {showPreloader && <Preloader onComplete={handleComplete} />}
-        <CanvasRoot isReady={isReady} />
+        {isSceneActive ? <CanvasRoot isReady={isReady} /> : null}
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
           className={contentClassName}
@@ -278,10 +279,18 @@ export default function AppShell({ children, navbar }: AppShellProps) {
           aria-hidden={!isContentVisible}
           aria-busy={!isContentVisible || isNavigationExiting}
         >
-          {navbar}
+          <Navbar />
           {children}
         </div>
       </div>
     </MenuProvider>
+  );
+}
+
+export default function AppShell({ children }: AppShellProps) {
+  return (
+    <ThreeAppProvider>
+      <AppShellContent>{children}</AppShellContent>
+    </ThreeAppProvider>
   );
 }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Menu from "./Menu";
+import dynamic from "next/dynamic";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "react-i18next";
@@ -34,6 +34,9 @@ import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
+
+const Menu = dynamic(() => import("./Menu"), { ssr: false });
 
 const MENU_MOBILE_BREAKPOINT = 1500;
 
@@ -58,6 +61,7 @@ export default function Navbar() {
   const [menuSceneVersion, setMenuSceneVersion] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
+  const { app } = useThreeApp();
   useEffect(() => setIsOpen(false), [pathname]);
   useEffect(() => {
     const body = document.body;
@@ -80,11 +84,6 @@ export default function Navbar() {
       return;
     }
 
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const app = window.__THREE_APP__;
     if (!app) {
       const frame = window.requestAnimationFrame(() => {
         setMenuSceneVersion((value) => value + 1);
@@ -153,7 +152,7 @@ export default function Navbar() {
         storedSceneStateRef.current = null;
       }
     };
-  }, [isOpen, menuSceneVersion]);
+  }, [app, isOpen, menuSceneVersion]);
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);

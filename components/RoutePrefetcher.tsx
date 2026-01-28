@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
+import { shouldAllowPrefetch } from "@/app/helpers/prefetch";
 
 const ROUTE_MODULE_LOADERS: Record<string, () => Promise<unknown>> = {
   "/work": () => import("@/app/work/page"),
@@ -14,13 +15,6 @@ export type RoutePrefetcherProps = {
   routes: readonly string[];
 };
 
-type NavigatorConnection = Navigator & {
-  connection?: {
-    saveData?: boolean;
-    effectiveType?: string;
-  };
-};
-
 export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
   const router = useRouter();
   const prefetchedRoutesRef = useRef(new Set<string>());
@@ -30,10 +24,6 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
       return;
     }
 
-    const connection = (navigator as NavigatorConnection).connection;
-    const shouldDeferPrefetch =
-      connection?.saveData || connection?.effectiveType === "2g";
-
     const hasIdleCallback = typeof window.requestIdleCallback === "function";
     const schedule: (callback: IdleRequestCallback) => number = hasIdleCallback
       ? window.requestIdleCallback.bind(window)
@@ -41,7 +31,7 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
           window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
 
     const prefetchRoutes = () => {
-      if (shouldDeferPrefetch) {
+      if (!shouldAllowPrefetch()) {
         return;
       }
 

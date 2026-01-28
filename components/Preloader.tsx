@@ -17,6 +17,7 @@ import {
   WORK_PROJECT_COVER_URLS,
 } from "@/app/helpers/criticalAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
+import { getThreeAppInstance, subscribeThreeApp } from "@/app/helpers/threeAppStore";
 
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
@@ -482,6 +483,7 @@ function waitForThreeReady(): Promise<void> {
 
   return new Promise((resolve) => {
     let timeoutId: number | null = null;
+    let unsubscribe: (() => void) | null = null;
     const timeoutMs = PRELOADER_MAX_DURATION_MS;
 
     const resolveOnce = () => {
@@ -489,13 +491,16 @@ function waitForThreeReady(): Promise<void> {
         window.clearTimeout(timeoutId);
         timeoutId = null;
       }
+      if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
+      }
       resolve();
     };
 
-    const connect = () => {
-      const app = window.__THREE_APP__;
+    const attach = (candidate?: ReturnType<typeof getThreeAppInstance>) => {
+      const app = candidate ?? getThreeAppInstance();
       if (!app) {
-        requestAnimationFrame(connect);
         return;
       }
 
@@ -521,7 +526,16 @@ function waitForThreeReady(): Promise<void> {
     };
 
     timeoutId = window.setTimeout(resolveOnce, timeoutMs);
-    connect();
+    attach();
+
+    if (!getThreeAppInstance()) {
+      unsubscribe = subscribeThreeApp((nextApp) => {
+        if (!nextApp) {
+          return;
+        }
+        attach(nextApp);
+      });
+    }
   });
 }
 

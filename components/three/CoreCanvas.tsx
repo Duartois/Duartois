@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useTheme } from "@/app/theme/ThemeContext";
-import { initScene } from "./initScene";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
 import type { ThreeAppHandle } from "./types";
 import { useAnimationQuality } from "@/components/AnimationQualityContext";
 import { logPerf, shouldLogPerf } from "@/app/helpers/perfDebug";
@@ -19,6 +19,7 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
   const [shouldStart, setShouldStart] = useState(false);
   const { theme } = useTheme();
   const { resolvedQuality } = useAnimationQuality();
+  const { setApp } = useThreeApp();
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -79,12 +80,15 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
       logPerf("3D scene init started.", { timeMs: Math.round(performance.now()) });
     }
 
-    void initScene({ canvas, theme }).then((handle) => {
-      if (cancelled) {
-        handle.dispose();
-        return;
-      }
-      handleRef.current = handle;
+    void import("./sceneBundle").then(({ default: initScene }) => {
+      return initScene({ canvas, theme }).then((handle) => {
+        if (cancelled) {
+          handle.dispose();
+          return;
+        }
+        handleRef.current = handle;
+        setApp(handle);
+      });
     });
 
     return () => {
@@ -94,8 +98,9 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
         handleRef.current.dispose();
         handleRef.current = null;
       }
+      setApp(null);
     };
-  }, [shouldStart, theme, isReady]);
+  }, [shouldStart, theme, isReady, setApp]);
 
   useEffect(() => {
     if (!handleRef.current) return;
