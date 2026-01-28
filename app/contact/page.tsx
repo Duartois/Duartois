@@ -8,6 +8,7 @@ import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 type ContactMail = {
   label: string;
@@ -28,12 +29,13 @@ type ContactSocials = {
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
+  const { app } = useThreeApp();
 
   useThreeSceneSetup("contact");
 
   useEffect(() => {
-    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
-  }, [isMenuOpen]);
+    app?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [app, isMenuOpen]);
 
   const mail = t("contact.mail", {
     returnObjects: true,

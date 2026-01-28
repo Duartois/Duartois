@@ -12,6 +12,7 @@ import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 import {
   projectOrder,
@@ -45,6 +46,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
+  const { app } = useThreeApp();
   useNavigationExitDuration(totalFallItems, { variant: "work" });
   const pageContentStyle = useMemo(
     () =>
@@ -59,12 +61,12 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   useThreeSceneSetup("work");
 
   useEffect(() => {
-    window.__THREE_APP__?.setState({
+    app?.setState({
       variantName: projectPreviews[detail.key].variantName,
       parallax: false,
       hovered: false,
     });
-  }, [detail.key]);
+  }, [app, detail.key]);
 
   useEffect(() => {
     const body = document.body;
@@ -90,8 +92,8 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   }, []);
 
   useEffect(() => {
-    window.__THREE_APP__?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
-  }, [isMenuOpen]);
+    app?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
+  }, [app, isMenuOpen]);
 
   const projectStyle = useMemo<DetailStyle>(
     () => ({
