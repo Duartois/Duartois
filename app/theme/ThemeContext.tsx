@@ -23,18 +23,43 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
+function getTimeBasedTheme(date = new Date()): Theme {
+  const hour = date.getHours();
+  return hour >= 18 || hour < 5 ? "dark" : "light";
+}
+
+function getNextThemeChange(date = new Date()): Date {
+  const next = new Date(date);
+  const hour = date.getHours();
+
+  if (hour >= 18) {
+    next.setDate(date.getDate() + 1);
+    next.setHours(5, 0, 0, 0);
+    return next;
+  }
+
+  if (hour >= 5) {
+    next.setHours(18, 0, 0, 0);
+    return next;
+  }
+
+  next.setHours(5, 0, 0, 0);
+  return next;
+}
+
 function resolveInitialTheme(): Theme {
   if (typeof window === "undefined") {
     return "light";
   }
 
+  const timeBased = getTimeBasedTheme();
   const stored = window.localStorage.getItem("theme");
-  if (stored === "dark" || stored === "light") {
-    return stored;
+  if ((stored === "dark" || stored === "light") && stored === timeBased) {
+    return timeBased;
   }
 
-  const hour = new Date().getHours();
-  return hour >= 18 ? "dark" : "light";
+  window.localStorage.setItem("theme", timeBased);
+  return timeBased;
 }
 
 function syncThreeTheme(next: Theme) {
@@ -67,6 +92,37 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyTheme(theme);
     syncThreeTheme(theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    let timeoutId: number;
+
+    const schedule = () => {
+      const nextChange = getNextThemeChange();
+      const delay = Math.max(nextChange.getTime() - Date.now(), 0);
+
+      timeoutId = window.setTimeout(() => {
+        const nextTheme = getTimeBasedTheme();
+        setThemeState((current) => {
+          if (current === nextTheme) {
+            return current;
+          }
+          persistTheme(nextTheme);
+          return nextTheme;
+        });
+        schedule();
+      }, delay);
+    };
+
+    schedule();
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(() => {
