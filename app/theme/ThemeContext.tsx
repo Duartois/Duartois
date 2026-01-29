@@ -24,7 +24,17 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function resolveInitialTheme(): Theme {
-  return "light";
+  if (typeof window === "undefined") {
+    return "light";
+  }
+
+  const stored = window.localStorage.getItem("theme");
+  if (stored === "dark" || stored === "light") {
+    return stored;
+  }
+
+  const hour = new Date().getHours();
+  return hour >= 18 ? "dark" : "light";
 }
 
 function syncThreeTheme(next: Theme) {
