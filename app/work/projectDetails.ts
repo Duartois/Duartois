@@ -100,7 +100,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       },
       {
         type: "image",
-        src: "https://eu-central-1.graphassets.com/AIsBIpEzjT9776nQrClIuz/cm7rr2pibozzf08urvvzd7moi",
+        src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cml55rsxx029v08pmpct6s63d",
         alt: "Brand guidelines (Concept)",
       },
       {
