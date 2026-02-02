@@ -40,7 +40,7 @@ export const projectKeyBySlug = workProjects.reduce(
 
 export const projectPreviews: Record<ProjectKey, ProjectPreview> = projectOrder.reduce(
   (previews, key) => {
-    previews[key] = { variantName: "work" } satisfies ProjectPreview;
+    previews[key] = { variantName: "home" } satisfies ProjectPreview;
     return previews;
   },
   {} as Record<ProjectKey, ProjectPreview>,

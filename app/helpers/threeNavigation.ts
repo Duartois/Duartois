@@ -13,7 +13,7 @@ export const resolveVariantFromPath = (pathname: string): VariantName | null => 
     return "home";
   }
 
-  if (pathname.startsWith("/work")) {
+  if (pathname === "/work") {
     return "work";
   }
 

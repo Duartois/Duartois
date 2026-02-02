@@ -58,7 +58,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
     [isMenuOpen],
   );
 
-  useThreeSceneSetup("work");
+  useThreeSceneSetup("home");
 
   useEffect(() => {
     app?.setState({
