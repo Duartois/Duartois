@@ -409,6 +409,7 @@ export type ShapeOpacityState = Record<ShapeId, number>;
 export type ThreeAppState = {
   variantName: VariantName;
   variant: VariantState;
+  variantTransitionMs: number | null;
   hoverVariants: {
     desktop: VariantState;
     centered: VariantState;
