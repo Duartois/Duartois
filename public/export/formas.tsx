@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 
-import { addDuartoisSignatureShapes } from "@/components/three/addShapes";
+import { addDuartoisSignatureShapes } from "@/components/three/sceneBundle";
 import { createCamera } from "@/components/three/factories";
 import {
   MENU_OVERLAY_MONOGRAM,
