@@ -27,6 +27,8 @@ import {
 import {
   APP_MENU_CLOSE_EVENT,
   APP_MENU_OPEN_EVENT,
+  APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
@@ -62,7 +64,25 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { app } = useThreeApp();
+  const isNavigationExitingRef = useRef(false);
   useEffect(() => setIsOpen(false), [pathname]);
+  useEffect(() => {
+    const handleNavigationStart = () => {
+      isNavigationExitingRef.current = true;
+    };
+
+    const handleNavigationEnd = () => {
+      isNavigationExitingRef.current = false;
+    };
+
+    window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+
+    return () => {
+      window.removeEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+    };
+  }, []);
   useEffect(() => {
     const body = document.body;
     if (!body) {
@@ -138,7 +158,7 @@ export default function Navbar() {
       window.removeEventListener("resize", applyMenuVariant);
 
       const stored = storedSceneStateRef.current;
-      if (stored) {
+      if (stored && !isNavigationExitingRef.current) {
         app.setState({
           parallax: stored.parallax,
           hovered: stored.hovered,
@@ -149,8 +169,8 @@ export default function Navbar() {
           shapeOpacity: { ...stored.shapeOpacity },
           opacity: stored.opacity,
         });
-        storedSceneStateRef.current = null;
       }
+      storedSceneStateRef.current = null;
     };
   }, [app, isOpen, menuSceneVersion]);
   const { t } = useTranslation("common");
