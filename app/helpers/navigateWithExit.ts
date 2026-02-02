@@ -131,6 +131,7 @@ export const navigateWithExit = (
   const targetPath = scenePathname ?? url.pathname;
 
   applyNavigationSceneVariant(targetPath);
+  window.__THREE_APP__?.setState({ variantTransitionMs: exitDuration });
   dispatchAppEvent(APP_NAVIGATION_START_EVENT);
   onExitStart?.();
 
@@ -138,6 +139,7 @@ export const navigateWithExit = (
     router.push(`${url.pathname}${url.search}${url.hash}`);
     window.requestAnimationFrame(() => {
       dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+      window.__THREE_APP__?.setState({ variantTransitionMs: null });
     });
   };
 

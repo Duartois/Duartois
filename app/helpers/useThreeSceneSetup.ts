@@ -56,14 +56,15 @@ const applySceneState = (
   }
 
   const stored = getStoredSceneState();
-  const responsiveVariant =
-    stored.variantName === variantName && stored.variant
-      ? createVariantState(stored.variant)
-      : createResponsiveVariantState(
-          variantMapping[variantName],
-          window.innerWidth,
-          window.innerHeight,
-        );
+  const shouldUseStoredVariant =
+    variantName !== "home" && stored.variantName === variantName && stored.variant;
+  const responsiveVariant = shouldUseStoredVariant
+    ? createVariantState(stored.variant)
+    : createResponsiveVariantState(
+        variantMapping[variantName],
+        window.innerWidth,
+        window.innerHeight,
+      );
 
   app.setState((previous) => ({
     variantName,
