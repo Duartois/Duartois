@@ -2,6 +2,7 @@
 
 import {
   createResponsiveVariantState,
+  DEFAULT_SHAPE_OPACITY,
   type VariantName,
   variantMapping,
 } from "@/components/three/types";
@@ -49,6 +50,7 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     updateStoredSceneState({
       variantName,
       variant: responsiveVariant,
+      shapeOpacity: { ...DEFAULT_SHAPE_OPACITY },
     });
     return;
   }
@@ -67,10 +69,12 @@ export const applyNavigationSceneVariant = (pathname: string) => {
   updateStoredSceneState({
     variantName,
     variant: responsiveVariant,
+    shapeOpacity: { ...DEFAULT_SHAPE_OPACITY },
   });
 
   applyStoredSceneState(app, {
     variantName,
     variant: responsiveVariant,
+    shapeOpacity: { ...DEFAULT_SHAPE_OPACITY },
   });
 };

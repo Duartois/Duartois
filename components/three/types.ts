@@ -278,7 +278,7 @@ const BASE_VIEWPORT_WIDTH = 1440;
 const BASE_VIEWPORT_HEIGHT = 900;
 const MIN_VIEWPORT_SCALE = 1;
 
-const SHAPE_IDS: readonly ShapeId[] = [
+export const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
   "waveSpringLime",
   "semiLimeFlamingo",
@@ -405,6 +405,14 @@ export type ThemeName = "light" | "dark";
 export const DEFAULT_BRIGHTNESS = 2.3;
 
 export type ShapeOpacityState = Record<ShapeId, number>;
+
+export const DEFAULT_SHAPE_OPACITY: ShapeOpacityState = SHAPE_IDS.reduce(
+  (acc, id) => {
+    acc[id] = 1;
+    return acc;
+  },
+  {} as ShapeOpacityState,
+);
 
 export type ThreeAppState = {
   variantName: VariantName;
