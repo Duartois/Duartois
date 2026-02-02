@@ -647,6 +647,7 @@ const initScene = async ({
   const initialState: ThreeAppState = {
     variantName: initialVariant,
     variant: createVariantState(initialVariantClone),
+    variantTransitionMs: null,
     hoverVariants: null,
     palette: effectivePalette,
     theme,
@@ -757,7 +758,16 @@ const initScene = async ({
     const delta = clock.getDelta();
     const elapsed = clock.getElapsedTime();
 
-    const variantLerp = clamp(delta * (state.hovered ? 7 : 5), 0, 1);
+    const variantLerp = (() => {
+      if (state.variantTransitionMs && state.variantTransitionMs > 0) {
+        const duration = Math.max(state.variantTransitionMs, 1) / 1000;
+        const targetProgress = 0.98;
+        const lambda = -Math.log(1 - targetProgress) / duration;
+        return clamp(1 - Math.exp(-lambda * delta), 0, 1);
+      }
+
+      return clamp(delta * (state.hovered ? 7 : 5), 0, 1);
+    })();
     if (variantLerp > 0) {
       shapeIds.forEach((id) => {
         const mesh = shapes.meshes[id];
@@ -987,6 +997,16 @@ const initScene = async ({
         pendingOpacity,
         pendingShapeOpacity,
       );
+    }
+
+    if ("variantTransitionMs" in partial) {
+      const nextTransition =
+        typeof partial.variantTransitionMs === "number"
+          ? Math.max(partial.variantTransitionMs, 0)
+          : null;
+      if (nextTransition !== state.variantTransitionMs) {
+        commit({ variantTransitionMs: nextTransition });
+      }
     }
 
     if (partial.variant) {
