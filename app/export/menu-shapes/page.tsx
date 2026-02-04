@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-
 import { addDuartoisSignatureShapes } from "@/components/three/sceneBundle";
 import { createCamera } from "@/components/three/factories";
 import {
@@ -59,6 +58,9 @@ function sleep(ms: number) {
   return new Promise<void>((r) => setTimeout(r, ms));
 }
 
+/**
+ * Export com supersampling (render maior + downscale 2D com smoothing high)
+ */
 async function capturePngFromRenderTarget(opts: {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
@@ -66,13 +68,29 @@ async function capturePngFromRenderTarget(opts: {
   width: number;
   height: number;
   pixelRatio: number;
+  supersample?: number;
 }): Promise<Blob> {
   const { renderer, scene, camera, width, height, pixelRatio } = opts;
 
-  const pw = Math.max(1, Math.floor(width * pixelRatio));
-  const ph = Math.max(1, Math.floor(height * pixelRatio));
+  const outW = Math.max(1, Math.floor(width * pixelRatio));
+  const outH = Math.max(1, Math.floor(height * pixelRatio));
 
-  const rt = new THREE.WebGLRenderTarget(pw, ph, {
+  const caps = renderer.capabilities as any;
+  const maxTex = caps?.maxTextureSize ?? 8192;
+  const maxRB = caps?.maxRenderbufferSize ?? maxTex;
+  const maxSide = Math.max(1024, Math.min(maxTex, maxRB));
+
+  let ss = opts.supersample ?? 2;
+  if (Math.max(outW, outH) >= 8192) ss = Math.min(ss, 1);
+
+  const allowedSSW = Math.floor(maxSide / outW);
+  const allowedSSH = Math.floor(maxSide / outH);
+  ss = Math.max(1, Math.min(ss, allowedSSW, allowedSSH));
+
+  const rw = Math.max(1, Math.floor(outW * ss));
+  const rh = Math.max(1, Math.floor(outH * ss));
+
+  const rt = new THREE.WebGLRenderTarget(rw, rh, {
     format: THREE.RGBAFormat,
     type: THREE.UnsignedByteType,
     depthBuffer: true,
@@ -90,38 +108,54 @@ async function capturePngFromRenderTarget(opts: {
   renderer.clear(true, true, true);
   renderer.render(scene, camera);
 
-  const buf = new Uint8Array(pw * ph * 4);
-  renderer.readRenderTargetPixels(rt, 0, 0, pw, ph, buf);
+  const buf = new Uint8Array(rw * rh * 4);
+  renderer.readRenderTargetPixels(rt, 0, 0, rw, rh, buf);
 
   renderer.setRenderTarget(prevRT);
   renderer.setClearColor(prevClear, prevAlpha);
 
-  const canvas2d = document.createElement("canvas");
-  canvas2d.width = pw;
-  canvas2d.height = ph;
+  const canvasSrc = document.createElement("canvas");
+  canvasSrc.width = rw;
+  canvasSrc.height = rh;
 
-  const ctx = canvas2d.getContext("2d");
-  if (!ctx) {
+  const ctxSrc = canvasSrc.getContext("2d");
+  if (!ctxSrc) {
     rt.dispose();
     throw new Error("Falha ao criar canvas 2D para export.");
   }
 
-  const img = ctx.createImageData(pw, ph);
-  const row = pw * 4;
-  for (let y = 0; y < ph; y++) {
-    const srcStart = (ph - 1 - y) * row;
+  const img = ctxSrc.createImageData(rw, rh);
+  const row = rw * 4;
+  for (let y = 0; y < rh; y++) {
+    const srcStart = (rh - 1 - y) * row;
     const dstStart = y * row;
     img.data.set(buf.subarray(srcStart, srcStart + row), dstStart);
   }
-  ctx.putImageData(img, 0, 0);
+  ctxSrc.putImageData(img, 0, 0);
 
   rt.dispose();
 
+  let canvasOut = canvasSrc;
+
+  if (ss > 1 && (rw !== outW || rh !== outH)) {
+    const canvasDst = document.createElement("canvas");
+    canvasDst.width = outW;
+    canvasDst.height = outH;
+
+    const ctxDst = canvasDst.getContext("2d");
+    if (!ctxDst) throw new Error("Falha ao criar canvas 2D (downscale) para export.");
+
+    ctxDst.imageSmoothingEnabled = true;
+    // @ts-ignore
+    ctxDst.imageSmoothingQuality = "high";
+    ctxDst.clearRect(0, 0, outW, outH);
+    ctxDst.drawImage(canvasSrc, 0, 0, rw, rh, 0, 0, outW, outH);
+
+    canvasOut = canvasDst;
+  }
+
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas2d.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))),
-      "image/png",
-    );
+    canvasOut.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))), "image/png");
   });
 
   return blob;
@@ -212,9 +246,7 @@ export default function MenuShapesPage() {
       (canvas.getContext("experimental-webgl", attrs) as WebGLRenderingContext | null);
 
     if (!gl) {
-      setError(
-        "Não foi possível criar contexto WebGL. Feche abas com WebGL / reinicie o navegador / teste aba anônima.",
-      );
+      setError("Não foi possível criar contexto WebGL.");
       setLoading(false);
       canvas.removeEventListener("webglcontextlost", onLost as any);
       return;
@@ -241,11 +273,8 @@ export default function MenuShapesPage() {
 
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.setClearColor(0x000000, 0);
-
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = false;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
       renderer.toneMappingExposure = getToneMappingExposure(theme);
     } catch (e) {
       console.error("[menu-shapes] WebGL init failed:", e);
@@ -280,7 +309,7 @@ export default function MenuShapesPage() {
     };
 
     const expandBoxByMeshGeometry = (box: THREE.Box3, mesh: THREE.Mesh) => {
-      const geom = mesh.geometry;
+      const geom = mesh.geometry as THREE.BufferGeometry;
       if (!geom.boundingBox) geom.computeBoundingBox();
       const bb = geom.boundingBox;
       if (!bb) return;
@@ -355,19 +384,58 @@ export default function MenuShapesPage() {
       cluster.updateMatrixWorld(true);
     };
 
-    // ========= PELÍCULA (bubble film) por forma =========
-    // FIX: criar geometria "welded" (mergeVertices) só para a película,
-    // para evitar seams nas pontas/caps que viram “bolinhas grudadas”.
+    // ====== Envmap simples p/ realçar borda (não precisa “reflexo entre formas” aqui) ======
+    const cubeRT = new THREE.WebGLCubeRenderTarget(256, {
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+      generateMipmaps: true,
+      minFilter: THREE.LinearMipmapLinearFilter,
+    });
+    cubeRT.texture.colorSpace = THREE.SRGBColorSpace;
+
+    const cubeCam = new THREE.CubeCamera(0.05, 200, cubeRT);
+    scene.add(cubeCam);
+
+    const getClusterWorldCenter = () => {
+      const c = clusterRef.current;
+      if (!c) return new THREE.Vector3(0, 0, 0);
+      const box = new THREE.Box3().setFromObject(c);
+      const center = new THREE.Vector3();
+      if (!box.isEmpty()) box.getCenter(center);
+      return center;
+    };
+
+    const setFilmsVisible = (visible: boolean) => {
+      for (const m of Object.values(meshesRef.current)) {
+        const a = m.getObjectByName("__FILM__");
+        const b = m.getObjectByName("__INNER_FILM__");
+        if (a) a.visible = visible;
+        if (b) b.visible = visible;
+      }
+    };
+
+    const updateEnvMap = () => {
+      if (!renderer || !scene) return;
+      setFilmsVisible(false);
+      cubeCam.position.copy(getClusterWorldCenter());
+      cubeCam.update(renderer, scene);
+      setFilmsVisible(true);
+    };
+
+    // =========================
+    // 2 PELÍCULAS (BOLHA FORA + BOLHA DENTRO)
+    // =========================
     const FILM_VS = `
       varying vec3 vN;
       varying vec3 vV;
-
       uniform float uInflate;
 
       void main() {
         vec3 p = position + normal * uInflate;
 
-        vec4 mvPos = modelViewMatrix * vec4(p, 1.0);
+        vec4 wPos = modelMatrix * vec4(p, 1.0);
+        vec4 mvPos = viewMatrix * wPos;
+
         vV = normalize(-mvPos.xyz);
         vN = normalize(normalMatrix * normal);
 
@@ -379,12 +447,19 @@ export default function MenuShapesPage() {
       varying vec3 vN;
       varying vec3 vV;
 
+      uniform samplerCube uEnvMap;
+
       uniform float uEdgeAlpha;
       uniform float uEdgePower;
       uniform float uFrontKillA;
       uniform float uFrontKillB;
       uniform float uGlow;
       uniform float uHueShift;
+
+      uniform float uEnvIntensity;
+      uniform float uReflPower;
+      uniform float uReflTint;
+      uniform float uSpecFloor;
 
       float sat(float x){ return clamp(x, 0.0, 1.0); }
 
@@ -396,33 +471,42 @@ export default function MenuShapesPage() {
         vec3 N = normalize(vN);
         vec3 V = normalize(vV);
 
-        float ndv = sat(dot(N, V)); // sem abs: verso não “vira frente”
-
+        float ndv = sat(dot(N, V));
         float fres = pow(1.0 - ndv, uEdgePower);
 
         float frontKill = smoothstep(uFrontKillA, uFrontKillB, ndv);
         float edge = fres * (1.0 - frontKill);
 
-        float t = sat(edge * 1.15 + (1.0 - ndv) * 0.35 + uHueShift);
+        float t = sat(edge * 1.10 + (1.0 - ndv) * 0.42 + uHueShift);
 
-        vec3 col = cosinePalette(
+        vec3 ir = cosinePalette(
           t,
-          vec3(0.55, 0.65, 0.95),
-          vec3(0.45, 0.35, 0.25),
+          vec3(0.54, 0.64, 0.96),
+          vec3(0.46, 0.34, 0.26),
           vec3(1.00, 1.00, 1.00),
-          vec3(0.05, 0.15, 0.25)
+          vec3(0.03, 0.13, 0.25)
         );
 
-        col += vec3(0.65, 0.75, 1.0) * pow(edge, 2.2) * uGlow;
+        vec3 R = reflect(-V, N);
+        vec3 env = textureCube(uEnvMap, R).rgb;
+
+        float reflF = pow(1.0 - ndv, uReflPower);
+        vec3 refl = env * (uEnvIntensity * (0.35 + 0.65 * reflF));
+        refl = mix(refl, refl * vec3(0.85, 0.95, 1.10), uReflTint);
+
+        vec3 glow = vec3(0.70, 0.82, 1.00) * pow(edge, 1.55) * uGlow;
+
+        vec3 col = ir * (0.55 + 0.45 * edge) + glow + refl;
 
         float a = edge * uEdgeAlpha;
         a *= (1.0 - frontKill);
+        a = max(a, uSpecFloor * reflF);
 
-        gl_FragColor = vec4(col, a);
+        gl_FragColor = vec4(col, sat(a));
       }
     `;
 
-    const filmMat = new THREE.ShaderMaterial({
+    const outerFilmMat = new THREE.ShaderMaterial({
       vertexShader: FILM_VS,
       fragmentShader: FILM_FS,
       transparent: true,
@@ -434,19 +518,48 @@ export default function MenuShapesPage() {
       polygonOffsetFactor: -1,
       polygonOffsetUnits: -1,
       uniforms: {
-        // distância uniforme (ajuste fino aqui)
-        uInflate: { value: 0.12 },
-
-        uEdgeAlpha: { value: 0.95 },
-        uEdgePower: { value: 3.2 },
-        uFrontKillA: { value: 0.72 },
-        uFrontKillB: { value: 0.94 },
-        uGlow: { value: 0.85 },
-        uHueShift: { value: 0.12 },
+        uInflate: { value: 0.165 },
+        uEdgeAlpha: { value: 1.05 },
+        uEdgePower: { value: 2.55 },
+        uFrontKillA: { value: 0.70 },
+        uFrontKillB: { value: 0.95 },
+        uGlow: { value: 1.25 },
+        uHueShift: { value: 0.14 },
+        uEnvMap: { value: cubeRT.texture },
+        uEnvIntensity: { value: 1.35 },
+        uReflPower: { value: 2.15 },
+        uReflTint: { value: 0.55 },
+        uSpecFloor: { value: 0.018 },
       },
     });
 
-    // cache p/ não recriar geometria toda hora
+    const innerFilmMat = new THREE.ShaderMaterial({
+      vertexShader: FILM_VS,
+      fragmentShader: FILM_FS,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.NormalBlending,
+      side: THREE.BackSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+      uniforms: {
+        uInflate: { value: -0.085 },
+        uEdgeAlpha: { value: 0.72 }, // mais presente pra aparecer bem
+        uEdgePower: { value: 2.25 },
+        uFrontKillA: { value: 0.62 },
+        uFrontKillB: { value: 0.92 },
+        uGlow: { value: 0.85 },
+        uHueShift: { value: 0.10 },
+        uEnvMap: { value: cubeRT.texture },
+        uEnvIntensity: { value: 1.05 },
+        uReflPower: { value: 2.05 },
+        uReflTint: { value: 0.50 },
+        uSpecFloor: { value: 0.012 },
+      },
+    });
+
     const filmGeomCache = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
     const filmGeomList: THREE.BufferGeometry[] = [];
 
@@ -454,13 +567,9 @@ export default function MenuShapesPage() {
       const cached = filmGeomCache.get(src);
       if (cached) return cached;
 
-      // clone -> weld -> normals suaves e contínuas
       let g = src.clone();
-
-      // garante que dá para “weldar” bem
-      // (mergeVertices lida melhor quando tem index / ou cria index internamente)
       g = mergeVertices(g, 1e-4);
-      g.computeVertexNormals(); // agora sem costura nas pontas
+      g.computeVertexNormals();
       g.computeBoundingSphere?.();
       g.computeBoundingBox?.();
 
@@ -469,26 +578,46 @@ export default function MenuShapesPage() {
       return g;
     };
 
-    const ensureFilmOnMesh = (mesh: THREE.Mesh) => {
-      if (mesh.getObjectByName("__FILM__")) return;
-
+    const ensureBubbleInsideBubble = (mesh: THREE.Mesh) => {
       const base = mesh.geometry as THREE.BufferGeometry;
       if (!base.attributes.normal) base.computeVertexNormals();
 
+      // IMPORTANT: miolo NÃO desenha nada, mas mantém o mesh para carregar as películas
+      const applyNoFill = (mat: any) => {
+        mat.transparent = true;
+        mat.opacity = 0.0;
+        mat.depthWrite = false;
+        mat.colorWrite = false;
+        if ("alphaTest" in mat) mat.alphaTest = 0;
+        mat.needsUpdate = true;
+      };
+
+      const mat = mesh.material as any;
+      if (Array.isArray(mat)) for (const m of mat) if (m) applyNoFill(m);
+      else if (mat) applyNoFill(mat);
+
       const filmGeom = getFilmGeometry(base);
 
-      const shell = new THREE.Mesh(filmGeom, filmMat);
-      shell.name = "__FILM__";
-      shell.frustumCulled = false;
-      shell.renderOrder = (mesh.renderOrder ?? 0) + 10;
+      if (!mesh.getObjectByName("__INNER_FILM__")) {
+        const inner = new THREE.Mesh(filmGeom, innerFilmMat);
+        inner.name = "__INNER_FILM__";
+        inner.frustumCulled = false;
+        inner.renderOrder = (mesh.renderOrder ?? 0) + 9;
+        mesh.add(inner);
+      }
 
-      mesh.add(shell);
+      if (!mesh.getObjectByName("__FILM__")) {
+        const outer = new THREE.Mesh(filmGeom, outerFilmMat);
+        outer.name = "__FILM__";
+        outer.frustumCulled = false;
+        outer.renderOrder = (mesh.renderOrder ?? 0) + 10;
+        mesh.add(outer);
+      }
     };
 
-    const buildFilms = () => {
-      for (const m of Object.values(meshesRef.current)) ensureFilmOnMesh(m);
+    const buildBubbles = () => {
+      for (const m of Object.values(meshesRef.current)) ensureBubbleInsideBubble(m);
     };
-    // ===================================================
 
     const renderOnce = () => {
       if (!renderer || !scene || !camera) return;
@@ -500,7 +629,6 @@ export default function MenuShapesPage() {
 
     const resize = () => {
       if (!renderer || !camera) return;
-
       const { w, h, aspect } = getRectSize();
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.setSize(w, h, false);
@@ -508,15 +636,15 @@ export default function MenuShapesPage() {
 
       applyVariant(w, h);
       centerCluster();
-      buildFilms();
+      buildBubbles();
 
+      updateEnvMap();
       renderOnce();
     };
 
     const renderOneToBlob = async (id: string, doCrop: boolean) => {
       const shapes = shapesRef.current;
       const meshes = meshesRef.current;
-
       if (!renderer || !scene || !camera || !shapes || !meshes[id]) return null;
 
       const target = meshes[id];
@@ -537,7 +665,7 @@ export default function MenuShapesPage() {
       }
 
       centerCluster();
-      buildFilms();
+      buildBubbles();
 
       const { w, h, aspect } = getRectSize();
       renderer.setSize(w, h, false);
@@ -549,8 +677,12 @@ export default function MenuShapesPage() {
         fitCameraToBox(box, aspect, 1.18);
       }
 
-      const maxTex = (renderer.capabilities as any).maxTextureSize ?? 8192;
-      const longEdge = Math.min(exportLongEdge, maxTex);
+      updateEnvMap();
+
+      const caps = renderer.capabilities as any;
+      const maxTex = caps?.maxTextureSize ?? 8192;
+      const maxRB = caps?.maxRenderbufferSize ?? maxTex;
+      const longEdge = Math.min(exportLongEdge, maxTex, maxRB);
       const pr = Math.max(1, longEdge / Math.max(w, h));
 
       const blob = await capturePngFromRenderTarget({
@@ -560,6 +692,7 @@ export default function MenuShapesPage() {
         width: w,
         height: h,
         pixelRatio: pr,
+        supersample: 2,
       });
 
       for (const [o, v] of vis) o.visible = v;
@@ -572,7 +705,9 @@ export default function MenuShapesPage() {
       camera.bottom = camState.bottom;
       camera.updateProjectionMatrix();
 
+      updateEnvMap();
       renderOnce();
+
       return blob;
     };
 
@@ -584,7 +719,6 @@ export default function MenuShapesPage() {
 
     const exportAll = async (doCrop: boolean) => {
       const keys = Object.keys(meshesRef.current);
-      if (!keys.length) return;
       for (const id of keys) {
         const blob = await renderOneToBlob(id, doCrop);
         if (!blob) continue;
@@ -598,6 +732,7 @@ export default function MenuShapesPage() {
     const tick = () => {
       if (!mounted) return;
       raf = requestAnimationFrame(tick);
+      updateEnvMap();
       renderOnce();
     };
 
@@ -618,14 +753,12 @@ export default function MenuShapesPage() {
         );
 
         const shapes = await addDuartoisSignatureShapes(scene!, initialVariant, theme);
-
         if (!mounted) {
           shapes.dispose?.();
           return;
         }
 
         shapes.setBrightness(DEFAULT_BRIGHTNESS);
-
         shapesRef.current = shapes;
 
         const meshes = shapes.meshes as Record<string, THREE.Mesh>;
@@ -636,11 +769,10 @@ export default function MenuShapesPage() {
         setError(null);
 
         centerCluster();
-        buildFilms();
+        buildBubbles();
         resize();
 
         window.addEventListener("resize", resize);
-
         tick();
       } catch (e: any) {
         console.error("[menu-shapes] failed:", e);
@@ -652,15 +784,12 @@ export default function MenuShapesPage() {
 
     return () => {
       mounted = false;
-
       try {
         window.removeEventListener("resize", resize);
       } catch {}
-
       try {
         cancelAnimationFrame(raf);
       } catch {}
-
       try {
         delete window.__DUARTOIS_EXPORT__;
       } catch {}
@@ -671,10 +800,14 @@ export default function MenuShapesPage() {
       } catch {}
 
       try {
-        filmMat.dispose();
+        outerFilmMat.dispose();
       } catch {}
-
-      // dispose das geometrias “welded” do filme
+      try {
+        innerFilmMat.dispose();
+      } catch {}
+      try {
+        cubeRT.dispose();
+      } catch {}
       try {
         for (const g of filmGeomList) g.dispose();
       } catch {}
@@ -753,7 +886,7 @@ export default function MenuShapesPage() {
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-          <div style={{ fontWeight: 600 }}>Exportar formas</div>
+          <div style={{ fontWeight: 600 }}>Exportar bolhas</div>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
             <input type="checkbox" checked={crop} onChange={(e) => setCrop(e.target.checked)} />
             Crop
@@ -775,9 +908,9 @@ export default function MenuShapesPage() {
               outline: "none",
             }}
           >
-            <option value={2048}>2048 px (rápido)</option>
-            <option value={4096}>4096 px (alta)</option>
-            <option value={8192}>8192 px (máxima)</option>
+            <option value={2048}>2048 px</option>
+            <option value={4096}>4096 px</option>
+            <option value={8192}>8192 px</option>
           </select>
         </div>
 
@@ -796,19 +929,12 @@ export default function MenuShapesPage() {
               fontWeight: 600,
             }}
           >
-            {error
-              ? "Falha ao carregar"
-              : loading
-                ? "Carregando..."
-                : `Salvar/baixar tudo (${crop ? "crop" : "layout"})`}
+            {error ? "Falha ao carregar" : loading ? "Carregando..." : `Baixar tudo (${crop ? "crop" : "layout"})`}
           </button>
 
           {error && (
             <>
-              <div style={{ marginTop: 10, fontSize: 12, color: "#ffd1d1", lineHeight: 1.35 }}>
-                {error}
-              </div>
-
+              <div style={{ marginTop: 10, fontSize: 12, color: "#ffd1d1", lineHeight: 1.35 }}>{error}</div>
               <button
                 onClick={resetWebGL}
                 style={{
@@ -861,15 +987,6 @@ export default function MenuShapesPage() {
               </button>
             </div>
           ))}
-
-          {!loading && !error && ids.length === 0 && (
-            <div style={{ fontSize: 12, opacity: 0.85 }}>Nenhuma forma encontrada.</div>
-          )}
-        </div>
-
-        <div style={{ marginTop: 10, fontSize: 11, opacity: 0.85, lineHeight: 1.35 }}>
-          Export PNG em alta resolução (long edge). Para formas “maiores” no arquivo final, habilite{" "}
-          <b>Crop</b>.
         </div>
       </div>
 
