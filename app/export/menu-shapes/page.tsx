@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
+import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+
 
 import { addDuartoisSignatureShapes } from "@/components/three/sceneBundle";
 import { createCamera } from "@/components/three/factories";
@@ -57,67 +59,6 @@ function sleep(ms: number) {
   return new Promise<void>((r) => setTimeout(r, ms));
 }
 
-/** --------- Outline “bubble metal” (1 mesh apenas) --------- */
-const OUTLINE_VS = `
-  varying vec3 vWPos;
-  varying vec3 vWNorm;
-
-  void main() {
-    vec4 wPos = modelMatrix * vec4(position, 1.0);
-    vWPos = wPos.xyz;
-    vWNorm = normalize(mat3(modelMatrix) * normal);
-    gl_Position = projectionMatrix * viewMatrix * wPos;
-  }
-`;
-
-const OUTLINE_FS = `
-  uniform vec3 uA;
-  uniform vec3 uB;
-  uniform vec3 uC;
-  uniform vec3 uWhite;
-  uniform vec3 uTint;
-
-  uniform float uPower;
-  uniform float uAlpha;
-  uniform float uInner;
-  uniform float uOuter;
-  uniform float uIriMix;
-
-  varying vec3 vWPos;
-  varying vec3 vWNorm;
-
-  void main() {
-    vec3 N = normalize(vWNorm);
-    vec3 V = normalize(cameraPosition - vWPos);
-
-    float ndv = clamp(dot(N, V), 0.0, 1.0);
-    float edge = pow(1.0 - ndv, uPower);
-
-    // banda do outline (mais “bubble”)
-    float band = smoothstep(uInner, uOuter, edge);
-    band = smoothstep(0.0, 1.0, band);
-
-    float up = clamp(N.y * 0.5 + 0.5, 0.0, 1.0);
-    float side = clamp(N.x * 0.5 + 0.5, 0.0, 1.0);
-
-    vec3 iri = mix(uA, uB, up);
-    iri = mix(iri, uC, side * 0.65);
-
-    // cor do outline (apenas contorno)
-    vec3 col = mix(uWhite, iri, uIriMix);
-
-    // “reflexo”/glint leve e esverdeado
-    vec3 R = reflect(-V, N);
-    float glint = pow(clamp(dot(R, normalize(vec3(0.18, 0.72, 0.62))), 0.0, 1.0), 18.0);
-    col += uTint * glint * 0.28;
-
-    // leve viés verde (só no outline)
-    col *= uTint;
-
-    gl_FragColor = vec4(col * band, band * uAlpha);
-  }
-`;
-
 async function capturePngFromRenderTarget(opts: {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
@@ -139,12 +80,6 @@ async function capturePngFromRenderTarget(opts: {
   });
   rt.texture.colorSpace = THREE.SRGBColorSpace;
 
-  // MSAA (WebGL2)
-  try {
-    const maxSamples = (renderer.capabilities as any).maxSamples ?? 0;
-    (rt as any).samples = Math.min(4, maxSamples);
-  } catch {}
-
   const prevRT = renderer.getRenderTarget();
   const prevClear = new THREE.Color();
   renderer.getClearColor(prevClear);
@@ -161,7 +96,6 @@ async function capturePngFromRenderTarget(opts: {
   renderer.setRenderTarget(prevRT);
   renderer.setClearColor(prevClear, prevAlpha);
 
-  // flip Y
   const canvas2d = document.createElement("canvas");
   canvas2d.width = pw;
   canvas2d.height = ph;
@@ -184,7 +118,10 @@ async function capturePngFromRenderTarget(opts: {
   rt.dispose();
 
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas2d.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))), "image/png");
+    canvas2d.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))),
+      "image/png",
+    );
   });
 
   return blob;
@@ -198,6 +135,7 @@ export default function MenuShapesPage() {
 
   const shapesRef = useRef<ShapesHandle | null>(null);
   const meshesRef = useRef<Record<string, THREE.Mesh>>({});
+  const clusterRef = useRef<THREE.Group | null>(null);
 
   const [ids, setIds] = useState<string[]>([]);
   const [crop, setCrop] = useState(false);
@@ -209,16 +147,7 @@ export default function MenuShapesPage() {
   const resetWebGL = useCallback(() => setCanvasKey((k) => k + 1), []);
 
   const theme: ThemeName = "light";
-
-  const previewBg = useMemo(
-    () =>
-      [
-        "radial-gradient(860px 620px at 50% 46%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 28%, rgba(255,255,255,0.00) 64%)",
-        "radial-gradient(980px 720px at 50% 50%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.00) 60%)",
-        "radial-gradient(780px 560px at 50% 44%, rgba(255,255,255,0.06) 0%, rgba(130,140,175,0.22) 28%, rgba(84,92,120,0.70) 62%, rgba(58,64,88,0.94) 100%)",
-      ].join(","),
-    [],
-  );
+  const getToneMappingExposure = (t: ThemeName) => (t === "light" ? 1.1 : 1.5);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -254,12 +183,6 @@ export default function MenuShapesPage() {
     let scene: THREE.Scene | null = null;
     let camera: THREE.OrthographicCamera | null = null;
 
-    const extraMaterials = new Set<THREE.Material>();
-    const extraMeshes: THREE.Object3D[] = [];
-    const extraTextures = new Set<THREE.Texture>();
-    const extraGeometries = new Set<THREE.BufferGeometry>();
-    let envRT: THREE.WebGLRenderTarget | null = null;
-
     const safeDisposeRenderer = () => {
       try {
         renderer?.renderLists?.dispose?.();
@@ -289,7 +212,9 @@ export default function MenuShapesPage() {
       (canvas.getContext("experimental-webgl", attrs) as WebGLRenderingContext | null);
 
     if (!gl) {
-      setError("Não foi possível criar contexto WebGL. Feche abas com WebGL / reinicie o navegador / teste aba anônima.");
+      setError(
+        "Não foi possível criar contexto WebGL. Feche abas com WebGL / reinicie o navegador / teste aba anônima.",
+      );
       setLoading(false);
       canvas.removeEventListener("webglcontextlost", onLost as any);
       return;
@@ -316,11 +241,12 @@ export default function MenuShapesPage() {
 
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.setClearColor(0x000000, 0);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.shadowMap.enabled = false;
 
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.0;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.shadowMap.enabled = false;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      renderer.toneMappingExposure = getToneMappingExposure(theme);
     } catch (e) {
       console.error("[menu-shapes] WebGL init failed:", e);
       setError("Falha ao iniciar WebGL. Clique em “Reiniciar WebGL”.");
@@ -331,45 +257,10 @@ export default function MenuShapesPage() {
 
     scene = new THREE.Scene();
 
-    // env leve (ajuda o look “refletivo” do conjunto, sem mexer na cor base)
-    const makeEnvEquirect = () => {
-      const c = document.createElement("canvas");
-      c.width = 512;
-      c.height = 256;
-      const ctx = c.getContext("2d")!;
-      const g = ctx.createLinearGradient(0, 0, c.width, c.height);
-      g.addColorStop(0.0, "#ffffff");
-      g.addColorStop(0.42, "#8ec2ff");
-      g.addColorStop(0.76, "#ff9fd3");
-      g.addColorStop(1.0, "#ffffff");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, c.width, c.height);
-
-      ctx.globalCompositeOperation = "screen";
-      const h = ctx.createRadialGradient(c.width * 0.62, c.height * 0.38, 10, c.width * 0.62, c.height * 0.38, 180);
-      h.addColorStop(0, "rgba(210,255,235,0.52)"); // ✅ viés verde no highlight do env
-      h.addColorStop(1, "rgba(255,255,255,0.0)");
-      ctx.fillStyle = h;
-      ctx.fillRect(0, 0, c.width, c.height);
-      ctx.globalCompositeOperation = "source-over";
-
-      const tex = new THREE.CanvasTexture(c);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.mapping = THREE.EquirectangularReflectionMapping;
-      tex.needsUpdate = true;
-      extraTextures.add(tex);
-      return tex;
-    };
-
-    try {
-      const envTex = makeEnvEquirect();
-      const pmrem = new THREE.PMREMGenerator(renderer);
-      pmrem.compileEquirectangularShader();
-      envRT = pmrem.fromEquirectangular(envTex);
-      pmrem.dispose();
-      envTex.dispose();
-      scene.environment = envRT.texture;
-    } catch {}
+    const cluster = new THREE.Group();
+    cluster.name = "EXPORT_CLUSTER";
+    scene.add(cluster);
+    clusterRef.current = cluster;
 
     camera = createCamera() as THREE.OrthographicCamera;
     camera.position.set(0, 0, 15);
@@ -416,7 +307,7 @@ export default function MenuShapesPage() {
       }
     };
 
-    const fitCameraToBox = (box: THREE.Box3, aspect: number, padding = 1.34) => {
+    const fitCameraToBox = (box: THREE.Box3, aspect: number, padding = 1.18) => {
       if (!camera) return;
       if (box.isEmpty()) return;
 
@@ -447,6 +338,158 @@ export default function MenuShapesPage() {
       shapesRef.current?.applyVariant(v);
     };
 
+    const centerCluster = () => {
+      const cluster = clusterRef.current;
+      const meshes = meshesRef.current;
+      if (!cluster) return;
+
+      for (const m of Object.values(meshes)) cluster.attach(m);
+
+      const box = new THREE.Box3().setFromObject(cluster);
+      if (box.isEmpty()) return;
+
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+
+      cluster.position.sub(center);
+      cluster.updateMatrixWorld(true);
+    };
+
+    // ========= PELÍCULA (bubble film) por forma =========
+    // FIX: criar geometria "welded" (mergeVertices) só para a película,
+    // para evitar seams nas pontas/caps que viram “bolinhas grudadas”.
+    const FILM_VS = `
+      varying vec3 vN;
+      varying vec3 vV;
+
+      uniform float uInflate;
+
+      void main() {
+        vec3 p = position + normal * uInflate;
+
+        vec4 mvPos = modelViewMatrix * vec4(p, 1.0);
+        vV = normalize(-mvPos.xyz);
+        vN = normalize(normalMatrix * normal);
+
+        gl_Position = projectionMatrix * mvPos;
+      }
+    `;
+
+    const FILM_FS = `
+      varying vec3 vN;
+      varying vec3 vV;
+
+      uniform float uEdgeAlpha;
+      uniform float uEdgePower;
+      uniform float uFrontKillA;
+      uniform float uFrontKillB;
+      uniform float uGlow;
+      uniform float uHueShift;
+
+      float sat(float x){ return clamp(x, 0.0, 1.0); }
+
+      vec3 cosinePalette(float t, vec3 a, vec3 b, vec3 c, vec3 d){
+        return a + b * cos(6.28318 * (c * t + d));
+      }
+
+      void main() {
+        vec3 N = normalize(vN);
+        vec3 V = normalize(vV);
+
+        float ndv = sat(dot(N, V)); // sem abs: verso não “vira frente”
+
+        float fres = pow(1.0 - ndv, uEdgePower);
+
+        float frontKill = smoothstep(uFrontKillA, uFrontKillB, ndv);
+        float edge = fres * (1.0 - frontKill);
+
+        float t = sat(edge * 1.15 + (1.0 - ndv) * 0.35 + uHueShift);
+
+        vec3 col = cosinePalette(
+          t,
+          vec3(0.55, 0.65, 0.95),
+          vec3(0.45, 0.35, 0.25),
+          vec3(1.00, 1.00, 1.00),
+          vec3(0.05, 0.15, 0.25)
+        );
+
+        col += vec3(0.65, 0.75, 1.0) * pow(edge, 2.2) * uGlow;
+
+        float a = edge * uEdgeAlpha;
+        a *= (1.0 - frontKill);
+
+        gl_FragColor = vec4(col, a);
+      }
+    `;
+
+    const filmMat = new THREE.ShaderMaterial({
+      vertexShader: FILM_VS,
+      fragmentShader: FILM_FS,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.NormalBlending,
+      side: THREE.FrontSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+      uniforms: {
+        // distância uniforme (ajuste fino aqui)
+        uInflate: { value: 0.12 },
+
+        uEdgeAlpha: { value: 0.95 },
+        uEdgePower: { value: 3.2 },
+        uFrontKillA: { value: 0.72 },
+        uFrontKillB: { value: 0.94 },
+        uGlow: { value: 0.85 },
+        uHueShift: { value: 0.12 },
+      },
+    });
+
+    // cache p/ não recriar geometria toda hora
+    const filmGeomCache = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
+    const filmGeomList: THREE.BufferGeometry[] = [];
+
+    const getFilmGeometry = (src: THREE.BufferGeometry) => {
+      const cached = filmGeomCache.get(src);
+      if (cached) return cached;
+
+      // clone -> weld -> normals suaves e contínuas
+      let g = src.clone();
+
+      // garante que dá para “weldar” bem
+      // (mergeVertices lida melhor quando tem index / ou cria index internamente)
+      g = mergeVertices(g, 1e-4);
+      g.computeVertexNormals(); // agora sem costura nas pontas
+      g.computeBoundingSphere?.();
+      g.computeBoundingBox?.();
+
+      filmGeomCache.set(src, g);
+      filmGeomList.push(g);
+      return g;
+    };
+
+    const ensureFilmOnMesh = (mesh: THREE.Mesh) => {
+      if (mesh.getObjectByName("__FILM__")) return;
+
+      const base = mesh.geometry as THREE.BufferGeometry;
+      if (!base.attributes.normal) base.computeVertexNormals();
+
+      const filmGeom = getFilmGeometry(base);
+
+      const shell = new THREE.Mesh(filmGeom, filmMat);
+      shell.name = "__FILM__";
+      shell.frustumCulled = false;
+      shell.renderOrder = (mesh.renderOrder ?? 0) + 10;
+
+      mesh.add(shell);
+    };
+
+    const buildFilms = () => {
+      for (const m of Object.values(meshesRef.current)) ensureFilmOnMesh(m);
+    };
+    // ===================================================
+
     const renderOnce = () => {
       if (!renderer || !scene || !camera) return;
       renderer.setRenderTarget(null);
@@ -456,251 +499,18 @@ export default function MenuShapesPage() {
     };
 
     const resize = () => {
-      if (!renderer) return;
+      if (!renderer || !camera) return;
 
       const { w, h, aspect } = getRectSize();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
       renderer.setSize(w, h, false);
       setCameraAspect(aspect);
 
       applyVariant(w, h);
-
-      const meshes = meshesRef.current;
-      const baseBox = new THREE.Box3();
-      for (const m of Object.values(meshes)) expandBoxByMeshGeometry(baseBox, m);
-      fitCameraToBox(baseBox, aspect, 1.34);
+      centerCluster();
+      buildFilms();
 
       renderOnce();
-    };
-
-    // --- texturas leves (shadow + spec) ---
-    const makeRadialTex = (stops: Array<[number, string]>) => {
-      const c = document.createElement("canvas");
-      c.width = 256;
-      c.height = 256;
-      const ctx = c.getContext("2d")!;
-      const g = ctx.createRadialGradient(128, 128, 10, 128, 128, 126);
-      for (const [p, col] of stops) g.addColorStop(p, col);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 256, 256);
-      const tex = new THREE.CanvasTexture(c);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.needsUpdate = true;
-      extraTextures.add(tex);
-      return tex;
-    };
-
-    const shadowTex = makeRadialTex([
-      [0.0, "rgba(0,0,0,0.26)"],
-      [0.55, "rgba(0,0,0,0.11)"],
-      [1.0, "rgba(0,0,0,0.0)"],
-    ]);
-
-    const makeSpecTex = () => {
-      const c = document.createElement("canvas");
-      c.width = 512;
-      c.height = 256;
-      const ctx = c.getContext("2d")!;
-      ctx.clearRect(0, 0, c.width, c.height);
-
-      ctx.save();
-      ctx.translate(c.width * 0.56, c.height * 0.44);
-      ctx.rotate(-0.35);
-      const g = ctx.createLinearGradient(-260, 0, 260, 0);
-      g.addColorStop(0.0, "rgba(255,255,255,0.0)");
-      g.addColorStop(0.46, "rgba(210,255,235,0.08)"); // ✅ verde suave
-      g.addColorStop(0.5, "rgba(210,255,235,0.26)");
-      g.addColorStop(0.54, "rgba(210,255,235,0.08)");
-      g.addColorStop(1.0, "rgba(255,255,255,0.0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(-280, -26, 560, 52);
-      ctx.restore();
-
-      const tex = new THREE.CanvasTexture(c);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.needsUpdate = true;
-      extraTextures.add(tex);
-      return tex;
-    };
-
-    const specTex = makeSpecTex();
-
-    const addSoftShadow = (mesh: THREE.Mesh) => {
-      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-      const bb = mesh.geometry.boundingBox;
-      if (!bb) return;
-
-      const w = Math.max(0.001, bb.max.x - bb.min.x);
-      const h = Math.max(0.001, bb.max.y - bb.min.y);
-
-      const mat = new THREE.MeshBasicMaterial({
-        map: shadowTex,
-        transparent: true,
-        opacity: 0.18,
-        depthWrite: false,
-        depthTest: false,
-      });
-      extraMaterials.add(mat);
-
-      const geo = new THREE.PlaneGeometry(1, 1);
-      extraGeometries.add(geo);
-
-      const plane = new THREE.Mesh(geo, mat);
-      plane.scale.set(w * 1.9, h * 1.9, 1);
-      plane.position.set(0, 0, -0.55);
-      plane.renderOrder = -20;
-
-      mesh.add(plane);
-      extraMeshes.push(plane);
-    };
-
-    const addSpecHighlight = (mesh: THREE.Mesh) => {
-      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-      const bb = mesh.geometry.boundingBox;
-      if (!bb) return;
-
-      const w = Math.max(0.001, bb.max.x - bb.min.x);
-      const h = Math.max(0.001, bb.max.y - bb.min.y);
-
-      const mat = new THREE.MeshBasicMaterial({
-        map: specTex,
-        color: new THREE.Color("#cffff0"), // ✅ leve verde
-        transparent: true,
-        opacity: 0.28,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        depthTest: false,
-      });
-      extraMaterials.add(mat);
-
-      const geo = new THREE.PlaneGeometry(1, 1);
-      extraGeometries.add(geo);
-
-      const spec = new THREE.Mesh(geo, mat);
-      spec.scale.set(w * 1.05, h * 0.82, 1);
-      spec.position.set(w * 0.02, h * 0.12, 0.55);
-      spec.rotation.set(0, 0, -0.35);
-      spec.renderOrder = 20;
-
-      mesh.add(spec);
-      extraMeshes.push(spec);
-    };
-
-    // --- inflate controlado (mais bubble) ---
-    const __SPHERE = new THREE.Sphere();
-    const computeOutlineAmount = (bb: THREE.Box3) => {
-      bb.getBoundingSphere(__SPHERE);
-      // ✅ um pouco mais “espesso” que antes
-      return Math.max(0.0012, __SPHERE.radius * 0.018);
-    };
-
-    const inflateGeometry = (src: THREE.BufferGeometry, amount: number) => {
-      const g = src.clone();
-      if (!g.attributes.normal) g.computeVertexNormals();
-
-      const pos = g.attributes.position as THREE.BufferAttribute | undefined;
-      const nor = g.attributes.normal as THREE.BufferAttribute | undefined;
-      if (!pos || !nor) return g;
-
-      const pa: any = pos.array;
-      const na: any = nor.array;
-
-      if (pa && na && pa.length === na.length) {
-        for (let i = 0; i < pa.length; i += 3) {
-          pa[i + 0] += na[i + 0] * amount;
-          pa[i + 1] += na[i + 1] * amount;
-          pa[i + 2] += na[i + 2] * amount;
-        }
-        pos.needsUpdate = true;
-      } else {
-        for (let i = 0; i < pos.count; i++) {
-          pos.setXYZ(
-            i,
-            pos.getX(i) + nor.getX(i) * amount,
-            pos.getY(i) + nor.getY(i) * amount,
-            pos.getZ(i) + nor.getZ(i) * amount,
-          );
-        }
-        pos.needsUpdate = true;
-      }
-
-      g.computeVertexNormals();
-      g.computeBoundingBox();
-      g.computeBoundingSphere();
-      return g;
-    };
-
-    const __HSL = { h: 0, s: 0, l: 0 };
-    const makeIriFromBase = (base: THREE.Color) => {
-      const b = base.clone();
-      b.getHSL(__HSL);
-
-      const s = Math.max(0.66, Math.min(1.0, __HSL.s * 1.5));
-      const l = Math.max(0.56, Math.min(0.80, __HSL.l * 1.1));
-      const h = __HSL.h;
-
-      const c1 = new THREE.Color().setHSL((h + 0.06) % 1, s, l);
-      const c2 = new THREE.Color().setHSL((h + 0.00) % 1, s, l);
-      const c3 = new THREE.Color().setHSL((h - 0.06 + 1) % 1, s, l);
-
-      return { c1, c2, c3 };
-    };
-
-    const addBubbleOutline = (mesh: THREE.Mesh) => {
-      // ✅ não altera o material base (fill intacto)
-      addSoftShadow(mesh);
-      addSpecHighlight(mesh);
-
-      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-      const bb = mesh.geometry.boundingBox;
-      if (!bb) return;
-
-      const amt = computeOutlineAmount(bb);
-
-      // ✅ ligeiramente mais “inflado” = bubble mais presente
-      const outlineGeo = inflateGeometry(mesh.geometry, amt * 1.55);
-      extraGeometries.add(outlineGeo);
-
-      const baseCol = (() => {
-        const mat: any = mesh.material;
-        return mat?.color?.clone?.() ?? new THREE.Color("#ffffff");
-      })();
-
-      const iri = makeIriFromBase(baseCol);
-
-      const outlineMat = new THREE.ShaderMaterial({
-        vertexShader: OUTLINE_VS,
-        fragmentShader: OUTLINE_FS,
-        transparent: true,
-        depthWrite: false,
-        depthTest: true,
-        side: THREE.BackSide,
-        blending: THREE.AdditiveBlending,
-        polygonOffset: true,
-        polygonOffsetFactor: -1,
-        polygonOffsetUnits: -1,
-        uniforms: {
-          uA: { value: iri.c1 },
-          uB: { value: iri.c2 },
-          uC: { value: iri.c3 },
-          uWhite: { value: new THREE.Color("#f6fffb") }, // ✅ branco levemente “mint”
-          uTint: { value: new THREE.Color("#c8ffe4") },  // ✅ reflexo esverdeado
-
-          // ✅ mais bubble + mais transparente
-          uPower: { value: 1.85 }, // menor = banda mais larga
-          uAlpha: { value: 0.36 }, // mais transparente
-          uInner: { value: 0.18 }, // começa antes (banda maior)
-          uOuter: { value: 0.96 },
-          uIriMix: { value: 0.90 }, // cor forte só no contorno
-        },
-      });
-      extraMaterials.add(outlineMat);
-
-      const outline = new THREE.Mesh(outlineGeo, outlineMat);
-      outline.renderOrder = 12;
-      outline.frustumCulled = false;
-
-      mesh.add(outline);
-      extraMeshes.push(outline);
     };
 
     const renderOneToBlob = async (id: string, doCrop: boolean) => {
@@ -725,6 +535,9 @@ export default function MenuShapesPage() {
         vis.push([m, m.visible]);
         m.visible = mid === id;
       }
+
+      centerCluster();
+      buildFilms();
 
       const { w, h, aspect } = getRectSize();
       renderer.setSize(w, h, false);
@@ -776,7 +589,7 @@ export default function MenuShapesPage() {
         const blob = await renderOneToBlob(id, doCrop);
         if (!blob) continue;
         downloadBlob(`${id}${doCrop ? "-crop" : ""}.png`, blob);
-        await sleep(140);
+        await sleep(120);
       }
     };
 
@@ -811,7 +624,6 @@ export default function MenuShapesPage() {
           return;
         }
 
-        // ✅ mantém cores originais (sem desaturar)
         shapes.setBrightness(DEFAULT_BRIGHTNESS);
 
         shapesRef.current = shapes;
@@ -819,14 +631,14 @@ export default function MenuShapesPage() {
         const meshes = shapes.meshes as Record<string, THREE.Mesh>;
         meshesRef.current = meshes;
 
-        // ✅ apenas: sombra + spec + 1 outline
-        for (const m of Object.values(meshes)) addBubbleOutline(m);
-
         setIds(Object.keys(meshes));
         setLoading(false);
         setError(null);
 
+        centerCluster();
+        buildFilms();
         resize();
+
         window.addEventListener("resize", resize);
 
         tick();
@@ -854,16 +666,22 @@ export default function MenuShapesPage() {
       } catch {}
 
       try {
-        extraMeshes.forEach((m) => m.parent?.remove(m));
-        extraMaterials.forEach((mat) => mat.dispose());
-        extraTextures.forEach((tex) => tex.dispose());
-        extraGeometries.forEach((g) => g.dispose());
-        envRT?.dispose?.();
+        shapesRef.current?.dispose();
+        shapesRef.current = null;
       } catch {}
 
       try {
-        shapesRef.current?.dispose();
-        shapesRef.current = null;
+        filmMat.dispose();
+      } catch {}
+
+      // dispose das geometrias “welded” do filme
+      try {
+        for (const g of filmGeomList) g.dispose();
+      } catch {}
+
+      try {
+        clusterRef.current?.clear();
+        clusterRef.current = null;
       } catch {}
 
       canvas.removeEventListener("webglcontextlost", onLost as any);
@@ -891,11 +709,10 @@ export default function MenuShapesPage() {
         position: "fixed",
         inset: 0,
         zIndex: 999999,
-        background: previewBg,
+        background: "#45495b",
         cursor: "auto",
       }}
     >
-      {/* Cursor visível nessa rota */}
       <style jsx global>{`
         :root,
         html,
@@ -918,7 +735,6 @@ export default function MenuShapesPage() {
         }
       `}</style>
 
-      {/* Painel */}
       <div
         style={{
           position: "fixed",
@@ -980,12 +796,18 @@ export default function MenuShapesPage() {
               fontWeight: 600,
             }}
           >
-            {error ? "Falha ao carregar" : loading ? "Carregando..." : `Salvar/baixar tudo (${crop ? "crop" : "layout"})`}
+            {error
+              ? "Falha ao carregar"
+              : loading
+                ? "Carregando..."
+                : `Salvar/baixar tudo (${crop ? "crop" : "layout"})`}
           </button>
 
           {error && (
             <>
-              <div style={{ marginTop: 10, fontSize: 12, color: "#ffd1d1", lineHeight: 1.35 }}>{error}</div>
+              <div style={{ marginTop: 10, fontSize: 12, color: "#ffd1d1", lineHeight: 1.35 }}>
+                {error}
+              </div>
 
               <button
                 onClick={resetWebGL}
@@ -1040,11 +862,14 @@ export default function MenuShapesPage() {
             </div>
           ))}
 
-          {!loading && !error && ids.length === 0 && <div style={{ fontSize: 12, opacity: 0.85 }}>Nenhuma forma encontrada.</div>}
+          {!loading && !error && ids.length === 0 && (
+            <div style={{ fontSize: 12, opacity: 0.85 }}>Nenhuma forma encontrada.</div>
+          )}
         </div>
 
         <div style={{ marginTop: 10, fontSize: 11, opacity: 0.85, lineHeight: 1.35 }}>
-          Export PNG em alta resolução (long edge). Para formas “maiores” no arquivo final, habilite <b>Crop</b>.
+          Export PNG em alta resolução (long edge). Para formas “maiores” no arquivo final, habilite{" "}
+          <b>Crop</b>.
         </div>
       </div>
 

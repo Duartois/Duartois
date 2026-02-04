@@ -320,20 +320,45 @@ const createRoundedTubeGeometry = (
   radialSegments: number,
 ) => {
   const tube = new THREE.TubeGeometry(curve, tubularSegments, THICKNESS, radialSegments, false);
-  const capOrigin = new THREE.SphereGeometry(THICKNESS, CAP_SEGMENTS, CAP_SEGMENTS);
+
+  // ✅ Em vez de Sphere inteira, usamos HEMISFÉRIO (metade da esfera)
+  // SphereGeometry params: (r, wSeg, hSeg, phiStart, phiLen, thetaStart, thetaLen)
+  // thetaStart = PI/2, thetaLen = PI/2 => "meia esfera" (metade de baixo), com a "boca" virada para +Y.
+  const hemiOrigin = new THREE.SphereGeometry(
+    THICKNESS,
+    CAP_SEGMENTS,
+    CAP_SEGMENTS,
+    0,
+    Math.PI * 2,
+    Math.PI / 2,
+    Math.PI / 2,
+  );
 
   const startPoint = curve.getPoint(0);
   const endPoint = curve.getPoint(1);
 
-  const startCap = capOrigin.clone();
+  // tangente aponta na direção do "caminho" do tubo
+  const tStart = curve.getTangent(0).normalize();      // direção para dentro do tubo no início
+  const tEnd = curve.getTangent(1).normalize();        // direção para fora no final
+
+  const up = new THREE.Vector3(0, 1, 0);
+
+  // No hemisfério "de baixo", a boca está voltada para +Y
+  // Então alinhamos +Y com a direção desejada
+  const qStart = new THREE.Quaternion().setFromUnitVectors(up, tStart);
+  const qEnd = new THREE.Quaternion().setFromUnitVectors(up, tEnd.clone().multiplyScalar(-1));
+
+  const startCap = hemiOrigin.clone();
+  startCap.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(qStart));
   startCap.translate(startPoint.x, startPoint.y, startPoint.z);
 
-  const endCap = capOrigin.clone();
+  const endCap = hemiOrigin.clone();
+  endCap.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(qEnd));
   endCap.translate(endPoint.x, endPoint.y, endPoint.z);
 
   const merged = mergeGeometries([tube, startCap, endCap], true);
 
-  capOrigin.dispose();
+  hemiOrigin.dispose();
 
   if (!merged) {
     startCap.dispose();
@@ -347,6 +372,7 @@ const createRoundedTubeGeometry = (
 
   return merged;
 };
+
 
 const createPartialTorusGeometry = (arc: number) =>
   createRoundedTubeGeometry(
