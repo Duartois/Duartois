@@ -12,6 +12,7 @@ import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import GalleryImage from "@/components/GalleryImage";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 import {
@@ -114,8 +115,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const nextProjectSlug = projectSlugByKey[nextKey];
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
-  const eagerImageCount = 2;
-  let imageIndex = 0;
   return (
     <main className="container work-container">
       <div className="page-content" style={pageContentStyle} aria-hidden={isMenuOpen}>
@@ -200,30 +199,12 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
               }
 
               if (block.type === "image") {
-                const currentImageIndex = imageIndex;
-                imageIndex += 1;
-                const isHighPriority = currentImageIndex < eagerImageCount;
-
                 return (
-                  <div
-                    className="project-content-wrapper"
+                  <GalleryImage
                     key={`image-${index}`}
-                    style={blockStyle}
-                  >
-                    <Image
-                      alt={block.alt}
-                      src={block.src}
-                      className="project-content-image"
-                      width={1600}
-                      height={900}
-                      sizes="(max-width: 61.99em) 100vw, 70vw"
-                      loading={isHighPriority ? "eager" : "lazy"}
-                      fetchPriority={isHighPriority ? "high" : "auto"}
-                      priority={isHighPriority}
-                      quality={85}
-                      style={{ width: "100%", height: "auto" }}
-                    />
-                  </div>
+                    images={[{ src: block.src, alt: block.alt }]}
+                    wrapperStyle={blockStyle}
+                  />
                 );
               }
 
