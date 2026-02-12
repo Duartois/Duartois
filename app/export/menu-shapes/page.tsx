@@ -143,7 +143,8 @@ async function capturePngFromRenderTarget(opts: {
     canvasDst.height = outH;
 
     const ctxDst = canvasDst.getContext("2d");
-    if (!ctxDst) throw new Error("Falha ao criar canvas 2D (downscale) para export.");
+    if (!ctxDst)
+      throw new Error("Falha ao criar canvas 2D (downscale) para export.");
 
     ctxDst.imageSmoothingEnabled = true;
     // @ts-ignore
@@ -155,7 +156,10 @@ async function capturePngFromRenderTarget(opts: {
   }
 
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvasOut.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))), "image/png");
+    canvasOut.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))),
+      "image/png",
+    );
   });
 
   return blob;
@@ -239,11 +243,17 @@ export default function MenuShapesPage() {
     canvas.width = 2;
     canvas.height = 2;
 
-    const gl2 = canvas.getContext("webgl2", attrs) as WebGL2RenderingContext | null;
+    const gl2 = canvas.getContext(
+      "webgl2",
+      attrs,
+    ) as WebGL2RenderingContext | null;
     const gl =
       gl2 ||
       (canvas.getContext("webgl", attrs) as WebGLRenderingContext | null) ||
-      (canvas.getContext("experimental-webgl", attrs) as WebGLRenderingContext | null);
+      (canvas.getContext(
+        "experimental-webgl",
+        attrs,
+      ) as WebGLRenderingContext | null);
 
     if (!gl) {
       setError("Não foi possível criar contexto WebGL.");
@@ -253,7 +263,9 @@ export default function MenuShapesPage() {
     }
 
     try {
-      const loseExt = gl.getExtension("WEBGL_lose_context") as unknown as LoseContextExt | null;
+      const loseExt = gl.getExtension(
+        "WEBGL_lose_context",
+      ) as unknown as LoseContextExt | null;
       if (loseExt) {
         window.__DUARTOIS_GL_LOSERS__ ??= [];
         window.__DUARTOIS_GL_LOSERS__.push(loseExt);
@@ -336,7 +348,11 @@ export default function MenuShapesPage() {
       }
     };
 
-    const fitCameraToBox = (box: THREE.Box3, aspect: number, padding = 1.18) => {
+    const fitCameraToBox = (
+      box: THREE.Box3,
+      aspect: number,
+      padding = 1.18,
+    ) => {
       if (!camera) return;
       if (box.isEmpty()) return;
 
@@ -521,7 +537,7 @@ export default function MenuShapesPage() {
         uInflate: { value: 0.165 },
         uEdgeAlpha: { value: 1.05 },
         uEdgePower: { value: 2.55 },
-        uFrontKillA: { value: 0.70 },
+        uFrontKillA: { value: 0.7 },
         uFrontKillB: { value: 0.95 },
         uGlow: { value: 1.25 },
         uHueShift: { value: 0.14 },
@@ -551,16 +567,19 @@ export default function MenuShapesPage() {
         uFrontKillA: { value: 0.62 },
         uFrontKillB: { value: 0.92 },
         uGlow: { value: 0.85 },
-        uHueShift: { value: 0.10 },
+        uHueShift: { value: 0.1 },
         uEnvMap: { value: cubeRT.texture },
         uEnvIntensity: { value: 1.05 },
         uReflPower: { value: 2.05 },
-        uReflTint: { value: 0.50 },
+        uReflTint: { value: 0.5 },
         uSpecFloor: { value: 0.012 },
       },
     });
 
-    const filmGeomCache = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
+    const filmGeomCache = new WeakMap<
+      THREE.BufferGeometry,
+      THREE.BufferGeometry
+    >();
     const filmGeomList: THREE.BufferGeometry[] = [];
 
     const getFilmGeometry = (src: THREE.BufferGeometry) => {
@@ -582,19 +601,54 @@ export default function MenuShapesPage() {
       const base = mesh.geometry as THREE.BufferGeometry;
       if (!base.attributes.normal) base.computeVertexNormals();
 
-      // IMPORTANT: miolo NÃO desenha nada, mas mantém o mesh para carregar as películas
-      const applyNoFill = (mat: any) => {
+      // Miolo: quase invisível, só “linha” nas bordas (vidro dentro de vidro)
+      const applyDimFill = (mat: any) => {
+        if (!mat) return;
+
         mat.transparent = true;
-        mat.opacity = 0.0;
+
+        // ALPHA ABSOLUTO (bem mais transparente que 0.12)
+        mat.opacity = 0.03; // teste 0.02 se ainda estiver forte
+
+        // vidro “limpo”
+        if ("transmission" in mat) mat.transmission = 1.0;
+        if ("ior" in mat) mat.ior = 1.45;
+        if ("thickness" in mat) mat.thickness = 0.25;
+        if ("roughness" in mat)
+          mat.roughness = Math.min(mat.roughness ?? 0.2, 0.06);
+        if ("metalness" in mat) mat.metalness = 0;
+
+        // não escrever depth ajuda a não “chapar” o miolo
         mat.depthWrite = false;
-        mat.colorWrite = false;
+        mat.colorWrite = true;
         if ("alphaTest" in mat) mat.alphaTest = 0;
+
+        // Fresnel no alpha: centro quase some, borda aparece (separação)
+        if (!mat.__MIoloFresnelAlpha__) {
+          mat.__MIoloFresnelAlpha__ = true;
+          mat.onBeforeCompile = (shader: any) => {
+            shader.fragmentShader = shader.fragmentShader.replace(
+              `#include <output_fragment>`,
+              `
+          // Fresnel alpha (borda)
+          float ndv = clamp(abs(dot(normalize(normal), normalize(vViewPosition))), 0.0, 1.0);
+          float fres = pow(1.0 - ndv, 3.0);
+
+          // centro ~0, borda aumenta um pouco (separação)
+          gl_FragColor.a *= (0.02 + fres * 0.35);
+
+          #include <output_fragment>
+        `,
+            );
+          };
+        }
+
         mat.needsUpdate = true;
       };
 
       const mat = mesh.material as any;
-      if (Array.isArray(mat)) for (const m of mat) if (m) applyNoFill(m);
-      else if (mat) applyNoFill(mat);
+      if (Array.isArray(mat)) for (const m of mat) applyDimFill(m);
+      else applyDimFill(mat);
 
       const filmGeom = getFilmGeometry(base);
 
@@ -616,7 +670,8 @@ export default function MenuShapesPage() {
     };
 
     const buildBubbles = () => {
-      for (const m of Object.values(meshesRef.current)) ensureBubbleInsideBubble(m);
+      for (const m of Object.values(meshesRef.current))
+        ensureBubbleInsideBubble(m);
     };
 
     const renderOnce = () => {
@@ -752,7 +807,11 @@ export default function MenuShapesPage() {
           MENU_BREAKPOINT,
         );
 
-        const shapes = await addDuartoisSignatureShapes(scene!, initialVariant, theme);
+        const shapes = await addDuartoisSignatureShapes(
+          scene!,
+          initialVariant,
+          theme,
+        );
         if (!mounted) {
           shapes.dispose?.();
           return;
@@ -885,16 +944,38 @@ export default function MenuShapesPage() {
             'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial',
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+        <div
+          style={{ display: "flex", justifyContent: "space-between", gap: 12 }}
+        >
           <div style={{ fontWeight: 600 }}>Exportar bolhas</div>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-            <input type="checkbox" checked={crop} onChange={(e) => setCrop(e.target.checked)} />
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 12,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={crop}
+              onChange={(e) => setCrop(e.target.checked)}
+            />
             Crop
           </label>
         </div>
 
-        <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center" }}>
-          <div style={{ fontSize: 12, opacity: 0.9, minWidth: 78 }}>Resolução</div>
+        <div
+          style={{
+            marginTop: 10,
+            display: "flex",
+            gap: 10,
+            alignItems: "center",
+          }}
+        >
+          <div style={{ fontSize: 12, opacity: 0.9, minWidth: 78 }}>
+            Resolução
+          </div>
           <select
             value={exportLongEdge}
             onChange={(e) => setExportLongEdge(Number(e.target.value))}
@@ -929,12 +1010,25 @@ export default function MenuShapesPage() {
               fontWeight: 600,
             }}
           >
-            {error ? "Falha ao carregar" : loading ? "Carregando..." : `Baixar tudo (${crop ? "crop" : "layout"})`}
+            {error
+              ? "Falha ao carregar"
+              : loading
+                ? "Carregando..."
+                : `Baixar tudo (${crop ? "crop" : "layout"})`}
           </button>
 
           {error && (
             <>
-              <div style={{ marginTop: 10, fontSize: 12, color: "#ffd1d1", lineHeight: 1.35 }}>{error}</div>
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 12,
+                  color: "#ffd1d1",
+                  lineHeight: 1.35,
+                }}
+              >
+                {error}
+              </div>
               <button
                 onClick={resetWebGL}
                 style={{
@@ -955,7 +1049,14 @@ export default function MenuShapesPage() {
           )}
         </div>
 
-        <div style={{ marginTop: 12, maxHeight: 360, overflow: "auto", paddingRight: 6 }}>
+        <div
+          style={{
+            marginTop: 12,
+            maxHeight: 360,
+            overflow: "auto",
+            paddingRight: 6,
+          }}
+        >
           {ids.map((id) => (
             <div
               key={id}
@@ -990,7 +1091,11 @@ export default function MenuShapesPage() {
         </div>
       </div>
 
-      <canvas key={canvasKey} ref={canvasRef} style={{ width: "100%", height: "100%", display: "block" }} />
+      <canvas
+        key={canvasKey}
+        ref={canvasRef}
+        style={{ width: "100%", height: "100%", display: "block" }}
+      />
     </div>
   );
 }
