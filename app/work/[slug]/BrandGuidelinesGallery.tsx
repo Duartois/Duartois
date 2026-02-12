@@ -1,12 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import GalleryImage, { type GalleryImageItem } from "@/components/GalleryImage";
 
-export type BrandGuidelinesImage = {
-  src: string;
-  alt: string;
-};
+export type BrandGuidelinesImage = GalleryImageItem;
 
 type BrandGuidelinesGalleryProps = {
   images: BrandGuidelinesImage[];
@@ -62,22 +59,7 @@ export default function BrandGuidelinesGallery({
 
   return (
     <div className="project-guidelines-gallery">
-      {visibleImages.map((image, index) => (
-        <div className="project-content-wrapper" key={`${image.src}-${index}`}>
-          <Image
-            alt={image.alt}
-            src={image.src}
-            className="project-content-image"
-            width={1600}
-            height={900}
-            sizes="(max-width: 61.99em) 100vw, 70vw"
-            loading="lazy"
-            fetchPriority="auto"
-            quality={85}
-            style={{ width: "100%", height: "auto" }}
-          />
-        </div>
-      ))}
+      <GalleryImage images={visibleImages} />
       {hasMore ? (
         <button
           ref={loadMoreRef}
