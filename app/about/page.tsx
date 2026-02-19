@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { applyMediaKeySystemAccessHack } from "../helpers/mediaKeyHack";
 import { useMenu } from "@/components/MenuContext";
@@ -25,7 +24,6 @@ export default function AboutPage() {
     "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
     spotifyAccent;
 
-  useThreeSceneSetup("about");
   useNavigationExitDuration(5, { variant: "work" });
 
   useEffect(() => {

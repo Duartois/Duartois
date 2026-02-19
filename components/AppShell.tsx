@@ -21,9 +21,8 @@ import {
 import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
-} from "@/app/helpers/navigateWithExit";;
-import type { ThreeAppState } from "@/components/three/types";
-import { ThreeAppProvider, useThreeApp } from "@/app/helpers/threeAppContext";
+} from "@/app/helpers/navigateWithExit";
+import { ThreeAppProvider } from "@/app/helpers/threeAppContext";
 
 interface AppShellProps {
   children: ReactNode;
@@ -45,7 +44,6 @@ function AppShellContent({ children }: AppShellProps) {
   const hasDispatchedRevealRef = useRef(false);
   const navigationScrollRef = useRef(0);
   const isContentVisible = !showPreloader;
-  const { app, isSceneActive } = useThreeApp();
 
   const handleComplete = useCallback(() => {
     setIsReady(true);
@@ -54,9 +52,7 @@ function AppShellContent({ children }: AppShellProps) {
 
   useEffect(() => {
     const body = document.body;
-    if (!body) {
-      return;
-    }
+    if (!body) return;
 
     if (showPreloader) {
       body.dataset.preloading = "true";
@@ -72,15 +68,12 @@ function AppShellContent({ children }: AppShellProps) {
     }
   }, [showPreloader]);
 
+  // Lógica de navegação com saída suave
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     const handleNavigationClick = (event: MouseEvent) => {
-      if (showPreloader) {
-        return;
-      }
+      if (showPreloader) return;
       if (
         event.defaultPrevented ||
         event.button !== 0 ||
@@ -88,67 +81,42 @@ function AppShellContent({ children }: AppShellProps) {
         event.altKey ||
         event.ctrlKey ||
         event.shiftKey
-      ) {
-        return;
-      }
+      ) return;
 
       const target = event.target as Element | null;
       const anchor = target?.closest("a");
-      if (!anchor) {
-        return;
-      }
+      if (!anchor) return;
 
-      if (anchor.hasAttribute(EXIT_NAVIGATION_ATTRIBUTE)) {
-        return;
-      }
-
-      if (anchor.hasAttribute("download")) {
-        return;
-      }
+      if (anchor.hasAttribute(EXIT_NAVIGATION_ATTRIBUTE)) return;
+      if (anchor.hasAttribute("download")) return;
 
       const targetAttr = anchor.getAttribute("target");
-      if (targetAttr && targetAttr !== "_self") {
-        return;
-      }
+      if (targetAttr && targetAttr !== "_self") return;
 
       const href = anchor.getAttribute("href");
-      if (!href || href.startsWith("#")) {
-        return;
-      }
-
-      if (href.startsWith("mailto:") || href.startsWith("tel:")) {
-        return;
-      }
+      if (!href || href.startsWith("#")) return;
+      if (href.startsWith("mailto:") || href.startsWith("tel:")) return;
 
       const url = new URL(href, window.location.href);
-      if (url.origin !== window.location.origin) {
-        return;
-      }
+      if (url.origin !== window.location.origin) return;
 
       const currentUrl = new URL(window.location.href);
       if (
         url.pathname === currentUrl.pathname &&
         url.search === currentUrl.search &&
         url.hash === currentUrl.hash
-      ) {
-        return;
-      }
+      ) return;
 
       event.preventDefault();
       navigateWithExit(router, `${url.pathname}${url.search}${url.hash}`);
     };
 
     document.addEventListener("click", handleNavigationClick, true);
-
-    return () => {
-      document.removeEventListener("click", handleNavigationClick, true);
-    };
+    return () => document.removeEventListener("click", handleNavigationClick, true);
   }, [router, showPreloader]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (typeof window === "undefined") return;
 
     const handleNavigationStart = () => {
       navigationScrollRef.current = window.scrollY || 0;
@@ -164,22 +132,14 @@ function AppShellContent({ children }: AppShellProps) {
     window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
 
     return () => {
-      window.removeEventListener(
-        APP_NAVIGATION_START_EVENT,
-        handleNavigationStart,
-      );
-      window.removeEventListener(
-        APP_NAVIGATION_END_EVENT,
-        handleNavigationEnd,
-      );
+      window.removeEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
     };
   }, []);
 
   useEffect(() => {
     const body = document.body;
-    if (!body) {
-      return;
-    }
+    if (!body) return;
 
     if (isNavigationExiting) {
       body.dataset.navigationExiting = "true";
@@ -189,54 +149,13 @@ function AppShellContent({ children }: AppShellProps) {
     delete body.dataset.navigationExiting;
   }, [isNavigationExiting]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    let animationFrame: number | undefined;
-
-    const syncState = (state: Readonly<ThreeAppState>) => {
-    };
-
-    const handleStateChange = (event: Event) => {
-      const customEvent = event as CustomEvent<{ state: Readonly<ThreeAppState> }>;
-      if (!customEvent.detail?.state) {
-        return;
-      }
-
-      syncState(customEvent.detail.state);
-    };
-
-    const attach = () => {
-      if (!app) {
-        animationFrame = window.requestAnimationFrame(attach);
-        return;
-      }
-
-      const snapshot = app.bundle.getState();
-     
-      app.bundle.events.addEventListener("statechange", handleStateChange);
-    };
-
-    attach();
-
-    return () => {
-      if (animationFrame) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-      if (app) {
-        app.bundle.events.removeEventListener("statechange", handleStateChange);
-      }
-    };
-  }, [app]);
-
   const contentClassName = [
     isContentVisible ? "" : "pointer-events-none opacity-0",
     isNavigationExiting ? "pointer-events-none" : "",
   ]
     .filter(Boolean)
     .join(" ");
+
   const exitStyle = isNavigationExiting
     ? {
         willChange: "transform, opacity",
@@ -254,7 +173,7 @@ function AppShellContent({ children }: AppShellProps) {
     <MenuProvider>
       <div className="app-shell relative min-h-screen w-full">
         {showPreloader && <Preloader onComplete={handleComplete} />}
-        <GlobalCanvas />
+        <GlobalCanvas isReady={isReady} />
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
           className={contentClassName}

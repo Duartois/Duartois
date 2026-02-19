@@ -10,7 +10,6 @@ import {
   DEFAULT_BRIGHTNESS,
   type GradientPalette,
   type ShapeId,
-  type StateUpdater,
   type ThreeAppHandle,
   type ThreeAppState,
   type ThemeName,
@@ -640,7 +639,7 @@ const initScene = async ({
   renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  const camera = createCamera();
+  const camera = createCamera(globalWindow.innerWidth, globalWindow.innerHeight);
   scene.add(camera);
 
   const effectivePalette = ensurePalette(palette, theme);
@@ -887,7 +886,7 @@ const initScene = async ({
     }
   };
 
-  const setState: ThreeAppHandle["setState"] = (updater: StateUpdater) => {
+  const setState: ThreeAppHandle["setState"] = (updater: ThreeAppHandle["setState"] extends (u: infer U) => void ? U : never) => {
     const snapshot = createStateSnapshot(state);
     const partial =
       typeof updater === "function" ? updater(snapshot) : { ...updater };

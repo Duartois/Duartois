@@ -15,7 +15,6 @@ import {
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "../helpers/navigateWithExit";
 import { useMenu } from "@/components/MenuContext";
@@ -49,7 +48,6 @@ export default function WorkPage() {
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
   const previousProjectTimeoutRef = useRef<number>();
 
-  useThreeSceneSetup("work");
   useNavigationExitDuration(totalFallItems, { variant: "work" });
 
   const projectCopy = useMemo(
@@ -67,7 +65,6 @@ export default function WorkPage() {
   );
 
   const activePreview = projectPreviews[activeProject];
-  const activeCopy = projectCopy[activeProject];
 
   useEffect(() => {
     app?.setState({
@@ -91,13 +88,8 @@ export default function WorkPage() {
 
   const handleProjectActivate = useCallback(
     (projectKey: ProjectKey) => {
-      if (projectKey === activeProject) {
-        return;
-      }
-
-      if (previousProjectTimeoutRef.current) {
-        window.clearTimeout(previousProjectTimeoutRef.current);
-      }
+      if (projectKey === activeProject) return;
+      if (previousProjectTimeoutRef.current) window.clearTimeout(previousProjectTimeoutRef.current);
 
       setPreviousProject(activeProject);
       setActiveProject(projectKey);
@@ -126,21 +118,14 @@ export default function WorkPage() {
         event.altKey ||
         event.ctrlKey ||
         event.shiftKey
-      ) {
-        return;
-      }
+      ) return;
 
       event.preventDefault();
-
-      if (isNavigatingAway) {
-        return;
-      }
+      if (isNavigatingAway) return;
 
       navigateWithExit(router, href, {
         duration: 680,
-        onExitStart: () => {
-          setIsNavigatingAway(true);
-        },
+        onExitStart: () => setIsNavigatingAway(true),
       });
     },
     [isNavigatingAway, router],
@@ -176,9 +161,7 @@ export default function WorkPage() {
                   >
                     <div
                       className="projects-image-scale"
-                      style={{
-                        backgroundColor: copy.coverPlaceholder,
-                      }}
+                      style={{ backgroundColor: copy.coverPlaceholder }}
                     >
                       <Image
                         alt={copy.coverAlt}

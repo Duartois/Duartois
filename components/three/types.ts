@@ -428,12 +428,10 @@ export type ThreeAppState = {
   ready: boolean;
 };
 
-export type StateUpdater =
-  | Partial<ThreeAppState>
-  | ((previous: Readonly<ThreeAppState>) => Partial<ThreeAppState>);
+export type StateUpdaterFn = (previous: Readonly<ThreeAppState>) => Partial<ThreeAppState>;
 
 export interface ThreeAppHandle {
-  setState: (updater: StateUpdater) => void;
+  setState: (updater: Partial<ThreeAppState> | StateUpdaterFn) => void;
   dispose: () => void;
   bundle: {
     getState: () => Readonly<ThreeAppState>;
