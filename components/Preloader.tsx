@@ -17,8 +17,6 @@ import {
   WORK_PROJECT_COVER_URLS,
 } from "@/app/helpers/criticalAssets";
 import { useAnimationQuality } from "./AnimationQualityContext";
-import { getThreeAppInstance, subscribeThreeApp } from "@/app/helpers/threeAppStore";
-
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
 type PreloaderProps = {
@@ -498,44 +496,9 @@ function waitForThreeReady(): Promise<void> {
       resolve();
     };
 
-    const attach = (candidate?: ReturnType<typeof getThreeAppInstance>) => {
-      const app = candidate ?? getThreeAppInstance();
-      if (!app) {
-        return;
-      }
-
-      const handleReady = () => {
-        app.bundle.events.removeEventListener("ready", handleReady);
-        app.bundle.events.removeEventListener("statechange", handleStateChange);
-        resolveOnce();
-      };
-
-      const handleStateChange = (event: Event) => {
-        const detail = (event as CustomEvent<{ state: ThreeAppState }>).detail;
-        if (detail?.state.ready) {
-          handleReady();
-        }
-      };
-
-      app.bundle.events.addEventListener("ready", handleReady);
-      app.bundle.events.addEventListener("statechange", handleStateChange);
-
-      if (app.bundle.getState().ready) {
-        handleReady();
-      }
-    };
-
+  
     timeoutId = window.setTimeout(resolveOnce, timeoutMs);
-    attach();
-
-    if (!getThreeAppInstance()) {
-      unsubscribe = subscribeThreeApp((nextApp) => {
-        if (!nextApp) {
-          return;
-        }
-        attach(nextApp);
-      });
-    }
+   
   });
 }
 

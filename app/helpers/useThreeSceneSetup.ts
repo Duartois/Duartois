@@ -9,10 +9,6 @@ import {
   type VariantName,
   variantMapping,
 } from "@/components/three/types";
-import {
-  getStoredSceneState,
-  updateStoredSceneState,
-} from "@/app/helpers/threeSceneStore";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
 import type { ThreeAppHandle } from "@/components/three/types";
 
@@ -47,38 +43,8 @@ const applySceneState = (
       window.innerHeight,
     );
 
-    updateStoredSceneState({
-      variantName,
-      variant: responsiveVariant,
-      opacity,
-    });
     return false;
   }
-
-  const stored = getStoredSceneState();
-  const responsiveVariant =
-    variantName !== "home" && stored.variantName === variantName && stored.variant
-      ? createVariantState(stored.variant)
-      : createResponsiveVariantState(
-          variantMapping[variantName],
-          window.innerWidth,
-          window.innerHeight,
-        );
-
-  app.setState((previous) => ({
-    variantName,
-    variant: responsiveVariant,
-    palette: getDefaultPalette(previous.theme),
-    parallax,
-    hovered,
-    opacity,
-  }));
-
-  updateStoredSceneState({
-    variantName,
-    variant: responsiveVariant,
-    opacity,
-  });
 
   return true;
 };
@@ -95,17 +61,8 @@ export function useThreeSceneSetup(
 ) {
   const { app, setSceneActive } = useThreeApp();
 
-  useEffect(() => {
-    if (!enableScene) {
-      return;
-    }
-
-    setSceneActive(true);
-
-    return () => {
-      setSceneActive(false);
-    };
-  }, [enableScene, setSceneActive]);
+  // A cena agora é gerenciada globalmente pelo GlobalCanvas no AppShell.
+  // Mantemos este hook apenas para ajustes finos de opacidade ou parallax se necessário.
 
   useEffect(() => {
     let animationFrame: number | undefined;

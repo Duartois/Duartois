@@ -26,7 +26,6 @@ import { getWindow } from "@/app/helpers/runtime/browser";
 import { clamp } from "@/app/helpers/runtime/math";
 import { updateAllMeshOpacities } from "./materialOpacity";
 import { getPointerTargetVector } from "./pointerDriver";
-import { getThreeAppInstance } from "@/app/helpers/threeAppStore";
 
 const mergeGeometries = (
   geometries: THREE.BufferGeometry[],
@@ -600,7 +599,6 @@ const initScene = async ({
     throw new Error("initScene requires a browser environment");
   }
 
-  getThreeAppInstance()?.dispose();
 
   const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
   let isMobile = mobileQuery.matches;
@@ -1033,6 +1031,9 @@ const initScene = async ({
       if (nextTransition !== state.variantTransitionMs) {
         commit({ variantTransitionMs: nextTransition });
       }
+    } else if (partial.variantName && partial.variantName !== state.variantName) {
+      // Se mudar de variante (rota), define um tempo padrão de transição
+      commit({ variantTransitionMs: 1200 });
     }
 
     if (partial.variant) {

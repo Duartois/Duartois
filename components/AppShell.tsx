@@ -21,13 +21,7 @@ import {
 import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
-} from "@/app/helpers/navigateWithExit";
-import {
-  applyStoredSceneState,
-  getStoredSceneState,
-  hasStoredSceneState,
-  updateStoredSceneState,
-} from "@/app/helpers/threeSceneStore";
+} from "@/app/helpers/navigateWithExit";;
 import type { ThreeAppState } from "@/components/three/types";
 import { ThreeAppProvider, useThreeApp } from "@/app/helpers/threeAppContext";
 
@@ -37,7 +31,7 @@ interface AppShellProps {
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 
-const CanvasRoot = dynamic(() => import("./three/CanvasRoot"), {
+const GlobalCanvas = dynamic(() => import("./three/GlobalCanvas"), {
   ssr: false,
 });
 
@@ -203,12 +197,6 @@ function AppShellContent({ children }: AppShellProps) {
     let animationFrame: number | undefined;
 
     const syncState = (state: Readonly<ThreeAppState>) => {
-      updateStoredSceneState({
-        variantName: state.variantName,
-        variant: state.variant,
-        shapeOpacity: state.shapeOpacity,
-        opacity: state.opacity,
-      });
     };
 
     const handleStateChange = (event: Event) => {
@@ -227,11 +215,7 @@ function AppShellContent({ children }: AppShellProps) {
       }
 
       const snapshot = app.bundle.getState();
-      if (hasStoredSceneState()) {
-        applyStoredSceneState(app, getStoredSceneState());
-      } else {
-        syncState(snapshot);
-      }
+     
       app.bundle.events.addEventListener("statechange", handleStateChange);
     };
 
@@ -270,7 +254,7 @@ function AppShellContent({ children }: AppShellProps) {
     <MenuProvider>
       <div className="app-shell relative min-h-screen w-full">
         {showPreloader && <Preloader onComplete={handleComplete} />}
-        {isSceneActive ? <CanvasRoot isReady={isReady} /> : null}
+        <GlobalCanvas />
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
           className={contentClassName}

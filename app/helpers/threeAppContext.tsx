@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import type { ThreeAppHandle } from "@/components/three/types";
-import { setThreeAppInstance } from "./threeAppStore";
 
 type ThreeAppContextValue = {
   app: ThreeAppHandle | null;
@@ -27,7 +26,6 @@ export function ThreeAppProvider({ children }: { children: ReactNode }) {
 
   const setApp = useCallback((next: ThreeAppHandle | null) => {
     setAppState(next);
-    setThreeAppInstance(next);
   }, []);
 
   const value = useMemo(
