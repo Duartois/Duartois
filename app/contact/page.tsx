@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
 import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
-import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 type ContactMail = {
   label: string;
@@ -28,11 +26,6 @@ type ContactSocials = {
 export default function ContactPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
-  const { app } = useThreeApp();
-
-  useEffect(() => {
-    app?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
-  }, [app, isMenuOpen]);
 
   const mail = t("contact.mail", {
     returnObjects: true,

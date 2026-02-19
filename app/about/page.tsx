@@ -10,14 +10,12 @@ import { applyMediaKeySystemAccessHack } from "../helpers/mediaKeyHack";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useTheme } from "../theme/ThemeContext";
-import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 export default function AboutPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
   const fallStyle = useMenuFallAnimation(5);
   const { theme } = useTheme();
-  const { app } = useThreeApp();
 
   const spotifyAccent = theme === "dark" ? "F3F2F9" : "606887";
   const spotifyEmbedUrl =
@@ -25,10 +23,6 @@ export default function AboutPage() {
     spotifyAccent;
 
   useNavigationExitDuration(5, { variant: "work" });
-
-  useEffect(() => {
-    app?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
-  }, [app, isMenuOpen]);
 
   useEffect(() => {
     return applyMediaKeySystemAccessHack();

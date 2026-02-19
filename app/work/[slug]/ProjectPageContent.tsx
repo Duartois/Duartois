@@ -12,7 +12,6 @@ import { useNavigationExitDuration } from "../../helpers/useNavigationExitDurati
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import GalleryImage from "@/components/GalleryImage";
-import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 import {
   projectOrder,
@@ -46,8 +45,8 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
-  const { app } = useThreeApp();
   useNavigationExitDuration(totalFallItems, { variant: "work" });
+
   const pageContentStyle = useMemo(
     () =>
       ({
@@ -59,20 +58,10 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   );
 
   useEffect(() => {
-    app?.setState({
-      variantName: projectPreviews[detail.key].variantName,
-      parallax: false,
-      hovered: false,
-    });
-  }, [app, detail.key]);
-
-  useEffect(() => {
     const body = document.body;
     const appShell = document.querySelector(".app-shell");
 
-    if (!body) {
-      return;
-    }
+    if (!body) return;
 
     body.classList.add("body-scrollable");
 
@@ -88,10 +77,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
       }
     };
   }, []);
-
-  useEffect(() => {
-    app?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
-  }, [app, isMenuOpen]);
 
   const projectStyle = useMemo<DetailStyle>(
     () => ({
@@ -112,6 +97,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const nextProjectSlug = projectSlugByKey[nextKey];
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
+
   return (
     <main className="container work-container">
       <div className="page-content" style={pageContentStyle} aria-hidden={isMenuOpen}>

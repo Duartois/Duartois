@@ -30,6 +30,11 @@ interface AppShellProps {
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
 
+// Tempo extra (ms) para aguardar a nova página iniciar suas animações
+// de entrada antes de soltar o fixed container.
+// Deve ser >= ao tempo de stagger dos primeiros itens da nova página.
+const NAVIGATION_EXIT_RELEASE_DELAY = 80;
+
 const GlobalCanvas = dynamic(() => import("./three/GlobalCanvas"), {
   ssr: false,
 });
@@ -41,8 +46,11 @@ function AppShellContent({ children }: AppShellProps) {
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
   const [isNavigationExiting, setIsNavigationExiting] = useState(false);
+  // Mantém opacity:0 durante o delay entre saída e entrada para suprimir o vislumbre dos elementos antigos
+  const [isNavigationReleasing, setIsNavigationReleasing] = useState(false);
   const hasDispatchedRevealRef = useRef(false);
   const navigationScrollRef = useRef(0);
+  const navigationEndTimerRef = useRef<number | undefined>(undefined);
   const isContentVisible = !showPreloader;
 
   const handleComplete = useCallback(() => {
@@ -119,13 +127,33 @@ function AppShellContent({ children }: AppShellProps) {
     if (typeof window === "undefined") return;
 
     const handleNavigationStart = () => {
+      // Cancela qualquer timer de release pendente
+      if (navigationEndTimerRef.current) {
+        window.clearTimeout(navigationEndTimerRef.current);
+        navigationEndTimerRef.current = undefined;
+      }
       navigationScrollRef.current = window.scrollY || 0;
       setIsNavigationExiting(true);
     };
 
     const handleNavigationEnd = () => {
+      if (navigationEndTimerRef.current) {
+        window.clearTimeout(navigationEndTimerRef.current);
+      }
+
+      // Fase 1: sai do fixed (nova página monta no fluxo normal) mas permanece
+      // invisível via isNavigationReleasing — isso suprime o vislumbre dos
+      // elementos "a" que ressurgiriam ao sair do position:fixed.
       setIsNavigationExiting(false);
+      setIsNavigationReleasing(true);
       navigationScrollRef.current = 0;
+
+      // Fase 2: após a nova página ter montado e iniciado suas animações de
+      // entrada, remove o opacity:0 e deixa o useMenuFallAnimation assumir.
+      navigationEndTimerRef.current = window.setTimeout(() => {
+        setIsNavigationReleasing(false);
+        navigationEndTimerRef.current = undefined;
+      }, NAVIGATION_EXIT_RELEASE_DELAY);
     };
 
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
@@ -134,6 +162,9 @@ function AppShellContent({ children }: AppShellProps) {
     return () => {
       window.removeEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
       window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+      if (navigationEndTimerRef.current) {
+        window.clearTimeout(navigationEndTimerRef.current);
+      }
     };
   }, []);
 
@@ -151,7 +182,8 @@ function AppShellContent({ children }: AppShellProps) {
 
   const contentClassName = [
     isContentVisible ? "" : "pointer-events-none opacity-0",
-    isNavigationExiting ? "pointer-events-none" : "",
+    isNavigationExiting || isNavigationReleasing ? "pointer-events-none" : "",
+    isNavigationReleasing ? "opacity-0" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -180,7 +212,7 @@ function AppShellContent({ children }: AppShellProps) {
           style={exitStyle}
           data-navigation-exiting={isNavigationExiting ? "true" : undefined}
           aria-hidden={!isContentVisible}
-          aria-busy={!isContentVisible || isNavigationExiting}
+          aria-busy={!isContentVisible || isNavigationExiting || isNavigationReleasing}
         >
           <Navbar />
           {children}
