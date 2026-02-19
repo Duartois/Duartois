@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next";
 
 import "../../i18n/config";
 
-import { useThreeSceneSetup } from "../../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
@@ -58,8 +57,6 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
       }) satisfies CSSProperties,
     [isMenuOpen],
   );
-
-  useThreeSceneSetup("home");
 
   useEffect(() => {
     app?.setState({

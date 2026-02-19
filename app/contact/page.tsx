@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
 
-import { useThreeSceneSetup } from "../helpers/useThreeSceneSetup";
 import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
@@ -30,8 +29,6 @@ export default function ContactPage() {
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
   const { app } = useThreeApp();
-
-  useThreeSceneSetup("contact");
 
   useEffect(() => {
     app?.setState({ opacity: isMenuOpen ? 1 : 0.3 });
