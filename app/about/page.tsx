@@ -4,8 +4,6 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
-
-import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { applyMediaKeySystemAccessHack } from "../helpers/mediaKeyHack";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
@@ -22,7 +20,6 @@ export default function AboutPage() {
     "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
     spotifyAccent;
 
-  useNavigationExitDuration(5, { variant: "work" });
 
   useEffect(() => {
     return applyMediaKeySystemAccessHack();

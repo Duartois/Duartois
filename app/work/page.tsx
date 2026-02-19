@@ -14,8 +14,6 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
-
-import { useNavigationExitDuration } from "../helpers/useNavigationExitDuration";
 import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "../helpers/navigateWithExit";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
@@ -45,8 +43,6 @@ export default function WorkPage() {
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
   const previousProjectTimeoutRef = useRef<number>();
-
-  useNavigationExitDuration(totalFallItems, { variant: "work" });
 
   const projectCopy = useMemo(
     () =>

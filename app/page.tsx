@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import { useNavigationExitDuration } from "./helpers/useNavigationExitDuration";
 import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "./helpers/navigateWithExit";
 import {
   useEffect,
@@ -256,7 +255,6 @@ export default function HomePage() {
     WORK_ITEM_TRANSITION_DURATION +
     Math.max(totalFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
 
-  useNavigationExitDuration(totalFallItems, { variant: "work" });
 
   useEffect(() => {
     if (disableFallAnimation) {
