@@ -1727,6 +1727,9 @@ body[data-menu-open="true"] .home {
     color: var(--accentColor);
     margin: calc(var(--top-internal-margin) * 2) var(--left-right-margin) 0;
 }
+.next-project-title {
+    margin-left: 30px;
+}
 
 .project .project-intro {
     display: flex;
