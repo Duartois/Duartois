@@ -13,8 +13,13 @@ export function generateStaticParams() {
   return projectSlugs.map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: WorkProjectPageParams }): Metadata {
-  const slug = params.slug.toLowerCase();
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<WorkProjectPageParams>;
+}): Promise<Metadata> {
+  const { slug: rawSlug } = await params;
+  const slug = rawSlug.toLowerCase();
 
   if (!isProjectSlug(slug)) {
     return {};
@@ -39,8 +44,13 @@ export function generateMetadata({ params }: { params: WorkProjectPageParams }):
   } satisfies Metadata;
 }
 
-export default function WorkProjectPage({ params }: { params: WorkProjectPageParams }) {
-  const slug = params.slug.toLowerCase();
+export default async function WorkProjectPage({
+  params,
+}: {
+  params: Promise<WorkProjectPageParams>;
+}) {
+  const { slug: rawSlug } = await params;
+  const slug = rawSlug.toLowerCase();
 
   if (!isProjectSlug(slug)) {
     notFound();

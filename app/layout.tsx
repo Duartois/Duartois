@@ -19,8 +19,8 @@ const normalizeLang = (value?: string | null): SupportedLang | null => {
   return null;
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  const cookieStore = cookies();
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const cookieStore = await cookies();
   const cookieLang = normalizeLang(cookieStore.get("i18nextLng")?.value);
   const lang = cookieLang ?? defaultLang;
 
@@ -72,6 +72,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body
         data-preloading="true"
+        suppressHydrationWarning
         className={classNames(
           "bg-bg text-fg antialiased selection:bg-white/20 dark:selection:bg-white/10",
           "body-scroll-control",
