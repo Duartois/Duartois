@@ -434,6 +434,22 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 }
 
 function preloadImage(url: string): Promise<void> {
+  // Use fetch for remote Hygraph CDN assets (WebP URL already baked in).
+  if (url.startsWith("https://")) {
+    return fetch(url, {
+      method: "GET",
+      headers: { Accept: "image/webp,image/avif,image/*,*/*;q=0.8" },
+      priority: "high",
+    })
+      .then((res) => {
+        // Consume the body so the response actually lands in the HTTP cache.
+        if (res.ok) return res.blob();
+      })
+      .then(() => undefined)
+      .catch(() => undefined); // Never let a failed preload block the app.
+  }
+
+  // Fallback: local / relative paths — use the classic Image tag approach.
   return new Promise((resolve) => {
     const image = new Image();
 
