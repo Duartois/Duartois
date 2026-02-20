@@ -1,4 +1,4 @@
-import { getWindow } from "@/app/helpers/runtime/browser";
+import { getWindow } from "@/app/helpers/runtime/index";
 
 export const APP_SHELL_REVEAL_EVENT = "app-shell:reveal";
 export const APP_MENU_OPEN_EVENT = "app-menu:open";

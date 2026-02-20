@@ -1,8 +1,29 @@
-node_modules
-package-lock.json
-dist
-.env
-.vscode
-.DS_Store
-.next
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build artifacts
+dist/
 tsconfig.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Reports (generated, not committed except perf-summary)
+reports/perf-baseline.json
+reports/bundle-summary.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -21,8 +21,7 @@ import {
   variantMapping,
 } from "./types";
 import { createCamera, ensurePalette } from "./factories";
-import { getWindow } from "@/app/helpers/runtime/browser";
-import { clamp } from "@/app/helpers/runtime/math";
+import { getWindow, clamp } from "@/app/helpers/runtime/index";
 import { updateAllMeshOpacities } from "./materialOpacity";
 import { getPointerTargetVector } from "./pointerDriver";
 

@@ -1,4 +1,4 @@
-import { isBrowser } from "@/app/helpers/runtime/browser";
+import { isBrowser } from "@/app/helpers/runtime/index";
 
 export const isPerfDebugEnabled =
   process.env.NEXT_PUBLIC_PERF_DEBUG === "true";

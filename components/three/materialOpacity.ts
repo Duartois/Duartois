@@ -1,5 +1,5 @@
 import type * as THREE from "three";
-import { clamp } from "@/app/helpers/runtime/math";
+import { clamp } from "@/app/helpers/runtime/index";
 import type { ShapeId } from "./types";
 
 export type MaterialWithOpacity = THREE.Material & {

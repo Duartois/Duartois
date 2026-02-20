@@ -7,8 +7,6 @@ import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import "../../i18n/config";
-
-import { useNavigationExitDuration } from "../../helpers/useNavigationExitDuration";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import GalleryImage from "@/components/GalleryImage";
@@ -45,8 +43,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
-  useNavigationExitDuration(totalFallItems, { variant: "work" });
-
+ 
   const pageContentStyle = useMemo(
     () =>
       ({

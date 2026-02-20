@@ -1,133 +1,126 @@
-import fs from "fs";
-import path from "path";
+/**
+ * verify-three-core-only
+ *
+ * CI guard: scans all source files and fails if any import uses
+ * three/examples, three/addons, R3F or other banned Three.js add-on packages.
+ *
+ * Run: npm run verify:three  (also fires automatically in prebuild)
+ */
 
-type BundleSummary = {
-  generatedAt: string;
-  routes: Record<string, number | null>;
-};
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import ts from "typescript";
 
-const ROOT = process.cwd();
-const NEXT_DIR = path.join(ROOT, ".next");
-const REPORT_DIR = path.join(ROOT, "reports");
-const ROUTES = ["/", "/work", "/work/[slug]", "/about", "/contact"];
+const ROOT = path.resolve(__dirname, "..");
+const SCAN_DIRS = ["app", "components", "types"];
+const ALLOWED_EXTS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
 
-const readJson = <T>(filePath: string): T | null => {
-  if (!fs.existsSync(filePath)) {
-    return null;
+const BANNED = [
+  { pattern: /^three\/examples\//, label: "three/examples/*" },
+  { pattern: /^three\/addons\//, label: "three/addons/*" },
+  { pattern: /^three-stdlib(\b|\/)/, label: "three-stdlib" },
+  { pattern: /^@react-three\//, label: "@react-three/*" },
+  { pattern: /^troika-three-text(\b|\/)/, label: "troika-three-text" },
+  { pattern: /^maath(\b|\/)/, label: "maath" },
+  { pattern: /^postprocessing(\b|\/)/, label: "postprocessing" },
+] as const;
+
+type Violation = { file: string; line: number; specifier: string; label: string };
+
+// ─── File walker ─────────────────────────────────────────────────────────────
+
+async function walk(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files: string[] = [];
+
+  for (const entry of entries) {
+    if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+
+    const full = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...(await walk(full)));
+    } else if (entry.isFile() && ALLOWED_EXTS.has(path.extname(entry.name)) && !entry.name.endsWith(".d.ts")) {
+      files.push(full);
+    }
   }
 
-  return JSON.parse(fs.readFileSync(filePath, "utf-8")) as T;
-};
-
-const statSize = (filePath: string) => {
-  try {
-    return fs.statSync(filePath).size;
-  } catch {
-    return 0;
-  }
-};
-
-const resolveChunkPath = (entry: string) => {
-  if (entry.startsWith("/")) {
-    return path.join(ROOT, entry);
-  }
-  return path.join(NEXT_DIR, entry);
-};
-
-const uniqueFiles = (files: string[]) => Array.from(new Set(files));
-
-const buildManifest = readJson<{ pages: Record<string, string[]> }>(
-  path.join(NEXT_DIR, "build-manifest.json"),
-);
-const appBuildManifest = readJson<{ pages: Record<string, string[]> }>(
-  path.join(NEXT_DIR, "app-build-manifest.json"),
-);
-
-const getRouteFiles = (route: string) => {
-  const appFiles = appBuildManifest?.pages?.[route] ?? [];
-  const pagesFiles = buildManifest?.pages?.[route] ?? [];
-  return uniqueFiles([...appFiles, ...pagesFiles]);
-};
-
-if (!fs.existsSync(REPORT_DIR)) {
-  fs.mkdirSync(REPORT_DIR, { recursive: true });
+  return files;
 }
 
-const summary: BundleSummary = {
-  generatedAt: new Date().toISOString(),
-  routes: {},
-};
+// ─── Import extractor (TypeScript AST) ───────────────────────────────────────
 
-ROUTES.forEach((route) => {
-  const files = getRouteFiles(route);
+function extractImportSpecifiers(filePath: string, source: string): Array<{ specifier: string; line: number }> {
+  const kind = filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  const sf = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, kind);
+  const results: Array<{ specifier: string; line: number }> = [];
 
-  if (files.length === 0) {
-    summary.routes[route] = null;
+  const visit = (node: ts.Node) => {
+    const specifier =
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node))
+        ? node.moduleSpecifier
+        : ts.isCallExpression(node) &&
+          ts.isIdentifier(node.expression) &&
+          node.expression.text === "require" &&
+          node.arguments[0]
+        ? node.arguments[0]
+        : null;
+
+    if (specifier && ts.isStringLiteral(specifier)) {
+      const line = sf.getLineAndCharacterOfPosition(specifier.getStart()).line + 1;
+      results.push({ specifier: specifier.text, line });
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sf);
+  return results;
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+async function main() {
+  const files = (
+    await Promise.all(SCAN_DIRS.map((d) => walk(path.join(ROOT, d)).catch(() => [])))
+  ).flat();
+
+  const violations: Violation[] = [];
+
+  await Promise.all(
+    files.map(async (file) => {
+      const source = await readFile(file, "utf-8");
+      const imports = extractImportSpecifiers(file, source);
+
+      for (const { specifier, line } of imports) {
+        for (const { pattern, label } of BANNED) {
+          if (pattern.test(specifier)) {
+            violations.push({ file: path.relative(ROOT, file), line, specifier, label });
+          }
+        }
+      }
+    }),
+  );
+
+  if (violations.length === 0) {
+    console.log("✅ verify-three-core-only: no banned imports found.");
     return;
   }
 
-  const total = files.reduce((sum, file) => {
-    const resolvedPath = resolveChunkPath(file);
-    return sum + statSize(resolvedPath);
-  }, 0);
+  console.error(`\n❌ verify-three-core-only: ${violations.length} violation(s) found:\n`);
 
-  summary.routes[route] = total;
-});
-
-const summaryPath = path.join(REPORT_DIR, "bundle-summary.json");
-fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
-
-const baselinePath = path.join(REPORT_DIR, "perf-baseline.json");
-const baseline = readJson<BundleSummary>(baselinePath);
-
-const formatBytes = (bytes: number | null) => {
-  if (bytes === null) {
-    return "N/A";
+  for (const { file, line, specifier, label } of violations) {
+    console.error(`  ${file}:${line}  →  "${specifier}"  (${label})`);
   }
-  return `${(bytes / 1024).toFixed(1)} KB`;
-};
 
-const reportLines = [
-  "# Performance Summary",
-  "",
-  `Generated at: ${summary.generatedAt}`,
-  "",
-  "## Initial JS by route (from build manifests)",
-  "",
-  "| Route | Before | After |",
-  "| --- | --- | --- |",
-  ...ROUTES.map((route) => {
-    const before = baseline?.routes?.[route] ?? null;
-    const after = summary.routes[route];
-    return `| ${route} | ${formatBytes(before)} | ${formatBytes(after)} |`;
-  }),
-  "",
-  "## First render request/image summary",
-  "- Collect with `NEXT_PUBLIC_PERF_DEBUG=true` and capture the console output for each route.",
-  "",
-  "## Key changes",
-  "- Document performance-focused changes here when updating the report manually.",
-  "",
-  "## How to measure",
-  "- `npm run perf:report` to regenerate this file from build artifacts.",
-  "- `PERF_BASELINE=true npm run perf:report` to capture a baseline on a previous commit.",
-  "- `NEXT_PUBLIC_PERF_DEBUG=true npm run dev` to log FCP, 3D init timing, and image counts.",
-  "",
-  "## Notes",
-  "- `Before` values are populated when `reports/perf-baseline.json` exists.",
-  "- Run `PERF_BASELINE=true npm run perf:report` on a baseline commit to generate it.",
-  "",
-  "## Image/request summary",
-  "- Use `NEXT_PUBLIC_PERF_DEBUG=true` while browsing to log per-route image counts and bytes in the console.",
-];
+  console.error(
+    "\nOnly 'three' core is allowed. Remove the imports above and run again.\n",
+  );
 
-fs.writeFileSync(
-  path.join(REPORT_DIR, "perf-summary.md"),
-  reportLines.join("\n"),
-);
-
-if (process.env.PERF_BASELINE === "true") {
-  fs.writeFileSync(baselinePath, JSON.stringify(summary, null, 2));
+  process.exit(1);
 }
 
-console.log(`Bundle summary written to ${summaryPath}`);
+main().catch((err) => {
+  console.error("verify-three-core-only crashed:", err);
+  process.exit(1);
+});

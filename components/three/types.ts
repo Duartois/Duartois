@@ -1,5 +1,5 @@
 import type { OrthographicCamera, Scene, WebGLRenderer } from "three";
-import { clamp } from "@/app/helpers/runtime/math";
+import { clamp } from "@/app/helpers/runtime/index";
 
 export type Vector3Tuple = [number, number, number];
 

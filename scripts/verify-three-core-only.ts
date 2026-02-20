@@ -1,196 +1,126 @@
+/**
+ * verify-three-core-only
+ *
+ * CI guard: scans all source files and fails if any import uses
+ * three/examples, three/addons, R3F or other banned Three.js add-on packages.
+ *
+ * Run: npm run verify:three  (also fires automatically in prebuild)
+ */
+
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import ts from "typescript";
 
-const rootDir = path.resolve(__dirname, "..");
-const directoriesToScan = ["app", "components", "types"];
-const allowedExtensions = new Set([
-  ".ts",
-  ".tsx",
-  ".js",
-  ".jsx",
-  ".mjs",
-  ".cjs",
-]);
+const ROOT = path.resolve(__dirname, "..");
+const SCAN_DIRS = ["app", "components", "types"];
+const ALLOWED_EXTS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]);
 
-const bannedPackages = [
-  {
-    pattern: /^three\/examples\//,
-    description: "three/examples modules",
-  },
-  {
-    pattern: /^three\/addons\//,
-    description: "three/addons modules",
-  },
-  {
-    pattern: /^three-stdlib(\b|\/)/,
-    description: "three-stdlib package",
-  },
-  {
-    pattern: /^@react-three\//,
-    description: "@react-three packages",
-  },
-  {
-    pattern: /^troika-three-text(\b|\/)/,
-    description: "troika-three-text package",
-  },
-  {
-    pattern: /^maath(\b|\/)/,
-    description: "maath package",
-  },
-  {
-    pattern: /^postprocessing(\b|\/)/,
-    description: "postprocessing package",
-  },
-];
+const BANNED = [
+  { pattern: /^three\/examples\//, label: "three/examples/*" },
+  { pattern: /^three\/addons\//, label: "three/addons/*" },
+  { pattern: /^three-stdlib(\b|\/)/, label: "three-stdlib" },
+  { pattern: /^@react-three\//, label: "@react-three/*" },
+  { pattern: /^troika-three-text(\b|\/)/, label: "troika-three-text" },
+  { pattern: /^maath(\b|\/)/, label: "maath" },
+  { pattern: /^postprocessing(\b|\/)/, label: "postprocessing" },
+] as const;
 
-type Violation = {
-  file: string;
-  line: number;
-  specifier: string;
-  description: string;
-};
+type Violation = { file: string; line: number; specifier: string; label: string };
+
+// ─── File walker ─────────────────────────────────────────────────────────────
 
 async function walk(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
   const files: string[] = [];
 
   for (const entry of entries) {
-    if (entry.name.startsWith(".")) {
-      continue;
-    }
+    if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
 
-    const fullPath = path.join(dir, entry.name);
+    const full = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name === "node_modules") {
-        continue;
-      }
-      files.push(...(await walk(fullPath)));
-    } else if (entry.isFile()) {
-      const ext = path.extname(entry.name);
-      if (!allowedExtensions.has(ext)) {
-        continue;
-      }
-      if (entry.name.endsWith(".d.ts")) {
-        continue;
-      }
-      files.push(fullPath);
+      files.push(...(await walk(full)));
+    } else if (entry.isFile() && ALLOWED_EXTS.has(path.extname(entry.name)) && !entry.name.endsWith(".d.ts")) {
+      files.push(full);
     }
   }
 
   return files;
 }
 
-function extractSpecifiers(
-  filePath: string,
-  content: string
-): Array<{ specifier: string; index: number }> {
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    content,
-    ts.ScriptTarget.Latest,
-    true,
-    filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : undefined
-  );
+// ─── Import extractor (TypeScript AST) ───────────────────────────────────────
 
-  const specifiers: Array<{ specifier: string; index: number }> = [];
-
-  const record = (specifier: string, node: ts.Node) => {
-    specifiers.push({ specifier, index: node.getStart(sourceFile) });
-  };
+function extractImportSpecifiers(filePath: string, source: string): Array<{ specifier: string; line: number }> {
+  const kind = filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  const sf = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, kind);
+  const results: Array<{ specifier: string; line: number }> = [];
 
   const visit = (node: ts.Node) => {
-    if (
-      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
-      node.moduleSpecifier &&
-      ts.isStringLiteralLike(node.moduleSpecifier)
-    ) {
-      record(node.moduleSpecifier.text, node.moduleSpecifier);
-    } else if (ts.isCallExpression(node)) {
-      const [firstArg] = node.arguments;
-      if (firstArg && ts.isStringLiteralLike(firstArg)) {
-        if (ts.isIdentifier(node.expression) && node.expression.text === "require") {
-          record(firstArg.text, firstArg);
-        } else if (node.expression.kind === ts.SyntaxKind.ImportKeyword) {
-          record(firstArg.text, firstArg);
-        }
-      }
+    const specifier =
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node))
+        ? node.moduleSpecifier
+        : ts.isCallExpression(node) &&
+          ts.isIdentifier(node.expression) &&
+          node.expression.text === "require" &&
+          node.arguments[0]
+        ? node.arguments[0]
+        : null;
+
+    if (specifier && ts.isStringLiteral(specifier)) {
+      const line = sf.getLineAndCharacterOfPosition(specifier.getStart()).line + 1;
+      results.push({ specifier: specifier.text, line });
     }
 
     ts.forEachChild(node, visit);
   };
 
-  visit(sourceFile);
-
-  return specifiers;
+  visit(sf);
+  return results;
 }
 
-function checkSpecifier(specifier: string): { description: string } | null {
-  for (const { pattern, description } of bannedPackages) {
-    if (pattern.test(specifier)) {
-      return { description };
-    }
-  }
-  return null;
-}
+// ─── Main ────────────────────────────────────────────────────────────────────
 
-function computeLine(content: string, index: number): number {
-  return content.slice(0, index).split(/\r?\n/).length;
-}
+async function main() {
+  const files = (
+    await Promise.all(SCAN_DIRS.map((d) => walk(path.join(ROOT, d)).catch(() => [])))
+  ).flat();
 
-async function verify(): Promise<Violation[]> {
-  const filesToCheck = await Promise.all(
-    directoriesToScan.map(async (relativeDir) => {
-      const absoluteDir = path.join(rootDir, relativeDir);
-      try {
-        return await walk(absoluteDir);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-          return [];
-        }
-        throw error;
-      }
-    })
-  );
-
-  const flattened = filesToCheck.flat();
   const violations: Violation[] = [];
 
-  for (const filePath of flattened) {
-    const content = await readFile(filePath, "utf8");
+  await Promise.all(
+    files.map(async (file) => {
+      const source = await readFile(file, "utf-8");
+      const imports = extractImportSpecifiers(file, source);
 
-    for (const { specifier, index } of extractSpecifiers(filePath, content)) {
-      const cleanedSpecifier = specifier.split("?", 1)[0];
-      const violation = checkSpecifier(cleanedSpecifier);
-      if (violation) {
-        violations.push({
-          file: path.relative(rootDir, filePath),
-          line: computeLine(content, index),
-          specifier,
-          description: violation.description,
-        });
+      for (const { specifier, line } of imports) {
+        for (const { pattern, label } of BANNED) {
+          if (pattern.test(specifier)) {
+            violations.push({ file: path.relative(ROOT, file), line, specifier, label });
+          }
+        }
       }
-    }
-  }
+    }),
+  );
 
-  return violations;
-}
-
-(async () => {
-  const violations = await verify();
-
-  if (violations.length > 0) {
-    console.error("Found forbidden Three.js imports:\n");
-    for (const violation of violations) {
-      console.error(
-        ` - ${violation.file}:${violation.line} imports \"${violation.specifier}\" (${violation.description})`
-      );
-    }
-    console.error("\nPlease remove these imports or replace them with core three modules.");
-    process.exitCode = 1;
+  if (violations.length === 0) {
+    console.log("✅ verify-three-core-only: no banned imports found.");
     return;
   }
 
-  console.log("✅ Three.js core-only verification passed.");
-})();
+  console.error(`\n❌ verify-three-core-only: ${violations.length} violation(s) found:\n`);
+
+  for (const { file, line, specifier, label } of violations) {
+    console.error(`  ${file}:${line}  →  "${specifier}"  (${label})`);
+  }
+
+  console.error(
+    "\nOnly 'three' core is allowed. Remove the imports above and run again.\n",
+  );
+
+  process.exit(1);
+}
+
+main().catch((err) => {
+  console.error("verify-three-core-only crashed:", err);
+  process.exit(1);
+});
