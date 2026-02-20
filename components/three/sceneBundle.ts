@@ -21,9 +21,17 @@ import {
   variantMapping,
 } from "./types";
 import { createCamera, ensurePalette } from "./factories";
-import { getWindow, clamp } from "@/app/helpers/runtime/index";
+import {
+  getWindow,
+  clamp,
+  isSafari,
+  isIOS,
+  getRendererPixelRatio,
+} from "@/app/helpers/runtime/index";
 import { updateAllMeshOpacities } from "./materialOpacity";
 import { getPointerTargetVector } from "./pointerDriver";
+
+// ─── Geometry merge ───────────────────────────────────────────────────────────
 
 const mergeGeometries = (
   geometries: THREE.BufferGeometry[],
@@ -134,6 +142,8 @@ const mergeGeometries = (
   return mergedGeometry;
 };
 
+// ─── Shapes ───────────────────────────────────────────────────────────────────
+
 export type ShapesHandle = {
   group: THREE.Group;
   meshes: Record<ShapeId, THREE.Mesh>;
@@ -151,7 +161,6 @@ const SHAPE_ORDER: ShapeId[] = [
   "semiFlamingoAzure",
   "sphereFlamingoSpring",
 ];
-
 
 const COLOR_SPRING = "#91faca";
 const COLOR_AZURE = "#8ec2ff";
@@ -255,7 +264,7 @@ const applyGradientToGeometry = (
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
-    roughness: 0.012, // deixa o brilho suave, mas presente
+    roughness: 0.012,
     metalness: 0.05,
     clearcoat: 0.014,
     clearcoatRoughness: 0.016,
@@ -266,7 +275,6 @@ const createGlossyMaterial = () =>
     specularColor: "#f5f7ff",
     ior: 1.45,
   });
-
 
 const THICKNESS = 0.64;
 const TORUS_RADIUS = 1.28;
@@ -310,7 +318,6 @@ class WaveCurve extends THREE.Curve<THREE.Vector3> {
   }
 }
 
-
 const createRoundedTubeGeometry = (
   curve: THREE.Curve<THREE.Vector3>,
   tubularSegments: number,
@@ -318,9 +325,6 @@ const createRoundedTubeGeometry = (
 ) => {
   const tube = new THREE.TubeGeometry(curve, tubularSegments, THICKNESS, radialSegments, false);
 
-  // ✅ Em vez de Sphere inteira, usamos HEMISFÉRIO (metade da esfera)
-  // SphereGeometry params: (r, wSeg, hSeg, phiStart, phiLen, thetaStart, thetaLen)
-  // thetaStart = PI/2, thetaLen = PI/2 => "meia esfera" (metade de baixo), com a "boca" virada para +Y.
   const hemiOrigin = new THREE.SphereGeometry(
     THICKNESS,
     CAP_SEGMENTS,
@@ -334,14 +338,11 @@ const createRoundedTubeGeometry = (
   const startPoint = curve.getPoint(0);
   const endPoint = curve.getPoint(1);
 
-  // tangente aponta na direção do "caminho" do tubo
-  const tStart = curve.getTangent(0).normalize();      // direção para dentro do tubo no início
-  const tEnd = curve.getTangent(1).normalize();        // direção para fora no final
+  const tStart = curve.getTangent(0).normalize();
+  const tEnd = curve.getTangent(1).normalize();
 
   const up = new THREE.Vector3(0, 1, 0);
 
-  // No hemisfério "de baixo", a boca está voltada para +Y
-  // Então alinhamos +Y com a direção desejada
   const qStart = new THREE.Quaternion().setFromUnitVectors(up, tStart);
   const qEnd = new THREE.Quaternion().setFromUnitVectors(up, tEnd.clone().multiplyScalar(-1));
 
@@ -370,14 +371,12 @@ const createRoundedTubeGeometry = (
   return merged;
 };
 
-
 const createPartialTorusGeometry = (arc: number) =>
   createRoundedTubeGeometry(
     new CircularArcCurve(TORUS_RADIUS, arc),
     TORUS_TUBULAR_SEGMENTS,
     TORUS_RADIAL_SEGMENTS,
   );
-
 
 export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
@@ -407,9 +406,6 @@ export async function addDuartoisSignatureShapes(
     );
     const mesh = new THREE.Mesh(geometry, createGlossyMaterial());
     mesh.name = id;
-    // As geometrias são atualizadas manualmente, então desativamos o frustum
-    // culling para impedir que desapareçam caso o bounding volume fique
-    // incorreto após alguma atualização.
     mesh.frustumCulled = false;
     acc[id] = mesh;
     return acc;
@@ -462,20 +458,11 @@ export async function addDuartoisSignatureShapes(
   };
 
   let currentTheme: ThemeName = initialTheme;
-
   let currentBrightness = 1.5;
 
   const applyTheme = (theme: ThemeName) => {
-
-
-
     currentTheme = theme;
     const isDark = theme === "dark";
-
-
-
-
-
 
     const baseEmissive = isDark ? 0.012 : 0.04;
 
@@ -573,6 +560,8 @@ export async function addDuartoisSignatureShapes(
   };
 }
 
+// ─── Scene init ───────────────────────────────────────────────────────────────
+
 export type InitSceneOptions = {
   canvas: HTMLCanvasElement;
   initialVariant?: VariantName;
@@ -583,6 +572,16 @@ export type InitSceneOptions = {
 
 const getToneMappingExposure = (theme: ThemeName) =>
   theme === "light" ? 1.1 : 1.5;
+
+/**
+ * Maximum delta (seconds) consumed by the render loop per frame.
+ *
+ * Safari on iOS suspends JS aggressively when a tab is backgrounded.
+ * On restore, `clock.getDelta()` returns the entire hidden duration (can be
+ * several seconds), which makes shapes "jump" to their target instantly.
+ * Clamping to 100 ms (≈ 1 missed 60-fps frame) prevents that artefact.
+ */
+const MAX_DELTA_S = 0.1;
 
 const initScene = async ({
   canvas,
@@ -597,7 +596,6 @@ const initScene = async ({
     throw new Error("initScene requires a browser environment");
   }
 
-
   const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
   let isMobile = mobileQuery.matches;
   const handleMobileChange = (event: MediaQueryListEvent) => {
@@ -605,10 +603,24 @@ const initScene = async ({
   };
   mobileQuery.addEventListener("change", handleMobileChange);
 
+  // ── Renderer: Safari/iOS-aware options ────────────────────────────────────
+  //
+  // antialias: MSAA on tile-based GPUs (all iPhones/iPads) is resolved in the
+  // resolve pass — as expensive as rendering 4× the pixels. Disable on mobile
+  // and iOS for a significant GPU frame-time reduction with imperceptible loss.
+  //
+  // powerPreference: hints the compositor to use the discrete GPU on dual-GPU
+  // Macs and avoids the power-saving throttle on iOS 16+ when plugged in.
+  //
+  // premultipliedAlpha: false avoids compositing artefacts on transparent
+  // canvases that Safari has historically exhibited with premultiplied alpha.
+  const useMobileAntialias = !isMobile && !isIOS();
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    antialias: useMobileAntialias,
     alpha: true,
+    powerPreference: "high-performance",
+    premultipliedAlpha: false,
   });
 
   const gl = renderer.getContext();
@@ -630,13 +642,11 @@ const initScene = async ({
     originalGetProgramInfoLog(program) ?? "") as typeof gl.getProgramInfoLog;
 
   renderer.setClearColor(new THREE.Color("#000000"), 0);
-  // === pastel/filmic renderer ===
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  // menos brilho no tema claro, levemente mais no escuro
   renderer.toneMappingExposure = getToneMappingExposure(theme);
-  // sombras desligadas para evitar contorno duro
   renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
   const scene = new THREE.Scene();
   const camera = createCamera(globalWindow.innerWidth, globalWindow.innerHeight);
   scene.add(camera);
@@ -655,7 +665,6 @@ const initScene = async ({
   );
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapesGroup = shapes.group;
-  const baseGroupZ = shapesGroup.position.z;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
   const initialShapeOpacity = shapeIds.reduce(
     (acc, id) => {
@@ -722,11 +731,14 @@ const initScene = async ({
     }
 
     if (canvas.width !== width || canvas.height !== height) {
-      renderer.setPixelRatio(Math.min(globalWindow.devicePixelRatio, 1.5));
+      // ── Pixel ratio: capped per device class ────────────────────────────────
+      // iOS → max 2, Safari desktop → max 1.5, others → max 2.
+      // Applied on every resize so DPR changes (moving between screens) are
+      // handled correctly.
+      renderer.setPixelRatio(getRendererPixelRatio());
       renderer.setSize(width, height, false);
     }
 
-    // ortho frustum: top/bottom fixos e left/right por aspecto
     const aspect = width / height;
     const ortho = camera as unknown as THREE.OrthographicCamera;
     ortho.left = -aspect;
@@ -743,7 +755,6 @@ const initScene = async ({
       ),
     }));
   };
-
 
   const pointerMove = (event: PointerEvent) => {
     const width = globalWindow.innerWidth;
@@ -777,7 +788,12 @@ const initScene = async ({
       return;
     }
 
-    const delta = clock.getDelta();
+    // ── Safari/iOS tab-switch guard ──────────────────────────────────────────
+    // When the tab is backgrounded and restored, getDelta() can return several
+    // seconds. Clamping to MAX_DELTA_S limits any positional jump to at most
+    // 1 missed frame at 60 fps.
+    const rawDelta = clock.getDelta();
+    const delta = Math.min(rawDelta, MAX_DELTA_S);
     const elapsed = clock.getElapsedTime();
 
     const variantLerp = (() => {
@@ -790,6 +806,7 @@ const initScene = async ({
 
       return clamp(delta * (state.hovered ? 7 : 5), 0, 1);
     })();
+
     if (variantLerp > 0) {
       shapeIds.forEach((id) => {
         const mesh = shapes.meshes[id];
@@ -843,7 +860,7 @@ const initScene = async ({
     shapesGroup.position.x += (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
     shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
 
-     const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
+    const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);
     const currentScale = shapesGroup.scale.x;
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
@@ -879,13 +896,17 @@ const initScene = async ({
       return;
     }
 
+    // Reset the clock so getDelta() starts fresh after suspension.
+    // Belt-and-suspenders with the MAX_DELTA_S clamp above.
     clock.start();
     if (!disposed && animationId === null) {
       animationId = globalWindow.requestAnimationFrame(tick);
     }
   };
 
-  const setState: ThreeAppHandle["setState"] = (updater: ThreeAppHandle["setState"] extends (u: infer U) => void ? U : never) => {
+  const setState: ThreeAppHandle["setState"] = (
+    updater: ThreeAppHandle["setState"] extends (u: infer U) => void ? U : never,
+  ) => {
     const snapshot = createStateSnapshot(state);
     const partial =
       typeof updater === "function" ? updater(snapshot) : { ...updater };
