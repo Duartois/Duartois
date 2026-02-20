@@ -53,7 +53,7 @@ const createPrimaryMonogramVariant = (): VariantState => ({
   },
   semiFlamingoAzure: {
     position: [-2.60, 0.02, 0.06],
-    rotation: [Math.PI / 2, Math.PI * -1.5, 0], // abertura para baixo
+    rotation: [Math.PI / 2, Math.PI * -1.5, 0],
     scale: [0.20, 0.20, 0.20],
   },
   sphereFlamingoSpring: {
@@ -129,72 +129,6 @@ const createMenuMonogramVariant = (): VariantState => ({
   },
 });
 
-const createWorkMonogramVariant = (): VariantState => ({
-  torusSpringAzure: {
-    position: [-2.15, -0.12, -1.05],
-    rotation: [Math.PI / 2, Math.PI * -1.3, 0.2],
-    scale: [0.24, 0.24, 0.24],
-  },
-  waveSpringLime: {
-    position: [-1.2, 0.92, -0.65],
-    rotation: [-2.2, 0.2, -0.35],
-    scale: [0.22, 0.22, 0.22],
-  },
-  semiLimeFlamingo: {
-    position: [-2.75, 0.38, -0.78],
-    rotation: [Math.PI / 2, Math.PI * -0.05, 0.1],
-    scale: [0.22, 0.22, 0.22],
-  },
-  torusFlamingoLime: {
-    position: [-1.4, -0.88, -0.62],
-    rotation: [Math.PI / 2, Math.PI * -1.1, 0],
-    scale: [0.18, 0.18, 0.18],
-  },
-  semiFlamingoAzure: {
-    position: [-2.1, -0.92, -0.42],
-    rotation: [Math.PI / 2, Math.PI * -1.35, 0.12],
-    scale: [0.22, 0.22, 0.22],
-  },
-  sphereFlamingoSpring: {
-    position: [-1.1, 0.42, -0.2],
-    rotation: [0, 0, 0],
-    scale: 0.24,
-  },
-});
-
-const createAboutMonogramVariant = (): VariantState => ({
-  torusSpringAzure: {
-    position: [2.1, 0.2, 0.6],
-    rotation: [Math.PI / 2, Math.PI * -0.6, 0.2],
-    scale: [0.22, 0.22, 0.22],
-  },
-  waveSpringLime: {
-    position: [1.1, 0.95, -0.2],
-    rotation: [-2.4, 0.4, -0.1],
-    scale: [0.2, 0.2, 0.2],
-  },
-  semiLimeFlamingo: {
-    position: [2.6, -0.12, -0.45],
-    rotation: [Math.PI / 2, Math.PI * -0.25, -0.1],
-    scale: [0.22, 0.22, 0.22],
-  },
-  torusFlamingoLime: {
-    position: [1.6, -0.82, 0.25],
-    rotation: [Math.PI / 2, Math.PI * -1.5, 0.1],
-    scale: [0.2, 0.2, 0.2],
-  },
-  semiFlamingoAzure: {
-    position: [2.35, -0.92, 0.4],
-    rotation: [Math.PI / 2, Math.PI * -0.9, 0],
-    scale: [0.21, 0.21, 0.21],
-  },
-  sphereFlamingoSpring: {
-    position: [1.25, 0.48, 0.2],
-    rotation: [0, 0, 0],
-    scale: 0.23,
-  },
-});
-
 const createContactMonogramVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [0.4, -0.32, -0.95],
@@ -227,11 +161,6 @@ const createContactMonogramVariant = (): VariantState => ({
     scale: 0.22,
   },
 });
-
-export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
-export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
-export const MENU_OVERLAY_MONOGRAM = createMenuMonogramVariant();
-
 
 //Posição inicial
 const createFramedVariant = (): VariantState => ({
@@ -269,14 +198,16 @@ const createFramedVariant = (): VariantState => ({
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
-  about: createAboutMonogramVariant(),
-  work: createWorkMonogramVariant(),
+  about: createContactMonogramVariant(),
+  work: createContactMonogramVariant(),
   contact: createContactMonogramVariant(),
 };
 
-const BASE_VIEWPORT_WIDTH = 1440;
-const BASE_VIEWPORT_HEIGHT = 900;
-const MIN_VIEWPORT_SCALE = 1;
+// Aspect ratio for which all variant positions were designed (1440/900).
+const BASE_ASPECT = 1440 / 900; // 1.6
+
+const cloneScale = (scale: ShapeScale): ShapeScale =>
+  Array.isArray(scale) ? ([...scale] as Vector3Tuple) : scale;
 
 const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
@@ -287,42 +218,48 @@ const SHAPE_IDS: readonly ShapeId[] = [
   "sphereFlamingoSpring",
 ];
 
+/**
+ * Used for page-level variants (variantMapping: home / about / work / contact).
+ *
+ * The orthographic camera is set up as:
+ *   left/right = ±aspect   (changes with window)
+ *   top/bottom = ±1        (constant)
+ *   zoom       = 0.55      (constant)
+ *
+ * Visible world-space ranges:
+ *   X: ±(aspect / zoom)  → shrinks on narrow/portrait screens
+ *   Y: ±(1 / zoom)       → constant, never changes
+ *
+ * So X positions must scale with (currentAspect / baseAspect) so shapes
+ * always stay inside the visible frustum on any screen.
+ * Y and scale are kept untouched — the frustum height is constant.
+ */
 export const createResponsiveVariantState = (
   variant: VariantState,
   viewportWidth: number,
   viewportHeight: number,
 ): VariantState => {
-  const widthScale = viewportWidth / BASE_VIEWPORT_WIDTH;
-  const heightScale = viewportHeight / BASE_VIEWPORT_HEIGHT;
-  const horizontalScale = clamp(widthScale, MIN_VIEWPORT_SCALE, 1);
-  const verticalScale = clamp(heightScale, MIN_VIEWPORT_SCALE, 1);
-  const depthScale = clamp(
-    Math.min(widthScale, heightScale),
-    MIN_VIEWPORT_SCALE,
-    1,
-  );
+  const currentAspect = viewportWidth / viewportHeight;
+  const xScale = currentAspect / BASE_ASPECT;
+
+  // Gently shrink shapes on narrow screens (portrait / mobile).
+  // Linear from 1.0 at aspect ≥ 1 down to 0.72 at aspect ~0.46 (phone portrait).
+  // Monogram variants are unaffected — they use createResponsiveHeroVariantState.
+  const sizeScale = currentAspect >= 1 ? 1 : clamp(currentAspect, 0.72, 0.8) / BASE_ASPECT ;
 
   const responsiveState = {} as VariantState;
 
   SHAPE_IDS.forEach((shapeId) => {
     const source = variant[shapeId];
     const [px, py, pz] = source.position;
-    const [rx, ry, rz] = source.rotation;
-    const scaledScale = Array.isArray(source.scale)
-      ? ([
-          source.scale[0] * depthScale,
-          source.scale[1] * depthScale,
-          source.scale[2] * depthScale,
-        ] as Vector3Tuple)
-      : source.scale * depthScale;
+    const baseScale = cloneScale(source.scale);
+    const scaledScale = Array.isArray(baseScale)
+      ? ([baseScale[0] * sizeScale, baseScale[1] * sizeScale, baseScale[2] * sizeScale] as Vector3Tuple)
+      : (baseScale as number) * sizeScale;
 
     responsiveState[shapeId] = {
-      position: [
-        px * horizontalScale,
-        py * verticalScale,
-        pz * depthScale,
-      ] as Vector3Tuple,
-      rotation: [rx, ry, rz] as Vector3Tuple,
+      position: [px * xScale, py, pz] as Vector3Tuple,
+      rotation: [...source.rotation] as Vector3Tuple,
       scale: scaledScale,
     };
   });
@@ -330,6 +267,14 @@ export const createResponsiveVariantState = (
   return responsiveState;
 };
 
+/**
+ * Used for monogram variants (hover on home, menu overlay).
+ *
+ * Monogram shapes are small and tightly composed — they must NOT be
+ * distorted by X aspect-ratio scaling. The variant is used as-is, and
+ * only a centering offset is applied on narrow screens so the cluster
+ * stays visually centred.
+ */
 export const createResponsiveHeroVariantState = (
   variant: VariantState,
   viewportWidth: number,
@@ -337,14 +282,19 @@ export const createResponsiveHeroVariantState = (
   centerBelowWidth = 990,
   partiallyCenterBelowWidth = 1700,
 ): VariantState => {
-  const responsiveVariant = createResponsiveVariantState(
-    variant,
-    viewportWidth,
-    viewportHeight,
-  );
+  // Clone without any X scaling — monogram proportions stay intact.
+  const cloned = {} as VariantState;
+  SHAPE_IDS.forEach((shapeId) => {
+    const source = variant[shapeId];
+    cloned[shapeId] = {
+      position: [...source.position] as Vector3Tuple,
+      rotation: [...source.rotation] as Vector3Tuple,
+      scale: cloneScale(source.scale),
+    };
+  });
 
   if (viewportWidth > partiallyCenterBelowWidth) {
-    return responsiveVariant;
+    return cloned;
   }
 
   let minX = Number.POSITIVE_INFINITY;
@@ -353,7 +303,7 @@ export const createResponsiveHeroVariantState = (
   let maxY = Number.NEGATIVE_INFINITY;
 
   SHAPE_IDS.forEach((shapeId) => {
-    const [x, y] = responsiveVariant[shapeId].position;
+    const [x, y] = cloned[shapeId].position;
     minX = Math.min(minX, x);
     maxX = Math.max(maxX, x);
     minY = Math.min(minY, y);
@@ -361,7 +311,7 @@ export const createResponsiveHeroVariantState = (
   });
 
   if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
-    return responsiveVariant;
+    return cloned;
   }
 
   const offsetX = -((minX + maxX) / 2);
@@ -372,7 +322,7 @@ export const createResponsiveHeroVariantState = (
   const verticalFactor = applyFullCenter ? 1 : 0;
 
   SHAPE_IDS.forEach((shapeId) => {
-    const transform = responsiveVariant[shapeId];
+    const transform = cloned[shapeId];
     const [x, y, z] = transform.position;
     transform.position = [
       x + offsetX * horizontalFactor,
@@ -381,7 +331,7 @@ export const createResponsiveHeroVariantState = (
     ] as Vector3Tuple;
   });
 
-  return responsiveVariant;
+  return cloned;
 };
 
 export const LIGHT_THEME_PALETTE: GradientPalette = [
@@ -449,9 +399,6 @@ declare global {
   }
 }
 
-const cloneScale = (scale: ShapeScale): ShapeScale =>
-  Array.isArray(scale) ? ([...scale] as Vector3Tuple) : scale;
-
 export const createVariantState = (variant: VariantState): VariantState => ({
   torusSpringAzure: {
     position: [...variant.torusSpringAzure.position] as Vector3Tuple,
@@ -487,3 +434,7 @@ export const createVariantState = (variant: VariantState): VariantState => ({
 
 export const getDefaultPalette = (theme: ThemeName): GradientPalette =>
   theme === "dark" ? DARK_THEME_PALETTE : LIGHT_THEME_PALETTE;
+
+export const HERO_LINE_ONE_MONOGRAM = createPrimaryMonogramVariant();
+export const HERO_LINE_TWO_MONOGRAM = createSecondaryMonogramVariant();
+export const MENU_OVERLAY_MONOGRAM = createMenuMonogramVariant();
