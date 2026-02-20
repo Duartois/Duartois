@@ -34,30 +34,15 @@ export default function GalleryImage({ images, wrapperStyle }: GalleryImageProps
           key={`${image.src}-${index}`}
           style={wrapperStyle}
         >
-          {/*
-           * Use a positioned wrapper so `fill` works correctly.
-           * The aspect-ratio keeps the container from collapsing
-           * before the image loads (avoids layout shift).
-           * 16/9 matches the CDN images; adjust if needed.
-           */}
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              aspectRatio: "16 / 9",
-              backgroundColor: image.placeholderColor || "var(--background-color)",
-            }}
-          >
-            <Image
-              alt={image.alt}
-              src={image.src}
-              className="project-content-image"
-              fill
-              sizes={IMAGE_SIZES.gallery}
-              loading="lazy"
-              style={{ objectFit: "cover", color: "transparent" }}
-            />
-          </div>
+          <Image
+            alt={image.alt}
+            src={image.src}
+            className="project-content-image"
+            width={1920} // Default width for gallery images
+            height={1080} // Default height for gallery images
+            priority={true}
+            style={{ color: "transparent", width: "100%", height: "auto" }}
+          />
         </div>
       ))}
     </>

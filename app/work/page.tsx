@@ -147,14 +147,12 @@ export default function WorkPage() {
                       style={{ backgroundColor: copy.coverPlaceholder }}
                     >
                       <Image
-                        alt={copy.coverAlt}
-                        src={copy.cover}
                         className="projects-image"
-                        fill
+                        src={copy.cover}
+                        alt={copy.coverAlt}
                         sizes="(max-width: 61.99em) 100vw, 50vw"
+                        fill={true}
                         priority={isActive}
-                        loading={isActive ? "eager" : "lazy"}
-                        style={{ objectFit: "cover", color: "transparent" }}
                       />
                     </div>
                   </div>

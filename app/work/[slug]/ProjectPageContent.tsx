@@ -102,13 +102,12 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
           <div className="header-project">
             <div className="hero-image-wrapper" style={nextFall()}>
               <Image
-                alt={detail.heroImage.alt}
-                src={detail.heroImage.src}
                 className="hero-image"
-                fill
+                src={detail.heroImage.src}
+                alt={detail.heroImage.alt}
                 sizes="100vw"
-                priority
-                style={{ objectFit: "cover", color: "transparent" }}
+                fill={true}
+                priority={true}
               />
             </div>
           </div>
