@@ -23,6 +23,7 @@ import {
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
 import { ThreeAppProvider } from "@/app/helpers/threeAppContext";
+import { useInnerVh } from "@/app/helpers/useInnerVh";
 
 interface AppShellProps {
   children: ReactNode;
@@ -52,6 +53,10 @@ function AppShellContent({ children }: AppShellProps) {
   const navigationScrollRef = useRef(0);
   const navigationEndTimerRef = useRef<number | undefined>(undefined);
   const isContentVisible = !showPreloader;
+
+  // Seta --innerVh como window.innerHeight * 0.01 para que calc(var(--innerVh)*N)
+  // use a altura visual real do viewport (excluindo a chrome bar dos browsers mobile).
+  useInnerVh();
 
   const handleComplete = useCallback(() => {
     setIsReady(true);

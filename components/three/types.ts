@@ -234,6 +234,36 @@ const SHAPE_IDS: readonly ShapeId[] = [
  * always stay inside the visible frustum on any screen.
  * Y and scale are kept untouched — the frustum height is constant.
  */
+// Altura de design para a qual as variantes foram criadas (1440×900).
+const BASE_HEIGHT = 900;
+
+/**
+ * Used for page-level variants (variantMapping: home / about / work / contact).
+ *
+ * The orthographic camera is set up as:
+ *   left/right = ±aspect   (changes with window)
+ *   top/bottom = ±1        (constant)
+ *   zoom       = 0.55      (constant)
+ *
+ * Visible world-space ranges:
+ *   X: ±(aspect / zoom)  → shrinks on narrow/portrait screens
+ *   Y: ±(1 / zoom)       → constant, never changes
+ *
+ * So X positions must scale with (currentAspect / baseAspect) so shapes
+ * always stay inside the visible frustum on any screen.
+ *
+ * sizeScale now uses BOTH the aspect ratio AND the viewport height so that:
+ *   - Very narrow portrait phones do not produce excessively tiny shapes.
+ *   - Tall phones (e.g. 844 px) keep shapes close to their designed size.
+ *   - Landscape screens (aspect ≥ 1) are unaffected.
+ *
+ * Before: clamp(currentAspect, 0.72, 0.8) / BASE_ASPECT
+ *   → for a 390×844 phone (aspect 0.46): 0.72 / 1.6 = 0.45  ← too small
+ *
+ * After: height-relative scale with a gentle lower floor
+ *   → for a 390×844 phone (aspect 0.46, height 844): ~0.87  ← natural size
+ *   → for a 375×667 phone (aspect 0.56, height 667): ~0.78
+ */
 export const createResponsiveVariantState = (
   variant: VariantState,
   viewportWidth: number,
@@ -242,10 +272,18 @@ export const createResponsiveVariantState = (
   const currentAspect = viewportWidth / viewportHeight;
   const xScale = currentAspect / BASE_ASPECT;
 
-  // Gently shrink shapes on narrow screens (portrait / mobile).
-  // Linear from 1.0 at aspect ≥ 1 down to 0.72 at aspect ~0.46 (phone portrait).
-  // Monogram variants are unaffected — they use createResponsiveHeroVariantState.
-  const sizeScale = currentAspect >= 1 ? 1 : clamp(currentAspect, 0.72, 0.8) / BASE_ASPECT ;
+  let sizeScale: number;
+  if (currentAspect >= 1) {
+    // Landscape / desktop — shapes stay at their designed size.
+    sizeScale = 1;
+  } else {
+    // Portrait mobile: derive scale from how close the viewport height is to
+    // the design height (900 px). This makes viewportHeight genuinely useful
+    // instead of only touching it through the aspect ratio.
+    const heightRatio = Math.min(viewportHeight / BASE_HEIGHT, 0.6);
+    // Blend: 85% driven by height proximity, 15% minimum floor.
+    sizeScale = clamp(heightRatio * 0.8 + 0.05, 0.35, 1); 
+  }
 
   const responsiveState = {} as VariantState;
 
@@ -254,7 +292,11 @@ export const createResponsiveVariantState = (
     const [px, py, pz] = source.position;
     const baseScale = cloneScale(source.scale);
     const scaledScale = Array.isArray(baseScale)
-      ? ([baseScale[0] * sizeScale, baseScale[1] * sizeScale, baseScale[2] * sizeScale] as Vector3Tuple)
+      ? ([
+          baseScale[0] * sizeScale,
+          baseScale[1] * sizeScale,
+          baseScale[2] * sizeScale,
+        ] as Vector3Tuple)
       : (baseScale as number) * sizeScale;
 
     responsiveState[shapeId] = {
@@ -275,6 +317,8 @@ export const createResponsiveVariantState = (
  * only a centering offset is applied on narrow screens so the cluster
  * stays visually centred.
  */
+
+
 export const createResponsiveHeroVariantState = (
   variant: VariantState,
   viewportWidth: number,
