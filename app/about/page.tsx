@@ -48,10 +48,8 @@ export default function AboutPage() {
               fill
               sizes="(max-width: 61.99em) 100vw, 50vw"
               priority
-              loading="eager"
-              fetchPriority="high"
-              quality={80}
               unoptimized
+              style={{ objectFit: "cover", color: "transparent" }}
             />
           </div>
         </div>

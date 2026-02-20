@@ -108,8 +108,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
                 fill
                 sizes="100vw"
                 priority
-                fetchPriority="high"
-                quality={85}
+                style={{ objectFit: "cover", color: "transparent" }}
               />
             </div>
           </div>

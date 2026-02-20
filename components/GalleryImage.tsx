@@ -1,19 +1,24 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import {
-  DEFAULT_BLUR_DATA_URL,
-  IMAGE_SIZES,
-} from "../app/helpers/imageUtils";
+import { IMAGE_SIZES } from "../app/helpers/imageUtils";
 
 export type GalleryImageItem = {
   src: string;
   alt: string;
   /**
-   * Optional dominant color of the image used to generate a matching
-   * blur placeholder. Falls back to the neutral site background color.
+   * Optional dominant color for the placeholder background.
+   * Falls back to the neutral site background color.
    */
   placeholderColor?: string;
 };
+
+/**
+ * GalleryImage renders a responsive image gallery with:
+ * - Aspect ratio preservation to prevent layout shift
+ * - Color placeholder while loading
+ * - Optimized srcset generation via Next.js Image
+ * - Lazy loading for off-screen images
+ */
 
 type GalleryImageProps = {
   images: GalleryImageItem[];
@@ -40,6 +45,7 @@ export default function GalleryImage({ images, wrapperStyle }: GalleryImageProps
               position: "relative",
               width: "100%",
               aspectRatio: "16 / 9",
+              backgroundColor: image.placeholderColor || "var(--background-color)",
             }}
           >
             <Image
@@ -49,11 +55,7 @@ export default function GalleryImage({ images, wrapperStyle }: GalleryImageProps
               fill
               sizes={IMAGE_SIZES.gallery}
               loading="lazy"
-              fetchPriority="auto"
-              quality={90}
-              placeholder="blur"
-              blurDataURL={DEFAULT_BLUR_DATA_URL}
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", color: "transparent" }}
             />
           </div>
         </div>

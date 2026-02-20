@@ -154,9 +154,7 @@ export default function WorkPage() {
                         sizes="(max-width: 61.99em) 100vw, 50vw"
                         priority={isActive}
                         loading={isActive ? "eager" : "lazy"}
-                        fetchPriority={isActive ? "high" : "auto"}
-                        quality={80}
-                        style={{ color: "transparent" }}
+                        style={{ objectFit: "cover", color: "transparent" }}
                       />
                     </div>
                   </div>
