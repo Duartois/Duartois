@@ -2315,12 +2315,19 @@ html.dark {
     box-sizing: border-box
 }
 
-body,html {
+html {
     background-color: #f3f2f9;
     background-color: var(--background-color);
+    min-height: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-y: none
+}
+
+body {
+    background-color: transparent;
     color: var(--color);
     width: 100%;
-    height: auto;
+    min-height: 100dvh;
     font-family: studiofeixen-variable,studiofeixen,Arial,Helvetica,sans-serif;
     letter-spacing: -.015em;
     -webkit-font-smoothing: antialiased;
@@ -2328,7 +2335,8 @@ body,html {
     font-variation-settings: "wght" 500,"wdth" 100;
     font-weight: unset;
     font-size: 1em;
-    transition: .25s
+    transition: .25s;
+    overscroll-behavior-y: none
 }
 
 h1,h2,h3,h4,h5,h6 {
