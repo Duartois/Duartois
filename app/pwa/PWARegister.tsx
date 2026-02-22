@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAppDispatch } from "@/app/store/hooks";
+import { setPwaInstallPromptSeen } from "@/app/store/uiSlice";
 
 const PWARegister = () => {
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
     if (!("serviceWorker" in navigator)) {
       return;
@@ -16,8 +20,17 @@ const PWARegister = () => {
       }
     };
 
+    const handleBeforeInstallPrompt = () => {
+      dispatch(setPwaInstallPromptSeen(true));
+    };
+
     registerServiceWorker();
-  }, []);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, [dispatch]);
 
   return null;
 };

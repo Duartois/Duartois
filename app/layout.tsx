@@ -10,6 +10,8 @@ import CustomCursor from "@/components/CustomCursor";
 import I18nProvider from "./i18n/I18nProvider";
 import { AnimationQualityProvider } from "@/components/AnimationQualityContext";
 import PWARegister from "./pwa/PWARegister";
+import StoreProvider from "./store/StoreProvider";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 type SupportedLang = "pt" | "en";
 const defaultLang: SupportedLang = "en";
@@ -26,6 +28,28 @@ export const metadata: Metadata = {
   icons: {
     icon: "/Logo.svg",
     apple: "/Logo.svg",
+  },
+  openGraph: {
+    title: "Duartois",
+    description: "Portfólio Duartois.",
+    url: "https://duartois.com",
+    siteName: "Duartois",
+    locale: "pt_BR",
+    type: "website",
+    images: [
+      {
+        url: "/Logo.svg",
+        width: 1200,
+        height: 630,
+        alt: "Duartois",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Duartois",
+    description: "Portfólio Duartois.",
+    images: ["/Logo.svg"],
   },
 };
 
@@ -99,15 +123,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           "body-scroll-control",
         )}
       >
-        <ThemeProvider>
-          <AnimationQualityProvider>
-            <I18nProvider lang={lang}>
-              <PWARegister />
-              <CustomCursor />
-              <AppShell>{children}</AppShell>
-            </I18nProvider>
-          </AnimationQualityProvider>
-        </ThemeProvider>
+        <StoreProvider>
+          <ThemeProvider>
+            <AnimationQualityProvider>
+              <I18nProvider lang={lang}>
+                <SmoothScrollProvider>
+                  <PWARegister />
+                  <CustomCursor />
+                  <AppShell>{children}</AppShell>
+                </SmoothScrollProvider>
+              </I18nProvider>
+            </AnimationQualityProvider>
+          </ThemeProvider>
+        </StoreProvider>
       </body>
     </html>
   );
