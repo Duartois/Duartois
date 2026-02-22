@@ -55,7 +55,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0b",
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f2f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#2b2b33" },
+  ],
 };
 
 const normalizeLang = (value?: string | null): SupportedLang | null => {
