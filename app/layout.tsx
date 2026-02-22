@@ -17,6 +17,7 @@ type SupportedLang = "pt" | "en";
 const defaultLang: SupportedLang = "en";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://duartois.com"),
   title: "Duartois",
   description: "Portfólio Duartois.",
   manifest: "/manifest.webmanifest",
