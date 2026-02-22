@@ -1,4 +1,5 @@
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import classNames from "classnames";
 import { cookies } from "next/headers";
@@ -8,9 +9,29 @@ import { ThemeProvider } from "./theme/ThemeContext";
 import CustomCursor from "@/components/CustomCursor";
 import I18nProvider from "./i18n/I18nProvider";
 import { AnimationQualityProvider } from "@/components/AnimationQualityContext";
+import PWARegister from "./pwa/PWARegister";
 
 type SupportedLang = "pt" | "en";
 const defaultLang: SupportedLang = "en";
+
+export const metadata: Metadata = {
+  title: "Duartois",
+  description: "Portfólio Duartois.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Duartois",
+  },
+  icons: {
+    icon: "/Logo.svg",
+    apple: "/Logo.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0b0b",
+};
 
 const normalizeLang = (value?: string | null): SupportedLang | null => {
   if (value === "pt" || value === "en") {
@@ -81,6 +102,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <ThemeProvider>
           <AnimationQualityProvider>
             <I18nProvider lang={lang}>
+              <PWARegister />
               <CustomCursor />
               <AppShell>{children}</AppShell>
             </I18nProvider>
