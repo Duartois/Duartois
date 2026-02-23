@@ -12,6 +12,25 @@ const PWARegister = () => {
       return;
     }
 
+    if (process.env.NODE_ENV !== "production") {
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) =>
+          Promise.all(
+            registrations.map((registration) => registration.unregister()),
+          ),
+        )
+        .then(() => caches?.keys?.())
+        .then((keys) =>
+          keys ? Promise.all(keys.map((key) => caches.delete(key))) : undefined,
+        )
+        .catch(() => {
+          // Ignora erros de limpeza em ambiente de desenvolvimento.
+        });
+
+      return;
+    }
+
     const registerServiceWorker = async () => {
       try {
         await navigator.serviceWorker.register("/sw.js", { scope: "/" });
