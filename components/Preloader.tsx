@@ -172,8 +172,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   useEffect(() => {
     isHidingRef.current = isHiding;
   }, [isHiding]);
-  const statusLabel = t(`preloader.status.${statusKey}`);
   const progressLabel = Math.round(progressRatio * 100);
+  const preloaderTitle = hasMounted ? t("preloader.title") : "";
+  const progressText = hasMounted
+    ? t("preloader.progress", { value: progressLabel })
+    : "";
+  const statusLabel = hasMounted ? t(`preloader.status.${statusKey}`) : "";
   const entryEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
   const entryOffset = -96;
@@ -408,11 +412,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         style={{ translateZ: 0 }}
       >
         <p className="loading-text">
-          <FallWordFragments text={t("preloader.title")} />
+          <FallWordFragments text={preloaderTitle} />
         </p>
-        <p className="visually-hidden">
-          {t("preloader.progress", { value: progressLabel })}
-        </p>
+        <p className="visually-hidden">{progressText}</p>
         <p className="visually-hidden">{statusLabel}</p>
       </motion.div>
       <motion.div
