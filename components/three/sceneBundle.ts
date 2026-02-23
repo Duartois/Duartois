@@ -65,7 +65,10 @@ const mergeGeometries = (
   >();
 
   for (const geometry of processedGeometries) {
-    const attributes = geometry.attributes as Record<string, THREE.BufferAttribute>;
+    const attributes = geometry.attributes as Record<
+      string,
+      THREE.BufferAttribute
+    >;
     for (const name of Object.keys(attributes)) {
       const attribute = attributes[name];
 
@@ -303,7 +306,10 @@ class CircularArcCurve extends THREE.Curve<THREE.Vector3> {
 class WaveCurve extends THREE.Curve<THREE.Vector3> {
   private readonly halfLength: number;
 
-  public constructor(private readonly length: number, private readonly amplitude: number) {
+  public constructor(
+    private readonly length: number,
+    private readonly amplitude: number,
+  ) {
     super();
     this.halfLength = length / 1.5;
   }
@@ -323,7 +329,13 @@ const createRoundedTubeGeometry = (
   tubularSegments: number,
   radialSegments: number,
 ) => {
-  const tube = new THREE.TubeGeometry(curve, tubularSegments, THICKNESS, radialSegments, false);
+  const tube = new THREE.TubeGeometry(
+    curve,
+    tubularSegments,
+    THICKNESS,
+    radialSegments,
+    false,
+  );
 
   const hemiOrigin = new THREE.SphereGeometry(
     THICKNESS,
@@ -344,7 +356,10 @@ const createRoundedTubeGeometry = (
   const up = new THREE.Vector3(0, 1, 0);
 
   const qStart = new THREE.Quaternion().setFromUnitVectors(up, tStart);
-  const qEnd = new THREE.Quaternion().setFromUnitVectors(up, tEnd.clone().multiplyScalar(-1));
+  const qEnd = new THREE.Quaternion().setFromUnitVectors(
+    up,
+    tEnd.clone().multiplyScalar(-1),
+  );
 
   const startCap = hemiOrigin.clone();
   startCap.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(qStart));
@@ -398,20 +413,25 @@ export async function addDuartoisSignatureShapes(
     sphereFlamingoSpring: () => new THREE.SphereGeometry(THICKNESS, 96, 96),
   };
 
-  const meshes = SHAPE_ORDER.reduce<Record<ShapeId, THREE.Mesh>>((acc, id) => {
-    const geometry = applyGradientToGeometry(
-      geometryFactories[id](),
-      GRADIENT_STOPS[id],
-      GRADIENT_AXES[id],
-    );
-    const mesh = new THREE.Mesh(geometry, createGlossyMaterial());
-    mesh.name = id;
-    mesh.frustumCulled = false;
-    acc[id] = mesh;
-    return acc;
-  }, {} as Record<ShapeId, THREE.Mesh>);
+  const meshes = SHAPE_ORDER.reduce<Record<ShapeId, THREE.Mesh>>(
+    (acc, id) => {
+      const geometry = applyGradientToGeometry(
+        geometryFactories[id](),
+        GRADIENT_STOPS[id],
+        GRADIENT_AXES[id],
+      );
+      const mesh = new THREE.Mesh(geometry, createGlossyMaterial());
+      mesh.name = id;
+      mesh.frustumCulled = false;
+      acc[id] = mesh;
+      return acc;
+    },
+    {} as Record<ShapeId, THREE.Mesh>,
+  );
 
-  const materials = SHAPE_ORDER.reduce<Record<ShapeId, THREE.MeshPhysicalMaterial>>(
+  const materials = SHAPE_ORDER.reduce<
+    Record<ShapeId, THREE.MeshPhysicalMaterial>
+  >(
     (acc, id) => {
       acc[id] = meshes[id].material as THREE.MeshPhysicalMaterial;
       return acc;
@@ -648,7 +668,10 @@ const initScene = async ({
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  const camera = createCamera(globalWindow.innerWidth, globalWindow.innerHeight);
+  const camera = createCamera(
+    globalWindow.innerWidth,
+    globalWindow.innerHeight,
+  );
   scene.add(camera);
 
   const effectivePalette = ensurePalette(palette, theme);
@@ -857,8 +880,10 @@ const initScene = async ({
     const targetPosX = pointer.x * parallaxStrength;
     const targetPosY = pointer.y * parallaxStrength * 0.75;
 
-    shapesGroup.position.x += (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
-    shapesGroup.position.y += (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
+    shapesGroup.position.x +=
+      (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
+    shapesGroup.position.y +=
+      (targetPosY - shapesGroup.position.y) * clamp(delta * 6, 0, 1);
 
     const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);
@@ -905,7 +930,9 @@ const initScene = async ({
   };
 
   const setState: ThreeAppHandle["setState"] = (
-    updater: ThreeAppHandle["setState"] extends (u: infer U) => void ? U : never,
+    updater: ThreeAppHandle["setState"] extends (u: infer U) => void
+      ? U
+      : never,
   ) => {
     const snapshot = createStateSnapshot(state);
     const partial =
@@ -963,11 +990,17 @@ const initScene = async ({
       }
     }
 
-    if (typeof partial.parallax === "boolean" && partial.parallax !== state.parallax) {
+    if (
+      typeof partial.parallax === "boolean" &&
+      partial.parallax !== state.parallax
+    ) {
       commit({ parallax: partial.parallax });
     }
 
-    if (typeof partial.hovered === "boolean" && partial.hovered !== state.hovered) {
+    if (
+      typeof partial.hovered === "boolean" &&
+      partial.hovered !== state.hovered
+    ) {
       commit({ hovered: partial.hovered });
     }
 
@@ -987,7 +1020,10 @@ const initScene = async ({
       }
     }
 
-    if (partial.pointerDriver && partial.pointerDriver !== state.pointerDriver) {
+    if (
+      partial.pointerDriver &&
+      partial.pointerDriver !== state.pointerDriver
+    ) {
       const source = getPointerTargetVector(
         partial.pointerDriver,
         manualPointerTarget,
@@ -1050,7 +1086,10 @@ const initScene = async ({
       if (nextTransition !== state.variantTransitionMs) {
         commit({ variantTransitionMs: nextTransition });
       }
-    } else if (partial.variantName && partial.variantName !== state.variantName) {
+    } else if (
+      partial.variantName &&
+      partial.variantName !== state.variantName
+    ) {
       // Se mudar de variante (rota), define um tempo padrão de transição
       commit({ variantTransitionMs: 1200 });
     }
@@ -1084,7 +1123,10 @@ const initScene = async ({
     globalWindow.removeEventListener("pointermove", pointerMove);
     globalWindow.removeEventListener("pointerenter", pointerEnter);
     globalWindow.removeEventListener("pointerleave", pointerLeave);
-    globalWindow.removeEventListener("visibilitychange", handleVisibilityChange);
+    globalWindow.removeEventListener(
+      "visibilitychange",
+      handleVisibilityChange,
+    );
     shapes.dispose();
     // Keep the renderer cleanup quiet for devtools/extensions by avoiding a
     // forced context loss. `renderer.dispose()` is enough to release GPU
@@ -1110,9 +1152,21 @@ const initScene = async ({
 
   resize();
   globalWindow.addEventListener("resize", resize);
-  globalWindow.addEventListener("pointermove", pointerMove, pointerListenerOptions);
-  globalWindow.addEventListener("pointerenter", pointerEnter, pointerListenerOptions);
-  globalWindow.addEventListener("pointerleave", pointerLeave, pointerListenerOptions);
+  globalWindow.addEventListener(
+    "pointermove",
+    pointerMove,
+    pointerListenerOptions,
+  );
+  globalWindow.addEventListener(
+    "pointerenter",
+    pointerEnter,
+    pointerListenerOptions,
+  );
+  globalWindow.addEventListener(
+    "pointerleave",
+    pointerLeave,
+    pointerListenerOptions,
+  );
   globalWindow.addEventListener("visibilitychange", handleVisibilityChange);
 
   dispatchStateChange(eventTarget, state);

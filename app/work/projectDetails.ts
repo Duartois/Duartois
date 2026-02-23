@@ -157,7 +157,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   wealthcomplex: {
@@ -170,9 +170,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmh10iy470dyi08ph22lhoqox",
       alt: "Cover of the project WealthComplex",
     },
-    metadata: [
-      { label: "category", values: ["Web Development"] },
-    ],
+    metadata: [{ label: "category", values: ["Web Development"] }],
     description: [
       "Landing page avançada (React + Vite) voltada a conversão, com i18n (pt/en), tema dark, animações (Framer Motion/Lottie/Spline) e captação de leads com EmailJS + HubSpot + Slack. Inclui otimizações de performance (lazy/async sections), carrosséis responsivos e suíte de qualidade (Vitest/Testing Library + ESLint/Prettier).",
     ],
@@ -270,7 +268,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   retrochroma: {
@@ -359,7 +357,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   "bichinhos-ousados": {
@@ -462,7 +460,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   "pov-tessellum": {
@@ -573,7 +571,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   evergreen: {
@@ -684,7 +682,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   flowly: {
@@ -775,7 +773,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   coverage: {
@@ -866,7 +864,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
   feature: {
@@ -955,7 +953,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         type: "image",
         src: "https://ap-south-1.graphassets.com/cmgz13kwo148a07pgfyp3e2v0/cmljxh8zs6lrz07plb6p05dsl",
         alt: "Brand guidelines (Website)",
-      }
+      },
     ],
   },
 };

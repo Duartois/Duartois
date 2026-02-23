@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProjectPageContent } from "./ProjectPageContent";
-import { projectSlugs, getProjectDetailBySlug, isProjectSlug } from "../projectDetails";
+import {
+  projectSlugs,
+  getProjectDetailBySlug,
+  isProjectSlug,
+} from "../projectDetails";
 import type { ProjectSlug } from "../projects";
 
 type WorkProjectPageParams = {

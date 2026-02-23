@@ -1,6 +1,10 @@
 import { OrthographicCamera } from "three";
 
-import { type GradientPalette, type ThemeName, getDefaultPalette } from "./types";
+import {
+  type GradientPalette,
+  type ThemeName,
+  getDefaultPalette,
+} from "./types";
 
 export const createCamera = (innerWidth: number, innerHeight: number) => {
   const aspect = window.innerWidth / window.innerHeight;

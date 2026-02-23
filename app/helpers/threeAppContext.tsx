@@ -18,7 +18,9 @@ type ThreeAppContextValue = {
   setSceneActive: (active: boolean) => void;
 };
 
-const ThreeAppContext = createContext<ThreeAppContextValue | undefined>(undefined);
+const ThreeAppContext = createContext<ThreeAppContextValue | undefined>(
+  undefined,
+);
 
 export function ThreeAppProvider({ children }: { children: ReactNode }) {
   const [app, setAppState] = useState<ThreeAppHandle | null>(null);

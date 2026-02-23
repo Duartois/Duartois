@@ -23,9 +23,13 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       className="theme-switch-btn"
-      aria-label={t("themeToggle.ariaLabel", { theme: t(`themeToggle.themes.${nextThemeKey}`) })}
+      aria-label={t("themeToggle.ariaLabel", {
+        theme: t(`themeToggle.themes.${nextThemeKey}`),
+      })}
       aria-pressed={theme === "dark"}
-      title={t("themeToggle.title", { theme: t(`themeToggle.themes.${theme}`) })}
+      title={t("themeToggle.title", {
+        theme: t(`themeToggle.themes.${theme}`),
+      })}
     >
       {/* Usa exatamente o SVG de lua/sol da referência, animando via translateY */}
       <svg
@@ -41,7 +45,9 @@ export default function ThemeToggle() {
           d="M14.994,7.99a7,7,0,0,1-12.813,3.9,1,1,0,0,1,1.063-1.532,6.139,6.139,0,0,0,1.961.089,6.012,6.012,0,0,0,5.212-4.985,6.067,6.067,0,0,0-.065-2.274A1,1,0,0,1,11.9,2.182,6.985,6.985,0,0,1,14.994,7.99Z"
           style={{
             transform:
-              effectiveTheme === "dark" ? "translateY(0px)" : "translateY(17px)",
+              effectiveTheme === "dark"
+                ? "translateY(0px)"
+                : "translateY(17px)",
             transformOrigin: "0px 0px",
             transition: "transform 250ms ease",
           }}
@@ -50,7 +56,9 @@ export default function ThemeToggle() {
         <g
           style={{
             transform:
-              effectiveTheme === "dark" ? "translateY(17px)" : "translateY(0px)",
+              effectiveTheme === "dark"
+                ? "translateY(17px)"
+                : "translateY(0px)",
             transformOrigin: "0px 0px",
             transition: "transform 250ms ease",
           }}

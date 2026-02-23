@@ -20,7 +20,8 @@ export const getFallExitDuration = (
     variant === "work"
       ? WORK_ITEM_TRANSITION_DURATION
       : FALL_ITEM_TRANSITION_DURATION;
-  const stagger = variant === "work" ? WORK_ITEM_STAGGER_DELAY : FALL_ITEM_STAGGER_DELAY;
+  const stagger =
+    variant === "work" ? WORK_ITEM_STAGGER_DELAY : FALL_ITEM_STAGGER_DELAY;
   return duration + Math.max(totalItems - 1, 0) * stagger;
 };
 
@@ -43,7 +44,9 @@ export function getFallItemStyle(
   const duration = isWorkVariant
     ? WORK_ITEM_TRANSITION_DURATION
     : FALL_ITEM_TRANSITION_DURATION;
-  const stagger = isWorkVariant ? WORK_ITEM_STAGGER_DELAY : FALL_ITEM_STAGGER_DELAY;
+  const stagger = isWorkVariant
+    ? WORK_ITEM_STAGGER_DELAY
+    : FALL_ITEM_STAGGER_DELAY;
   const delay = isActive ? index * stagger : (total - 1 - index) * stagger;
 
   return {

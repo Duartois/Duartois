@@ -32,7 +32,7 @@ export type VariantState = Record<ShapeId, ShapeTransform>;
 
 const createPrimaryMonogramVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [-2.12, 0.05, -1.10],
+    position: [-2.12, 0.05, -1.1],
     rotation: [Math.PI / 2, Math.PI * -1.7, 0],
     scale: [0.18, 0.18, 0.18],
   },
@@ -52,9 +52,9 @@ const createPrimaryMonogramVariant = (): VariantState => ({
     scale: [0.16, 0.16, 0.16],
   },
   semiFlamingoAzure: {
-    position: [-2.60, 0.02, 0.06],
+    position: [-2.6, 0.02, 0.06],
     rotation: [Math.PI / 2, Math.PI * -1.5, 0],
-    scale: [0.20, 0.20, 0.20],
+    scale: [0.2, 0.2, 0.2],
   },
   sphereFlamingoSpring: {
     position: [-1.3, -0.5, 0.32],
@@ -282,7 +282,7 @@ export const createResponsiveVariantState = (
     // instead of only touching it through the aspect ratio.
     const heightRatio = Math.min(viewportHeight / BASE_HEIGHT, 0.6);
     // Blend: 85% driven by height proximity, 15% minimum floor.
-    sizeScale = clamp(heightRatio * 0.8 + 0.05, 0.35, 1); 
+    sizeScale = clamp(heightRatio * 0.8 + 0.05, 0.35, 1);
   }
 
   const responsiveState = {} as VariantState;
@@ -317,7 +317,6 @@ export const createResponsiveVariantState = (
  * only a centering offset is applied on narrow screens so the cluster
  * stays visually centred.
  */
-
 
 export const createResponsiveHeroVariantState = (
   variant: VariantState,
@@ -422,7 +421,9 @@ export type ThreeAppState = {
   ready: boolean;
 };
 
-export type StateUpdaterFn = (previous: Readonly<ThreeAppState>) => Partial<ThreeAppState>;
+export type StateUpdaterFn = (
+  previous: Readonly<ThreeAppState>,
+) => Partial<ThreeAppState>;
 
 export interface ThreeAppHandle {
   setState: (updater: Partial<ThreeAppState> | StateUpdaterFn) => void;

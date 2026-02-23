@@ -9,7 +9,8 @@ export type MaterialWithOpacity = THREE.Material & {
 
 export const hasOpacity = (
   material: THREE.Material,
-): material is MaterialWithOpacity => "opacity" in material && "transparent" in material;
+): material is MaterialWithOpacity =>
+  "opacity" in material && "transparent" in material;
 
 export const applyOpacityToMaterial = (
   material: THREE.Material,

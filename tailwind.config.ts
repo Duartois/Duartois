@@ -49,7 +49,7 @@ const config: Config = {
       animation: {
         wave: "wave 2.4s linear infinite",
       },
-    }
+    },
   },
   plugins: [],
 };

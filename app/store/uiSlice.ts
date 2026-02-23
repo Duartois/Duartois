@@ -25,5 +25,6 @@ const uiSlice = createSlice({
   },
 });
 
-export const { setSmoothScrollEngine, setPwaInstallPromptSeen } = uiSlice.actions;
+export const { setSmoothScrollEngine, setPwaInstallPromptSeen } =
+  uiSlice.actions;
 export default uiSlice.reducer;

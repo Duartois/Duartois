@@ -326,12 +326,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     return () => {
       isCancelled = true;
     };
-  }, [
-    creditsControls,
-    logoControls,
-    reduceMotion,
-    textControls,
-  ]);
+  }, [creditsControls, logoControls, reduceMotion, textControls]);
 
   useEffect(() => {
     if (!isHiding) {
@@ -489,7 +484,6 @@ function preloadFonts(): Promise<void> {
   );
 }
 
-
 function waitForThreeReady(): Promise<void> {
   if (typeof window === "undefined") {
     return Promise.resolve();
@@ -512,9 +506,7 @@ function waitForThreeReady(): Promise<void> {
       resolve();
     };
 
-  
     timeoutId = window.setTimeout(resolveOnce, timeoutMs);
-   
   });
 }
 
@@ -582,7 +574,7 @@ function PreloaderLogo({
         strokeWidth={11}
         style={{ transformOrigin: "center" }}
       />
-            <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
+      <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
         <motion.rect
           id="SideBar"
           width="69.1299"

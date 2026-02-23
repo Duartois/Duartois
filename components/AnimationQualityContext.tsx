@@ -50,7 +50,9 @@ const AnimationQualityContext = createContext<AnimationQualityState>({
  *   - Safari on iOS pauses JS timers in background tabs aggressively
  *   - Thermal throttling on iPhone causes visible frame drops after ~60 s
  */
-const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => {
+const resolveQuality = (
+  quality: AnimationQuality,
+): ResolvedAnimationQuality => {
   if (typeof window === "undefined") {
     return quality === "low" ? "low" : "high";
   }
@@ -79,9 +81,11 @@ const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => 
   }
 
   const connection =
-    (navigator as Navigator & {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }).connection ?? {};
+    (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection ?? {};
   const effectiveType = connection.effectiveType ?? "";
   const saveData = Boolean(connection.saveData);
   const isSlowConnection =
@@ -92,8 +96,13 @@ const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => 
   return isSlowConnection || isHidden ? "low" : "high";
 };
 
-export function AnimationQualityProvider({ children }: { children: ReactNode }) {
-  const [quality, setQualityState] = useState<AnimationQuality>(DEFAULT_QUALITY);
+export function AnimationQualityProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [quality, setQualityState] =
+    useState<AnimationQuality>(DEFAULT_QUALITY);
   const [resolvedQuality, setResolvedQuality] =
     useState<ResolvedAnimationQuality>("high");
 
@@ -102,9 +111,9 @@ export function AnimationQualityProvider({ children }: { children: ReactNode }) 
       return;
     }
 
-    const stored = window.localStorage.getItem(STORAGE_KEY) as
-      | AnimationQuality
-      | null;
+    const stored = window.localStorage.getItem(
+      STORAGE_KEY,
+    ) as AnimationQuality | null;
 
     if (stored === "auto" || stored === "high" || stored === "low") {
       setQualityState(stored);

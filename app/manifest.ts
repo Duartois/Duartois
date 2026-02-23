@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Duartois",
     short_name: "Duartois",
-    description: "Portfólio Duartois com suporte completo a Progressive Web App.",
+    description:
+      "Portfólio Duartois com suporte completo a Progressive Web App.",
     start_url: "/",
     display: "standalone",
     background_color: "#0b0b0b",

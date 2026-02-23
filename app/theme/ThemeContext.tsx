@@ -142,10 +142,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setTheme,
       toggle,
     }),
-    [theme, setTheme, toggle]
+    [theme, setTheme, toggle],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

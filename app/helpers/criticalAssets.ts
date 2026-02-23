@@ -21,7 +21,11 @@ const STATIC_ASSETS = [
  * Static public/ assets are returned as-is (they're already small/optimal).
  */
 function toPreloadUrl(url: string, width = 1200): string {
-  return getOptimizedGraphAssetsUrl(url, { width, quality: 80, format: "webp" });
+  return getOptimizedGraphAssetsUrl(url, {
+    width,
+    quality: 80,
+    format: "webp",
+  });
 }
 
 const workProjectCovers = [
@@ -47,7 +51,10 @@ const optimisedCovers = workProjectCovers.map((url) => toPreloadUrl(url, 828));
 
 // ── Background / gallery images: preload at 1200 px
 const backgroundAssets = Array.from(
-  new Set([...optimisedCovers, ...projectDetailImages.map((url) => toPreloadUrl(url, 1200))]),
+  new Set([
+    ...optimisedCovers,
+    ...projectDetailImages.map((url) => toPreloadUrl(url, 1200)),
+  ]),
 );
 
 const workHeroCover = workProjectCovers[0];

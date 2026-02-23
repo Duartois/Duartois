@@ -6,7 +6,9 @@ import {
   variantMapping,
 } from "@/components/three/types";
 
-export const resolveVariantFromPath = (pathname: string): VariantName | null => {
+export const resolveVariantFromPath = (
+  pathname: string,
+): VariantName | null => {
   if (pathname === "/") {
     return "home";
   }
@@ -31,8 +33,6 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     return;
   }
 
- 
-
   const variantName = resolveVariantFromPath(pathname);
   if (!variantName) {
     return;
@@ -43,5 +43,4 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     window.innerWidth,
     window.innerHeight,
   );
-
 };

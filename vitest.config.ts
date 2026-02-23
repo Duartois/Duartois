@@ -6,8 +6,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "."),
       "@/components": path.resolve(__dirname, "components"),
-      "@/materials": path.resolve(__dirname, "materials"),
-      "@/store": path.resolve(__dirname, "store"),
+      "@/store": path.resolve(__dirname, "app/store"),
     },
   },
   test: {
@@ -26,7 +25,10 @@ export default defineConfig({
         "**/*.d.ts",
       ],
     },
-    include: ["**/__tests__/**/*.{test,spec}.{ts,tsx}", "**/*.{test,spec}.{ts,tsx}"],
+    include: [
+      "**/__tests__/**/*.{test,spec}.{ts,tsx}",
+      "**/*.{test,spec}.{ts,tsx}",
+    ],
     exclude: ["node_modules", ".next"],
   },
 });

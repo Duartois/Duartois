@@ -25,7 +25,12 @@ const BANNED = [
   { pattern: /^postprocessing(\b|\/)/, label: "postprocessing" },
 ] as const;
 
-type Violation = { file: string; line: number; specifier: string; label: string };
+type Violation = {
+  file: string;
+  line: number;
+  specifier: string;
+  label: string;
+};
 
 // ─── File walker ─────────────────────────────────────────────────────────────
 
@@ -40,7 +45,11 @@ async function walk(dir: string): Promise<string[]> {
 
     if (entry.isDirectory()) {
       files.push(...(await walk(full)));
-    } else if (entry.isFile() && ALLOWED_EXTS.has(path.extname(entry.name)) && !entry.name.endsWith(".d.ts")) {
+    } else if (
+      entry.isFile() &&
+      ALLOWED_EXTS.has(path.extname(entry.name)) &&
+      !entry.name.endsWith(".d.ts")
+    ) {
       files.push(full);
     }
   }
@@ -50,24 +59,34 @@ async function walk(dir: string): Promise<string[]> {
 
 // ─── Import extractor (TypeScript AST) ───────────────────────────────────────
 
-function extractImportSpecifiers(filePath: string, source: string): Array<{ specifier: string; line: number }> {
+function extractImportSpecifiers(
+  filePath: string,
+  source: string,
+): Array<{ specifier: string; line: number }> {
   const kind = filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
-  const sf = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, kind);
+  const sf = ts.createSourceFile(
+    filePath,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    kind,
+  );
   const results: Array<{ specifier: string; line: number }> = [];
 
   const visit = (node: ts.Node) => {
     const specifier =
-      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node))
+      ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
         ? node.moduleSpecifier
         : ts.isCallExpression(node) &&
-          ts.isIdentifier(node.expression) &&
-          node.expression.text === "require" &&
-          node.arguments[0]
-        ? node.arguments[0]
-        : null;
+            ts.isIdentifier(node.expression) &&
+            node.expression.text === "require" &&
+            node.arguments[0]
+          ? node.arguments[0]
+          : null;
 
     if (specifier && ts.isStringLiteral(specifier)) {
-      const line = sf.getLineAndCharacterOfPosition(specifier.getStart()).line + 1;
+      const line =
+        sf.getLineAndCharacterOfPosition(specifier.getStart()).line + 1;
       results.push({ specifier: specifier.text, line });
     }
 
@@ -82,7 +101,9 @@ function extractImportSpecifiers(filePath: string, source: string): Array<{ spec
 
 async function main() {
   const files = (
-    await Promise.all(SCAN_DIRS.map((d) => walk(path.join(ROOT, d)).catch(() => [])))
+    await Promise.all(
+      SCAN_DIRS.map((d) => walk(path.join(ROOT, d)).catch(() => [])),
+    )
   ).flat();
 
   const violations: Violation[] = [];
@@ -95,7 +116,12 @@ async function main() {
       for (const { specifier, line } of imports) {
         for (const { pattern, label } of BANNED) {
           if (pattern.test(specifier)) {
-            violations.push({ file: path.relative(ROOT, file), line, specifier, label });
+            violations.push({
+              file: path.relative(ROOT, file),
+              line,
+              specifier,
+              label,
+            });
           }
         }
       }
@@ -107,7 +133,9 @@ async function main() {
     return;
   }
 
-  console.error(`\n❌ verify-three-core-only: ${violations.length} violation(s) found:\n`);
+  console.error(
+    `\n❌ verify-three-core-only: ${violations.length} violation(s) found:\n`,
+  );
 
   for (const { file, line, specifier, label } of violations) {
     console.error(`  ${file}:${line}  →  "${specifier}"  (${label})`);

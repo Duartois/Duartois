@@ -37,7 +37,9 @@ export default function SmoothScrollProvider({ children }: PropsWithChildren) {
 
       try {
         const LocomotiveScroll = (await import("locomotive-scroll")).default;
-        const locomotive = new (LocomotiveScroll as unknown as new (options: Record<string, unknown>) => {
+        const locomotive = new (LocomotiveScroll as unknown as new (
+          options: Record<string, unknown>,
+        ) => {
           destroy: () => void;
         })({
           smooth: true,

@@ -12,8 +12,7 @@
 export const isBrowser = (): boolean => typeof window !== "undefined";
 
 /** Returns the global `window` object, or `null` during SSR. */
-export const getWindow = (): Window | null =>
-  isBrowser() ? window : null;
+export const getWindow = (): Window | null => (isBrowser() ? window : null);
 
 // ─── Safari / iOS Detection ──────────────────────────────────────────────────
 
@@ -92,7 +91,8 @@ export const getRendererPixelRatio = (forceMax?: number): number => {
 export const isLowPowerDevice = (): boolean => {
   if (!isBrowser()) return false;
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    return true;
 
   const nav = navigator as Navigator & {
     deviceMemory?: number;
@@ -106,9 +106,7 @@ export const isLowPowerDevice = (): boolean => {
   const effectiveType = connection.effectiveType ?? "";
 
   const isSlowNetwork =
-    saveData ||
-    effectiveType.includes("2g") ||
-    effectiveType.includes("3g");
+    saveData || effectiveType.includes("2g") || effectiveType.includes("3g");
 
   const isLowHardware =
     (deviceMemory !== undefined && deviceMemory <= 2) ||

@@ -69,7 +69,11 @@ const normalizeLang = (value?: string | null): SupportedLang | null => {
   return null;
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const cookieStore = await cookies();
   const cookieLang = normalizeLang(cookieStore.get("i18nextLng")?.value);
   const lang = cookieLang ?? defaultLang;
@@ -110,7 +114,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           type="font/woff2"
           crossOrigin=""
         />
-        <link rel="preload" href="/about-01.avif" as="image" type="image/avif" />
+        <link
+          rel="preload"
+          href="/about-01.avif"
+          as="image"
+          type="image/avif"
+        />
         <link rel="preload" href="/noise.png" as="image" type="image/png" />
         <link
           rel="preload"

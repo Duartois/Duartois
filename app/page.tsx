@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
-import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "./helpers/navigateWithExit";
+import {
+  navigateWithExit,
+  EXIT_NAVIGATION_ATTRIBUTE,
+} from "./helpers/navigateWithExit";
 import {
   useEffect,
   PropsWithChildren,
@@ -38,7 +41,6 @@ import {
   type VariantState,
 } from "@/components/three/types";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
-
 
 type NameWithWaveProps = PropsWithChildren<{ hoverVariant: VariantState }>;
 
@@ -206,7 +208,7 @@ export default function HomePage() {
   useEffect(() => {
     document
       .querySelectorAll<HTMLElement>(
-        '[class*="background-position-x:"], [class*="background-position-y:"]'
+        '[class*="background-position-x:"], [class*="background-position-y:"]',
       )
       .forEach(applyBackgroundPositionFromClass);
 
@@ -226,7 +228,7 @@ export default function HomePage() {
                 applyBackgroundPositionFromClass(n);
               }
               n.querySelectorAll<HTMLElement>(
-                '[class*="background-position-x:"], [class*="background-position-y:"]'
+                '[class*="background-position-x:"], [class*="background-position-y:"]',
               ).forEach(applyBackgroundPositionFromClass);
             }
           });
@@ -254,7 +256,6 @@ export default function HomePage() {
   const totalFallDuration =
     WORK_ITEM_TRANSITION_DURATION +
     Math.max(totalFallItems - 1, 0) * WORK_ITEM_STAGGER_DELAY;
-
 
   useEffect(() => {
     if (disableFallAnimation) {
@@ -427,7 +428,9 @@ export default function HomePage() {
                           i18nKey="home.hero.titleLine1"
                           components={{
                             name: (
-                              <NameWithWave hoverVariant={HERO_LINE_ONE_MONOGRAM} />
+                              <NameWithWave
+                                hoverVariant={HERO_LINE_ONE_MONOGRAM}
+                              />
                             ),
                           }}
                         />
@@ -439,7 +442,9 @@ export default function HomePage() {
                           i18nKey="home.hero.titleLine2"
                           components={{
                             name: (
-                              <NameWithWave hoverVariant={HERO_LINE_TWO_MONOGRAM} />
+                              <NameWithWave
+                                hoverVariant={HERO_LINE_TWO_MONOGRAM}
+                              />
                             ),
                           }}
                         />
@@ -468,9 +473,7 @@ export default function HomePage() {
                                     handleHeroLinkClick(event, "/work")
                                   }
                                 >
-                                  <span>
-                                    {t("home.hero.ctaProjects")}
-                                  </span>
+                                  <span>{t("home.hero.ctaProjects")}</span>
                                 </Link>
                               </div>
                               <div
@@ -491,9 +494,7 @@ export default function HomePage() {
                                     handleHeroLinkClick(event, "/about")
                                   }
                                 >
-                                  <span>
-                                    {t("home.hero.ctaAbout")}
-                                  </span>
+                                  <span>{t("home.hero.ctaAbout")}</span>
                                 </Link>
                               </div>
                               <div className="link-underline" />

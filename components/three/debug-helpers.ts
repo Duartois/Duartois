@@ -1,4 +1,8 @@
-import { createVariantState, type ThreeAppHandle, type ThreeAppState } from "./types";
+import {
+  createVariantState,
+  type ThreeAppHandle,
+  type ThreeAppState,
+} from "./types";
 
 export const createStateSnapshot = (state: ThreeAppState) =>
   Object.freeze({
@@ -10,7 +14,9 @@ export const createStateSnapshot = (state: ThreeAppState) =>
           centered: createVariantState(state.hoverVariants.centered),
         }
       : null,
-    palette: state.palette.map((stops) => [...stops]) as ThreeAppState["palette"],
+    palette: state.palette.map((stops) => [
+      ...stops,
+    ]) as ThreeAppState["palette"],
     pointer: { ...state.pointer },
     manualPointer: { ...state.manualPointer },
     shapeOpacity: { ...state.shapeOpacity },

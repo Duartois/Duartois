@@ -100,10 +100,7 @@ export function useMenuFallAnimation(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
-      window.removeEventListener(
-        APP_NAVIGATION_END_EVENT,
-        handleNavigationEnd,
-      );
+      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
     };
   }, [disableFallAnimation]);
 

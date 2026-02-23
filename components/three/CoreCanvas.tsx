@@ -77,7 +77,9 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
 
     if (shouldLogPerf()) {
       performance.mark("three:init-start");
-      logPerf("3D scene init started.", { timeMs: Math.round(performance.now()) });
+      logPerf("3D scene init started.", {
+        timeMs: Math.round(performance.now()),
+      });
     }
 
     void import("./sceneBundle").then(({ default: initScene }) => {

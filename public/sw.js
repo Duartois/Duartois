@@ -4,7 +4,9 @@ const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const APP_SHELL = ["/", "/offline", "/manifest.webmanifest", "/Logo.svg"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(APP_SHELL)),
+  );
   self.skipWaiting();
 });
 
@@ -37,7 +39,9 @@ self.addEventListener("fetch", (event) => {
       fetch(request)
         .then((response) => {
           const responseClone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, responseClone));
+          caches
+            .open(RUNTIME_CACHE)
+            .then((cache) => cache.put(request, responseClone));
           return response;
         })
         .catch(async () => {
@@ -65,7 +69,9 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(request).then((response) => {
         const responseClone = response.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, responseClone));
+        caches
+          .open(RUNTIME_CACHE)
+          .then((cache) => cache.put(request, responseClone));
         return response;
       });
     }),

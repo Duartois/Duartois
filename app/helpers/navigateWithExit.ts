@@ -78,9 +78,7 @@ const getNavigationExitDuration = (durationOverride?: number) => {
     "(prefers-reduced-motion: reduce)",
   ).matches;
   const scaleFactor =
-    Number.isFinite(fallbackItems) && fallbackItems > 6
-      ? 6 / fallbackItems
-      : 1;
+    Number.isFinite(fallbackItems) && fallbackItems > 6 ? 6 / fallbackItems : 1;
   let adjustedDuration = Math.round(baseDuration * scaleFactor);
 
   if (prefersReducedMotion) {

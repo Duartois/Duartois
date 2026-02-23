@@ -194,7 +194,9 @@ export default function CustomCursor() {
         return null;
       }
 
-      const interactive = element.closest(INTERACTIVE_SELECTOR) as HTMLElement | null;
+      const interactive = element.closest(
+        INTERACTIVE_SELECTOR,
+      ) as HTMLElement | null;
 
       if (!interactive) {
         return null;
