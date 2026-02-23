@@ -28,6 +28,7 @@ import {
   APP_MENU_CLOSE_EVENT,
   APP_MENU_OPEN_EVENT,
   APP_SHELL_REVEAL_EVENT,
+  APP_NAVIGATION_REVEALED_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
 import {
@@ -176,16 +177,19 @@ export default function Navbar() {
 
     if (
       typeof document !== "undefined" &&
-      document.body?.dataset.preloading !== "true"
+      document.body?.dataset.preloading !== "true" &&
+      document.body?.dataset.navigating !== "true"
     ) {
       activateFall();
       return;
     }
 
     window.addEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    window.addEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall);
 
     return () => {
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+      window.removeEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall);
     };
   }, [disableFallAnimation]);
 

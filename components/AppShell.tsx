@@ -8,6 +8,7 @@ import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
 import {
   APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_REVEALED_EVENT,
   APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
@@ -149,6 +150,7 @@ function AppShellContent({ children }: AppShellProps) {
         navigationEndTimerRef.current = undefined;
       }
       navigationScrollRef.current = window.scrollY || 0;
+      document.body.dataset.navigating = "true";
       setIsNavigationExiting(true);
     };
 
@@ -168,6 +170,8 @@ function AppShellContent({ children }: AppShellProps) {
       // entrada, remove o opacity:0 e deixa o useMenuFallAnimation assumir.
       navigationEndTimerRef.current = window.setTimeout(() => {
         setIsNavigationReleasing(false);
+        delete document.body.dataset.navigating;
+        dispatchAppEvent(APP_NAVIGATION_REVEALED_EVENT);
         navigationEndTimerRef.current = undefined;
       }, NAVIGATION_EXIT_RELEASE_DELAY);
     };

@@ -9,6 +9,7 @@ import {
   APP_MENU_CLOSE_EVENT,
   APP_MENU_OPEN_EVENT,
   APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_REVEALED_EVENT,
   APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
 } from "@/app/helpers/appEvents";
@@ -39,20 +40,25 @@ export function useMenuFallAnimation(
       setIsFallActive(true);
       isNavigatingAwayRef.current = false;
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+      window.removeEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall);
     };
 
     if (
       typeof document !== "undefined" &&
-      document.body?.dataset.preloading !== "true"
+      document.body?.dataset.preloading !== "true" &&
+      document.body?.dataset.navigating !== "true" // ← VERIFICAR SE NÃO ESTÁ NAVEGANDO
     ) {
       activateFall();
       return;
     }
 
+    // Aguarda revelação do preloader OU da navegação, o que ocorrer primeiro
     window.addEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    window.addEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall); // ← ADICIONAR
 
     return () => {
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+      window.removeEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall); // ← ADICIONAR
     };
   }, [disableFallAnimation]);
 
@@ -83,7 +89,7 @@ export function useMenuFallAnimation(
       setIsFallActive(false);
     };
 
-    const handleNavigationEnd = () => {
+    const handleNavigationRevealed = () => {
       isNavigatingAwayRef.current = false;
       setIsFallActive(true);
     };
@@ -91,7 +97,10 @@ export function useMenuFallAnimation(
     window.addEventListener(APP_MENU_OPEN_EVENT, handleMenuOpen);
     window.addEventListener(APP_MENU_CLOSE_EVENT, handleMenuClose);
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
-    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+    window.addEventListener(
+      APP_NAVIGATION_REVEALED_EVENT,
+      handleNavigationRevealed,
+    );
 
     return () => {
       window.removeEventListener(APP_MENU_OPEN_EVENT, handleMenuOpen);
@@ -100,7 +109,10 @@ export function useMenuFallAnimation(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
-      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+      window.addEventListener(
+        APP_NAVIGATION_REVEALED_EVENT,
+        handleNavigationRevealed,
+      );
     };
   }, [disableFallAnimation]);
 

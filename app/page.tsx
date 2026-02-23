@@ -28,9 +28,10 @@ import {
 import {
   APP_MENU_CLOSE_EVENT,
   APP_MENU_OPEN_EVENT,
+  APP_NAVIGATION_END_EVENT,
+  APP_NAVIGATION_REVEALED_EVENT,
   APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
-  APP_NAVIGATION_END_EVENT,
 } from "@/app/helpers/appEvents";
 
 import {
@@ -275,15 +276,20 @@ export default function HomePage() {
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
     };
 
-    if (document.body?.dataset.preloading !== "true") {
+    if (
+      document.body?.dataset.preloading !== "true" &&
+      document.body?.dataset.navigating !== "true"
+    ) {
       activateFall();
       return undefined;
     }
 
     window.addEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+    window.addEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall);
 
     return () => {
       window.removeEventListener(APP_SHELL_REVEAL_EVENT, activateFall);
+      window.removeEventListener(APP_NAVIGATION_REVEALED_EVENT, activateFall);
     };
   }, [disableFallAnimation]);
 
@@ -337,20 +343,26 @@ export default function HomePage() {
       setIsNavigatingAway(true);
       setIsFallActive(false);
     };
-    const handleNavigationEnd = () => {
+    const handleNavigationRevealed = () => {
       setIsNavigatingAway(false);
       setIsFallActive(true);
     };
 
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
-    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+    window.addEventListener(
+      APP_NAVIGATION_REVEALED_EVENT,
+      handleNavigationRevealed,
+    );
 
     return () => {
       window.removeEventListener(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
-      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
+      window.removeEventListener(
+        APP_NAVIGATION_REVEALED_EVENT,
+        handleNavigationRevealed,
+      );
     };
   }, [disableFallAnimation]);
 
