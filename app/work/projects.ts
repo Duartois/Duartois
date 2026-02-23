@@ -20,7 +20,9 @@ export type ProjectPreview = {
   variantName: VariantName;
 };
 
-export const projectOrder = workProjects.map((project) => project.key) as ProjectKey[];
+export const projectOrder = workProjects.map(
+  (project) => project.key,
+) as ProjectKey[];
 
 export const projectSlugByKey = workProjects.reduce(
   (accumulator, project) => {
@@ -38,10 +40,11 @@ export const projectKeyBySlug = workProjects.reduce(
   {} as Record<ProjectSlug, ProjectKey>,
 );
 
-export const projectPreviews: Record<ProjectKey, ProjectPreview> = projectOrder.reduce(
-  (previews, key) => {
-    previews[key] = { variantName: "home" } satisfies ProjectPreview;
-    return previews;
-  },
-  {} as Record<ProjectKey, ProjectPreview>,
-);
+export const projectPreviews: Record<ProjectKey, ProjectPreview> =
+  projectOrder.reduce(
+    (previews, key) => {
+      previews[key] = { variantName: "home" } satisfies ProjectPreview;
+      return previews;
+    },
+    {} as Record<ProjectKey, ProjectPreview>,
+  );

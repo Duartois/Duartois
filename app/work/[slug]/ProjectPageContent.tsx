@@ -43,7 +43,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
- 
+
   const pageContentStyle = useMemo(
     () =>
       ({
@@ -97,7 +97,11 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
 
   return (
     <main className="container work-container">
-      <div className="page-content" style={pageContentStyle} aria-hidden={isMenuOpen}>
+      <div
+        className="page-content"
+        style={pageContentStyle}
+        aria-hidden={isMenuOpen}
+      >
         <div className="project" style={projectStyle}>
           <div className="header-project">
             <div className="hero-image-wrapper" style={nextFall()}>
@@ -149,7 +153,10 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
 
             <div className="project-description">
               {detail.description.map((paragraph, index) => (
-                <p key={`${detail.slug}-description-${index}`} style={nextFall()}>
+                <p
+                  key={`${detail.slug}-description-${index}`}
+                  style={nextFall()}
+                >
                   {paragraph}
                 </p>
               ))}

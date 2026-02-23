@@ -19,12 +19,12 @@ File-based routing with React Server Components. All pages live under `app/`.
 
 Strict mode enabled. Path aliases configured in both `tsconfig.json` and `vitest.config.ts`:
 
-| Alias | Resolves to |
-|---|---|
-| `@/*` | `./*` (repo root) |
-| `@/components/*` | `./components/*` |
-| `@/materials/*` | `./materials/*` |
-| `@/store/*` | `./store/*` |
+| Alias            | Resolves to       |
+| ---------------- | ----------------- |
+| `@/*`            | `./*` (repo root) |
+| `@/components/*` | `./components/*`  |
+| `@/materials/*`  | `./materials/*`   |
+| `@/store/*`      | `./store/*`       |
 
 Run `npm run type-check` for a type-only build (no output files).
 
@@ -42,15 +42,15 @@ Custom imperative WebGL scene — no React Three Fiber.
 
 **Architecture:**
 
-| File | Purpose |
-|---|---|
-| `components/three/types.ts` | All types, variant definitions, palettes, state shape |
-| `components/three/sceneBundle.ts` | Scene init, render loop, state machine |
-| `components/three/CoreCanvas.tsx` | React wrapper — mounts canvas, defers scene init |
-| `components/three/factories.ts` | Camera and geometry factory functions |
-| `components/three/materialOpacity.ts` | Opacity updates across all meshes |
-| `components/three/pointerDriver.ts` | Pointer tracking and parallax input |
-| `components/three/debug-helpers.ts` | `window.__THREE_APP__` dev handle |
+| File                                  | Purpose                                               |
+| ------------------------------------- | ----------------------------------------------------- |
+| `components/three/types.ts`           | All types, variant definitions, palettes, state shape |
+| `components/three/sceneBundle.ts`     | Scene init, render loop, state machine                |
+| `components/three/CoreCanvas.tsx`     | React wrapper — mounts canvas, defers scene init      |
+| `components/three/factories.ts`       | Camera and geometry factory functions                 |
+| `components/three/materialOpacity.ts` | Opacity updates across all meshes                     |
+| `components/three/pointerDriver.ts`   | Pointer tracking and parallax input                   |
+| `components/three/debug-helpers.ts`   | `window.__THREE_APP__` dev handle                     |
 
 **Policy:** only `import … from "three"` is allowed. `three/examples`, `three/addons`, R3F and other add-ons are banned. Enforced by `npm run verify:three` (runs automatically before every build).
 
@@ -74,10 +74,10 @@ Namespaces are loaded per-page. The `useTranslation` hook is used in client comp
 
 ## Testing — Vitest 4 + Testing Library
 
-| File | Purpose |
-|---|---|
-| `vitest.config.ts` | Test environment (jsdom), path aliases, coverage config |
-| `setupTests.ts` | Global setup — imports `@testing-library/jest-dom` and calls `cleanup()` after each test |
+| File               | Purpose                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| `vitest.config.ts` | Test environment (jsdom), path aliases, coverage config                                  |
+| `setupTests.ts`    | Global setup — imports `@testing-library/jest-dom` and calls `cleanup()` after each test |
 
 ```bash
 npm run test          # single run
@@ -122,13 +122,13 @@ NEXT_PUBLIC_PERF_DEBUG=true npm run dev  # live perf logging
 
 SSR-safe primitives shared across the app.
 
-| Export | Description |
-|---|---|
-| `isBrowser` | `true` only in a real browser |
-| `getWindow()` | `window` or `null` during SSR |
-| `clamp(v, min, max)` | Numeric clamp |
-| `lerp(a, b, t)` | Linear interpolation |
-| `mapRange(v, inMin, inMax, outMin, outMax)` | Range remapping |
+| Export                                      | Description                   |
+| ------------------------------------------- | ----------------------------- |
+| `isBrowser`                                 | `true` only in a real browser |
+| `getWindow()`                               | `window` or `null` during SSR |
+| `clamp(v, min, max)`                        | Numeric clamp                 |
+| `lerp(a, b, t)`                             | Linear interpolation          |
+| `mapRange(v, inMin, inMax, outMin, outMax)` | Range remapping               |
 
 ---
 
@@ -136,13 +136,13 @@ SSR-safe primitives shared across the app.
 
 Typed `CustomEvent` names for cross-component coordination without prop-drilling.
 
-| Constant | Fired when |
-|---|---|
-| `APP_SHELL_REVEAL_EVENT` | Shell becomes visible after preload |
-| `APP_MENU_OPEN_EVENT` | Navigation menu opens |
-| `APP_MENU_CLOSE_EVENT` | Navigation menu closes |
-| `APP_NAVIGATION_START_EVENT` | Route transition begins |
-| `APP_NAVIGATION_END_EVENT` | Route transition completes |
+| Constant                     | Fired when                          |
+| ---------------------------- | ----------------------------------- |
+| `APP_SHELL_REVEAL_EVENT`     | Shell becomes visible after preload |
+| `APP_MENU_OPEN_EVENT`        | Navigation menu opens               |
+| `APP_MENU_CLOSE_EVENT`       | Navigation menu closes              |
+| `APP_NAVIGATION_START_EVENT` | Route transition begins             |
+| `APP_NAVIGATION_END_EVENT`   | Route transition completes          |
 
 ---
 

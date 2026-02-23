@@ -87,7 +87,6 @@ export const getOptimizedGraphAssetsUrl = (
     transforms.push(`output=format:webp,quality:${quality}`);
   }
 
-
   const transformPath = transforms.join("/");
   urlObj.pathname = `/${basePath}/${transformPath}/${handle}`;
 

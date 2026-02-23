@@ -1,36 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Habilitar compressão gzip/brotli para reduzir tamanho dos assets no mobile
+  compress: true,
+
   images: {
-    /*
-     * Custom loader that bypasses the /_next/image proxy for Hygraph assets.
-     *
-     * Instead of Next.js re-encoding and serving images through its own
-     * server, this loader generates URLs that point DIRECTLY to Hygraph's
-     * CDN transformation API. The result:
-     *
-     *   - Images are served from eu-central-1.graphassets.com (or ap-south-1)
-     *     just like the reference site — that domain will appear as its own
-     *     Source in DevTools.
-     *   - No cold-start / server-side encoding penalty on Vercel.
-     *   - Hygraph's global CDN edge delivers the image closer to the user.
-     *   - WebP conversion happens on Hygraph's infrastructure, not yours.
-     *
-     * The loader still falls through to /_next/image for local public/ assets
-     * (SVGs, PNGs, AVIF) that aren't on Hygraph — those are already optimal
-     * or too small to matter.
-     */
     loader: "custom",
     loaderFile: "./hygraphImageLoader.ts",
-
-    /*
-     * remotePatterns is only enforced when using the built-in loader.
-     * With a custom loader the responsibility shifts to the loader function,
-     * which only generates Hygraph transform URLs for graphassets.com hosts.
-     *
-     * Keep the entries here so that any next/image usage that does NOT go
-     * through the custom loader (e.g. unoptimized={true}) still has the
-     * security allowlist in place.
-     */
     remotePatterns: [
       {
         protocol: "https",
@@ -43,25 +18,77 @@ const nextConfig = {
         pathname: "/**",
       },
     ],
-
-    /*
-     * Srcset breakpoints.
-     * Next.js still uses these to decide which widths to request via the
-     * loader — we just changed WHERE those requests go.
-     */
-    deviceSizes: [640, 828, 1080, 1200, 1440, 1920, 2560],
+    // Tamanhos otimizados para mobile (375, 414, 768) e desktop
+    deviceSizes: [375, 414, 640, 768, 828, 1080, 1200, 1440, 1920, 2560],
     imageSizes: [16, 32, 64, 96, 128, 256, 384, 640, 750, 1080],
-
-    /*
-     * formats is ignored when using a custom loader (format is controlled
-     * by the loader itself — we hardcode WebP via Hygraph's output= param).
-     */
     formats: ["image/avif", "image/webp"],
-
-    /*
-     * Cache TTL for the built-in optimizer (still used for local assets).
-     */
     minimumCacheTTL: 60 * 60 * 24 * 7,
+  },
+
+  // Headers de segurança e performance para mobile
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          // Habilita DNS prefetch para melhorar performance de conexão no mobile
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
+        ],
+      },
+      {
+        // Cache longo para fontes (imutáveis após hash)
+        source: "/fonts/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Cache longo para imagens estáticas
+        source: "/(.*\\.(?:png|jpg|jpeg|gif|svg|ico|avif|webp))",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
+  },
+
+  webpack: (config, { isServer }) => {
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      "@store": require("path").resolve(__dirname, "app/store"),
+    };
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
+    config.optimization = {
+      ...(config.optimization || {}),
+      splitChunks: {
+        ...(config.optimization?.splitChunks || {}),
+        chunks: "all",
+      },
+    };
+
+    return config;
   },
 };
 

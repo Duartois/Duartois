@@ -65,7 +65,8 @@ function syncThreeTheme(next: Theme) {
     return;
   }
 
-  const palette = getDefaultPalette(next);
+  // Mantém a chamada para compatibilidade futura com a cena 3D
+  getDefaultPalette(next);
 }
 
 function persistTheme(next: Theme) {
@@ -83,7 +84,27 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => resolveInitialTheme());
+  /**
+   * Hydration fix: sempre inicia com "light" no servidor para garantir que o
+   * HTML gerado pelo SSR seja idêntico ao que o cliente renderiza antes da
+   * hidratação (React error #418).
+   *
+   * O ThemeScript (script inline bloqueante no <head>) já aplica o tema
+   * correto via classList/data-theme antes do primeiro paint, portanto não
+   * há flash visível. O useEffect abaixo sincroniza o estado React com o
+   * tema real logo após a montagem.
+   */
+  const [theme, setThemeState] = useState<Theme>("light");
+
+  useEffect(() => {
+    // Após a montagem no cliente, sincroniza com o tema real
+    const resolved = resolveInitialTheme();
+    if (resolved !== "light") {
+      setThemeState(resolved);
+    }
+    applyTheme(resolved);
+    syncThreeTheme(resolved);
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
@@ -142,10 +163,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setTheme,
       toggle,
     }),
-    [theme, setTheme, toggle]
+    [theme, setTheme, toggle],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

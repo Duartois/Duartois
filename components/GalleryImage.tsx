@@ -25,7 +25,10 @@ type GalleryImageProps = {
   wrapperStyle?: CSSProperties;
 };
 
-export default function GalleryImage({ images, wrapperStyle }: GalleryImageProps) {
+export default function GalleryImage({
+  images,
+  wrapperStyle,
+}: GalleryImageProps) {
   return (
     <>
       {images.map((image, index) => (

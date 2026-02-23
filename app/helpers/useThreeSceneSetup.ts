@@ -68,11 +68,15 @@ export function useThreeSceneSetup(
     let animationFrame: number | undefined;
 
     const apply = () => {
-      const applied = applySceneState(variantName, {
-        opacity,
-        parallax,
-        hovered,
-      }, app);
+      const applied = applySceneState(
+        variantName,
+        {
+          opacity,
+          parallax,
+          hovered,
+        },
+        app,
+      );
 
       if (!applied) {
         animationFrame = window.requestAnimationFrame(apply);
@@ -94,11 +98,7 @@ export function useThreeSceneSetup(
     }
 
     return () => {
-      applySceneState(
-        variantName,
-        { opacity, parallax, hovered },
-        app,
-      );
+      applySceneState(variantName, { opacity, parallax, hovered }, app);
     };
   }, [app, hovered, opacity, parallax, resetOnUnmount, variantName]);
 }

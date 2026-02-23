@@ -117,10 +117,13 @@ type MenuProps = {
   id?: string;
 };
 
-
 const HOVER_MEDIA_QUERY = "(min-width: 900px)";
 
-export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }: MenuProps) {
+export default function Menu({
+  isOpen,
+  onClose,
+  id = "main-navigation-overlay",
+}: MenuProps) {
   const { t } = useTranslation("common");
   const pathname = usePathname();
   const router = useRouter();
@@ -144,10 +147,13 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
   // redes sociais â€“ iguais Ã  referÃªncia
   const socials = useMemo(
     () => [
-      { href: "https://www.instagram.com/matheus.duarteg/", label: "Instagram" },
+      {
+        href: "https://www.instagram.com/matheus.duarteg/",
+        label: "Instagram",
+      },
       { href: "https://www.behance.net/", label: "Behance" },
     ],
-    []
+    [],
   );
 
   const totalItems = items.length + socials.length;
@@ -289,7 +295,9 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     }
 
     const handleStateChange = (event: Event) => {
-      const customEvent = event as CustomEvent<{ state: Readonly<ThreeAppState> }>;
+      const customEvent = event as CustomEvent<{
+        state: Readonly<ThreeAppState>;
+      }>;
       const nextState = customEvent.detail?.state;
 
       if (!nextState || hoveredItemRef.current) {
@@ -380,7 +388,6 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
     });
   }, [app, hoveredItem, isHoverEnabled, isOpen]);
 
-
   useEffect(() => {
     if (hideTimeoutRef.current) {
       window.clearTimeout(hideTimeoutRef.current);
@@ -439,7 +446,10 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
       aria-modal="true"
       aria-hidden={!isOpen}
     >
-      <div className="menu-content" style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}>
+      <div
+        className="menu-content"
+        style={{ "--fall-delay": isOpen ? "0.05s" : "0s" } as CSSProperties}
+      >
         <div className="menu-items">
           <nav>
             <ol
@@ -466,9 +476,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                       {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                       onClick={(event) => handleMenuLinkClick(event, item.href)}
                     >
-                      <h1>
-                        {item.label}
-                      </h1>
+                      <h1>{item.label}</h1>
                     </Link>
                   </div>
                 </li>
@@ -483,7 +491,10 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
               <div>
                 {socials.map((s, i) => (
                   <li key={s.href}>
-                    <div className="item-inner" style={itemStyle(items.length + i)}>
+                    <div
+                      className="item-inner"
+                      style={itemStyle(items.length + i)}
+                    >
                       <div className="link-wrapper">
                         <div className="link">
                           <a
@@ -492,10 +503,7 @@ export default function Menu({ isOpen, onClose, id = "main-navigation-overlay" }
                             rel="noreferrer"
                             onClick={onClose}
                           >
-                            <span
-                            >
-                              ↗ {s.label}
-                            </span>
+                            <span>↗ {s.label}</span>
                           </a>
                         </div>
                         {/* underline comeÃ§a em -101% exatamente como na referÃªncia/CSS */}

@@ -25,6 +25,7 @@ export function useMenuFallAnimation(
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const isNavigatingAwayRef = useRef(false);
 
+  // Ativa as animações de entrada quando a página é revelada (após preloader)
   useEffect(() => {
     if (disableFallAnimation) {
       setIsFallActive(true);
@@ -57,6 +58,7 @@ export function useMenuFallAnimation(
     };
   }, [disableFallAnimation]);
 
+  // Sincroniza animações com eventos de menu e navegação
   useEffect(() => {
     if (disableFallAnimation) {
       return;
@@ -100,10 +102,7 @@ export function useMenuFallAnimation(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
-      window.removeEventListener(
-        APP_NAVIGATION_END_EVENT,
-        handleNavigationEnd,
-      );
+      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
     };
   }, [disableFallAnimation]);
 

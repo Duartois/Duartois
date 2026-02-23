@@ -6,7 +6,9 @@ import {
   variantMapping,
 } from "@/components/three/types";
 
-export const resolveVariantFromPath = (pathname: string): VariantName | null => {
+export const resolveVariantFromPath = (
+  pathname: string,
+): VariantName | null => {
   if (pathname === "/") {
     return "home";
   }
@@ -31,8 +33,6 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     return;
   }
 
- 
-
   const variantName = resolveVariantFromPath(pathname);
   if (!variantName) {
     return;
@@ -44,4 +44,8 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     window.innerHeight,
   );
 
+  // Aplica a variante ao app Three.js se disponível
+  if (window.__THREE_APP__) {
+    window.__THREE_APP__.setState({ variant: responsiveVariant });
+  }
 };

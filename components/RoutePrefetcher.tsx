@@ -28,7 +28,10 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
     const schedule: (callback: IdleRequestCallback) => number = hasIdleCallback
       ? window.requestIdleCallback.bind(window)
       : (callback: IdleRequestCallback) =>
-          window.setTimeout(() => callback({ didTimeout: false, timeRemaining: () => 0 }), 300);
+          window.setTimeout(
+            () => callback({ didTimeout: false, timeRemaining: () => 0 }),
+            300,
+          );
 
     const prefetchRoutes = () => {
       if (!shouldAllowPrefetch()) {

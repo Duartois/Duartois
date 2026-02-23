@@ -14,15 +14,14 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
-import { navigateWithExit, EXIT_NAVIGATION_ATTRIBUTE } from "../helpers/navigateWithExit";
+import {
+  navigateWithExit,
+  EXIT_NAVIGATION_ATTRIBUTE,
+} from "../helpers/navigateWithExit";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 
-import {
-  projectOrder,
-  type ProjectKey,
-  projectPreviews,
-} from "./projects";
+import { projectOrder, type ProjectKey, projectPreviews } from "./projects";
 
 type ProjectCopy = {
   title: string;
@@ -36,8 +35,12 @@ type ProjectCopy = {
 export default function WorkPage() {
   const { t } = useTranslation("common");
   const router = useRouter();
-  const [activeProject, setActiveProject] = useState<ProjectKey>(projectOrder[0]);
-  const [previousProject, setPreviousProject] = useState<ProjectKey | null>(null);
+  const [activeProject, setActiveProject] = useState<ProjectKey>(
+    projectOrder[0],
+  );
+  const [previousProject, setPreviousProject] = useState<ProjectKey | null>(
+    null,
+  );
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
@@ -72,7 +75,8 @@ export default function WorkPage() {
   const handleProjectActivate = useCallback(
     (projectKey: ProjectKey) => {
       if (projectKey === activeProject) return;
-      if (previousProjectTimeoutRef.current) window.clearTimeout(previousProjectTimeoutRef.current);
+      if (previousProjectTimeoutRef.current)
+        window.clearTimeout(previousProjectTimeoutRef.current);
 
       setPreviousProject(activeProject);
       setActiveProject(projectKey);
@@ -101,7 +105,8 @@ export default function WorkPage() {
         event.altKey ||
         event.ctrlKey ||
         event.shiftKey
-      ) return;
+      )
+        return;
 
       event.preventDefault();
       if (isNavigatingAway) return;
@@ -132,7 +137,9 @@ export default function WorkPage() {
         <div className="projects-left" style={nextFall()}>
           <div className="projects-left-inside">
             {[previousProject, activeProject]
-              .filter((projectKey): projectKey is ProjectKey => Boolean(projectKey))
+              .filter((projectKey): projectKey is ProjectKey =>
+                Boolean(projectKey),
+              )
               .map((projectKey) => {
                 const copy = projectCopy[projectKey];
                 const isActive = projectKey === activeProject;
@@ -182,7 +189,9 @@ export default function WorkPage() {
                     href={copy.href}
                     {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                     className="projects-row"
-                    onMouseEnter={() => handleProjectHover(projectKey, copy.href)}
+                    onMouseEnter={() =>
+                      handleProjectHover(projectKey, copy.href)
+                    }
                     onFocus={() => handleProjectHover(projectKey, copy.href)}
                     onClick={(event) => handleProjectClick(event, copy.href)}
                     aria-current={isActive ? "true" : undefined}

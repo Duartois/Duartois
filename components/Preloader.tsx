@@ -25,7 +25,7 @@ type PreloaderProps = {
 
 const STATIC_PREVIEW_STYLES =
   "flex h-48 w-48 items-center justify-center rounded-full bg-fg/10";
-const PRELOADER_MAX_DURATION_MS = 6500;
+const PRELOADER_MAX_DURATION_MS = 4500;
 const FONT_FAMILIES = [
   "studiofeixen-variable",
   "studiofeixen",
@@ -145,10 +145,10 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
     if (typeof window.requestIdleCallback === "function") {
       idleHandle = window.requestIdleCallback(() => preloadBackgroundAssets(), {
-        timeout: 1200,
+        timeout: 800,
       });
     } else {
-      idleHandle = window.setTimeout(preloadBackgroundAssets, 300);
+      idleHandle = window.setTimeout(preloadBackgroundAssets, 200);
     }
 
     return () => {
@@ -177,14 +177,14 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const entryEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
   const entryOffset = -96;
-  const overlayExitDurationMs = reduceMotion ? 0 : 450;
+  const overlayExitDurationMs = reduceMotion ? 0 : 300;
   const entryLogoDuration = reduceMotion ? 0.01 : 0.75;
   const entryTextDuration = reduceMotion ? 0.01 : 0.55;
   const entryCreditsDuration = reduceMotion ? 0.01 : 0.55;
   const entryTextDelay = reduceMotion ? 0 : 0.25;
   const entryCreditsDelay = reduceMotion ? 0 : 0.35;
-  const exitTextDuration = reduceMotion ? 0.01 : 0.25;
-  const exitLogoDuration = reduceMotion ? 0.01 : 0.28;
+  const exitTextDuration = reduceMotion ? 0.01 : 0.2;
+  const exitLogoDuration = reduceMotion ? 0.01 : 0.22;
   const staggerEntry = reduceMotion ? 0 : 0.085;
   const staggerExit = reduceMotion ? 0 : 0.03;
   const idleEase: [number, number, number, number] = [0.42, 0, 0.58, 1];
@@ -326,12 +326,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     return () => {
       isCancelled = true;
     };
-  }, [
-    creditsControls,
-    logoControls,
-    reduceMotion,
-    textControls,
-  ]);
+  }, [creditsControls, logoControls, reduceMotion, textControls]);
 
   useEffect(() => {
     if (!isHiding) {
@@ -489,7 +484,6 @@ function preloadFonts(): Promise<void> {
   );
 }
 
-
 function waitForThreeReady(): Promise<void> {
   if (typeof window === "undefined") {
     return Promise.resolve();
@@ -512,9 +506,7 @@ function waitForThreeReady(): Promise<void> {
       resolve();
     };
 
-  
     timeoutId = window.setTimeout(resolveOnce, timeoutMs);
-   
   });
 }
 
@@ -582,7 +574,7 @@ function PreloaderLogo({
         strokeWidth={11}
         style={{ transformOrigin: "center" }}
       />
-            <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
+      <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
         <motion.rect
           id="SideBar"
           width="69.1299"

@@ -5,26 +5,39 @@
   "scripts": {
     "verify:three": "tsx scripts/verify-three-core-only.ts",
     "prebuild": "npm run verify:three",
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "analyze": "ANALYZE=true next build",
-    "perf:report": "next build && tsx scripts/generate-perf-summary.ts"
+    "analyze": "ANALYZE=true next build --webpack",
+    "perf:report": "next build --webpack && tsx scripts/generate-perf-summary.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "classnames": "^2.5.1",
     "framer-motion": "^12.23.22",
     "i18next": "^25.5.2",
+    "lenis": "^1.3.17",
+    "locomotive-scroll": "^5.0.1",
     "next": "^16.1.6",
-    "next-cloudinary": "^6.17.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "^16.0.0",
+    "react-redux": "^9.2.0",
     "three": "0.160.0"
   },
   "overrides": {
@@ -32,17 +45,28 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^14.2.13",
+    "@next/eslint-plugin-next": "^16.1.6",
     "@tailwindcss/postcss": "^4.1.13",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/node": "^20.19.0",
     "@types/react": "18.2.66",
-    "@types/three": "^0.180.0",
+    "@types/three": "^0.160.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
     "autoprefixer": "^10.4.21",
     "baseline-browser-mapping": "^2.9.14",
+    "eslint": "^9.39.3",
+    "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
     "jsdom": "^24.0.0",
+    "lint-staged": "^16.2.7",
     "postcss": "^8.5.6",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.13",
     "tsx": "^4.20.6",
     "typescript": "5.4.5",

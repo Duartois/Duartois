@@ -18,22 +18,59 @@ import { useEffect } from "react";
  */
 export function useInnerVh(): void {
   useEffect(() => {
-    const update = () => {
+    let rafId: number | undefined;
+
+    const setVh = (height: number) => {
       document.documentElement.style.setProperty(
         "--innerVh",
-        `${window.innerHeight * 0.01}px`,
+        `${height * 0.01}px`,
       );
+    };
+
+    const update = () => {
+      // Prefer visualViewport when available — it gives the exact visible
+      // area height, accounting for the on-screen keyboard on mobile.
+      const height =
+        window.visualViewport?.height ?? window.innerHeight;
+      setVh(height);
+    };
+
+    // Debounced update via rAF to batch rapid resize events (e.g. iOS Safari
+    // fires many resize events as the URL bar animates in/out during scroll).
+    const scheduleUpdate = () => {
+      if (rafId !== undefined) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = undefined;
+        update();
+      });
     };
 
     // Set immediately so there is no flash with the fallback value.
     update();
 
-    window.addEventListener("resize", update, { passive: true });
-    window.addEventListener("orientationchange", update, { passive: true });
+    // visualViewport is more reliable on mobile (handles keyboard, safe areas)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", scheduleUpdate);
+      window.visualViewport.addEventListener("scroll", scheduleUpdate);
+    }
+
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
+    window.addEventListener("orientationchange", scheduleUpdate, {
+      passive: true,
+    });
 
     return () => {
-      window.removeEventListener("resize", update);
-      window.removeEventListener("orientationchange", update);
+      if (rafId !== undefined) {
+        cancelAnimationFrame(rafId);
+      }
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", scheduleUpdate);
+        window.visualViewport.removeEventListener("scroll", scheduleUpdate);
+      }
+      window.removeEventListener("resize", scheduleUpdate);
+      window.removeEventListener("orientationchange", scheduleUpdate);
     };
   }, []);
 }

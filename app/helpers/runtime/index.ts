@@ -12,8 +12,7 @@
 export const isBrowser = (): boolean => typeof window !== "undefined";
 
 /** Returns the global `window` object, or `null` during SSR. */
-export const getWindow = (): Window | null =>
-  isBrowser() ? window : null;
+export const getWindow = (): Window | null => (isBrowser() ? window : null);
 
 // ─── Safari / iOS Detection ──────────────────────────────────────────────────
 
@@ -52,6 +51,32 @@ export const isIOS = (): boolean => {
 };
 
 /**
+ * Returns `true` when running on an Android device.
+ *
+ * SSR-safe: always returns `false` on the server.
+ */
+export const isAndroid = (): boolean => {
+  if (!isBrowser()) return false;
+  return /Android/i.test(navigator.userAgent);
+};
+
+/**
+ * Returns `true` when running on any mobile device (iOS or Android).
+ *
+ * Uses a combination of UA detection and touch capability for reliability.
+ * SSR-safe: always returns `false` on the server.
+ */
+export const isMobileDevice = (): boolean => {
+  if (!isBrowser()) return false;
+  if (isIOS() || isAndroid()) return true;
+  // Fallback: coarse pointer + small viewport
+  return (
+    window.matchMedia("(pointer: coarse)").matches &&
+    window.innerWidth <= 768
+  );
+};
+
+/**
  * Returns a capped device pixel ratio suitable for WebGL rendering.
  *
  * Safari on Apple Silicon and Retina iPhones reports DPR of 2–3, which
@@ -73,6 +98,9 @@ export const getRendererPixelRatio = (forceMax?: number): number => {
   // iOS Safari: cap at 2 — Retina is fine, but 3× is wasteful for a 3D scene
   if (isIOS()) return Math.min(dpr, 2);
 
+  // Android: cap at 2 — many Android flagships have DPR of 2.75–3
+  if (isAndroid()) return Math.min(dpr, 2);
+
   // Desktop Safari: cap at 1.5 to avoid thrashing on Pro Display XDR (6K)
   if (isSafari()) return Math.min(dpr, 1.5);
 
@@ -92,7 +120,8 @@ export const getRendererPixelRatio = (forceMax?: number): number => {
 export const isLowPowerDevice = (): boolean => {
   if (!isBrowser()) return false;
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    return true;
 
   const nav = navigator as Navigator & {
     deviceMemory?: number;
@@ -106,9 +135,7 @@ export const isLowPowerDevice = (): boolean => {
   const effectiveType = connection.effectiveType ?? "";
 
   const isSlowNetwork =
-    saveData ||
-    effectiveType.includes("2g") ||
-    effectiveType.includes("3g");
+    saveData || effectiveType.includes("2g") || effectiveType.includes("3g");
 
   const isLowHardware =
     (deviceMemory !== undefined && deviceMemory <= 2) ||

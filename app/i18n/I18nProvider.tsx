@@ -12,10 +12,15 @@ interface I18nProviderProps {
 }
 
 export default function I18nProvider({ lang, children }: I18nProviderProps) {
-  if (typeof window === "undefined" && lang && i18n.language !== lang) {
-    i18n.changeLanguage(lang);
-  }
-
+  /**
+   * Hydration fix: o bloco `if (typeof window === "undefined")` executava
+   * `i18n.changeLanguage` de forma síncrona durante a renderização do
+   * componente no servidor, o que pode causar divergências entre o HTML
+   * gerado pelo SSR e o que o cliente espera (React error #418).
+   *
+   * A sincronização de idioma é movida inteiramente para useEffect, que
+   * só executa no cliente após a hidratação.
+   */
   useEffect(() => {
     if (!lang) {
       return;

@@ -78,9 +78,7 @@ const getNavigationExitDuration = (durationOverride?: number) => {
     "(prefers-reduced-motion: reduce)",
   ).matches;
   const scaleFactor =
-    Number.isFinite(fallbackItems) && fallbackItems > 6
-      ? 6 / fallbackItems
-      : 1;
+    Number.isFinite(fallbackItems) && fallbackItems > 6 ? 6 / fallbackItems : 1;
   let adjustedDuration = Math.round(baseDuration * scaleFactor);
 
   if (prefersReducedMotion) {
@@ -142,9 +140,13 @@ export const navigateWithExit = (
 
   const navigate = () => {
     router.push(`${url.pathname}${url.search}${url.hash}`);
+    // Aguarda a próxima frame para garantir que a nova página começou a montar
+    // antes de disparar o evento de fim de navegação
     window.requestAnimationFrame(() => {
-      dispatchAppEvent(APP_NAVIGATION_END_EVENT);
-      window.__THREE_APP__?.setState({ variantTransitionMs: null });
+      window.requestAnimationFrame(() => {
+        dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+        window.__THREE_APP__?.setState({ variantTransitionMs: null });
+      });
     });
   };
 

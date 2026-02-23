@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { isSafari, isIOS, isLowPowerDevice } from "@/app/helpers/runtime";
+import { isSafari, isIOS, isAndroid, isLowPowerDevice } from "@/app/helpers/runtime";
 
 export type AnimationQuality = "auto" | "high" | "low";
 export type ResolvedAnimationQuality = "high" | "low";
@@ -50,7 +50,9 @@ const AnimationQualityContext = createContext<AnimationQualityState>({
  *   - Safari on iOS pauses JS timers in background tabs aggressively
  *   - Thermal throttling on iPhone causes visible frame drops after ~60 s
  */
-const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => {
+const resolveQuality = (
+  quality: AnimationQuality,
+): ResolvedAnimationQuality => {
   if (typeof window === "undefined") {
     return quality === "low" ? "low" : "high";
   }
@@ -64,8 +66,18 @@ const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => 
 
   // 2. iOS Safari — always low (memory / thermal constraints)
   if (isIOS()) return "low";
-
-  // 3. Desktop Safari with moderate hardware — additional check
+  // 3. Android Chrome — check hardware to decide quality
+  if (isAndroid()) {
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    const deviceMemory = nav.deviceMemory;
+    const hardwareConcurrency = navigator.hardwareConcurrency ?? 0;
+    // Android mid-range: ≤4 GB RAM ou ≤4 cores → low quality
+    const isLowEndAndroid =
+      (deviceMemory !== undefined && deviceMemory <= 4) ||
+      (hardwareConcurrency > 0 && hardwareConcurrency <= 4);
+    if (isLowEndAndroid) return "low";
+  }
+  // 4. Desktop Safari with moderate hardware — additional check
   if (isSafari()) {
     const nav = navigator as Navigator & { deviceMemory?: number };
     const deviceMemory = nav.deviceMemory;
@@ -79,9 +91,11 @@ const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => 
   }
 
   const connection =
-    (navigator as Navigator & {
-      connection?: { saveData?: boolean; effectiveType?: string };
-    }).connection ?? {};
+    (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection ?? {};
   const effectiveType = connection.effectiveType ?? "";
   const saveData = Boolean(connection.saveData);
   const isSlowConnection =
@@ -92,8 +106,13 @@ const resolveQuality = (quality: AnimationQuality): ResolvedAnimationQuality => 
   return isSlowConnection || isHidden ? "low" : "high";
 };
 
-export function AnimationQualityProvider({ children }: { children: ReactNode }) {
-  const [quality, setQualityState] = useState<AnimationQuality>(DEFAULT_QUALITY);
+export function AnimationQualityProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [quality, setQualityState] =
+    useState<AnimationQuality>(DEFAULT_QUALITY);
   const [resolvedQuality, setResolvedQuality] =
     useState<ResolvedAnimationQuality>("high");
 
@@ -102,9 +121,9 @@ export function AnimationQualityProvider({ children }: { children: ReactNode }) 
       return;
     }
 
-    const stored = window.localStorage.getItem(STORAGE_KEY) as
-      | AnimationQuality
-      | null;
+    const stored = window.localStorage.getItem(
+      STORAGE_KEY,
+    ) as AnimationQuality | null;
 
     if (stored === "auto" || stored === "high" || stored === "low") {
       setQualityState(stored);

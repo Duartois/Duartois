@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Preloader from "./Preloader";
@@ -44,8 +38,19 @@ const Navbar = dynamic(() => import("./Navbar"), { ssr: false });
 
 function AppShellContent({ children }: AppShellProps) {
   const router = useRouter();
+  // Hydration fix: sempre inicia com false/true no servidor para garantir
+  // HTML idêntico entre SSR e cliente (evita React error #418).
+  // O useEffect abaixo sincroniza com sessionStorage após a montagem.
   const [isReady, setIsReady] = useState(false);
   const [showPreloader, setShowPreloader] = useState(true);
+
+  useEffect(() => {
+    // Sincroniza com sessionStorage apenas no cliente, após hidratação
+    if (window.sessionStorage.getItem("app-initial-load-complete")) {
+      setIsReady(true);
+      setShowPreloader(false);
+    }
+  }, []);
   const [isNavigationExiting, setIsNavigationExiting] = useState(false);
   // Mantém opacity:0 durante o delay entre saída e entrada para suprimir o vislumbre dos elementos antigos
   const [isNavigationReleasing, setIsNavigationReleasing] = useState(false);
@@ -61,6 +66,9 @@ function AppShellContent({ children }: AppShellProps) {
   const handleComplete = useCallback(() => {
     setIsReady(true);
     setShowPreloader(false);
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("app-initial-load-complete", "true");
+    }
   }, []);
 
   useEffect(() => {
@@ -75,7 +83,7 @@ function AppShellContent({ children }: AppShellProps) {
 
     body.removeAttribute("data-preloading");
 
-    if (!hasDispatchedRevealRef.current) {
+    if (!showPreloader && !hasDispatchedRevealRef.current) {
       hasDispatchedRevealRef.current = true;
       dispatchAppEvent(APP_SHELL_REVEAL_EVENT);
     }
@@ -94,7 +102,8 @@ function AppShellContent({ children }: AppShellProps) {
         event.altKey ||
         event.ctrlKey ||
         event.shiftKey
-      ) return;
+      )
+        return;
 
       const target = event.target as Element | null;
       const anchor = target?.closest("a");
@@ -118,14 +127,16 @@ function AppShellContent({ children }: AppShellProps) {
         url.pathname === currentUrl.pathname &&
         url.search === currentUrl.search &&
         url.hash === currentUrl.hash
-      ) return;
+      )
+        return;
 
       event.preventDefault();
       navigateWithExit(router, `${url.pathname}${url.search}${url.hash}`);
     };
 
     document.addEventListener("click", handleNavigationClick, true);
-    return () => document.removeEventListener("click", handleNavigationClick, true);
+    return () =>
+      document.removeEventListener("click", handleNavigationClick, true);
   }, [router, showPreloader]);
 
   useEffect(() => {
@@ -165,7 +176,10 @@ function AppShellContent({ children }: AppShellProps) {
     window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
 
     return () => {
-      window.removeEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+      window.removeEventListener(
+        APP_NAVIGATION_START_EVENT,
+        handleNavigationStart,
+      );
       window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
       if (navigationEndTimerRef.current) {
         window.clearTimeout(navigationEndTimerRef.current);
@@ -217,7 +231,9 @@ function AppShellContent({ children }: AppShellProps) {
           style={exitStyle}
           data-navigation-exiting={isNavigationExiting ? "true" : undefined}
           aria-hidden={!isContentVisible}
-          aria-busy={!isContentVisible || isNavigationExiting || isNavigationReleasing}
+          aria-busy={
+            !isContentVisible || isNavigationExiting || isNavigationReleasing
+          }
         >
           <Navbar />
           {children}

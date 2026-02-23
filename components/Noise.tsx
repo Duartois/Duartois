@@ -26,6 +26,14 @@ export default function Noise() {
       className="noise"
       data-fall-skip="true"
       aria-hidden="true"
+      /**
+       * suppressHydrationWarning: o estilo do noise depende do tema, que é
+       * determinado no cliente (via localStorage/horário). O ThemeScript
+       * aplica o tema correto antes do primeiro paint via CSS classes, mas o
+       * React pode detectar uma diferença de style entre SSR e cliente.
+       * Como o noise é puramente decorativo, suprimir o aviso é seguro.
+       */
+      suppressHydrationWarning
       style={style}
     />
   );

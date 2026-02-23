@@ -20,7 +20,6 @@ export default function AboutPage() {
     "https://open.spotify.com/embed/track/7oOOI85fVQvVnK5ynNMdW7?utm_source=generator&color=%23" +
     spotifyAccent;
 
-
   useEffect(() => {
     return applyMediaKeySystemAccessHack();
   }, []);

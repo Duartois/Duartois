@@ -10,43 +10,41 @@ const patchRequestMediaKeySystemAccess = () => {
     return () => {};
   }
 
-  const patchedRequestMediaKeySystemAccess: Navigator["requestMediaKeySystemAccess"] = (
-    keySystem,
-    configurations,
-  ) => {
-    const patchedConfigurations = Array.from(
-      configurations,
-      (configuration): MediaKeySystemConfiguration => {
-        if (!configuration.videoCapabilities?.length) {
-          return configuration;
-        }
+  const patchedRequestMediaKeySystemAccess: Navigator["requestMediaKeySystemAccess"] =
+    (keySystem, configurations) => {
+      const patchedConfigurations = Array.from(
+        configurations,
+        (configuration): MediaKeySystemConfiguration => {
+          if (!configuration.videoCapabilities?.length) {
+            return configuration;
+          }
 
-        const videoCapabilities = configuration.videoCapabilities.map(
-          (capability): MediaKeySystemMediaCapability => {
-            if (capability.robustness) {
-              return capability;
-            }
+          const videoCapabilities = configuration.videoCapabilities.map(
+            (capability): MediaKeySystemMediaCapability => {
+              if (capability.robustness) {
+                return capability;
+              }
 
-            return {
-              ...capability,
-              robustness: "SW_SECURE_DECODE",
-            } satisfies MediaKeySystemMediaCapability;
-          },
-        );
+              return {
+                ...capability,
+                robustness: "SW_SECURE_DECODE",
+              } satisfies MediaKeySystemMediaCapability;
+            },
+          );
 
-        return {
-          ...configuration,
-          videoCapabilities,
-        } satisfies MediaKeySystemConfiguration;
-      },
-    );
+          return {
+            ...configuration,
+            videoCapabilities,
+          } satisfies MediaKeySystemConfiguration;
+        },
+      );
 
-    return originalRequestMediaKeySystemAccess.call(
-      navigator,
-      keySystem,
-      patchedConfigurations,
-    );
-  };
+      return originalRequestMediaKeySystemAccess.call(
+        navigator,
+        keySystem,
+        patchedConfigurations,
+      );
+    };
 
   navigator.requestMediaKeySystemAccess = patchedRequestMediaKeySystemAccess;
 
