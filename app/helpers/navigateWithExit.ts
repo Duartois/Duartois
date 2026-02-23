@@ -85,13 +85,13 @@ const getNavigationExitDuration = (durationOverride?: number) => {
     adjustedDuration = Math.min(adjustedDuration, 220);
   }
   // Cap global para evitar que animações longas bloqueiem a navegação
- adjustedDuration = Math.min(adjustedDuration, 400);
+  adjustedDuration = Math.min(adjustedDuration, 400);
   return Math.max(adjustedDuration, 0);
 };
 
-const shouldBypassExitDelay = () => {
+const getNetworkAwareExitDelay = (baseDelay: number) => {
   if (typeof window === "undefined") {
-    return true;
+    return baseDelay;
   }
 
   const reduceMotion = window.matchMedia(
@@ -99,15 +99,24 @@ const shouldBypassExitDelay = () => {
   ).matches;
 
   if (reduceMotion) {
-    return false;
+    return Math.min(baseDelay, 220);
   }
 
   const connection = (navigator as NavigatorConnection).connection;
-  return Boolean(
-   connection?.saveData ||
-   connection?.effectiveType === "2g" ||
-   connection?.effectiveType === "3g"
- );
+  const isConstrainedNetwork = Boolean(
+    connection?.saveData ||
+    connection?.effectiveType === "2g" ||
+    connection?.effectiveType === "3g",
+  );
+
+  if (!isConstrainedNetwork) {
+    return baseDelay;
+  }
+
+  // Em redes lentas, não pulamos mais as animações: apenas encurtamos
+  // para manter consistência visual no mobile sem bloquear a navegação.
+  const constrainedDelay = Math.round(baseDelay * 0.7);
+  return Math.max(Math.min(constrainedDelay, baseDelay), 180);
 };
 
 export const navigateWithExit = (
@@ -130,7 +139,9 @@ export const navigateWithExit = (
 
   isNavigating = true;
 
-  const exitDuration = getNavigationExitDuration(duration);
+  const exitDuration = getNetworkAwareExitDelay(
+    getNavigationExitDuration(duration),
+  );
   const targetPath = scenePathname ?? url.pathname;
 
   applyNavigationSceneVariant(targetPath);
@@ -151,11 +162,6 @@ export const navigateWithExit = (
   };
 
   clearNavigationTimeout();
-
-  if (shouldBypassExitDelay()) {
-    navigate();
-    return;
-  }
 
   navigationTimeout = window.setTimeout(navigate, Math.max(exitDuration, 0));
 };
