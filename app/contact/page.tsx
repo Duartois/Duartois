@@ -39,7 +39,7 @@ export default function ContactPage() {
   const nextFall = () => fallStyle(fallIndex++);
 
   return (
-    <main className="container">
+    <main className="container contact-page">
       <div
         style={{
           pointerEvents: isMenuOpen ? "none" : "auto",

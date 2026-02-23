@@ -1892,6 +1892,30 @@ body[data-menu-open="true"] .home {
   }
 }
 
+@media (max-width: 47.99em) {
+  .about-right {
+    display: flex;
+    justify-content: center;
+  }
+
+  .about-right .profile-pic-wrapper {
+    width: min(64vw, 280px);
+    height: calc(min(64vw, 280px) * 1.2);
+  }
+}
+
+@media (max-width: 61.99em) and (orientation: portrait) {
+  .about-right {
+    display: flex;
+    justify-content: center;
+  }
+
+  .about-right .profile-pic-wrapper {
+    width: min(64vw, 280px);
+    height: calc(min(64vw, 280px) * 1.2);
+  }
+}
+
 .project {
   position: relative;
   height: auto;
@@ -2882,6 +2906,30 @@ table tr:last-child td {
   transform: translateZ(0);
 }
 
+.about-page,
+.contact-page {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.about-page .about,
+.contact-page .page-content {
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 47.99em) {
+  .contact-page .contact {
+    margin: var(--top-margin) var(--left-right-margin) 0;
+  }
+}
+
+@media (max-width: 61.99em) and (orientation: portrait) {
+  .contact-page .contact {
+    margin: var(--top-margin) var(--left-right-margin) 0;
+  }
+}
+
 .profile-pic-wrapper {
   background-color: #606887;
   border-radius: var(--border-radius);
@@ -3140,7 +3188,10 @@ header,
 
 /* Padding inferior no footer para não sobrepor o home indicator */
 footer {
-  padding-bottom: max(var(--top-internal-margin, 24px), env(safe-area-inset-bottom));
+  padding-bottom: max(
+    var(--top-internal-margin, 24px),
+    env(safe-area-inset-bottom)
+  );
 }
 
 /* Header: garantir que não fique atrás do notch no landscape */
@@ -3160,5 +3211,8 @@ footer {
 
 /* Splashscreen: respeitar safe areas */
 .splashscreen {
-  padding-bottom: max(var(--top-internal-margin, 24px), env(safe-area-inset-bottom));
+  padding-bottom: max(
+    var(--top-internal-margin, 24px),
+    env(safe-area-inset-bottom)
+  );
 }

@@ -29,7 +29,7 @@ export default function AboutPage() {
 
   return (
     <main
-      className="page-content"
+      className="page-content about-page"
       style={{
         pointerEvents: isMenuOpen ? "none" : "auto",
         opacity: isMenuOpen ? 0 : 1,
