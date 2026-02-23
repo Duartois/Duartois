@@ -43,4 +43,9 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     window.innerWidth,
     window.innerHeight,
   );
+
+  // Aplica a variante ao app Three.js se disponível
+  if (window.__THREE_APP__) {
+    window.__THREE_APP__.setState({ variant: responsiveVariant });
+  }
 };

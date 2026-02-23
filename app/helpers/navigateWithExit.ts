@@ -135,9 +135,13 @@ export const navigateWithExit = (
 
   const navigate = () => {
     router.push(`${url.pathname}${url.search}${url.hash}`);
+    // Aguarda a próxima frame para garantir que a nova página começou a montar
+    // antes de disparar o evento de fim de navegação
     window.requestAnimationFrame(() => {
-      dispatchAppEvent(APP_NAVIGATION_END_EVENT);
-      window.__THREE_APP__?.setState({ variantTransitionMs: null });
+      window.requestAnimationFrame(() => {
+        dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+        window.__THREE_APP__?.setState({ variantTransitionMs: null });
+      });
     });
   };
 
