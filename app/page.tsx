@@ -30,6 +30,7 @@ import {
   APP_MENU_OPEN_EVENT,
   APP_NAVIGATION_START_EVENT,
   APP_SHELL_REVEAL_EVENT,
+  APP_NAVIGATION_END_EVENT,
 } from "@/app/helpers/appEvents";
 
 import {
@@ -251,9 +252,7 @@ export default function HomePage() {
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
-  const disableFallAnimation = Boolean(
-    prefersReducedMotion || resolvedQuality === "low",
-  );
+  const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const totalFallItems = 6;
@@ -338,14 +337,20 @@ export default function HomePage() {
       setIsNavigatingAway(true);
       setIsFallActive(false);
     };
+    const handleNavigationEnd = () => {
+      setIsNavigatingAway(false);
+      setIsFallActive(true);
+    };
 
     window.addEventListener(APP_NAVIGATION_START_EVENT, handleNavigationStart);
+    window.addEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
 
     return () => {
       window.removeEventListener(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
+      window.removeEventListener(APP_NAVIGATION_END_EVENT, handleNavigationEnd);
     };
   }, [disableFallAnimation]);
 

@@ -19,9 +19,7 @@ export function useMenuFallAnimation(
 ) {
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
-  const disableFallAnimation = Boolean(
-    prefersReducedMotion || resolvedQuality === "low",
-  );
+  const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const isNavigatingAwayRef = useRef(false);
 
