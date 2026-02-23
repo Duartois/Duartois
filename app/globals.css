@@ -1631,6 +1631,7 @@ footer .footer-wrapper .footer-right {
 .home .intro-wrapper .intro-text {
   position: relative;
   text-align: center;
+  overflow: visible;
 }
 
 @media (max-width: 47.99em) {
@@ -1639,11 +1640,20 @@ footer .footer-wrapper .footer-right {
   }
 }
 
+@media (max-width: 61.99em) {
+  .home .intro-wrapper .intro-text > * {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+}
+
 .home .intro-wrapper .intro-text .intro-id {
   color: transparent;
   font-family: studiofeixen, Arial, Helvetica, sans-serif;
   letter-spacing: 0.05rem;
   font-weight: 800;
+  line-height: 1.08;
+  padding-block: 0.06em;
   -webkit-text-stroke: 2px #606887;
   font-variation-settings:
     "wght" 800,

@@ -112,8 +112,9 @@ export function useMenuFallAnimation(
     (index: number) =>
       getFallItemStyle(isFallActive, index, totalItems, {
         disable: disableFallAnimation,
+        lowQuality: resolvedQuality === "low",
         variant,
       }),
-    [disableFallAnimation, isFallActive, totalItems, variant],
+    [disableFallAnimation, isFallActive, resolvedQuality, totalItems, variant],
   );
 }
