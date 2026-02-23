@@ -2929,14 +2929,21 @@ table tr:last-child td {
 }
 
 @media (max-width: 47.99em) {
+  .contact-page .page-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .contact-page .contact {
-    margin: var(--top-margin) var(--left-right-margin) 0;
+    width: 100%;
+    margin: 0 var(--left-right-margin);
   }
 }
 
 @media (max-width: 61.99em) and (orientation: portrait) {
   .contact-page .contact {
-    margin: var(--top-margin) var(--left-right-margin) 0;
+    margin: 0 var(--left-right-margin);
   }
 }
 
