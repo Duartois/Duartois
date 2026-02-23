@@ -2,7 +2,7 @@
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Preloader from "./Preloader";
 import { MenuProvider } from "./MenuContext";
 import RoutePrefetcher from "./RoutePrefetcher";
@@ -39,6 +39,7 @@ const Navbar = dynamic(() => import("./Navbar"), { ssr: false });
 
 function AppShellContent({ children }: AppShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   // Hydration fix: sempre inicia com false/true no servidor para garantir
   // HTML idêntico entre SSR e cliente (evita React error #418).
   // O useEffect abaixo sincroniza com sessionStorage após a montagem.
@@ -202,6 +203,29 @@ function AppShellContent({ children }: AppShellProps) {
 
     delete body.dataset.navigationExiting;
   }, [isNavigationExiting]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const body = document.body;
+    const appShell = document.querySelector<HTMLElement>(".app-shell");
+    const isWorkRoute = pathname?.startsWith("/work") ?? false;
+
+    if (isWorkRoute) {
+      body.classList.add("body-scrollable");
+      appShell?.classList.add("app-shell-scrollable");
+    } else {
+      body.classList.remove("body-scrollable");
+      appShell?.classList.remove("app-shell-scrollable");
+    }
+
+    return () => {
+      body.classList.remove("body-scrollable");
+      appShell?.classList.remove("app-shell-scrollable");
+    };
+  }, [pathname]);
 
   const contentClassName = [
     isContentVisible ? "" : "pointer-events-none opacity-0",

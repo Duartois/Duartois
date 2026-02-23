@@ -2928,16 +2928,15 @@ table tr:last-child td {
   overflow: hidden;
 }
 
-@media (max-width: 47.99em) {
-  .contact-page .contact {
-    margin: var(--top-margin) var(--left-right-margin) 0;
-  }
+.contact-page .page-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@media (max-width: 61.99em) and (orientation: portrait) {
-  .contact-page .contact {
-    margin: var(--top-margin) var(--left-right-margin) 0;
-  }
+.contact-page .contact {
+  width: 100%;
+  margin: 0 var(--left-right-margin);
 }
 
 .profile-pic-wrapper {
