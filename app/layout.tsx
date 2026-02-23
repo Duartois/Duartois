@@ -55,7 +55,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // viewportFit: "cover" garante que o conteúdo preencha a área segura no iPhone X+
+  // (notch, home indicator) sem deixar barras brancas nas bordas.
   viewportFit: "cover",
+  // width=device-width + initialScale=1 é o padrão correto para mobile.
+  // Não definir maximumScale ou userScalable para preservar acessibilidade.
+  width: "device-width",
+  initialScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f3f2f9" },
     { media: "(prefers-color-scheme: dark)", color: "#2b2b33" },

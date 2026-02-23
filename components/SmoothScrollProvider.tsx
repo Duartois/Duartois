@@ -4,6 +4,21 @@ import { PropsWithChildren, useEffect } from "react";
 import { useAppDispatch } from "@/app/store/hooks";
 import { setSmoothScrollEngine } from "@/app/store/uiSlice";
 
+/**
+ * Detecta se o dispositivo é touch/mobile.
+ * Em dispositivos touch, o scroll nativo do browser já é otimizado com
+ * momentum e inércia — adicionar smooth scroll via JS aumenta latência e
+ * consome CPU/memória desnecessariamente no mobile.
+ */
+function isTouchDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0 ||
+    window.matchMedia("(pointer: coarse)").matches
+  );
+}
+
 export default function SmoothScrollProvider({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
 
@@ -15,13 +30,19 @@ export default function SmoothScrollProvider({ children }: PropsWithChildren) {
         return;
       }
 
+      // Em dispositivos touch/mobile, o scroll nativo é superior ao JS scroll.
+      // Desabilitar o smooth scroll JS melhora significativamente a performance
+      // no Chrome Mobile, Safari iOS e outros browsers mobile.
+      if (isTouchDevice()) {
+        return;
+      }
+
       try {
         const [{ default: Lenis }] = await Promise.all([import("lenis")]);
 
         const lenis = new Lenis({
           autoRaf: true,
           smoothWheel: true,
-          touchMultiplier: 1.1,
           lerp: 0.1,
         });
 
@@ -43,8 +64,9 @@ export default function SmoothScrollProvider({ children }: PropsWithChildren) {
           destroy: () => void;
         })({
           smooth: true,
-          smartphone: { smooth: true },
-          tablet: { smooth: true },
+          // Desabilitar smooth scroll em mobile para melhor performance nativa
+          smartphone: { smooth: false },
+          tablet: { smooth: false },
         });
 
         dispatch(setSmoothScrollEngine("locomotive"));

@@ -38,18 +38,19 @@ const Navbar = dynamic(() => import("./Navbar"), { ssr: false });
 
 function AppShellContent({ children }: AppShellProps) {
   const router = useRouter();
-  const [isReady, setIsReady] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !!window.sessionStorage.getItem("app-initial-load-complete");
+  // Hydration fix: sempre inicia com false/true no servidor para garantir
+  // HTML idêntico entre SSR e cliente (evita React error #418).
+  // O useEffect abaixo sincroniza com sessionStorage após a montagem.
+  const [isReady, setIsReady] = useState(false);
+  const [showPreloader, setShowPreloader] = useState(true);
+
+  useEffect(() => {
+    // Sincroniza com sessionStorage apenas no cliente, após hidratação
+    if (window.sessionStorage.getItem("app-initial-load-complete")) {
+      setIsReady(true);
+      setShowPreloader(false);
     }
-    return false;
-  });
-  const [showPreloader, setShowPreloader] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !window.sessionStorage.getItem("app-initial-load-complete");
-    }
-    return true;
-  });
+  }, []);
   const [isNavigationExiting, setIsNavigationExiting] = useState(false);
   // Mantém opacity:0 durante o delay entre saída e entrada para suprimir o vislumbre dos elementos antigos
   const [isNavigationReleasing, setIsNavigationReleasing] = useState(false);

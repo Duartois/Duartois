@@ -416,7 +416,7 @@ export default function HomePage() {
               data-scroll-section="true"
               data-scroll-section-id="section0"
               data-scroll-section-inview=""
-              className="transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);"
+              className="scroll-section"
             >
               <div className="page-content">
                 <div className="home">
@@ -476,12 +476,7 @@ export default function HomePage() {
                                   <span>{t("home.hero.ctaProjects")}</span>
                                 </Link>
                               </div>
-                              <div
-                                className="link-underline"
-                                style={{
-                                  transform: "translateX(-101%) translateZ(0)",
-                                }}
-                              />
+                              <div className="link-underline" />
                             </div>
                           </li>
                           <li style={fallStyle(5)}>

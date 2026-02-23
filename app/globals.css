@@ -3029,3 +3029,136 @@ body.dark .profile-pic-wrapper .profile-pic {
 body.dark .link-underline {
   background-color: #f3f2f9;
 }
+
+/* =============================================================================
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   Melhorias de desempenho para Chrome Mobile, Safari iOS e outros browsers.
+   ============================================================================= */
+
+/* 1. Remover o highlight azul/cinza ao tocar em elementos interativos no mobile.
+      Melhora a experiência visual e evita repaint desnecessário no tap. */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 2. Garantir que botões e links respondam imediatamente ao toque (sem delay
+      de 300ms do double-tap-to-zoom). Aplicar apenas onde não há scroll. */
+button,
+a,
+[role="button"],
+[role="link"],
+label,
+summary,
+.hamburger-btn,
+.logo,
+.theme-switch,
+.language-switch {
+  touch-action: manipulation;
+}
+
+/* 3. Evitar seleção de texto acidental durante swipe/scroll em mobile. */
+.hamburger-btn,
+.logo,
+.cursor,
+.cursor-dot,
+.noise,
+.splashscreen {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 4. Promover elementos com animações pesadas para camadas GPU compostas,
+      reduzindo o custo de repaint no mobile. */
+.splashscreen,
+header,
+.menu,
+.noise,
+.cursor,
+.cursor-dot {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* 5. Otimizações específicas para Safari iOS:
+      - Evitar o bounce/rubber-band no scroll do body
+      - Garantir rendering suave de elementos fixos */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari only */
+  html {
+    overscroll-behavior: none;
+  }
+
+  /* Elementos fixos no iOS Safari precisam de transform para renderizar
+     corretamente na GPU (evita flickering durante scroll) */
+  header,
+  .menu,
+  .splashscreen {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* 6. Otimizar imagens para mobile — garantir que não causem overflow */
+@media (max-width: 47.99em) {
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* 7. Melhorar a área de toque de elementos pequenos em mobile.
+      Botões e links devem ter área mínima de 44×44px (Apple HIG / WCAG). */
+@media (pointer: coarse) {
+  .hamburger-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .theme-switch button,
+  .language-switch a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* 8. Scroll section: garantir que não cause reflow desnecessário.
+      Substitui o className inválido "transform: matrix3d(...)" que estava
+      no page.tsx e causava o React hydration error #418. */
+.scroll-section {
+  position: relative;
+}
+
+/* =============================================================================
+   SAFE AREA INSETS (iPhone X+ / notch / home indicator)
+   Garante que o conteúdo não fique atrás do notch ou do home indicator no iOS.
+   ============================================================================= */
+
+/* Padding inferior no footer para não sobrepor o home indicator */
+footer {
+  padding-bottom: max(var(--top-internal-margin, 24px), env(safe-area-inset-bottom));
+}
+
+/* Header: garantir que não fique atrás do notch no landscape */
+@media (orientation: landscape) {
+  header {
+    left: max(0px, env(safe-area-inset-left));
+    right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Menu overlay: respeitar safe areas em todos os lados */
+.menu {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Splashscreen: respeitar safe areas */
+.splashscreen {
+  padding-bottom: max(var(--top-internal-margin, 24px), env(safe-area-inset-bottom));
+}

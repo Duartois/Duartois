@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { isSafari, isIOS, isLowPowerDevice } from "@/app/helpers/runtime";
+import { isSafari, isIOS, isAndroid, isLowPowerDevice } from "@/app/helpers/runtime";
 
 export type AnimationQuality = "auto" | "high" | "low";
 export type ResolvedAnimationQuality = "high" | "low";
@@ -66,8 +66,18 @@ const resolveQuality = (
 
   // 2. iOS Safari — always low (memory / thermal constraints)
   if (isIOS()) return "low";
-
-  // 3. Desktop Safari with moderate hardware — additional check
+  // 3. Android Chrome — check hardware to decide quality
+  if (isAndroid()) {
+    const nav = navigator as Navigator & { deviceMemory?: number };
+    const deviceMemory = nav.deviceMemory;
+    const hardwareConcurrency = navigator.hardwareConcurrency ?? 0;
+    // Android mid-range: ≤4 GB RAM ou ≤4 cores → low quality
+    const isLowEndAndroid =
+      (deviceMemory !== undefined && deviceMemory <= 4) ||
+      (hardwareConcurrency > 0 && hardwareConcurrency <= 4);
+    if (isLowEndAndroid) return "low";
+  }
+  // 4. Desktop Safari with moderate hardware — additional check
   if (isSafari()) {
     const nav = navigator as Navigator & { deviceMemory?: number };
     const deviceMemory = nav.deviceMemory;
