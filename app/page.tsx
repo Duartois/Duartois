@@ -504,13 +504,7 @@ export default function HomePage() {
                           <li style={fallStyle(5)}>
                             <div className="link-wrapper">
                               <div className="link">
-                                <Link
-                                  href="/about"
-                                  {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
-                                  onClick={(event) =>
-                                    handleHeroLinkClick(event, "/about")
-                                  }
-                                >
+                                <Link href="/about">
                                   <span>{t("home.hero.ctaAbout")}</span>
                                 </Link>
                               </div>
