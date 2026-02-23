@@ -20,6 +20,7 @@ import {
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
 import { getFallItemStyle } from "@/components/fallAnimation";
+import { useAnimationQuality } from "@/components/AnimationQualityContext";
 import {
   WORK_ITEM_STAGGER_DELAY,
   WORK_ITEM_TRANSITION_DURATION,
@@ -249,7 +250,10 @@ export default function HomePage() {
   const router = useRouter();
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
-  const disableFallAnimation = Boolean(prefersReducedMotion);
+  const { resolvedQuality } = useAnimationQuality();
+  const disableFallAnimation = Boolean(
+    prefersReducedMotion || resolvedQuality === "low",
+  );
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const totalFallItems = 6;
@@ -287,6 +291,7 @@ export default function HomePage() {
   const fallStyle = (index: number) =>
     getFallItemStyle(isFallActive, index, totalFallItems, {
       disable: disableFallAnimation,
+      lowQuality: resolvedQuality === "low",
       variant: "work",
     });
 

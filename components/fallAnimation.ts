@@ -11,6 +11,8 @@ import {
 const ACTIVE_TRANSFORM = "translate3d(0, 0, 0) scale(1)";
 const WORK_INACTIVE_TRANSFORM = "translate3d(0, -60px, 0) scale(0.98)";
 const DEFAULT_INACTIVE_TRANSFORM = "translate3d(0, -100px, 0)";
+const MOBILE_WORK_INACTIVE_TRANSFORM = "translate3d(0, -24px, 0) scale(0.995)";
+const MOBILE_DEFAULT_INACTIVE_TRANSFORM = "translate3d(0, -36px, 0)";
 
 export const getFallExitDuration = (
   totalItems: number,
@@ -29,7 +31,11 @@ export function getFallItemStyle(
   isActive: boolean,
   index: number,
   total: number,
-  options?: { disable?: boolean; variant?: "default" | "work" },
+  options?: {
+    disable?: boolean;
+    lowQuality?: boolean;
+    variant?: "default" | "work";
+  },
 ): CSSProperties {
   if (options?.disable) {
     return {
@@ -41,6 +47,7 @@ export function getFallItemStyle(
   }
 
   const isWorkVariant = options?.variant === "work";
+  const lowQuality = Boolean(options?.lowQuality);
   const duration = isWorkVariant
     ? WORK_ITEM_TRANSITION_DURATION
     : FALL_ITEM_TRANSITION_DURATION;
@@ -53,10 +60,19 @@ export function getFallItemStyle(
     opacity: isActive ? 1 : 0,
     transform: isActive
       ? ACTIVE_TRANSFORM
-      : isWorkVariant
-        ? WORK_INACTIVE_TRANSFORM
-        : DEFAULT_INACTIVE_TRANSFORM,
-    filter: isWorkVariant ? (isActive ? "blur(0px)" : "blur(6px)") : "none",
+      : lowQuality
+        ? isWorkVariant
+          ? MOBILE_WORK_INACTIVE_TRANSFORM
+          : MOBILE_DEFAULT_INACTIVE_TRANSFORM
+        : isWorkVariant
+          ? WORK_INACTIVE_TRANSFORM
+          : DEFAULT_INACTIVE_TRANSFORM,
+    filter:
+      isWorkVariant && !lowQuality
+        ? isActive
+          ? "blur(0px)"
+          : "blur(6px)"
+        : "none",
     transition: isWorkVariant ? WORK_TRANSITION : FALL_TRANSITION,
     transitionDelay: `${delay}ms`,
     willChange: isWorkVariant ? "transform, opacity, filter" : "transform",
