@@ -32,14 +32,6 @@ export const projectSlugByKey = workProjects.reduce(
   {} as Record<ProjectKey, ProjectSlug>,
 );
 
-export const projectKeyBySlug = workProjects.reduce(
-  (accumulator, project) => {
-    accumulator[project.slug] = project.key;
-    return accumulator;
-  },
-  {} as Record<ProjectSlug, ProjectKey>,
-);
-
 export const projectPreviews: Record<ProjectKey, ProjectPreview> =
   projectOrder.reduce(
     (previews, key) => {
