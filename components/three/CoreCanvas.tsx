@@ -12,10 +12,12 @@ interface CoreCanvasProps {
   isReady: boolean;
 }
 
+let persistentCanvas: HTMLCanvasElement | null = null;
+let persistentHandle: ThreeAppHandle | null = null;
+let persistentInitPromise: Promise<ThreeAppHandle> | null = null;
+
 export default function CoreCanvas({ isReady }: CoreCanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const handleRef = useRef<ThreeAppHandle | null>(null);
-  const initializedRef = useRef(false);
+  const hostRef = useRef<HTMLDivElement | null>(null);
   const [shouldStart, setShouldStart] = useState(false);
   const { theme } = useTheme();
   const { resolvedQuality } = useAnimationQuality();
@@ -63,58 +65,68 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
   }, [resolvedQuality]);
 
   useEffect(() => {
-    if (!shouldStart || !isReady || initializedRef.current) {
+    if (!shouldStart || !isReady) {
       return;
     }
 
-    const canvas = canvasRef.current;
-    if (!canvas) {
+    const host = hostRef.current;
+    if (!host) {
       return;
     }
 
-    initializedRef.current = true;
-    let cancelled = false;
+    if (!persistentCanvas) {
+      persistentCanvas = document.createElement("canvas");
+      persistentCanvas.className = "h-full w-full";
+      persistentCanvas.setAttribute("aria-hidden", "true");
+      persistentCanvas.dataset.threeCanvas = "true";
+    }
 
-    if (shouldLogPerf()) {
+    if (!host.contains(persistentCanvas)) {
+      host.appendChild(persistentCanvas);
+    }
+
+    if (persistentHandle) {
+      setApp(persistentHandle);
+      return;
+    }
+
+    if (!persistentInitPromise && shouldLogPerf()) {
       performance.mark("three:init-start");
       logPerf("3D scene init started.", {
         timeMs: Math.round(performance.now()),
       });
     }
 
-    void import("./sceneBundle").then(({ default: initScene }) => {
-      return initScene({ canvas, theme }).then((handle) => {
-        if (cancelled) {
-          handle.dispose();
-          return;
-        }
-        handleRef.current = handle;
-        setApp(handle);
-      });
+    if (!persistentInitPromise) {
+      persistentInitPromise = import("./sceneBundle")
+        .then(({ default: initScene }) =>
+          initScene({ canvas: persistentCanvas as HTMLCanvasElement, theme }),
+        )
+        .then((handle) => {
+          persistentHandle = handle;
+          return handle;
+        });
+    }
+
+    void persistentInitPromise.then((handle) => {
+      setApp(handle);
     });
 
     return () => {
-      cancelled = true;
-      initializedRef.current = false;
-      if (handleRef.current) {
-        handleRef.current.dispose();
-        handleRef.current = null;
+      if (
+        hostRef.current &&
+        persistentCanvas &&
+        hostRef.current.contains(persistentCanvas)
+      ) {
+        hostRef.current.removeChild(persistentCanvas);
       }
-      setApp(null);
     };
-  }, [shouldStart, theme, isReady, setApp]);
+  }, [shouldStart, isReady, setApp]);
 
   useEffect(() => {
-    if (!handleRef.current) return;
-    handleRef.current.setState({ theme });
+    if (!persistentHandle) return;
+    persistentHandle.setState({ theme });
   }, [theme]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="h-full w-full"
-      aria-hidden
-      data-three-canvas
-    />
-  );
+  return <div ref={hostRef} className="h-full w-full" aria-hidden />;
 }
