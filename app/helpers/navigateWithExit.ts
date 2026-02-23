@@ -86,7 +86,8 @@ const getNavigationExitDuration = (durationOverride?: number) => {
   if (prefersReducedMotion) {
     adjustedDuration = Math.min(adjustedDuration, 220);
   }
-
+  // Cap global para evitar que animações longas bloqueiem a navegação
+ adjustedDuration = Math.min(adjustedDuration, 400);
   return Math.max(adjustedDuration, 0);
 };
 
@@ -104,7 +105,11 @@ const shouldBypassExitDelay = () => {
   }
 
   const connection = (navigator as NavigatorConnection).connection;
-  return Boolean(connection?.saveData || connection?.effectiveType === "2g");
+  return Boolean(
+   connection?.saveData ||
+   connection?.effectiveType === "2g" ||
+   connection?.effectiveType === "3g"
+ );
 };
 
 export const navigateWithExit = (

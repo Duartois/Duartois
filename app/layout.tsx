@@ -32,43 +32,33 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <link
           rel="preconnect"
           href="https://eu-central-1.graphassets.com"
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
         <link
           rel="preconnect"
           href="https://ap-south-1.graphassets.com"
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
         <link
-          rel="preload"
           href="/fonts/studio-feixen-sans-variable.woff2"
           as="font"
           type="font/woff2"
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
         <link
-          rel="preload"
           href="/fonts/StudioFeixenSans-Bold.woff2"
           as="font"
           type="font/woff2"
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
         <link
-          rel="preload"
           href="/fonts/StudioFeixenSansWriter-Regular.woff2"
           as="font"
           type="font/woff2"
-          crossOrigin=""
+          crossOrigin="anonymous"
         />
         <link rel="preload" href="/about-01.avif" as="image" type="image/avif" />
         <link rel="preload" href="/noise.png" as="image" type="image/png" />
-        <link
-          rel="preload"
-          href="/wave-light.svg"
-          as="image"
-          type="image/svg+xml"
-        />
-        <link rel="preload" href="/wave.svg" as="image" type="image/svg+xml" />
       </head>
       <body
         data-preloading="true"

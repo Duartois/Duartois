@@ -64,10 +64,8 @@ export default function AboutPage() {
                   data-testid="embed-iframe"
                   height={80}
                   loading="lazy"
-                  key={theme}
                   src={spotifyEmbedUrl}
                   style={{ borderRadius: "12px" }}
-                  title="Abracadabra - Lady Gaga"
                   width="100%"
                 />
               </div>
