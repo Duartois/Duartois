@@ -1,4 +1,4 @@
-const CACHE_VERSION = "duartois-pwa-v1";
+const CACHE_VERSION = "duartois-pwa-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const APP_SHELL = ["/", "/offline", "/manifest.webmanifest", "/Logo.svg"];
@@ -36,28 +36,24 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches
-            .open(RUNTIME_CACHE)
-            .then((cache) => cache.put(request, responseClone));
-          return response;
-        })
-        .catch(async () => {
-          const runtimeCache = await caches.open(RUNTIME_CACHE);
-          const cachedPage = await runtimeCache.match(request);
-          if (cachedPage) {
-            return cachedPage;
-          }
-          const staticCache = await caches.open(STATIC_CACHE);
-          return staticCache.match("/offline");
-        }),
+      fetch(request).catch(async () => {
+        const staticCache = await caches.open(STATIC_CACHE);
+        return staticCache.match("/offline");
+      }),
     );
     return;
   }
 
   if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (url.pathname.startsWith("/_next/")) {
+    return;
+  }
+
+  const canCacheRuntime = ["image", "font"].includes(request.destination);
+  if (!canCacheRuntime) {
     return;
   }
 
@@ -68,6 +64,10 @@ self.addEventListener("fetch", (event) => {
       }
 
       return fetch(request).then((response) => {
+        if (!response.ok) {
+          return response;
+        }
+
         const responseClone = response.clone();
         caches
           .open(RUNTIME_CACHE)
