@@ -1,41 +1,4 @@
 /**
- * Generates a lightweight base64-encoded SVG blur placeholder.
- * Used as `blurDataURL` in Next.js <Image> to avoid flash-of-white
- * while the real image loads. The color should match the image's
- * dominant/background color for a smooth visual transition.
- */
-export const generateBlurDataURL = (color: string): string => {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 5">
-      <filter id="b">
-        <feGaussianBlur stdDeviation="1"/>
-      </filter>
-      <rect width="8" height="5" fill="${color}" filter="url(#b)"/>
-    </svg>
-  `.trim();
-
-  // btoa() is available in Node.js 16+ and all modern browsers —
-  // safe for both server components and "use client" components.
-  const encoded =
-    typeof btoa !== "undefined"
-      ? btoa(unescape(encodeURIComponent(svg)))
-      : Buffer.from(svg, "utf-8").toString("base64");
-
-  return `data:image/svg+xml;base64,${encoded}`;
-};
-
-/**
- * Default neutral blur placeholder for images without a known
- * dominant color (matches the site's --background-color light value).
- */
-export const DEFAULT_BLUR_DATA_URL = generateBlurDataURL("#e8e7f3");
-
-/**
- * Dark-mode neutral placeholder.
- */
-export const DEFAULT_BLUR_DATA_URL_DARK = generateBlurDataURL("#2b2b33");
-
-/**
  * Applies GraphCMS/Hygraph CDN image transformations via URL params.
  *
  * GraphAssets supports the following transform handles appended to the base URL:

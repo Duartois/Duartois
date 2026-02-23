@@ -61,22 +61,6 @@ export const isAndroid = (): boolean => {
 };
 
 /**
- * Returns `true` when running on any mobile device (iOS or Android).
- *
- * Uses a combination of UA detection and touch capability for reliability.
- * SSR-safe: always returns `false` on the server.
- */
-export const isMobileDevice = (): boolean => {
-  if (!isBrowser()) return false;
-  if (isIOS() || isAndroid()) return true;
-  // Fallback: coarse pointer + small viewport
-  return (
-    window.matchMedia("(pointer: coarse)").matches &&
-    window.innerWidth <= 768
-  );
-};
-
-/**
  * Returns a capped device pixel ratio suitable for WebGL rendering.
  *
  * Safari on Apple Silicon and Retina iPhones reports DPR of 2–3, which
