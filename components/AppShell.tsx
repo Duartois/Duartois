@@ -38,8 +38,18 @@ const Navbar = dynamic(() => import("./Navbar"), { ssr: false });
 
 function AppShellContent({ children }: AppShellProps) {
   const router = useRouter();
-  const [isReady, setIsReady] = useState(false);
-  const [showPreloader, setShowPreloader] = useState(true);
+  const [isReady, setIsReady] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !!window.sessionStorage.getItem("app-initial-load-complete");
+    }
+    return false;
+  });
+  const [showPreloader, setShowPreloader] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !window.sessionStorage.getItem("app-initial-load-complete");
+    }
+    return true;
+  });
   const [isNavigationExiting, setIsNavigationExiting] = useState(false);
   // Mantém opacity:0 durante o delay entre saída e entrada para suprimir o vislumbre dos elementos antigos
   const [isNavigationReleasing, setIsNavigationReleasing] = useState(false);
@@ -55,6 +65,9 @@ function AppShellContent({ children }: AppShellProps) {
   const handleComplete = useCallback(() => {
     setIsReady(true);
     setShowPreloader(false);
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("app-initial-load-complete", "true");
+    }
   }, []);
 
   useEffect(() => {
@@ -69,7 +82,7 @@ function AppShellContent({ children }: AppShellProps) {
 
     body.removeAttribute("data-preloading");
 
-    if (!hasDispatchedRevealRef.current) {
+    if (!showPreloader && !hasDispatchedRevealRef.current) {
       hasDispatchedRevealRef.current = true;
       dispatchAppEvent(APP_SHELL_REVEAL_EVENT);
     }
