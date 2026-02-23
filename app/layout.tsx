@@ -99,28 +99,6 @@ export default async function RootLayout({
           href="https://ap-south-1.graphassets.com"
           crossOrigin="anonymous"
         />
-        <link
-          href="/fonts/studio-feixen-sans-variable.woff2"
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="/fonts/StudioFeixenSans-Bold.woff2"
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="/fonts/StudioFeixenSansWriter-Regular.woff2"
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-
         <link rel="preload" href="/noise.png" as="image" type="image/png" />
       </head>
       <body
