@@ -2938,6 +2938,7 @@ table tr:last-child td {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: calc(var(--innerVh, 1vh) * 100);
   }
 
   .contact-page .contact {
@@ -2945,7 +2946,7 @@ table tr:last-child td {
     margin: 0 var(--left-right-margin);
     min-height: 0;
     max-height: none;
-    height: calc(var(--innerVh, 1vh) * 100);
+    height: auto;
   }
 }
 
