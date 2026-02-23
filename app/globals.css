@@ -2394,15 +2394,13 @@ body.dark
 
 @media (max-width: 47.99em) {
   .contact {
-    margin: calc(var(--innerVh, 1vh) * 40) var(--left-right-margin)
-      var(--top-margin);
+    margin: 0 var(--left-right-margin);
   }
 }
 
 @media (max-width: 61.99em) and (orientation: portrait) {
   .contact {
-    margin: calc(var(--innerVh, 1vh) * 40) var(--left-right-margin)
-      var(--top-margin);
+    margin: 0 var(--left-right-margin);
   }
 }
 
