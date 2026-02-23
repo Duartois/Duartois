@@ -61,6 +61,7 @@ if (!i18n.isInitialized) {
       bindI18n: "languageChanged loaded",
       bindI18nStore: "added removed",
     },
+    showSupportNotice: false,
     returnNull: false,
   });
 }
