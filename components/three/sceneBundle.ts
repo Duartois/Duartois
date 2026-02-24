@@ -18,6 +18,8 @@ import {
   createVariantState,
   createResponsiveVariantState,
   getDefaultPalette,
+  getVariantShapeBlur,
+  getVariantShapeOpacity,
   variantMapping,
 } from "./types";
 import { createCamera, ensurePalette } from "./factories";
@@ -153,6 +155,7 @@ export type ShapesHandle = {
   applyVariant: (variant: VariantState) => void;
   applyTheme: (theme: ThemeName) => void;
   setBrightness: (value: number) => void;
+  setShapeBlur: (shapeBlur: Record<ShapeId, number>) => void;
   dispose: () => void;
 };
 
@@ -545,6 +548,43 @@ export async function addDuartoisSignatureShapes(
     applyTheme(currentTheme);
   };
 
+  const setShapeBlur = (shapeBlur: Record<ShapeId, number>) => {
+    const isDark = currentTheme === "dark";
+
+    // Base visual values must match applyTheme() so blur=0 restores the
+    // original look on routes like home/menu.
+    const baseRoughness = isDark ? 0.26 : 0.3;
+    const baseClearcoat = isDark ? 0.018 : 0.14;
+    const baseEnvMapIntensity = isDark ? 0.02 : 0.08;
+
+    // Target "max blur" look per theme.
+    const maxBlurRoughness = isDark ? 0.72 : 0.78;
+    const minBlurClearcoat = isDark ? 0.004 : 0.02;
+    const minBlurEnvMapIntensity = isDark ? 0.005 : 0.015;
+
+    SHAPE_ORDER.forEach((id) => {
+      const material = materials[id];
+      const blur = clamp(shapeBlur[id] ?? 0, 0, 1);
+
+      material.roughness = THREE.MathUtils.lerp(
+        baseRoughness,
+        maxBlurRoughness,
+        blur,
+      );
+      material.clearcoat = THREE.MathUtils.lerp(
+        baseClearcoat,
+        minBlurClearcoat,
+        blur,
+      );
+      material.envMapIntensity = THREE.MathUtils.lerp(
+        baseEnvMapIntensity,
+        minBlurEnvMapIntensity,
+        blur,
+      );
+      material.needsUpdate = true;
+    });
+  };
+
   applyVariant(initialVariant);
   applyTheme(initialTheme);
 
@@ -576,6 +616,7 @@ export async function addDuartoisSignatureShapes(
     applyVariant,
     applyTheme,
     setBrightness,
+    setShapeBlur,
     dispose,
   };
 }
@@ -689,13 +730,8 @@ const initScene = async ({
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapesGroup = shapes.group;
   const shapeIds = Object.keys(shapes.meshes) as ShapeId[];
-  const initialShapeOpacity = shapeIds.reduce(
-    (acc, id) => {
-      acc[id] = 1;
-      return acc;
-    },
-    {} as Record<ShapeId, number>,
-  );
+  const initialShapeOpacity = getVariantShapeOpacity(initialVariantState);
+  const initialShapeBlur = getVariantShapeBlur(initialVariantState);
   const initialVariantClone = createVariantState(initialVariantState);
   let targetVariantState = initialVariantClone;
   const initialState: ThreeAppState = {
@@ -713,6 +749,7 @@ const initScene = async ({
     manualPointer: { x: 0, y: 0 },
     opacity: 1,
     shapeOpacity: { ...initialShapeOpacity },
+    shapeBlur: { ...initialShapeBlur },
     brightness: DEFAULT_BRIGHTNESS,
     ready: false,
   };
@@ -723,11 +760,13 @@ const initScene = async ({
     initialState.opacity,
     initialState.shapeOpacity,
   );
+  shapes.setShapeBlur(initialState.shapeBlur);
 
   const eventTarget = new EventTarget();
 
   let state = initialState;
   let shapeOpacityState = { ...initialShapeOpacity };
+  let shapeBlurState = { ...initialShapeBlur };
   const pointer = new THREE.Vector2();
   const devicePointerTarget = new THREE.Vector2();
   const manualPointerTarget = new THREE.Vector2();
@@ -944,6 +983,8 @@ const initScene = async ({
     let opacityChanged = false;
     let pendingShapeOpacity = shapeOpacityState;
     let shapeOpacityChanged = false;
+    let pendingShapeBlur = shapeBlurState;
+    let shapeBlurChanged = false;
 
     const commit = (updates: Partial<ThreeAppState>) => {
       nextState = { ...nextState, ...updates };
@@ -958,9 +999,15 @@ const initScene = async ({
         globalWindow.innerHeight,
       );
       targetVariantState = createVariantState(responsiveVariant);
+      pendingShapeOpacity = getVariantShapeOpacity(responsiveVariant);
+      pendingShapeBlur = getVariantShapeBlur(responsiveVariant);
+      shapeOpacityChanged = true;
+      shapeBlurChanged = true;
       commit({
         variantName: partial.variantName,
         variant: createVariantState(responsiveVariant),
+        shapeOpacity: { ...pendingShapeOpacity },
+        shapeBlur: { ...pendingShapeBlur },
       });
     }
 
@@ -979,6 +1026,7 @@ const initScene = async ({
         pendingOpacity,
         pendingShapeOpacity,
       );
+      shapes.setShapeBlur(pendingShapeBlur);
       commit({ theme: partial.theme, palette: nextPalette });
     }
 
@@ -1069,13 +1117,41 @@ const initScene = async ({
       }
     }
 
-    if (opacityChanged || shapeOpacityChanged) {
+    if (partial.shapeBlur) {
+      const updatedBlur = { ...pendingShapeBlur };
+      let localChange = false;
+
+      (Object.entries(partial.shapeBlur) as [ShapeId, number][]).forEach(
+        ([key, value]) => {
+          if (!(key in updatedBlur)) {
+            return;
+          }
+
+          const clampedValue = clamp(value, 0, 1);
+          if (updatedBlur[key] !== clampedValue) {
+            updatedBlur[key] = clampedValue;
+            localChange = true;
+          }
+        },
+      );
+
+      if (localChange) {
+        pendingShapeBlur = updatedBlur;
+        shapeBlurChanged = true;
+        commit({ shapeBlur: { ...pendingShapeBlur } });
+      }
+    }
+
+    if (opacityChanged || shapeOpacityChanged || shapeBlurChanged) {
       updateAllMeshOpacities(
         shapeIds,
         shapes.meshes,
         pendingOpacity,
         pendingShapeOpacity,
       );
+      if (shapeBlurChanged) {
+        shapes.setShapeBlur(pendingShapeBlur);
+      }
     }
 
     if ("variantTransitionMs" in partial) {
@@ -1096,11 +1172,20 @@ const initScene = async ({
 
     if (partial.variant) {
       targetVariantState = createVariantState(partial.variant);
-      commit({ variant: createVariantState(partial.variant) });
+      pendingShapeOpacity = getVariantShapeOpacity(partial.variant);
+      pendingShapeBlur = getVariantShapeBlur(partial.variant);
+      shapeOpacityChanged = true;
+      shapeBlurChanged = true;
+      commit({
+        variant: createVariantState(partial.variant),
+        shapeOpacity: { ...pendingShapeOpacity },
+        shapeBlur: { ...pendingShapeBlur },
+      });
     }
 
     state = nextState;
     shapeOpacityState = pendingShapeOpacity;
+    shapeBlurState = pendingShapeBlur;
 
     if (changed) {
       dispatchStateChange(eventTarget, state);

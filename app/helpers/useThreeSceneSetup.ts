@@ -7,8 +7,8 @@ import {
   createVariantState,
   type VariantName,
   variantMapping,
-  SHAPE_IDS,
-  type ShapeId,
+  getVariantShapeBlur,
+  getVariantShapeOpacity,
 } from "@/components/three/types";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
 import type { ThreeAppHandle } from "@/components/three/types";
@@ -22,25 +22,11 @@ type SceneOptions = {
 };
 
 const DEFAULT_OPTIONS = {
-  opacity: 0.3,
+  opacity: 1,
   parallax: true,
   hovered: false,
   enableScene: true,
 } as const;
-
-/**
- * Retorna um ShapeOpacityState com todas as formas em opacity 1.
- * Usado para resetar quaisquer opacities residuais da página anterior
- * (ex.: dimming do hover do Menu em /work).
- */
-const createDefaultShapeOpacity = (): Record<ShapeId, number> =>
-  SHAPE_IDS.reduce(
-    (acc, id) => {
-      acc[id] = 1;
-      return acc;
-    },
-    {} as Record<ShapeId, number>,
-  );
 
 const applySceneState = (
   variantName: VariantName,
@@ -66,9 +52,8 @@ const applySceneState = (
     parallax,
     hovered,
     opacity,
-    // Reset explícito: garante que nenhuma opacity individual herdada
-    // da página anterior (ex.: dimming do Menu em /work) permaneça ativa.
-    shapeOpacity: createDefaultShapeOpacity(),
+    shapeOpacity: getVariantShapeOpacity(responsiveVariant),
+    shapeBlur: getVariantShapeBlur(responsiveVariant),
   });
 
   return true;

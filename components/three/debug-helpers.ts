@@ -20,6 +20,7 @@ export const createStateSnapshot = (state: ThreeAppState) =>
     pointer: { ...state.pointer },
     manualPointer: { ...state.manualPointer },
     shapeOpacity: { ...state.shapeOpacity },
+    shapeBlur: { ...state.shapeBlur },
   });
 
 export const attachToWindow = (handle: ThreeAppHandle) => {
