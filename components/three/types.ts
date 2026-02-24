@@ -273,7 +273,7 @@ const BASE_ASPECT = 1440 / 900; // 1.6
 const cloneScale = (scale: ShapeScale): ShapeScale =>
   Array.isArray(scale) ? ([...scale] as Vector3Tuple) : scale;
 
-const SHAPE_IDS: readonly ShapeId[] = [
+export const SHAPE_IDS: readonly ShapeId[] = [
   "torusSpringAzure",
   "waveSpringLime",
   "semiLimeFlamingo",

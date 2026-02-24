@@ -4,6 +4,8 @@ import {
   createResponsiveVariantState,
   type VariantName,
   variantMapping,
+  SHAPE_IDS,
+  type ShapeId,
 } from "@/components/three/types";
 
 export const resolveVariantFromPath = (
@@ -39,6 +41,20 @@ const VARIANT_OPACITY: Record<VariantName, number> = {
   contact: 0.3,
 };
 
+/**
+ * Retorna um ShapeOpacityState com todas as formas em opacity 1.
+ * Garante que nenhuma opacity residual da página anterior seja herdada
+ * durante a transição de navegação.
+ */
+const createDefaultShapeOpacity = (): Record<ShapeId, number> =>
+  SHAPE_IDS.reduce(
+    (acc, id) => {
+      acc[id] = 1;
+      return acc;
+    },
+    {} as Record<ShapeId, number>,
+  );
+
 export const applyNavigationSceneVariant = (pathname: string) => {
   if (typeof window === "undefined") {
     return;
@@ -59,6 +75,9 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     window.__THREE_APP__.setState({
       variant: responsiveVariant,
       opacity: VARIANT_OPACITY[variantName],
+      // Reset explícito: evita que shapeOpacity modificada (ex.: hover do Menu)
+      // em uma página seja carregada na próxima.
+      shapeOpacity: createDefaultShapeOpacity(),
     });
   }
 };
