@@ -1067,28 +1067,22 @@ const initScene = async ({
     }
 
     if (partial.shapeOpacity) {
+      // shapeOpacity explícito SEMPRE vence sobre o valor derivado do variant.
+      // Não usamos localChange — sempre commitamos para garantir isolamento entre contextos.
       const updatedOpacity = { ...pendingShapeOpacity };
-      let localChange = false;
 
       (Object.entries(partial.shapeOpacity) as [ShapeId, number][]).forEach(
         ([key, value]) => {
           if (!(key in updatedOpacity)) {
             return;
           }
-
-          const clampedValue = clamp(value, 0, 1);
-          if (updatedOpacity[key] !== clampedValue) {
-            updatedOpacity[key] = clampedValue;
-            localChange = true;
-          }
+          updatedOpacity[key] = clamp(value, 0, 1);
         },
       );
 
-      if (localChange) {
-        pendingShapeOpacity = updatedOpacity;
-        shapeOpacityChanged = true;
-        commit({ shapeOpacity: { ...pendingShapeOpacity } });
-      }
+      pendingShapeOpacity = updatedOpacity;
+      shapeOpacityChanged = true;
+      commit({ shapeOpacity: { ...pendingShapeOpacity } });
     }
 
     if (partial.shapeBlur) {

@@ -32,6 +32,7 @@ import {
   APP_NAVIGATION_REVEALED_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
+import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
 import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
@@ -49,7 +50,6 @@ type StoredSceneState = {
   cursorBoost: number;
   pointerDriver: PointerDriver;
   manualPointer: PointerTarget;
-  shapeOpacity: ShapeOpacityState;
   opacity: number;
 };
 
@@ -64,6 +64,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { app } = useThreeApp();
+  const pathnameRef = useRef(pathname);
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
   useEffect(() => setIsOpen(false), [pathname]);
   useEffect(() => {
     const body = document.body;
@@ -117,7 +121,6 @@ export default function Navbar() {
       cursorBoost: snapshot.cursorBoost,
       pointerDriver: snapshot.pointerDriver,
       manualPointer: { ...snapshot.manualPointer },
-      shapeOpacity: { ...snapshot.shapeOpacity },
       opacity: snapshot.opacity,
     };
 
@@ -141,22 +144,26 @@ export default function Navbar() {
       const stored = storedSceneStateRef.current;
       storedSceneStateRef.current = null;
 
-      // Se estiver navegando, não restaura o snapshot —
-      // a nova página aplicará a variante correta via useThreeSceneSetup.
       if (!stored || document.body.dataset.navigating === "true") {
         return;
       }
 
+      // Restaura APENAS estado de interação (não visual).
+      // Variant e shapeOpacity são gerenciados por applyNavigationSceneVariant.
       app.setState({
         parallax: stored.parallax,
         hovered: stored.hovered,
         cursorBoost: stored.cursorBoost,
         pointerDriver: stored.pointerDriver,
         manualPointer: { ...stored.manualPointer },
-        variant: createVariantState(stored.variant),
-        shapeOpacity: { ...stored.shapeOpacity },
         opacity: stored.opacity,
       });
+
+      // Estado visual correto para a página atual:
+      // - home: todas as formas em opacity 1.0 (sempre)
+      // - /work, /about, /contact: opacidades específicas da variante
+      // - menu não é afetado por nenhuma das páginas
+      applyNavigationSceneVariant(pathnameRef.current);
     };
   }, [app, isOpen, menuSceneVersion]);
   const { t } = useTranslation("common");

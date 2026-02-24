@@ -32,7 +32,6 @@ import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
-import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
 import { workProjects } from "@/app/work/projects";
 import { shouldAllowPrefetch } from "@/app/helpers/prefetch";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
@@ -275,10 +274,7 @@ export default function Menu({
       baseVariantRef.current = null;
       baseOpacityRef.current = null;
 
-      if (typeof window !== "undefined") {
-        applyNavigationSceneVariant(pathname);
-      }
-      return;
+      if (typeof window !== "undefined") return;
     }
 
     if (!app) {
