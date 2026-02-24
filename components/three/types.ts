@@ -166,39 +166,6 @@ const createMenuMonogramVariant = (): VariantState => ({
   },
 });
 
-const createAboutVariant = (): VariantState => ({
-  torusSpringAzure: {
-    position: [0.4, -0.32, -0.95],
-    rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
-    scale: [0.26, 0.26, 0.26],
-  },
-  waveSpringLime: {
-    position: [-0.8, 0.78, -0.7],
-    rotation: [-2.1, 0.3, -0.6],
-    scale: [0.22, 0.22, 0.22],
-  },
-  semiLimeFlamingo: {
-    position: [1.0, 0.45, -0.5],
-    rotation: [Math.PI / 2, Math.PI * -0.35, 0.15],
-    scale: [0.2, 0.2, 0.2],
-  },
-  torusFlamingoLime: {
-    position: [0.1, -1.02, -0.4],
-    rotation: [Math.PI / 2, Math.PI * -1.35, -0.1],
-    scale: [0.18, 0.18, 0.18],
-  },
-  semiFlamingoAzure: {
-    position: [-0.7, -0.88, -0.25],
-    rotation: [Math.PI / 2, Math.PI * -1.55, 0.2],
-    scale: [0.24, 0.24, 0.24],
-  },
-  sphereFlamingoSpring: {
-    position: [0.8, 0.1, -0.1],
-    rotation: [0, 0, 0],
-    scale: 0.22,
-  },
-});
-
 const createWorkVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [-0.5, 0.4, -0.9],
@@ -206,9 +173,9 @@ const createWorkVariant = (): VariantState => ({
     scale: [0.26, 0.26, 0.26],
   },
   waveSpringLime: {
-    position: [0.9, -0.5, -0.8],
-    rotation: [-1.8, 0.4, -0.5],
-    scale: [0.22, 0.22, 0.22],
+    position: [0.9, 0, -1],
+    rotation: [1, 1, 1],
+    scale: [0.4, 0.4, 0.4],
   },
   semiLimeFlamingo: {
     position: [-1.1, -0.3, -0.6],
@@ -260,6 +227,39 @@ const createProjectDetailVariant = (): VariantState => ({
   },
   sphereFlamingoSpring: {
     position: [0.45, 0.2, -0.15],
+    rotation: [0, 0, 0],
+    scale: 0.22,
+  },
+});
+
+const createAboutVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [0.4, -0.32, -0.95],
+    rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
+    scale: [0.26, 0.26, 0.26],
+  },
+  waveSpringLime: {
+    position: [-0.8, 0.78, -0.7],
+    rotation: [-2.1, 0.3, -0.6],
+    scale: [0.22, 0.22, 0.22],
+  },
+  semiLimeFlamingo: {
+    position: [1.0, 0.45, -0.5],
+    rotation: [Math.PI / 2, Math.PI * -0.35, 0.15],
+    scale: [0.2, 0.2, 0.2],
+  },
+  torusFlamingoLime: {
+    position: [0.1, -1.02, -0.4],
+    rotation: [Math.PI / 2, Math.PI * -1.35, -0.1],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [-0.7, -0.88, -0.25],
+    rotation: [Math.PI / 2, Math.PI * -1.55, 0.2],
+    scale: [0.24, 0.24, 0.24],
+  },
+  sphereFlamingoSpring: {
+    position: [0.8, 0.1, -0.1],
     rotation: [0, 0, 0],
     scale: 0.22,
   },
