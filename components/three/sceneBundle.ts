@@ -549,38 +549,12 @@ export async function addDuartoisSignatureShapes(
   };
 
   const setShapeBlur = (shapeBlur: Record<ShapeId, number>) => {
-    const isDark = currentTheme === "dark";
-
-    // Base visual values must match applyTheme() so blur=0 restores the
-    // original look on routes like home/menu.
-    const baseRoughness = isDark ? 0.26 : 0.3;
-    const baseClearcoat = isDark ? 0.018 : 0.14;
-    const baseEnvMapIntensity = isDark ? 0.02 : 0.08;
-
-    // Target "max blur" look per theme.
-    const maxBlurRoughness = isDark ? 0.72 : 0.78;
-    const minBlurClearcoat = isDark ? 0.004 : 0.02;
-    const minBlurEnvMapIntensity = isDark ? 0.005 : 0.015;
-
     SHAPE_ORDER.forEach((id) => {
       const material = materials[id];
       const blur = clamp(shapeBlur[id] ?? 0, 0, 1);
-
-      material.roughness = THREE.MathUtils.lerp(
-        baseRoughness,
-        maxBlurRoughness,
-        blur,
-      );
-      material.clearcoat = THREE.MathUtils.lerp(
-        baseClearcoat,
-        minBlurClearcoat,
-        blur,
-      );
-      material.envMapIntensity = THREE.MathUtils.lerp(
-        baseEnvMapIntensity,
-        minBlurEnvMapIntensity,
-        blur,
-      );
+      material.roughness = 0.22 + blur * 0.62;
+      material.clearcoat = 0.14 - blur * 0.12;
+      material.envMapIntensity = 0.08 - blur * 0.06;
       material.needsUpdate = true;
     });
   };
