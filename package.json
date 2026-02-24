@@ -43,6 +43,13 @@
   "overrides": {
     "three-mesh-bvh": "0.8.0"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
   "devDependencies": {
     "@next/bundle-analyzer": "^14.2.13",
     "@next/eslint-plugin-next": "^16.1.6",
