@@ -19,6 +19,7 @@ import {
   MENU_OVERLAY_MONOGRAM,
   createResponsiveHeroVariantState,
   createVariantState,
+  getVariantShapeOpacity,
   type PointerDriver,
   type PointerTarget,
   type ShapeOpacityState,
@@ -129,7 +130,6 @@ export default function Navbar() {
       pointerDriver: "manual",
       manualPointer: { x: 0, y: 0 },
       variant: initialMenuVariant,
-      shapeOpacity: { ...snapshot.shapeOpacity },
       opacity: 1,
     });
 

@@ -1146,6 +1146,9 @@ const initScene = async ({
 
     if (partial.variant) {
       targetVariantState = createVariantState(partial.variant);
+      if (partial.snap) {
+        shapes.applyVariant(partial.variant);
+      }
       pendingShapeOpacity = getVariantShapeOpacity(partial.variant);
       pendingShapeBlur = getVariantShapeBlur(partial.variant);
       shapeOpacityChanged = true;

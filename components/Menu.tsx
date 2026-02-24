@@ -287,7 +287,7 @@ export default function Menu({
 
     const snapshot = app.bundle.getState();
     baseVariantRef.current = createVariantState(snapshot.variant);
-    baseOpacityRef.current = { ...snapshot.shapeOpacity };
+    baseOpacityRef.current = { ...FALLBACK_MENU_SHAPE_OPACITY };
   }, [app, isOpen, pathname]);
 
   useEffect(() => {
@@ -310,7 +310,6 @@ export default function Menu({
       }
 
       baseVariantRef.current = createVariantState(nextState.variant);
-      baseOpacityRef.current = { ...nextState.shapeOpacity };
     };
 
     app.bundle.events.addEventListener("statechange", handleStateChange);

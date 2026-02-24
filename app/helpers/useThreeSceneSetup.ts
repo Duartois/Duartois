@@ -49,6 +49,7 @@ const applySceneState = (
 
   app.setState({
     variant: createVariantState(responsiveVariant),
+    snap: true,
     parallax,
     hovered,
     opacity,

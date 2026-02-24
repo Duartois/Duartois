@@ -578,6 +578,7 @@ export type ThreeAppState = {
   shapeBlur: ShapeBlurState;
   brightness: number;
   ready: boolean;
+  snap?: boolean;
 };
 
 export type StateUpdaterFn = (
