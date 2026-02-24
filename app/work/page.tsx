@@ -20,7 +20,7 @@ import {
 } from "../helpers/navigateWithExit";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
-
+import { useThreeSceneSetup } from "@/app/helpers/useThreeSceneSetup";
 import { projectOrder, type ProjectKey, projectPreviews } from "./projects";
 
 type ProjectCopy = {
@@ -45,6 +45,7 @@ export default function WorkPage() {
   const { isOpen: isMenuOpen } = useMenu();
   const totalFallItems = 3 + projectOrder.length;
   const fallStyle = useMenuFallAnimation(totalFallItems, { variant: "work" });
+  useThreeSceneSetup("work");
   const previousProjectTimeoutRef = useRef<number>();
 
   const projectCopy = useMemo(

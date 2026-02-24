@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import "../i18n/config";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
+import { useThreeSceneSetup } from "@/app/helpers/useThreeSceneSetup";
 
 type ContactMail = {
   label: string;
@@ -35,6 +36,7 @@ export default function ContactPage() {
 
   const totalFallItems = 5 + socials.links.length;
   const fallStyle = useMenuFallAnimation(totalFallItems);
+  useThreeSceneSetup("contact");
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
 

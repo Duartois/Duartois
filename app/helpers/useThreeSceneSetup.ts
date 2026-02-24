@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import {
   createResponsiveVariantState,
   createVariantState,
-  getDefaultPalette,
   type VariantName,
   variantMapping,
 } from "@/components/three/types";
@@ -66,22 +65,16 @@ export function useThreeSceneSetup(
     enableScene = DEFAULT_OPTIONS.enableScene,
   }: SceneOptions = {},
 ) {
-  const { app, setSceneActive } = useThreeApp();
+  const { app } = useThreeApp();
 
-  // A cena agora é gerenciada globalmente pelo GlobalCanvas no AppShell.
   // Aplica a variante correta para a página atual sempre que o app estiver disponível.
-
   useEffect(() => {
     let animationFrame: number | undefined;
 
     const apply = () => {
       const applied = applySceneState(
         variantName,
-        {
-          opacity,
-          parallax,
-          hovered,
-        },
+        { opacity, parallax, hovered },
         app,
       );
 
@@ -95,6 +88,45 @@ export function useThreeSceneSetup(
     return () => {
       if (animationFrame !== undefined) {
         window.cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [app, hovered, opacity, parallax, variantName]);
+
+  // Re-aplica as posições responsivas quando a janela for redimensionada.
+  // Isso garante que /work e /contact (e todas as páginas) repositionem
+  // as formas corretamente em qualquer tamanho de tela.
+  useEffect(() => {
+    if (!app) return;
+
+    let rafId: number | undefined;
+
+    const handleResize = () => {
+      if (rafId !== undefined) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = undefined;
+        applySceneState(variantName, { opacity, parallax, hovered }, app);
+      });
+    };
+
+    window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener("orientationchange", handleResize, {
+      passive: true,
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      if (rafId !== undefined) {
+        cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleResize);
       }
     };
   }, [app, hovered, opacity, parallax, variantName]);
