@@ -6,6 +6,7 @@ import {
   variantMapping,
   getVariantShapeBlur,
   getVariantShapeOpacity,
+  type ShapeOpacityState,
 } from "@/components/three/types";
 
 export const resolveVariantFromPath = (
@@ -44,6 +45,29 @@ const VARIANT_OPACITY: Record<VariantName, number> = {
   contact: 1,
 };
 
+// Opacidades padrão para cada contexto
+// Home sempre tem opacidade normal (1.0) em todas as formas
+const getDefaultShapeOpacity = (variantName: VariantName) => {
+  if (variantName === "home") {
+    return {
+      torusSpringAzure: 1,
+      waveSpringLime: 1,
+      semiLimeFlamingo: 1,
+      torusFlamingoLime: 1,
+      semiFlamingoAzure: 1,
+      sphereFlamingoSpring: 1,
+    };
+  }
+  // Para outras páginas, usar as opacidades da variante
+  return getVariantShapeOpacity(
+    createResponsiveVariantState(
+      variantMapping[variantName],
+      window.innerWidth,
+      window.innerHeight,
+    ),
+  );
+};
+
 export const applyNavigationSceneVariant = (pathname: string) => {
   if (typeof window === "undefined") {
     return;
@@ -64,7 +88,7 @@ export const applyNavigationSceneVariant = (pathname: string) => {
     window.__THREE_APP__.setState({
       variant: responsiveVariant,
       opacity: VARIANT_OPACITY[variantName],
-      shapeOpacity: getVariantShapeOpacity(responsiveVariant),
+      shapeOpacity: getDefaultShapeOpacity(variantName),
       shapeBlur: getVariantShapeBlur(responsiveVariant),
     });
   }

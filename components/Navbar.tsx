@@ -126,6 +126,15 @@ export default function Navbar() {
 
     const initialMenuVariant = computeMenuVariant();
 
+    const menuShapeOpacity = {
+      torusSpringAzure: 1,
+      waveSpringLime: 1,
+      semiLimeFlamingo: 1,
+      torusFlamingoLime: 1,
+      semiFlamingoAzure: 1,
+      sphereFlamingoSpring: 1,
+    };
+
     app.setState({
       parallax: false,
       hovered: false,
@@ -134,6 +143,7 @@ export default function Navbar() {
       manualPointer: { x: 0, y: 0 },
       variant: initialMenuVariant,
       opacity: 1,
+      shapeOpacity: menuShapeOpacity,
     });
 
     window.addEventListener("resize", applyMenuVariant);
