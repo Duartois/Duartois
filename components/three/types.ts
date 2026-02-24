@@ -18,7 +18,12 @@ export type PointerDriver = "device" | "manual";
 
 export type PointerTarget = { x: number; y: number };
 
-export type VariantName = "home" | "about" | "work" | "contact";
+export type VariantName =
+  | "home"
+  | "about"
+  | "work"
+  | "contact"
+  | "projectDetail";
 
 export type ShapeScale = number | Vector3Tuple;
 
@@ -227,6 +232,39 @@ const createWorkVariant = (): VariantState => ({
   },
 });
 
+const createProjectDetailVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [1.1, 0.75, -1.0],
+    rotation: [Math.PI / 2, Math.PI * -0.7, 0.25],
+    scale: [0.26, 0.26, 0.26],
+  },
+  waveSpringLime: {
+    position: [-0.8, -0.85, -0.9],
+    rotation: [-2.0, -0.15, -0.8],
+    scale: [0.22, 0.22, 0.22],
+  },
+  semiLimeFlamingo: {
+    position: [0.95, -0.65, -0.55],
+    rotation: [Math.PI / 2, Math.PI * -0.6, -0.2],
+    scale: [0.2, 0.2, 0.2],
+  },
+  torusFlamingoLime: {
+    position: [-0.5, 0.9, -0.45],
+    rotation: [Math.PI / 2, Math.PI * -1.25, 0.3],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [-1.05, -0.2, -0.3],
+    rotation: [Math.PI / 2, Math.PI * -1.85, 0.1],
+    scale: [0.24, 0.24, 0.24],
+  },
+  sphereFlamingoSpring: {
+    position: [0.45, 0.2, -0.15],
+    rotation: [0, 0, 0],
+    scale: 0.22,
+  },
+});
+
 const createContactVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [0.6, 0.5, -1.0],
@@ -264,6 +302,7 @@ export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
   about: createAboutVariant(),
   work: createWorkVariant(),
+  projectDetail: createProjectDetailVariant(),
   contact: createContactVariant(),
 };
 

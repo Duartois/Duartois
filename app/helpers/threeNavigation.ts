@@ -18,7 +18,9 @@ export const resolveVariantFromPath = (
   if (pathname === "/work") {
     return "work";
   }
-
+  if (pathname.startsWith("/work/")) {
+    return "projectDetail";
+  }
   if (pathname.startsWith("/about")) {
     return "about";
   }
@@ -36,9 +38,10 @@ export const resolveVariantFromPath = (
 // demais → opacity: 0.3  (default de useThreeSceneSetup)
 const VARIANT_OPACITY: Record<VariantName, number> = {
   home: 1,
-  work: 0.3,
-  about: 0.3,
-  contact: 0.3,
+  work: 0.7,
+  about: 0.7,
+  projectDetail: 0.7,
+  contact: 0.7,
 };
 
 /**

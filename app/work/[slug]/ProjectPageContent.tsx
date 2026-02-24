@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
+import { useThreeSceneSetup } from "@/app/helpers/useThreeSceneSetup";
 import "../../i18n/config";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
@@ -43,6 +43,7 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
   const contentCount = detail.content.length;
   const totalFallItems = 5 + metadataCount + descriptionCount + contentCount;
   const fallStyle = useMenuFallAnimation(totalFallItems);
+  useThreeSceneSetup("projectDetail");
 
   const pageContentStyle = useMemo(
     () =>
