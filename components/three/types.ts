@@ -29,6 +29,38 @@ export type ShapeTransform = {
 };
 
 export type VariantState = Record<ShapeId, ShapeTransform>;
+const createFramedVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [2.85, -1.8, 1.2],
+    rotation: [-1.36, 0.92, -0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  waveSpringLime: {
+    position: [-3.5, 1.5, -1],
+    rotation: [-0.14, 0.32, -0.12],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiLimeFlamingo: {
+    position: [2, 2, -0.4],
+    rotation: [1.14, -0.42, -0.05],
+    scale: [0.75, 0.75, 0.75],
+  },
+  torusFlamingoLime: {
+    position: [0, -2, -0.58],
+    rotation: [-0.28, 0.44, 0.92],
+    scale: [0.75, 0.75, 0.75],
+  },
+  semiFlamingoAzure: {
+    position: [-2.82, -1.58, -0.8],
+    rotation: [1.36, 0, -0.2],
+    scale: [0.75, 0.75, 0.75],
+  },
+  sphereFlamingoSpring: {
+    position: [0, 1.5, 0],
+    rotation: [0, 0, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
+});
 
 const createPrimaryMonogramVariant = (): VariantState => ({
   torusSpringAzure: {
@@ -129,7 +161,7 @@ const createMenuMonogramVariant = (): VariantState => ({
   },
 });
 
-const createContactMonogramVariant = (): VariantState => ({
+const createAboutVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [0.4, -0.32, -0.95],
     rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
@@ -159,40 +191,6 @@ const createContactMonogramVariant = (): VariantState => ({
     position: [0.8, 0.1, -0.1],
     rotation: [0, 0, 0],
     scale: 0.22,
-  },
-});
-
-//Posição inicial
-const createFramedVariant = (): VariantState => ({
-  torusSpringAzure: {
-    position: [2.85, -1.8, 1.2],
-    rotation: [-1.36, 0.92, -0.2],
-    scale: [0.75, 0.75, 0.75],
-  },
-  waveSpringLime: {
-    position: [-3.5, 1.5, -1],
-    rotation: [-0.14, 0.32, -0.12],
-    scale: [0.75, 0.75, 0.75],
-  },
-  semiLimeFlamingo: {
-    position: [2, 2, -0.4],
-    rotation: [1.14, -0.42, -0.05],
-    scale: [0.75, 0.75, 0.75],
-  },
-  torusFlamingoLime: {
-    position: [0, -2, -0.58],
-    rotation: [-0.28, 0.44, 0.92],
-    scale: [0.75, 0.75, 0.75],
-  },
-  semiFlamingoAzure: {
-    position: [-2.82, -1.58, -0.8],
-    rotation: [1.36, 0, -0.2],
-    scale: [0.75, 0.75, 0.75],
-  },
-  sphereFlamingoSpring: {
-    position: [0, 1.5, 0],
-    rotation: [0, 0, 0],
-    scale: [0.75, 0.75, 0.75],
   },
 });
 
@@ -264,7 +262,7 @@ const createContactVariant = (): VariantState => ({
 
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
-  about: createContactMonogramVariant(),
+  about: createAboutVariant(),
   work: createWorkVariant(),
   contact: createContactVariant(),
 };
