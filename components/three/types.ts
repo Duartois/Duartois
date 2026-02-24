@@ -196,11 +196,77 @@ const createFramedVariant = (): VariantState => ({
   },
 });
 
+const createWorkVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [-0.5, 0.4, -0.9],
+    rotation: [Math.PI / 2, Math.PI * -1.3, 0.1],
+    scale: [0.26, 0.26, 0.26],
+  },
+  waveSpringLime: {
+    position: [0.9, -0.5, -0.8],
+    rotation: [-1.8, 0.4, -0.5],
+    scale: [0.22, 0.22, 0.22],
+  },
+  semiLimeFlamingo: {
+    position: [-1.1, -0.3, -0.6],
+    rotation: [Math.PI / 2, Math.PI * -0.25, 0.2],
+    scale: [0.2, 0.2, 0.2],
+  },
+  torusFlamingoLime: {
+    position: [0.4, 0.9, -0.5],
+    rotation: [Math.PI / 2, Math.PI * -1.5, -0.15],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [0.6, -0.7, -0.3],
+    rotation: [Math.PI / 2, Math.PI * -1.6, 0.1],
+    scale: [0.24, 0.24, 0.24],
+  },
+  sphereFlamingoSpring: {
+    position: [-0.9, 0.3, -0.2],
+    rotation: [0, 0, 0],
+    scale: 0.22,
+  },
+});
+
+const createContactVariant = (): VariantState => ({
+  torusSpringAzure: {
+    position: [0.6, 0.5, -1.0],
+    rotation: [Math.PI / 2, Math.PI * -0.9, -0.2],
+    scale: [0.26, 0.26, 0.26],
+  },
+  waveSpringLime: {
+    position: [-0.5, -0.6, -0.9],
+    rotation: [-2.3, 0.2, -0.7],
+    scale: [0.22, 0.22, 0.22],
+  },
+  semiLimeFlamingo: {
+    position: [0.9, -0.8, -0.5],
+    rotation: [Math.PI / 2, Math.PI * -0.4, 0.3],
+    scale: [0.2, 0.2, 0.2],
+  },
+  torusFlamingoLime: {
+    position: [-0.3, 0.7, -0.4],
+    rotation: [Math.PI / 2, Math.PI * -1.1, 0.2],
+    scale: [0.18, 0.18, 0.18],
+  },
+  semiFlamingoAzure: {
+    position: [-1.0, 0.1, -0.3],
+    rotation: [Math.PI / 2, Math.PI * -1.7, -0.1],
+    scale: [0.24, 0.24, 0.24],
+  },
+  sphereFlamingoSpring: {
+    position: [0.3, 0.8, -0.15],
+    rotation: [0, 0, 0],
+    scale: 0.22,
+  },
+});
+
 export const variantMapping: Record<VariantName, VariantState> = {
   home: createFramedVariant(),
   about: createContactMonogramVariant(),
-  work: createContactMonogramVariant(),
-  contact: createContactMonogramVariant(),
+  work: createWorkVariant(),
+  contact: createContactVariant(),
 };
 
 // Aspect ratio for which all variant positions were designed (1440/900).

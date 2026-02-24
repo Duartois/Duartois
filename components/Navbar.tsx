@@ -130,7 +130,7 @@ export default function Navbar() {
       manualPointer: { x: 0, y: 0 },
       variant: initialMenuVariant,
       shapeOpacity: { ...snapshot.shapeOpacity },
-      opacity: snapshot.opacity,
+      opacity: 1,
     });
 
     window.addEventListener("resize", applyMenuVariant);
