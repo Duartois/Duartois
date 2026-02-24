@@ -37,14 +37,21 @@ const applySceneState = (
   app: ThreeAppHandle | null,
 ) => {
   if (!app) {
-    const responsiveVariant = createResponsiveVariantState(
-      variantMapping[variantName],
-      window.innerWidth,
-      window.innerHeight,
-    );
-
     return false;
   }
+
+  const responsiveVariant = createResponsiveVariantState(
+    variantMapping[variantName],
+    window.innerWidth,
+    window.innerHeight,
+  );
+
+  app.setState({
+    variant: createVariantState(responsiveVariant),
+    parallax,
+    hovered,
+    opacity,
+  });
 
   return true;
 };
@@ -62,7 +69,7 @@ export function useThreeSceneSetup(
   const { app, setSceneActive } = useThreeApp();
 
   // A cena agora é gerenciada globalmente pelo GlobalCanvas no AppShell.
-  // Mantemos este hook apenas para ajustes finos de opacidade ou parallax se necessário.
+  // Aplica a variante correta para a página atual sempre que o app estiver disponível.
 
   useEffect(() => {
     let animationFrame: number | undefined;
