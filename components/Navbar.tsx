@@ -139,19 +139,24 @@ export default function Navbar() {
       window.removeEventListener("resize", applyMenuVariant);
 
       const stored = storedSceneStateRef.current;
-      if (stored) {
-        app.setState({
-          parallax: stored.parallax,
-          hovered: stored.hovered,
-          cursorBoost: stored.cursorBoost,
-          pointerDriver: stored.pointerDriver,
-          manualPointer: { ...stored.manualPointer },
-          variant: createVariantState(stored.variant),
-          shapeOpacity: { ...stored.shapeOpacity },
-          opacity: stored.opacity,
-        });
-        storedSceneStateRef.current = null;
+      storedSceneStateRef.current = null;
+
+      // Se estiver navegando, não restaura o snapshot —
+      // a nova página aplicará a variante correta via useThreeSceneSetup.
+      if (!stored || document.body.dataset.navigating === "true") {
+        return;
       }
+
+      app.setState({
+        parallax: stored.parallax,
+        hovered: stored.hovered,
+        cursorBoost: stored.cursorBoost,
+        pointerDriver: stored.pointerDriver,
+        manualPointer: { ...stored.manualPointer },
+        variant: createVariantState(stored.variant),
+        shapeOpacity: { ...stored.shapeOpacity },
+        opacity: stored.opacity,
+      });
     };
   }, [app, isOpen, menuSceneVersion]);
   const { t } = useTranslation("common");
