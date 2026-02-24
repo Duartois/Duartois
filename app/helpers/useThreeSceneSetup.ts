@@ -120,6 +120,9 @@ export function useThreeSceneSetup(
     let rafId: number | undefined;
 
     const handleResize = () => {
+      if (document.body?.dataset.menuOpen === "true") {
+        return;
+      }
       if (rafId !== undefined) {
         cancelAnimationFrame(rafId);
       }
