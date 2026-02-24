@@ -32,6 +32,7 @@ import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
+import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
 import { workProjects } from "@/app/work/projects";
 import { shouldAllowPrefetch } from "@/app/helpers/prefetch";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
@@ -273,6 +274,10 @@ export default function Menu({
       setHoveredItem(null);
       baseVariantRef.current = null;
       baseOpacityRef.current = null;
+
+      if (typeof window !== "undefined") {
+        applyNavigationSceneVariant(pathname);
+      }
       return;
     }
 
@@ -283,7 +288,7 @@ export default function Menu({
     const snapshot = app.bundle.getState();
     baseVariantRef.current = createVariantState(snapshot.variant);
     baseOpacityRef.current = { ...snapshot.shapeOpacity };
-  }, [app, isOpen]);
+  }, [app, isOpen, pathname]);
 
   useEffect(() => {
     if (!isOpen) {
