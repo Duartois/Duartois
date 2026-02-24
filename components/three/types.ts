@@ -31,6 +31,8 @@ export type ShapeTransform = {
   position: Vector3Tuple;
   rotation: Vector3Tuple;
   scale: ShapeScale;
+  opacity?: number;
+  blur?: number;
 };
 
 export type VariantState = Record<ShapeId, ShapeTransform>;
@@ -171,31 +173,43 @@ const createWorkVariant = (): VariantState => ({
     position: [-0.5, 0.4, -0.9],
     rotation: [Math.PI / 2, Math.PI * -1.3, 0.1],
     scale: [0.26, 0.26, 0.26],
+    opacity: 1,
+    blur: 0,
   },
   waveSpringLime: {
     position: [0.9, 0, -1],
     rotation: [1, 1, 1],
     scale: [0.4, 0.4, 0.4],
+    opacity: 1,
+    blur: 0,
   },
   semiLimeFlamingo: {
     position: [-1.1, -0.3, -0.6],
     rotation: [Math.PI / 2, Math.PI * -0.25, 0.2],
     scale: [0.2, 0.2, 0.2],
+    opacity: 1,
+    blur: 0,
   },
   torusFlamingoLime: {
     position: [0.4, 0.9, -0.5],
     rotation: [Math.PI / 2, Math.PI * -1.5, -0.15],
     scale: [0.18, 0.18, 0.18],
+    opacity: 1,
+    blur: 0,
   },
   semiFlamingoAzure: {
     position: [0.6, -0.7, -0.3],
     rotation: [Math.PI / 2, Math.PI * -1.6, 0.1],
     scale: [0.24, 0.24, 0.24],
+    opacity: 1,
+    blur: 0,
   },
   sphereFlamingoSpring: {
     position: [-0.9, 0.3, -0.2],
     rotation: [0, 0, 0],
     scale: 0.22,
+    opacity: 1,
+    blur: 0,
   },
 });
 
@@ -204,31 +218,43 @@ const createProjectDetailVariant = (): VariantState => ({
     position: [1.1, 0.75, -1.0],
     rotation: [Math.PI / 2, Math.PI * -0.7, 0.25],
     scale: [0.26, 0.26, 0.26],
+    opacity: 1,
+    blur: 0,
   },
   waveSpringLime: {
     position: [-0.8, -0.85, -0.9],
     rotation: [-2.0, -0.15, -0.8],
     scale: [0.22, 0.22, 0.22],
+    opacity: 1,
+    blur: 0,
   },
   semiLimeFlamingo: {
     position: [0.95, -0.65, -0.55],
     rotation: [Math.PI / 2, Math.PI * -0.6, -0.2],
     scale: [0.2, 0.2, 0.2],
+    opacity: 1,
+    blur: 0,
   },
   torusFlamingoLime: {
     position: [-0.5, 0.9, -0.45],
     rotation: [Math.PI / 2, Math.PI * -1.25, 0.3],
     scale: [0.18, 0.18, 0.18],
+    opacity: 1,
+    blur: 0,
   },
   semiFlamingoAzure: {
     position: [-1.05, -0.2, -0.3],
     rotation: [Math.PI / 2, Math.PI * -1.85, 0.1],
     scale: [0.24, 0.24, 0.24],
+    opacity: 1,
+    blur: 0,
   },
   sphereFlamingoSpring: {
     position: [0.45, 0.2, -0.15],
     rotation: [0, 0, 0],
     scale: 0.22,
+    opacity: 1,
+    blur: 0,
   },
 });
 
@@ -237,31 +263,43 @@ const createAboutVariant = (): VariantState => ({
     position: [0.4, -0.32, -0.95],
     rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
     scale: [0.26, 0.26, 0.26],
+    opacity: 1,
+    blur: 0,
   },
   waveSpringLime: {
     position: [-0.8, 0.78, -0.7],
     rotation: [-2.1, 0.3, -0.6],
     scale: [0.22, 0.22, 0.22],
+    opacity: 1,
+    blur: 0,
   },
   semiLimeFlamingo: {
     position: [1.0, 0.45, -0.5],
     rotation: [Math.PI / 2, Math.PI * -0.35, 0.15],
     scale: [0.2, 0.2, 0.2],
+    opacity: 1,
+    blur: 0,
   },
   torusFlamingoLime: {
     position: [0.1, -1.02, -0.4],
     rotation: [Math.PI / 2, Math.PI * -1.35, -0.1],
     scale: [0.18, 0.18, 0.18],
+    opacity: 1,
+    blur: 0,
   },
   semiFlamingoAzure: {
     position: [-0.7, -0.88, -0.25],
     rotation: [Math.PI / 2, Math.PI * -1.55, 0.2],
     scale: [0.24, 0.24, 0.24],
+    opacity: 1,
+    blur: 0,
   },
   sphereFlamingoSpring: {
     position: [0.8, 0.1, -0.1],
     rotation: [0, 0, 0],
     scale: 0.22,
+    opacity: 1,
+    blur: 0,
   },
 });
 
@@ -270,31 +308,43 @@ const createContactVariant = (): VariantState => ({
     position: [0.6, 0.5, -1.0],
     rotation: [Math.PI / 2, Math.PI * -0.9, -0.2],
     scale: [0.26, 0.26, 0.26],
+    opacity: 1,
+    blur: 0,
   },
   waveSpringLime: {
     position: [-0.5, -0.6, -0.9],
     rotation: [-2.3, 0.2, -0.7],
     scale: [0.22, 0.22, 0.22],
+    opacity: 1,
+    blur: 0,
   },
   semiLimeFlamingo: {
     position: [0.9, -0.8, -0.5],
     rotation: [Math.PI / 2, Math.PI * -0.4, 0.3],
     scale: [0.2, 0.2, 0.2],
+    opacity: 1,
+    blur: 0,
   },
   torusFlamingoLime: {
     position: [-0.3, 0.7, -0.4],
     rotation: [Math.PI / 2, Math.PI * -1.1, 0.2],
     scale: [0.18, 0.18, 0.18],
+    opacity: 1,
+    blur: 0,
   },
   semiFlamingoAzure: {
     position: [-1.0, 0.1, -0.3],
     rotation: [Math.PI / 2, Math.PI * -1.7, -0.1],
     scale: [0.24, 0.24, 0.24],
+    opacity: 1,
+    blur: 0,
   },
   sphereFlamingoSpring: {
     position: [0.3, 0.8, -0.15],
     rotation: [0, 0, 0],
     scale: 0.22,
+    opacity: 1,
+    blur: 0,
   },
 });
 
@@ -406,6 +456,8 @@ export const createResponsiveVariantState = (
       position: [px * xScale, py, pz] as Vector3Tuple,
       rotation: [...source.rotation] as Vector3Tuple,
       scale: scaledScale,
+      opacity: source.opacity,
+      blur: source.blur,
     };
   });
 
@@ -436,6 +488,8 @@ export const createResponsiveHeroVariantState = (
       position: [...source.position] as Vector3Tuple,
       rotation: [...source.rotation] as Vector3Tuple,
       scale: cloneScale(source.scale),
+      opacity: source.opacity,
+      blur: source.blur,
     };
   });
 
@@ -501,6 +555,7 @@ export type ThemeName = "light" | "dark";
 export const DEFAULT_BRIGHTNESS = 2.3;
 
 export type ShapeOpacityState = Record<ShapeId, number>;
+export type ShapeBlurState = Record<ShapeId, number>;
 
 export type ThreeAppState = {
   variantName: VariantName;
@@ -520,6 +575,7 @@ export type ThreeAppState = {
   manualPointer: PointerTarget;
   opacity: number;
   shapeOpacity: ShapeOpacityState;
+  shapeBlur: ShapeBlurState;
   brightness: number;
   ready: boolean;
 };
@@ -552,33 +608,59 @@ export const createVariantState = (variant: VariantState): VariantState => ({
     position: [...variant.torusSpringAzure.position] as Vector3Tuple,
     rotation: [...variant.torusSpringAzure.rotation] as Vector3Tuple,
     scale: cloneScale(variant.torusSpringAzure.scale),
+    opacity: variant.torusSpringAzure.opacity,
+    blur: variant.torusSpringAzure.blur,
   },
   waveSpringLime: {
     position: [...variant.waveSpringLime.position] as Vector3Tuple,
     rotation: [...variant.waveSpringLime.rotation] as Vector3Tuple,
     scale: cloneScale(variant.waveSpringLime.scale),
+    opacity: variant.waveSpringLime.opacity,
+    blur: variant.waveSpringLime.blur,
   },
   semiLimeFlamingo: {
     position: [...variant.semiLimeFlamingo.position] as Vector3Tuple,
     rotation: [...variant.semiLimeFlamingo.rotation] as Vector3Tuple,
     scale: cloneScale(variant.semiLimeFlamingo.scale),
+    opacity: variant.semiLimeFlamingo.opacity,
+    blur: variant.semiLimeFlamingo.blur,
   },
   torusFlamingoLime: {
     position: [...variant.torusFlamingoLime.position] as Vector3Tuple,
     rotation: [...variant.torusFlamingoLime.rotation] as Vector3Tuple,
     scale: cloneScale(variant.torusFlamingoLime.scale),
+    opacity: variant.torusFlamingoLime.opacity,
+    blur: variant.torusFlamingoLime.blur,
   },
   semiFlamingoAzure: {
     position: [...variant.semiFlamingoAzure.position] as Vector3Tuple,
     rotation: [...variant.semiFlamingoAzure.rotation] as Vector3Tuple,
     scale: cloneScale(variant.semiFlamingoAzure.scale),
+    opacity: variant.semiFlamingoAzure.opacity,
+    blur: variant.semiFlamingoAzure.blur,
   },
   sphereFlamingoSpring: {
     position: [...variant.sphereFlamingoSpring.position] as Vector3Tuple,
     rotation: [...variant.sphereFlamingoSpring.rotation] as Vector3Tuple,
     scale: cloneScale(variant.sphereFlamingoSpring.scale),
+    opacity: variant.sphereFlamingoSpring.opacity,
+    blur: variant.sphereFlamingoSpring.blur,
   },
 });
+
+export const getVariantShapeOpacity = (
+  variant: VariantState,
+): ShapeOpacityState =>
+  SHAPE_IDS.reduce((acc, id) => {
+    acc[id] = clamp(variant[id].opacity ?? 1, 0, 1);
+    return acc;
+  }, {} as ShapeOpacityState);
+
+export const getVariantShapeBlur = (variant: VariantState): ShapeBlurState =>
+  SHAPE_IDS.reduce((acc, id) => {
+    acc[id] = clamp(variant[id].blur ?? 0, 0, 1);
+    return acc;
+  }, {} as ShapeBlurState);
 
 export const getDefaultPalette = (theme: ThemeName): GradientPalette =>
   theme === "dark" ? DARK_THEME_PALETTE : LIGHT_THEME_PALETTE;
