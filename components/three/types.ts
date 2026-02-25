@@ -187,7 +187,7 @@ const createWorkVariant = (): VariantState => ({
     rotation: [1, 1, 1],
     scale: [0.4, 0.4, 0.4],
     opacity: 1,
-    blur: 0,
+    blur: 0.8,
   },
   semiLimeFlamingo: {
     position: [-1.1, -0.3, -0.6],
@@ -232,7 +232,7 @@ const createProjectDetailVariant = (): VariantState => ({
     rotation: [-2.0, -0.15, -0.8],
     scale: [0.22, 0.22, 0.22],
     opacity: 1,
-    blur: 0,
+    blur: 0.8,
   },
   semiLimeFlamingo: {
     position: [0.95, -0.65, -0.55],
@@ -270,7 +270,7 @@ const createAboutVariant = (): VariantState => ({
     rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
     scale: [0.26, 0.26, 0.26],
     opacity: 1,
-    blur: 0,
+    blur: 0.8,
   },
   waveSpringLime: {
     position: [-0.8, 0.78, -0.7],
@@ -305,7 +305,7 @@ const createAboutVariant = (): VariantState => ({
     rotation: [0, 0, 0],
     scale: 0.22,
     opacity: 1,
-    blur: 0,
+    blur: 0.8,
   },
 });
 
@@ -329,7 +329,7 @@ const createContactVariant = (): VariantState => ({
     rotation: [Math.PI / 2, Math.PI * -0.4, 0.3],
     scale: [0.2, 0.2, 0.2],
     opacity: 1,
-    blur: 0,
+    blur: 0.8,
   },
   torusFlamingoLime: {
     position: [-0.3, 0.7, -0.4],
@@ -343,7 +343,7 @@ const createContactVariant = (): VariantState => ({
     rotation: [Math.PI / 2, Math.PI * -1.7, -0.1],
     scale: [0.24, 0.24, 0.24],
     opacity: 1,
-    blur: 0,
+    blur: 0.8,
   },
   sphereFlamingoSpring: {
     position: [0.3, 0.8, -0.15],
