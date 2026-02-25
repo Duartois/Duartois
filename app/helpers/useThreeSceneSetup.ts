@@ -98,8 +98,6 @@ export function useThreeSceneSetup(
   }, [app, hovered, opacity, parallax, variantName]);
 
   // Re-aplica as posições responsivas quando a janela for redimensionada.
-  // Isso garante que /work e /contact (e todas as páginas) repositionem
-  // as formas corretamente em qualquer tamanho de tela.
   useEffect(() => {
     if (!app) return;
 

@@ -6,7 +6,6 @@ import {
   variantMapping,
   getVariantShapeBlur,
   getVariantShapeOpacity,
-  type ShapeOpacityState,
 } from "@/components/three/types";
 
 export const resolveVariantFromPath = (
@@ -35,8 +34,6 @@ export const resolveVariantFromPath = (
 
 // Cada variante tem seu próprio opacity — espelha os valores passados
 // para useThreeSceneSetup em cada page.tsx.
-// home → opacity: 1  (app/page.tsx: useThreeSceneSetup("home", { opacity: 1 }))
-// demais → opacity: 1  (sem escurecimento global)
 const VARIANT_OPACITY: Record<VariantName, number> = {
   home: 1,
   work: 1,
@@ -46,19 +43,8 @@ const VARIANT_OPACITY: Record<VariantName, number> = {
 };
 
 // Opacidades padrão para cada contexto
-// Home sempre tem opacidade normal (1.0) em todas as formas
 const getDefaultShapeOpacity = (variantName: VariantName) => {
-  if (variantName === "home") {
-    return {
-      torusSpringAzure: 1,
-      waveSpringLime: 1,
-      semiLimeFlamingo: 1,
-      torusFlamingoLime: 1,
-      semiFlamingoAzure: 1,
-      sphereFlamingoSpring: 1,
-    };
-  }
-  // Para outras páginas, usar as opacidades da variante
+  // Para todas as páginas, usar as opacidades definidas na variante em types.ts
   return getVariantShapeOpacity(
     createResponsiveVariantState(
       variantMapping[variantName],

@@ -41,31 +41,37 @@ const createFramedVariant = (): VariantState => ({
     position: [2.85, -1.8, 1.2],
     rotation: [-1.36, 0.92, -0.2],
     scale: [0.75, 0.75, 0.75],
+    opacity: 1,
   },
   waveSpringLime: {
     position: [-3.5, 1.5, -1],
     rotation: [-0.14, 0.32, -0.12],
     scale: [0.75, 0.75, 0.75],
+    opacity: 1,
   },
   semiLimeFlamingo: {
     position: [2, 2, -0.4],
     rotation: [1.14, -0.42, -0.05],
     scale: [0.75, 0.75, 0.75],
+    opacity: 1,
   },
   torusFlamingoLime: {
     position: [0, -2, -0.58],
     rotation: [-0.28, 0.44, 0.92],
     scale: [0.75, 0.75, 0.75],
+    opacity: 1,
   },
   semiFlamingoAzure: {
     position: [-2.82, -1.58, -0.8],
     rotation: [1.36, 0, -0.2],
     scale: [0.75, 0.75, 0.75],
+    opacity: 1,
   },
   sphereFlamingoSpring: {
     position: [0, 1.5, 0],
     rotation: [0, 0, 0],
     scale: [0.75, 0.75, 0.75],
+    opacity: 1,
   },
 });
 
@@ -173,7 +179,7 @@ const createWorkVariant = (): VariantState => ({
     position: [-0.5, 0.4, -0.9],
     rotation: [Math.PI / 2, Math.PI * -1.3, 0.1],
     scale: [0.26, 0.26, 0.26],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   waveSpringLime: {
@@ -187,28 +193,28 @@ const createWorkVariant = (): VariantState => ({
     position: [-1.1, -0.3, -0.6],
     rotation: [Math.PI / 2, Math.PI * -0.25, 0.2],
     scale: [0.2, 0.2, 0.2],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   torusFlamingoLime: {
     position: [0.4, 0.9, -0.5],
     rotation: [Math.PI / 2, Math.PI * -1.5, -0.15],
     scale: [0.18, 0.18, 0.18],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   semiFlamingoAzure: {
     position: [0.6, -0.7, -0.3],
     rotation: [Math.PI / 2, Math.PI * -1.6, 0.1],
     scale: [0.24, 0.24, 0.24],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   sphereFlamingoSpring: {
     position: [-0.9, 0.3, -0.2],
     rotation: [0, 0, 0],
     scale: 0.22,
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
 });
@@ -218,7 +224,7 @@ const createProjectDetailVariant = (): VariantState => ({
     position: [1.1, 0.75, -1.0],
     rotation: [Math.PI / 2, Math.PI * -0.7, 0.25],
     scale: [0.26, 0.26, 0.26],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   waveSpringLime: {
@@ -232,28 +238,28 @@ const createProjectDetailVariant = (): VariantState => ({
     position: [0.95, -0.65, -0.55],
     rotation: [Math.PI / 2, Math.PI * -0.6, -0.2],
     scale: [0.2, 0.2, 0.2],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   torusFlamingoLime: {
     position: [-0.5, 0.9, -0.45],
     rotation: [Math.PI / 2, Math.PI * -1.25, 0.3],
     scale: [0.18, 0.18, 0.18],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   semiFlamingoAzure: {
     position: [-1.05, -0.2, -0.3],
     rotation: [Math.PI / 2, Math.PI * -1.85, 0.1],
     scale: [0.24, 0.24, 0.24],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   sphereFlamingoSpring: {
     position: [0.45, 0.2, -0.15],
     rotation: [0, 0, 0],
     scale: 0.22,
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
 });
@@ -270,28 +276,28 @@ const createAboutVariant = (): VariantState => ({
     position: [-0.8, 0.78, -0.7],
     rotation: [-2.1, 0.3, -0.6],
     scale: [0.22, 0.22, 0.22],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   semiLimeFlamingo: {
     position: [1.0, 0.45, -0.5],
     rotation: [Math.PI / 2, Math.PI * -0.35, 0.15],
     scale: [0.2, 0.2, 0.2],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   torusFlamingoLime: {
     position: [0.1, -1.02, -0.4],
     rotation: [Math.PI / 2, Math.PI * -1.35, -0.1],
     scale: [0.18, 0.18, 0.18],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   semiFlamingoAzure: {
     position: [-0.7, -0.88, -0.25],
     rotation: [Math.PI / 2, Math.PI * -1.55, 0.2],
     scale: [0.24, 0.24, 0.24],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   sphereFlamingoSpring: {
@@ -308,14 +314,14 @@ const createContactVariant = (): VariantState => ({
     position: [0.6, 0.5, -1.0],
     rotation: [Math.PI / 2, Math.PI * -0.9, -0.2],
     scale: [0.26, 0.26, 0.26],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   waveSpringLime: {
     position: [-0.5, -0.6, -0.9],
     rotation: [-2.3, 0.2, -0.7],
     scale: [0.22, 0.22, 0.22],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   semiLimeFlamingo: {
@@ -329,7 +335,7 @@ const createContactVariant = (): VariantState => ({
     position: [-0.3, 0.7, -0.4],
     rotation: [Math.PI / 2, Math.PI * -1.1, 0.2],
     scale: [0.18, 0.18, 0.18],
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
   semiFlamingoAzure: {
@@ -343,7 +349,7 @@ const createContactVariant = (): VariantState => ({
     position: [0.3, 0.8, -0.15],
     rotation: [0, 0, 0],
     scale: 0.22,
-    opacity: 1,
+    opacity: 0,
     blur: 0,
   },
 });
@@ -384,119 +390,93 @@ export const SHAPE_IDS: readonly ShapeId[] = [
  *   Y: ±(1 / zoom)       → constant, never changes
  *
  * So X positions must scale with (currentAspect / baseAspect) so shapes
- * always stay inside the visible frustum on any screen.
- * Y and scale are kept untouched — the frustum height is constant.
- */
-// Altura de design para a qual as variantes foram criadas (1440×900).
-const BASE_HEIGHT = 900;
-
-/**
- * Used for page-level variants (variantMapping: home / about / work / contact).
- *
- * The orthographic camera is set up as:
- *   left/right = ±aspect   (changes with window)
- *   top/bottom = ±1        (constant)
- *   zoom       = 0.55      (constant)
- *
- * Visible world-space ranges:
- *   X: ±(aspect / zoom)  → shrinks on narrow/portrait screens
- *   Y: ±(1 / zoom)       → constant, never changes
- *
- * So X positions must scale with (currentAspect / baseAspect) so shapes
- * always stay inside the visible frustum on any screen.
- *
- * sizeScale now uses BOTH the aspect ratio AND the viewport height so that:
- *   - Very narrow portrait phones do not produce excessively tiny shapes.
- *   - Tall phones (e.g. 844 px) keep shapes close to their designed size.
- *   - Landscape screens (aspect ≥ 1) are unaffected.
- *
- * Before: clamp(currentAspect, 0.72, 0.8) / BASE_ASPECT
- *   → for a 390×844 phone (aspect 0.46): 0.72 / 1.6 = 0.45  ← too small
- *
- * After: height-relative scale with a gentle lower floor
- *   → for a 390×844 phone (aspect 0.46, height 844): ~0.87  ← natural size
- *   → for a 375×667 phone (aspect 0.56, height 667): ~0.78
+ * stay visually in the same horizontal spot relative to screen edges.
  */
 export const createResponsiveVariantState = (
   variant: VariantState,
   viewportWidth: number,
   viewportHeight: number,
+  centerBelowWidth = 990,
 ): VariantState => {
   const currentAspect = viewportWidth / viewportHeight;
-  const xScale = currentAspect / BASE_ASPECT;
+  const aspectFactor = currentAspect / BASE_ASPECT;
 
-  let sizeScale: number;
-  if (currentAspect >= 1) {
-    // Landscape / desktop — shapes stay at their designed size.
-    sizeScale = 1;
-  } else {
-    // Portrait mobile: derive scale from how close the viewport height is to
-    // the design height (900 px). This makes viewportHeight genuinely useful
-    // instead of only touching it through the aspect ratio.
-    const heightRatio = Math.min(viewportHeight / BASE_HEIGHT, 0.6);
-    // Blend: 85% driven by height proximity, 15% minimum floor.
-    sizeScale = clamp(heightRatio * 0.8 + 0.05, 0.35, 1);
-  }
-
-  const responsiveState = {} as VariantState;
+  const cloned = createVariantState(variant);
 
   SHAPE_IDS.forEach((shapeId) => {
-    const source = variant[shapeId];
-    const [px, py, pz] = source.position;
-    const baseScale = cloneScale(source.scale);
-    const scaledScale = Array.isArray(baseScale)
-      ? ([
-          baseScale[0] * sizeScale,
-          baseScale[1] * sizeScale,
-          baseScale[2] * sizeScale,
-        ] as Vector3Tuple)
-      : (baseScale as number) * sizeScale;
-
-    responsiveState[shapeId] = {
-      position: [px * xScale, py, pz] as Vector3Tuple,
-      rotation: [...source.rotation] as Vector3Tuple,
-      scale: scaledScale,
-      opacity: source.opacity,
-      blur: source.blur,
-    };
+    const transform = cloned[shapeId];
+    const [x, y, z] = transform.position;
+    transform.position = [x * aspectFactor, y, z] as Vector3Tuple;
   });
 
-  return responsiveState;
+  if (viewportWidth > centerBelowWidth) {
+    return cloned;
+  }
+
+  // Se for mobile/tablet, centraliza o bounding box das formas.
+  let minX = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  SHAPE_IDS.forEach((shapeId) => {
+    const [x, y] = cloned[shapeId].position;
+    minX = Math.min(minX, x);
+    maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y);
+    maxY = Math.max(maxY, y);
+  });
+
+  if (!Number.isFinite(minX) || !Number.isFinite(maxX)) {
+    return cloned;
+  }
+
+  const offsetX = -((minX + maxX) / 2);
+  const offsetY = -((minY + maxY) / 2);
+
+  const applyFullCenter = viewportWidth <= centerBelowWidth;
+  const horizontalFactor = applyFullCenter ? 1 : 0.5;
+  const verticalFactor = applyFullCenter ? 1 : 0;
+
+  SHAPE_IDS.forEach((shapeId) => {
+    const transform = cloned[shapeId];
+    const [x, y, z] = transform.position;
+    transform.position = [
+      x + offsetX * horizontalFactor,
+      y + offsetY * verticalFactor,
+      z,
+    ] as Vector3Tuple;
+  });
+
+  return cloned;
 };
 
 /**
- * Used for monogram variants (hover on home, menu overlay).
- *
- * Monogram shapes are small and tightly composed — they must NOT be
- * distorted by X aspect-ratio scaling. The variant is used as-is, and
- * only a centering offset is applied on narrow screens so the cluster
- * stays visually centred.
+ * Used for hero/monogram variants that should stay centered or anchored
+ * regardless of aspect ratio (home page monograms).
  */
-
 export const createResponsiveHeroVariantState = (
   variant: VariantState,
   viewportWidth: number,
   viewportHeight: number,
   centerBelowWidth = 990,
-  partiallyCenterBelowWidth = 1700,
+  forceCenterBelowWidth = 990,
 ): VariantState => {
-  // Clone without any X scaling — monogram proportions stay intact.
-  const cloned = {} as VariantState;
-  SHAPE_IDS.forEach((shapeId) => {
-    const source = variant[shapeId];
-    cloned[shapeId] = {
-      position: [...source.position] as Vector3Tuple,
-      rotation: [...source.rotation] as Vector3Tuple,
-      scale: cloneScale(source.scale),
-      opacity: source.opacity,
-      blur: source.blur,
-    };
-  });
+  const currentAspect = viewportWidth / viewportHeight;
+  const aspectFactor = currentAspect / BASE_ASPECT;
 
-  if (viewportWidth > partiallyCenterBelowWidth) {
+  const cloned = createVariantState(variant);
+
+  if (viewportWidth > forceCenterBelowWidth) {
+    SHAPE_IDS.forEach((shapeId) => {
+      const transform = cloned[shapeId];
+      const [x, y, z] = transform.position;
+      transform.position = [x * aspectFactor, y, z] as Vector3Tuple;
+    });
     return cloned;
   }
 
+  // Centralização similar ao createResponsiveVariantState para mobile.
   let minX = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
   let minY = Number.POSITIVE_INFINITY;
