@@ -25,7 +25,6 @@ interface AppShellProps {
 }
 
 const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
-
 // Tempo extra (ms) para aguardar a nova página iniciar suas animações
 // de entrada antes de soltar o fixed container.
 // Deve ser >= ao tempo de stagger dos primeiros itens da nova página.
@@ -253,6 +252,14 @@ function AppShellContent({ children }: AppShellProps) {
       <div className="app-shell relative min-h-screen w-full">
         {showPreloader && <Preloader onComplete={handleComplete} />}
         <GlobalCanvas isReady={isReady} />
+
+        {/* Blur overlay — controlado por CSS via :has() nas classes de página */}
+        <div
+          aria-hidden
+          data-fall-skip="true"
+          className="blur-bg-overlay pointer-events-none fixed inset-0"
+        />
+
         <RoutePrefetcher routes={ROUTES_TO_PREFETCH} />
         <div
           className={contentClassName}

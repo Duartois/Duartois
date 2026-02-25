@@ -3259,3 +3259,25 @@ footer {
     env(safe-area-inset-bottom)
   );
 }
+
+.blur-bg-overlay {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  transition:
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body:has(.about-page) .blur-bg-overlay,
+body:has(.contact-page) .blur-bg-overlay,
+body:has(.projects) .blur-bg-overlay,
+body:has(.project) .blur-bg-overlay {
+  opacity: 1;
+  backdrop-filter: blur(60px);
+}
+
+/* Remove o blur enquanto o menu estiver aberto */
+body[data-menu-open="true"] .blur-bg-overlay {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
