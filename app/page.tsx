@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useTranslation, Trans } from "react-i18next";
 import "./i18n/config";
 import { useThreeSceneSetup } from "./helpers/useThreeSceneSetup";
@@ -250,6 +250,7 @@ export default function HomePage() {
   }, []);
 
   const router = useRouter();
+  const pathname = usePathname();
   const { t } = useTranslation("common");
   const prefersReducedMotion = useReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
@@ -416,18 +417,20 @@ export default function HomePage() {
       htmlY: documentElement.style.overflowY,
     };
 
-    body.style.overflowX = "hidden";
-    body.style.overflowY = "hidden";
-    documentElement.style.overflowX = "hidden";
-    documentElement.style.overflowY = "hidden";
+    body.style.overflow = "hidden";
+    documentElement.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.width = "100%";
+    body.style.height = "100%";
 
     return () => {
-      body.style.overflowX = previousOverflow.bodyX;
-      body.style.overflowY = previousOverflow.bodyY;
-      documentElement.style.overflowX = previousOverflow.htmlX;
-      documentElement.style.overflowY = previousOverflow.htmlY;
+      body.style.overflow = "";
+      documentElement.style.overflow = "";
+      body.style.position = "";
+      body.style.width = "";
+      body.style.height = "";
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <>

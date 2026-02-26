@@ -1620,6 +1620,24 @@ footer .footer-wrapper .footer-right {
   height: calc(var(--innerVh, 1vh) * 100);
   justify-content: center;
   margin: 0 var(--left-right-margin);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 47.99em) {
+  .home .intro-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0 var(--left-right-margin);
+    height: 100%;
+    width: 100%;
+    z-index: 10;
+  }
 }
 
 @media (max-width: 47.99em) {

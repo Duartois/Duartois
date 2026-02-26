@@ -5,6 +5,8 @@ import "../i18n/config";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useThreeSceneSetup } from "@/app/helpers/useThreeSceneSetup";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 type ContactMail = {
   label: string;
@@ -24,6 +26,7 @@ type ContactSocials = {
 
 export default function ContactPage() {
   const { t } = useTranslation("common");
+  const pathname = usePathname();
   const { isOpen: isMenuOpen } = useMenu();
 
   const mail = t("contact.mail", {
@@ -39,6 +42,23 @@ export default function ContactPage() {
   useThreeSceneSetup("contact");
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const { body, documentElement } = document;
+    const previousOverflow = {
+      body: body.style.overflow,
+      html: documentElement.style.overflow,
+    };
+
+    body.style.overflow = "hidden";
+    documentElement.style.overflow = "hidden";
+
+    return () => {
+      body.style.overflow = previousOverflow.body;
+      documentElement.style.overflow = previousOverflow.html;
+    };
+  }, [pathname]);
 
   return (
     <main className="container contact-page">
