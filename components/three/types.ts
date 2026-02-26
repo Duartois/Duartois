@@ -215,15 +215,15 @@ const createWorkVariant = (): VariantState => ({
 
 const createProjectDetailVariant = (): VariantState => ({
   torusSpringAzure: {
-    position: [1.1, 0.75, -1.0],
+    position: [1.1, 0.75, 1.0],
     rotation: [Math.PI / 2, Math.PI * -0.7, 0.25],
     scale: [0.26, 0.26, 0.26],
     opacity: 0,
   },
   waveSpringLime: {
-    position: [-0.8, -0.85, -0.9],
-    rotation: [-2.0, -0.15, -0.8],
-    scale: [0.22, 0.22, 0.22],
+    position: [0, 0, 0],
+    rotation: [-1, -1, 1],
+    scale: [0.6, 0.6, 0.6],
     opacity: 1,
   },
   semiLimeFlamingo: {
