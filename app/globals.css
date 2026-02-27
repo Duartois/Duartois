@@ -1617,7 +1617,7 @@ footer .footer-wrapper .footer-right {
 }
 
 .home .intro-wrapper {
-  height: calc(var(--innerVh, 1vh) * 100);
+  min-height: calc(var(--innerVh, 1vh) * 100);
   justify-content: center;
   margin: 0 var(--left-right-margin);
   display: flex;
@@ -1628,13 +1628,13 @@ footer .footer-wrapper .footer-right {
 @media (max-width: 47.99em) {
   .home .intro-wrapper {
     position: fixed;
-    top: 0;
+    top: 50%;
     left: 0;
     right: 0;
-    bottom: 0;
+    transform: translateY(-50%);
     margin: 0;
     padding: 0 var(--left-right-margin);
-    height: 100%;
+    height: auto;
     width: 100%;
     z-index: 10;
   }
