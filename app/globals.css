@@ -1626,15 +1626,20 @@ footer .footer-wrapper .footer-right {
 }
 
 @media (max-width: 47.99em) {
+  .home {
+    min-height: calc(var(--innerVh, 1vh) * 100); /* dá altura ao contexto */
+  }
+
   .home .intro-wrapper {
-    position: fixed;
-    top: 0;
+    position: absolute; /* ← relativo ao .home, não ao viewport */
+    top: 50%;
     left: 0;
     right: 0;
-    bottom: 0;
+    transform: translateY(-50%);
     margin: 0;
     padding: 0 var(--left-right-margin);
-    height: 100%;
+    height: auto;
+    min-height: auto; /* sobrescreve o min-height base */
     width: 100%;
     z-index: 10;
   }
