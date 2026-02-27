@@ -44,19 +44,29 @@ export default function ContactPage() {
   const nextFall = () => fallStyle(fallIndex++);
 
   useEffect(() => {
-    if (typeof document === "undefined") return;
+    if (typeof document === "undefined") return undefined;
     const { body, documentElement } = document;
+
     const previousOverflow = {
-      body: body.style.overflow,
-      html: documentElement.style.overflow,
+      bodyOverflow: body.style.overflow,
+      htmlOverflow: documentElement.style.overflow,
+      bodyPosition: body.style.position,
+      bodyWidth: body.style.width,
+      bodyHeight: body.style.height,
     };
 
     body.style.overflow = "hidden";
     documentElement.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.width = "100%";
+    body.style.height = "100%";
 
     return () => {
-      body.style.overflow = previousOverflow.body;
-      documentElement.style.overflow = previousOverflow.html;
+      body.style.overflow = previousOverflow.bodyOverflow;
+      documentElement.style.overflow = previousOverflow.htmlOverflow;
+      body.style.position = previousOverflow.bodyPosition;
+      body.style.width = previousOverflow.bodyWidth;
+      body.style.height = previousOverflow.bodyHeight;
     };
   }, [pathname]);
 
