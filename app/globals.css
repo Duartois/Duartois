@@ -1617,7 +1617,7 @@ footer .footer-wrapper .footer-right {
 }
 
 .home .intro-wrapper {
-  height: calc(var(--innerVh, 1vh) * 100);
+  min-height: calc(var(--innerVh, 1vh) * 100);
   justify-content: center;
   margin: 0 var(--left-right-margin);
   display: flex;
