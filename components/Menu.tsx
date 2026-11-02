@@ -32,8 +32,10 @@ import {
   EXIT_NAVIGATION_ATTRIBUTE,
   navigateWithExit,
 } from "@/app/helpers/navigateWithExit";
-import { workProjects } from "@/app/work/projects";
-import { shouldAllowPrefetch } from "@/app/helpers/prefetch";
+import {
+  prefetchRoute as prefetchRouteOnce,
+  shouldAllowPrefetch,
+} from "@/app/helpers/prefetch";
 import { useThreeApp } from "@/app/helpers/threeAppContext";
 
 const MENU_SHAPE_IDS: ShapeId[] = [
@@ -137,10 +139,10 @@ export default function Menu({
     [t],
   );
   const prefetchRoutes = useMemo(
-    () => [
-      ...items.map((item) => item.href),
-      ...workProjects.map((project) => `/work/${project.slug}`),
-    ],
+    // Only the main routes: prefetching every project here fired a server
+    // render per project each time the menu opened, in the middle of its
+    // animation. Projects are prefetched on intent from the Work page.
+    () => items.map((item) => item.href),
     [items],
   );
 
@@ -209,7 +211,7 @@ export default function Menu({
       }
 
       prefetchedRoutesRef.current.add(href);
-      void router.prefetch(href);
+      prefetchRouteOnce(router, href);
     },
     [pathname, router],
   );
@@ -473,6 +475,7 @@ export default function Menu({
                   >
                     <Link
                       href={item.href}
+                      prefetch={false}
                       {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                       onClick={(event) => handleMenuLinkClick(event, item.href)}
                     >

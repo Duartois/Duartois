@@ -493,6 +493,7 @@ export default function HomePage() {
                               <div className="link">
                                 <Link
                                   href="/work"
+                                  prefetch={false}
                                   {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                                   onClick={(event) =>
                                     handleHeroLinkClick(event, "/work")
@@ -509,6 +510,7 @@ export default function HomePage() {
                               <div className="link">
                                 <Link
                                   href="/about"
+                                  prefetch={false}
                                   {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                                   onClick={(event) =>
                                     handleHeroLinkClick(event, "/about")

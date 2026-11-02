@@ -4,6 +4,22 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Não lançado]
 
+### Navegação contínua
+
+- O fundo 3D é o mesmo canvas durante todo o uso e só se reajusta a cada página: as formas seguem uma mola amortecida (`components/three/motion.ts`) em vez de interpolação por frame, retomam de onde estão se o destino muda no meio do caminho e não dão mais "snap" na troca de rota (`useThreeSceneSetup` só ajusta direto no primeiro paint e no resize).
+- Opacidade e blur das formas agora fazem transição junto com o movimento, em vez de trocar de uma vez.
+- Materiais sempre `transparent` (visual idêntico com alpha 1) para nunca trocar de programa de shader durante a navegação; formas com opacidade 0 deixam de ser desenhadas.
+- O estado de saída só é liberado quando a nova rota realmente monta (`APP_ROUTE_COMMIT_EVENT`), com limite de 4 s. Antes era 2 frames após o `router.push`, e com resposta lenta a página antiga voltava a aparecer antes da nova.
+- Prefetch por intenção (`prefetchRoute`): sem prefetch automático nos links de projeto, home, menu e logo; as rotas principais são pré-carregadas uma vez, em idle. Ao abrir `/work` caíram de 17 para 6 requisições RSC e abrir o menu deixou de disparar uma renderização de servidor por projeto.
+- Corrigido vazamento de listeners em `useMenuFallAnimation` (o cleanup registrava em vez de remover).
+- `resize` da cena não puxa mais as formas para o layout da Home.
+
+### Presets de animação
+
+- `app/helpers/motionPresets.ts` concentra o que muda entre os níveis `high` e `low` (tempo de transição da cena, ritmo de frames, resolução, geometria, blur nos itens que caem, `will-change`). O nível é exposto em `<html data-motion>` e o CSS leve (sem blur animado nas imagens de projeto) o segue.
+- Se os frames continuarem lentos, a cena avisa e o app inteiro passa para o preset `low` pelo resto da sessão.
+- Lenis agora só roda `requestAnimationFrame` enquanto há rolagem, em vez de um loop permanente.
+
 ### Desempenho
 
 - Geometria 3D indexada e com tesselação por nível de dispositivo (`components/three/geometry.ts`): de ~374 mil triângulos / 1,12 milhão de vértices / 47 MB para ~40 mil triângulos / ~22 mil vértices / ~1 MB no nível `low`, sem mudança visível nas formas e cores.

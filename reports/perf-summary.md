@@ -50,3 +50,19 @@ Measured on an Intel UHD 617 (MacBook Air class) with `EXT_disjoint_timer_query_
 Visual parity of the 3D canvas (same viewport, same state, pixel diff against the previous build): mean difference ≤ 0.14/255; ≤ 0.21% of pixels differ by more than 4/255 (edge pixels and specular glints).
 
 Pixel ratio on blurred pages is capped at 1× and the idle breathing is skipped there only when the browser actually applies the unprefixed `backdrop-filter` (Safari ≤ 17 shows those pages sharp, so it keeps full resolution).
+
+## Navigation continuity
+
+Measured against the previous build, with the router responses delayed by 1.5 s (local proxy) to mimic a slow connection or a cold serverless render:
+
+| Moment (Work → project)      | Before                          | After                                        |
+| ---------------------------- | ------------------------------- | -------------------------------------------- |
+| Click                        | exit animation starts (82 ms)   | exit animation starts (82 ms)                |
+| Old page visible again       | yes, at 1007 ms (until 3365 ms) | never                                        |
+| New page shown               | 3365 ms (hard cut)              | 2844 ms, after the route committed           |
+| RSC requests on `/work` load | 17                              | 6                                            |
+| RSC requests when menu opens | +8 project routes               | 0                                            |
+| Shapes drawn on `/work`      | 6 (5 at alpha 0)                | 1                                            |
+| Largest 3D step at page swap | 8.5 world units in one tick     | 2.2–2.9, decaying smoothly to rest in ~1.5 s |
+
+The canvas element, WebGL context and document are the same before and after every navigation; only the shapes' targets change.

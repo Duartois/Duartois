@@ -5,8 +5,10 @@ import { applyNavigationSceneVariant } from "@/app/helpers/threeNavigation";
 import {
   APP_NAVIGATION_END_EVENT,
   APP_NAVIGATION_START_EVENT,
+  APP_ROUTE_COMMIT_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
+import { getActiveMotionPreset } from "@/app/helpers/motionPresets";
 
 type RouterLike = {
   push: (href: string) => void;
@@ -26,6 +28,9 @@ type NavigateWithExitOptions = {
   onExitStart?: () => void;
   scenePathname?: string;
 };
+
+/** Safety net: how long to wait for the router before releasing the exit state anyway. */
+const ROUTE_COMMIT_TIMEOUT_MS = 4000;
 
 let navigationTimeout: number | undefined;
 let isNavigating = false;
@@ -119,6 +124,32 @@ const getNetworkAwareExitDelay = (baseDelay: number) => {
   return Math.max(Math.min(constrainedDelay, baseDelay), 180);
 };
 
+/**
+ * Resolves once the router has actually swapped in `toPath` (AppShell fires
+ * APP_ROUTE_COMMIT_EVENT when the pathname changes), or after a timeout.
+ *
+ * The exit state used to be released two frames after `router.push()`. On a
+ * slow connection the route can take much longer to arrive, which made the old
+ * page flash back before the new one replaced it — it looked like a reload.
+ */
+const waitForRouteCommit = (fromPath: string, toPath: string) =>
+  new Promise<void>((resolve) => {
+    if (fromPath === toPath) {
+      resolve();
+      return;
+    }
+
+    let timeoutId: number | undefined;
+    const done = () => {
+      window.removeEventListener(APP_ROUTE_COMMIT_EVENT, done);
+      window.clearTimeout(timeoutId);
+      resolve();
+    };
+
+    window.addEventListener(APP_ROUTE_COMMIT_EVENT, done);
+    timeoutId = window.setTimeout(done, ROUTE_COMMIT_TIMEOUT_MS);
+  });
+
 export const navigateWithExit = (
   router: RouterLike,
   href: string,
@@ -145,18 +176,31 @@ export const navigateWithExit = (
   const targetPath = scenePathname ?? url.pathname;
 
   applyNavigationSceneVariant(targetPath);
-  window.__THREE_APP__?.setState({ variantTransitionMs: exitDuration });
+  // The shapes keep gliding through the page swap, so the transition must last
+  // at least as long as the preset says — not just the (short) exit animation.
+  window.__THREE_APP__?.setState({
+    variantTransitionMs: Math.max(
+      exitDuration,
+      getActiveMotionPreset().sceneTransitionMs,
+    ),
+  });
   dispatchAppEvent(APP_NAVIGATION_START_EVENT);
   onExitStart?.();
 
   const navigate = () => {
+    const committed = waitForRouteCommit(
+      window.location.pathname,
+      url.pathname,
+    );
     router.push(`${url.pathname}${url.search}${url.hash}`);
-    // Aguarda a próxima frame para garantir que a nova página começou a montar
-    // antes de disparar o evento de fim de navegação
-    window.requestAnimationFrame(() => {
+    // Aguarda a nova rota montar (e mais uma frame) antes de disparar o evento
+    // de fim de navegação.
+    void committed.then(() => {
       window.requestAnimationFrame(() => {
-        dispatchAppEvent(APP_NAVIGATION_END_EVENT);
-        window.__THREE_APP__?.setState({ variantTransitionMs: null });
+        window.requestAnimationFrame(() => {
+          dispatchAppEvent(APP_NAVIGATION_END_EVENT);
+          window.__THREE_APP__?.setState({ variantTransitionMs: null });
+        });
       });
     });
   };

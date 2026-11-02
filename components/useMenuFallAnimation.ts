@@ -109,7 +109,9 @@ export function useMenuFallAnimation(
         APP_NAVIGATION_START_EVENT,
         handleNavigationStart,
       );
-      window.addEventListener(
+      // Was `addEventListener`: every unmount re-registered a handler, so the
+      // listeners piled up with each navigation.
+      window.removeEventListener(
         APP_NAVIGATION_REVEALED_EVENT,
         handleNavigationRevealed,
       );

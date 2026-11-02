@@ -9,7 +9,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { isSafari, isIOS, isAndroid, isLowPowerDevice } from "@/app/helpers/runtime";
+import {
+  isSafari,
+  isIOS,
+  isAndroid,
+  isLowPowerDevice,
+} from "@/app/helpers/runtime";
+import { APP_PERFORMANCE_PRESSURE_EVENT } from "@/app/helpers/appEvents";
+import { MOTION_ATTRIBUTE } from "@/app/helpers/motionPresets";
 
 export type AnimationQuality = "auto" | "high" | "low";
 export type ResolvedAnimationQuality = "high" | "low";
@@ -21,6 +28,8 @@ type AnimationQualityState = {
 };
 
 const STORAGE_KEY = "duartois:animation-quality";
+/** Set for the rest of the session once frames kept missing the budget. */
+const PRESSURE_KEY = "duartois:performance-pressure";
 const DEFAULT_QUALITY =
   (process.env.NEXT_PUBLIC_ANIMATION_QUALITY as AnimationQuality | undefined) ??
   "auto";
@@ -115,6 +124,40 @@ export function AnimationQualityProvider({
     useState<AnimationQuality>(DEFAULT_QUALITY);
   const [resolvedQuality, setResolvedQuality] =
     useState<ResolvedAnimationQuality>("high");
+  // Detection can't see everything (an integrated GPU on a hot laptop looks
+  // "high" on paper). When the 3D scene reports sustained slow frames we drop
+  // the whole app to the lighter animation preset for the rest of the session.
+  const [underPressure, setUnderPressure] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    try {
+      if (window.sessionStorage.getItem(PRESSURE_KEY) === "1") {
+        setUnderPressure(true);
+      }
+    } catch {
+      // storage can be unavailable (private mode); the event still works.
+    }
+
+    const handlePressure = () => {
+      setUnderPressure(true);
+      try {
+        window.sessionStorage.setItem(PRESSURE_KEY, "1");
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener(APP_PERFORMANCE_PRESSURE_EVENT, handlePressure);
+    return () =>
+      window.removeEventListener(
+        APP_PERFORMANCE_PRESSURE_EVENT,
+        handlePressure,
+      );
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -135,10 +178,13 @@ export function AnimationQualityProvider({
       return;
     }
 
-    setResolvedQuality(resolveQuality(quality));
+    const resolve = () =>
+      quality === "auto" && underPressure ? "low" : resolveQuality(quality);
+
+    setResolvedQuality(resolve());
 
     const handleUpdate = () => {
-      setResolvedQuality(resolveQuality(quality));
+      setResolvedQuality(resolve());
     };
 
     const reducedMotionQuery = window.matchMedia(
@@ -154,7 +200,13 @@ export function AnimationQualityProvider({
       document.removeEventListener("visibilitychange", handleUpdate);
       window.removeEventListener("online", handleUpdate);
     };
-  }, [quality]);
+  }, [quality, underPressure]);
+
+  // Expose the tier to CSS ([data-motion="low"]) so stylesheet-driven effects
+  // follow the same preset as the scripted ones.
+  useEffect(() => {
+    document.documentElement.setAttribute(MOTION_ATTRIBUTE, resolvedQuality);
+  }, [resolvedQuality]);
 
   const setQuality = useCallback((nextQuality: AnimationQuality) => {
     setQualityState(nextQuality);

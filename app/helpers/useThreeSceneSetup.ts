@@ -36,6 +36,7 @@ const applySceneState = (
     hovered,
   }: Required<Omit<SceneOptions, "resetOnUnmount" | "enableScene">>,
   app: ThreeAppHandle | null,
+  snap: boolean,
 ) => {
   if (!app) {
     return false;
@@ -49,7 +50,7 @@ const applySceneState = (
 
   app.setState({
     variant: createVariantState(responsiveVariant),
-    snap: true,
+    snap,
     parallax,
     hovered,
     opacity,
@@ -77,10 +78,14 @@ export function useThreeSceneSetup(
     let animationFrame: number | undefined;
 
     const apply = () => {
+      // Only the very first paint snaps. After that a route change glides:
+      // the same canvas and shapes carry on from where they are towards the new
+      // page's layout (the navigation already started that motion on click).
       const applied = applySceneState(
         variantName,
         { opacity, parallax, hovered },
         app,
+        app ? !app.bundle.getState().ready : false,
       );
 
       if (!applied) {
@@ -112,7 +117,7 @@ export function useThreeSceneSetup(
       }
       rafId = requestAnimationFrame(() => {
         rafId = undefined;
-        applySceneState(variantName, { opacity, parallax, hovered }, app);
+        applySceneState(variantName, { opacity, parallax, hovered }, app, true);
       });
     };
 
@@ -143,7 +148,7 @@ export function useThreeSceneSetup(
     }
 
     return () => {
-      applySceneState(variantName, { opacity, parallax, hovered }, app);
+      applySceneState(variantName, { opacity, parallax, hovered }, app, false);
     };
   }, [app, hovered, opacity, parallax, resetOnUnmount, variantName]);
 }

@@ -30,7 +30,13 @@ import {
   isIOS,
   getRendererPixelRatio,
 } from "@/app/helpers/runtime/index";
+import {
+  APP_PERFORMANCE_PRESSURE_EVENT,
+  dispatchAppEvent,
+} from "@/app/helpers/appEvents";
 import { updateAllMeshOpacities } from "./materialOpacity";
+import { dampStep, easeToward, omegaForSettleMs } from "./motion";
+import { getMotionPreset } from "@/app/helpers/motionPresets";
 import { getPointerTargetVector } from "./pointerDriver";
 import {
   applyGradientToGeometry,
@@ -96,6 +102,11 @@ const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
 
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
+    // Always on the blended path: fading a shape in/out must never switch the
+    // compiled shader (a first-time compile of that variant costs hundreds of
+    // ms on integrated GPUs, right in the middle of a navigation). With
+    // alpha = 1 it renders exactly like an opaque material.
+    transparent: true,
     vertexColors: true,
     roughness: 0.012,
     metalness: 0.05,
@@ -207,7 +218,7 @@ export async function addDuartoisSignatureShapes(
         material.color.set("#f6f7ff");
       }
       material.opacity = 1;
-      material.transparent = false;
+      material.transparent = true;
       material.metalness = isDark ? 0.008 : 0.005;
       material.roughness = isDark ? 0.26 : 0.3;
       material.clearcoat = isDark ? 0.018 : 0.14;
@@ -258,7 +269,6 @@ export async function addDuartoisSignatureShapes(
       material.roughness = 0.22 + blur * 0.62;
       material.clearcoat = 0.14 - blur * 0.12;
       material.envMapIntensity = 0.08 - blur * 0.06;
-      material.needsUpdate = true;
     });
   };
 
@@ -315,20 +325,16 @@ export type InitSceneOptions = {
 /** Pages that show the canvas through `backdrop-filter: blur(60px)` (see globals.css). */
 const BLURRED_PAGE_SELECTOR = ".about-page, .contact-page, .projects, .project";
 
-/** Max frame rate while animating: keeps 90–144 Hz screens from multiplying GPU work. */
-const ACTIVE_FRAME_MS = 12;
-/** Heartbeat for the idle breathing motion (~20 fps). */
-const IDLE_FRAME_MS = 50;
 /** Distance (world units / radians) below which the scene counts as settled. */
 const SETTLE_EPSILON = 5e-4;
 const BREATHING_TOLERANCE = 0.006;
 
-const LOW_QUALITY_MAX_PIXEL_RATIO = 1.5;
 /** The 60px blur hides any detail beyond 1 canvas pixel per CSS pixel. */
 const BLURRED_MAX_PIXEL_RATIO = 1;
 const MIN_PIXEL_RATIO = 0.7;
 const BLUR_RATIO_DELAY_MS = 450;
 const BLUR_CHECK_INTERVAL_MS = 250;
+const BLUR_RETRY_MS = 200;
 
 /** Adaptive resolution steps applied if frames keep running slow. */
 const PERF_SCALES = [1, 0.85, 0.7] as const;
@@ -342,12 +348,21 @@ const getToneMappingExposure = (theme: ThemeName) =>
 /**
  * Maximum delta (seconds) consumed by the render loop per frame.
  *
- * Safari on iOS suspends JS aggressively when a tab is backgrounded.
- * On restore, `clock.getDelta()` returns the entire hidden duration (can be
- * several seconds), which makes shapes "jump" to their target instantly.
- * Clamping to 100 ms (≈ 1 missed 60-fps frame) prevents that artefact.
+ * Safari on iOS suspends JS aggressively when a tab is backgrounded, and a
+ * route commit can freeze the main thread for a few hundred ms. The spring
+ * step is closed-form, so a long frame just takes a proportionally bigger step;
+ * the clamp only guards against absurd deltas (e.g. after a suspension).
  */
-const MAX_DELTA_S = 0.1;
+const MAX_DELTA_S = 0.25;
+
+/** Spring stiffness (1/s) when no explicit transition time is set: ~98% in 0.78s. */
+const OMEGA_DEFAULT = 7.5;
+/** Same, while hovering the hero: ~98% in 0.56s. */
+const OMEGA_HOVER = 10.4;
+/** How much residual velocity counts towards "not settled yet". */
+const VELOCITY_WEIGHT = 0.05;
+/** Opacity/blur values closer than this to their target snap onto it. */
+const VISUAL_EPSILON = 2e-3;
 
 const initScene = async ({
   canvas,
@@ -366,8 +381,10 @@ const initScene = async ({
 
   const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
   let isMobile = mobileQuery.matches;
+  const preset = getMotionPreset(quality);
   const geometryDetail: GeometryDetail =
-    detail ?? (quality === "low" ? "low" : isMobile ? "medium" : "high");
+    detail ??
+    (quality === "low" ? "low" : isMobile ? "medium" : preset.geometry);
   const handleMobileChange = (event: MediaQueryListEvent) => {
     isMobile = event.matches;
   };
@@ -477,6 +494,22 @@ const initScene = async ({
   let state = initialState;
   let shapeOpacityState = { ...initialShapeOpacity };
   let shapeBlurState = { ...initialShapeBlur };
+  // What the materials should end up showing (kept apart from the state above:
+  // an explicit shapeOpacity/blur wins for the materials while the variant keeps
+  // its own values for later restores).
+  let visualOpacity = initialState.opacity;
+  let visualShapeOpacity = { ...initialShapeOpacity };
+  let visualShapeBlur = { ...initialShapeBlur };
+  // What is on screen right now: eased toward the targets above every frame, so
+  // opacity and blur glide between pages instead of popping.
+  let appliedOpacity = initialState.opacity;
+  const appliedShapeOpacity = { ...initialShapeOpacity };
+  const appliedShapeBlur = { ...initialShapeBlur };
+  // 3 position + 3 rotation + 3 scale spring velocities per shape.
+  const velocities = {} as Record<ShapeId, Float64Array>;
+  shapeIds.forEach((id) => {
+    velocities[id] = new Float64Array(9);
+  });
   const pointer = new THREE.Vector2();
   const devicePointerTarget = new THREE.Vector2();
   const manualPointerTarget = new THREE.Vector2();
@@ -538,10 +571,7 @@ const initScene = async ({
     globalWindow.document.querySelector(BLURRED_PAGE_SELECTOR) !== null;
 
   const computePixelRatio = () => {
-    let ratio = getRendererPixelRatio();
-    if (quality === "low") {
-      ratio = Math.min(ratio, LOW_QUALITY_MAX_PIXEL_RATIO);
-    }
+    let ratio = Math.min(getRendererPixelRatio(), preset.maxPixelRatio);
     if (blurredRatio) {
       ratio = Math.min(ratio, BLURRED_MAX_PIXEL_RATIO);
     }
@@ -621,6 +651,27 @@ const initScene = async ({
     requestFrame();
   };
 
+  // Dropping to the blurred resolution waits for the CSS blur to fade in and for
+  // the scene (and the page swap) to calm down, so a buffer reallocation never
+  // lands in the middle of a navigation.
+  const armBlurTimer = (delay: number) => {
+    blurTimer = globalWindow.setTimeout(() => {
+      blurTimer = null;
+      if (disposed || !isBlurredPage()) {
+        return;
+      }
+      if (moving || globalWindow.document.body?.dataset.navigating === "true") {
+        armBlurTimer(BLUR_RETRY_MS);
+        return;
+      }
+      blurredRatio = true;
+      if (applyPixelRatio()) {
+        renderNow();
+      }
+      wake();
+    }, delay);
+  };
+
   const syncBlurredRatio = () => {
     if (!isBlurredPage()) {
       if (blurTimer !== null) {
@@ -638,18 +689,7 @@ const initScene = async ({
     }
 
     if (!blurredRatio && blurTimer === null) {
-      // Wait for the CSS blur transition so the shapes stay crisp while it fades in.
-      blurTimer = globalWindow.setTimeout(() => {
-        blurTimer = null;
-        if (disposed || !isBlurredPage()) {
-          return;
-        }
-        blurredRatio = true;
-        if (applyPixelRatio()) {
-          renderNow();
-        }
-        wake();
-      }, BLUR_RATIO_DELAY_MS);
+      armBlurTimer(BLUR_RATIO_DELAY_MS);
     }
   };
 
@@ -682,12 +722,42 @@ const initScene = async ({
     activeFrameTotal = 0;
     activeFrameSamples = 0;
 
-    if (average > SLOW_FRAME_MS && perfStep < PERF_SCALES.length - 1) {
-      perfStep += 1;
-      if (applyPixelRatio()) {
-        renderNow();
+    if (average > SLOW_FRAME_MS) {
+      // Tell the rest of the app too, so animations switch to the light preset.
+      dispatchAppEvent(APP_PERFORMANCE_PRESSURE_EVENT);
+
+      if (perfStep < PERF_SCALES.length - 1) {
+        perfStep += 1;
+        if (applyPixelRatio()) {
+          renderNow();
+        }
       }
     }
+  };
+
+  /** Writes the currently applied opacity/blur values into the materials. */
+  const pushAppliedVisuals = () => {
+    updateAllMeshOpacities(
+      shapeIds,
+      shapes.meshes,
+      appliedOpacity,
+      appliedShapeOpacity,
+    );
+    shapes.setShapeBlur(appliedShapeBlur);
+  };
+
+  const resetVelocities = () => {
+    shapeIds.forEach((id) => velocities[id].fill(0));
+  };
+
+  /** Jumps the on-screen opacity/blur straight to their targets. */
+  const snapVisuals = () => {
+    appliedOpacity = visualOpacity;
+    shapeIds.forEach((id) => {
+      appliedShapeOpacity[id] = visualShapeOpacity[id];
+      appliedShapeBlur[id] = visualShapeBlur[id];
+    });
+    pushAppliedVisuals();
   };
 
   const resize = () => {
@@ -711,13 +781,9 @@ const initScene = async ({
     ortho.bottom = -1;
     ortho.updateProjectionMatrix();
 
-    setState((previous) => ({
-      variant: createResponsiveVariantState(
-        variantMapping[previous.variantName],
-        width,
-        height,
-      ),
-    }));
+    // Responsive layouts are re-applied by each page (useThreeSceneSetup); the
+    // scene must not retarget a layout of its own here, or a plain resize (e.g.
+    // the mobile URL bar collapsing) would pull the shapes towards the Home.
     wake();
   };
 
@@ -756,7 +822,7 @@ const initScene = async ({
 
     // Throttle: full rate (capped, so 120 Hz screens don't double the work)
     // while moving, a slow heartbeat otherwise.
-    const minInterval = moving ? ACTIVE_FRAME_MS : IDLE_FRAME_MS;
+    const minInterval = moving ? preset.activeFrameMs : preset.idleFrameMs;
     if (now - lastRenderAt < minInterval) {
       requestFrame(minInterval - (now - lastRenderAt));
       return;
@@ -773,16 +839,14 @@ const initScene = async ({
     const delta = Math.min(rawDelta, MAX_DELTA_S);
     const elapsed = clock.getElapsedTime();
 
-    const variantLerp = (() => {
-      if (state.variantTransitionMs && state.variantTransitionMs > 0) {
-        const duration = Math.max(state.variantTransitionMs, 1) / 1000;
-        const targetProgress = 0.98;
-        const lambda = -Math.log(1 - targetProgress) / duration;
-        return clamp(1 - Math.exp(-lambda * delta), 0, 1);
-      }
-
-      return clamp(delta * (state.hovered ? 7 : 5), 0, 1);
-    })();
+    // Spring stiffness: a navigation sets the time it should take; otherwise a
+    // gentle default (a touch snappier while hovering the hero).
+    const omega =
+      state.variantTransitionMs && state.variantTransitionMs > 0
+        ? omegaForSettleMs(state.variantTransitionMs)
+        : state.hovered
+          ? OMEGA_HOVER
+          : OMEGA_DEFAULT;
 
     // Largest remaining distance to any target; used to decide when the scene
     // has settled and rendering can slow down or stop.
@@ -794,47 +858,66 @@ const initScene = async ({
       }
     };
 
-    if (variantLerp > 0) {
-      shapeIds.forEach((id) => {
-        const mesh = shapes.meshes[id];
-        const target = targetVariantState[id];
-        if (!target) {
-          return;
-        }
+    shapeIds.forEach((id) => {
+      const mesh = shapes.meshes[id];
+      const target = targetVariantState[id];
+      if (!target) {
+        return;
+      }
 
-        const [tx, ty, tz] = target.position;
-        track(tx - mesh.position.x);
-        track(ty - mesh.position.y);
-        track(tz - mesh.position.z);
-        mesh.position.x += (tx - mesh.position.x) * variantLerp;
-        mesh.position.y += (ty - mesh.position.y) * variantLerp;
-        mesh.position.z += (tz - mesh.position.z) * variantLerp;
+      const velocity = velocities[id];
+      const spring = (current: number, goal: number, slot: number) => {
+        const next = dampStep(current, goal, velocity, slot, omega, delta);
+        track(
+          Math.abs(next - goal) + Math.abs(velocity[slot]) * VELOCITY_WEIGHT,
+        );
+        return next;
+      };
 
-        const [rx, ry, rz] = target.rotation;
-        track(rx - mesh.rotation.x);
-        track(ry - mesh.rotation.y);
-        track(rz - mesh.rotation.z);
-        mesh.rotation.x += (rx - mesh.rotation.x) * variantLerp;
-        mesh.rotation.y += (ry - mesh.rotation.y) * variantLerp;
-        mesh.rotation.z += (rz - mesh.rotation.z) * variantLerp;
+      const [tx, ty, tz] = target.position;
+      mesh.position.x = spring(mesh.position.x, tx, 0);
+      mesh.position.y = spring(mesh.position.y, ty, 1);
+      mesh.position.z = spring(mesh.position.z, tz, 2);
 
-        const scaleTarget = target.scale;
-        if (Array.isArray(scaleTarget)) {
-          const [sx, sy, sz] = scaleTarget;
-          track(sx - mesh.scale.x);
-          track(sy - mesh.scale.y);
-          track(sz - mesh.scale.z);
-          mesh.scale.x += (sx - mesh.scale.x) * variantLerp;
-          mesh.scale.y += (sy - mesh.scale.y) * variantLerp;
-          mesh.scale.z += (sz - mesh.scale.z) * variantLerp;
-        } else {
-          const uniform = scaleTarget ?? 1;
-          track(uniform - mesh.scale.x);
-          mesh.scale.x += (uniform - mesh.scale.x) * variantLerp;
-          mesh.scale.y += (uniform - mesh.scale.y) * variantLerp;
-          mesh.scale.z += (uniform - mesh.scale.z) * variantLerp;
-        }
-      });
+      const [rx, ry, rz] = target.rotation;
+      mesh.rotation.x = spring(mesh.rotation.x, rx, 3);
+      mesh.rotation.y = spring(mesh.rotation.y, ry, 4);
+      mesh.rotation.z = spring(mesh.rotation.z, rz, 5);
+
+      const scaleTarget = target.scale;
+      const [sx, sy, sz] = Array.isArray(scaleTarget)
+        ? scaleTarget
+        : [scaleTarget ?? 1, scaleTarget ?? 1, scaleTarget ?? 1];
+      mesh.scale.x = spring(mesh.scale.x, sx, 6);
+      mesh.scale.y = spring(mesh.scale.y, sy, 7);
+      mesh.scale.z = spring(mesh.scale.z, sz, 8);
+    });
+
+    // Opacity and blur glide towards the page's values too.
+    const visualRate = omega * 1.5;
+    let visualChanged = false;
+    const ease = (current: number, goal: number) => {
+      if (current === goal) {
+        return current;
+      }
+      visualChanged = true;
+      const next = easeToward(current, goal, visualRate, delta);
+      const settled = Math.abs(next - goal) < VISUAL_EPSILON;
+      track(settled ? 0 : Math.abs(next - goal));
+      return settled ? goal : next;
+    };
+
+    appliedOpacity = ease(appliedOpacity, visualOpacity);
+    shapeIds.forEach((id) => {
+      appliedShapeOpacity[id] = ease(
+        appliedShapeOpacity[id],
+        visualShapeOpacity[id],
+      );
+      appliedShapeBlur[id] = ease(appliedShapeBlur[id], visualShapeBlur[id]);
+    });
+
+    if (visualChanged) {
+      pushAppliedVisuals();
     }
 
     const targetPointer = getPointerTargetVector(
@@ -908,7 +991,7 @@ const initScene = async ({
     if (moving) {
       requestFrame();
     } else if (breathing) {
-      requestFrame(IDLE_FRAME_MS);
+      requestFrame(preset.idleFrameMs);
     } else {
       asleep = true;
     }
@@ -999,13 +1082,7 @@ const initScene = async ({
       shapes.applyTheme(partial.theme);
 
       renderer.toneMappingExposure = getToneMappingExposure(partial.theme);
-      updateAllMeshOpacities(
-        shapeIds,
-        shapes.meshes,
-        pendingOpacity,
-        pendingShapeOpacity,
-      );
-      shapes.setShapeBlur(pendingShapeBlur);
+      pushAppliedVisuals();
       commit({ theme: partial.theme, palette: nextPalette });
     }
 
@@ -1116,14 +1193,10 @@ const initScene = async ({
     }
 
     if (opacityChanged || shapeOpacityChanged || shapeBlurChanged) {
-      updateAllMeshOpacities(
-        shapeIds,
-        shapes.meshes,
-        pendingOpacity,
-        pendingShapeOpacity,
-      );
+      visualOpacity = pendingOpacity;
+      visualShapeOpacity = { ...pendingShapeOpacity };
       if (shapeBlurChanged) {
-        shapes.setShapeBlur(pendingShapeBlur);
+        visualShapeBlur = { ...pendingShapeBlur };
       }
     }
 
@@ -1147,6 +1220,7 @@ const initScene = async ({
       targetVariantState = createVariantState(partial.variant);
       if (partial.snap) {
         shapes.applyVariant(partial.variant);
+        resetVelocities();
       }
       pendingShapeOpacity = getVariantShapeOpacity(partial.variant);
       pendingShapeBlur = getVariantShapeBlur(partial.variant);
@@ -1162,6 +1236,12 @@ const initScene = async ({
     state = nextState;
     shapeOpacityState = pendingShapeOpacity;
     shapeBlurState = pendingShapeBlur;
+
+    // Snapping (resize, first paint) shows the targets immediately; a normal
+    // navigation lets the tick ease opacity/blur there alongside the shapes.
+    if (partial.snap || !readyDispatched) {
+      snapVisuals();
+    }
 
     if (changed) {
       dispatchStateChange(eventTarget, state);

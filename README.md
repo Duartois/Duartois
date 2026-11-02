@@ -106,6 +106,18 @@ Reports are saved to `reports/`. See [`reports/perf-summary.md`](./reports/perf-
 
 ---
 
+## Animation Presets
+
+`app/helpers/motionPresets.ts` defines one preset per performance tier (`high` / `low`). The tier is detected in `AnimationQualityContext` (device signals, plus an automatic step-down if frames stay slow) and applied to `<html data-motion>`.
+
+- Scene: transition time, frame pacing, pixel-ratio ceiling and shape tessellation.
+- Fall-in/out items: animated blur and permanent `will-change` layers are dropped on `low`.
+- CSS: `:root[data-motion="low"]` rules mirror the same choices.
+
+The 3D background is one persistent canvas. Pages only change its targets (`useThreeSceneSetup`); `components/three/motion.ts` keeps the shapes moving continuously between layouts.
+
+---
+
 ## Three.js Usage Policy
 
 Only `three` core is allowed. The following are **banned** and enforced by `npm run verify:three`:

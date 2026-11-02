@@ -10,6 +10,7 @@ import {
   APP_NAVIGATION_END_EVENT,
   APP_NAVIGATION_REVEALED_EVENT,
   APP_NAVIGATION_START_EVENT,
+  APP_ROUTE_COMMIT_EVENT,
   APP_SHELL_REVEAL_EVENT,
   dispatchAppEvent,
 } from "@/app/helpers/appEvents";
@@ -24,7 +25,7 @@ interface AppShellProps {
   children: ReactNode;
 }
 
-const ROUTES_TO_PREFETCH = ["/work", "/about", "/contact"] as const;
+const ROUTES_TO_PREFETCH = ["/", "/work", "/about", "/contact"] as const;
 // Tempo extra (ms) para aguardar a nova página iniciar suas animações
 // de entrada antes de soltar o fixed container.
 // Deve ser >= ao tempo de stagger dos primeiros itens da nova página.
@@ -224,6 +225,18 @@ function AppShellContent({ children }: AppShellProps) {
       body.classList.remove("body-scrollable");
       appShell?.classList.remove("app-shell-scrollable");
     };
+  }, [pathname]);
+
+  // Tell navigateWithExit when the router has really swapped the route in (the
+  // child page's effects, including its 3D layout, have already run by now).
+  const previousPathnameRef = useRef(pathname);
+  useEffect(() => {
+    if (previousPathnameRef.current === pathname) {
+      return;
+    }
+
+    previousPathnameRef.current = pathname;
+    dispatchAppEvent(APP_ROUTE_COMMIT_EVENT);
   }, [pathname]);
 
   const contentClassName = [

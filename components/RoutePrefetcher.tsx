@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { PrefetchKind } from "next/dist/client/components/router-reducer/router-reducer-types";
-import { shouldAllowPrefetch } from "@/app/helpers/prefetch";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { prefetchRoute, shouldAllowPrefetch } from "@/app/helpers/prefetch";
 
 const ROUTE_MODULE_LOADERS: Record<string, () => Promise<unknown>> = {
   "/work": () => import("@/app/work/page"),
@@ -11,13 +10,21 @@ const ROUTE_MODULE_LOADERS: Record<string, () => Promise<unknown>> = {
   "/contact": () => import("@/app/contact/page"),
 } as const;
 
+const warmedModules = new Set<string>();
+
 export type RoutePrefetcherProps = {
   routes: readonly string[];
 };
 
+/**
+ * Warms the main routes once, when the browser is idle, so navigating between
+ * them is instant. Links elsewhere don't prefetch on their own (they used to
+ * fire several server renders per page load); project pages are prefetched on
+ * intent instead.
+ */
 export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
   const router = useRouter();
-  const prefetchedRoutesRef = useRef(new Set<string>());
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -26,11 +33,11 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
 
     const hasIdleCallback = typeof window.requestIdleCallback === "function";
     const schedule: (callback: IdleRequestCallback) => number = hasIdleCallback
-      ? window.requestIdleCallback.bind(window)
+      ? (callback) => window.requestIdleCallback(callback, { timeout: 3000 })
       : (callback: IdleRequestCallback) =>
           window.setTimeout(
             () => callback({ didTimeout: false, timeRemaining: () => 0 }),
-            300,
+            800,
           );
 
     const prefetchRoutes = () => {
@@ -39,21 +46,19 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
       }
 
       routes.forEach((route) => {
-        if (prefetchedRoutesRef.current.has(route)) {
+        if (route === pathname) {
           return;
         }
 
-        prefetchedRoutesRef.current.add(route);
-        void router.prefetch(route, { kind: PrefetchKind.FULL });
+        prefetchRoute(router, route);
 
         const warmRouteModule = ROUTE_MODULE_LOADERS[route];
-        if (warmRouteModule) {
+        if (warmRouteModule && !warmedModules.has(route)) {
+          warmedModules.add(route);
           void warmRouteModule().catch(() => {});
         }
       });
     };
-
-    prefetchRoutes();
 
     const handle = schedule(prefetchRoutes);
 
@@ -65,7 +70,7 @@ export default function RoutePrefetcher({ routes }: RoutePrefetcherProps) {
 
       window.clearTimeout(handle);
     };
-  }, [router, routes]);
+  }, [router, routes, pathname]);
 
   return null;
 }

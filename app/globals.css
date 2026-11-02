@@ -3342,3 +3342,22 @@ body[data-menu-open="true"] .blur-bg-overlay {
   opacity: 0;
   backdrop-filter: blur(0px);
 }
+
+/* =============================================================================
+   LIGHT ANIMATION PRESET
+   Mirrors MOTION_PRESETS.low in app/helpers/motionPresets.ts: the same
+   transitions, minus the animated blur filter (re-blurred every frame on the
+   GPU). The tier is set on <html data-motion> by AnimationQualityProvider.
+   ============================================================================= */
+:root[data-motion="low"] .projects-left-inside .projects-image-wrapper,
+:root[data-motion="low"]
+  .projects-left-inside
+  .projects-image-wrapper.is-active {
+  filter: none;
+}
+
+:root[data-motion="low"] .projects-left-inside .projects-image-wrapper {
+  transition:
+    opacity 520ms ease,
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+}

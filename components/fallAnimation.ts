@@ -75,6 +75,12 @@ export function getFallItemStyle(
         : "none",
     transition: isWorkVariant ? WORK_TRANSITION : FALL_TRANSITION,
     transitionDelay: `${delay}ms`,
-    willChange: isWorkVariant ? "transform, opacity, filter" : "transform",
+    // Permanent will-change keeps a compositor layer alive per item; on the
+    // light preset let the browser promote layers only while they animate.
+    willChange: lowQuality
+      ? undefined
+      : isWorkVariant
+        ? "transform, opacity, filter"
+        : "transform",
   };
 }

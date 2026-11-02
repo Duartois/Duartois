@@ -333,6 +333,7 @@ export default function Navbar() {
             <div className="logo" style={fallStyle(0)}>
               <Link
                 href="/"
+                prefetch={false}
                 aria-label="Home"
                 {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                 onClick={handleLogoClick}

@@ -21,6 +21,7 @@ import {
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
 import { useThreeSceneSetup } from "@/app/helpers/useThreeSceneSetup";
+import { prefetchRoute } from "@/app/helpers/prefetch";
 import { projectOrder, type ProjectKey, projectPreviews } from "./projects";
 
 type ProjectCopy = {
@@ -92,7 +93,7 @@ export default function WorkPage() {
   const handleProjectHover = useCallback(
     (projectKey: ProjectKey, href: string) => {
       handleProjectActivate(projectKey);
-      router.prefetch(href);
+      prefetchRoute(router, href);
     },
     [handleProjectActivate, router],
   );
@@ -188,11 +189,17 @@ export default function WorkPage() {
                 <li key={projectKey} style={itemStyle}>
                   <Link
                     href={copy.href}
+                    // Each project is a dynamic route; letting every row
+                    // prefetch itself fired 8+ server renders (twice) as soon as
+                    // the page opened. Prefetch on intent instead (hover, focus,
+                    // touch).
+                    prefetch={false}
                     {...{ [EXIT_NAVIGATION_ATTRIBUTE]: "true" }}
                     className="projects-row"
                     onMouseEnter={() =>
                       handleProjectHover(projectKey, copy.href)
                     }
+                    onTouchStart={() => prefetchRoute(router, copy.href)}
                     onFocus={() => handleProjectHover(projectKey, copy.href)}
                     onClick={(event) => handleProjectClick(event, copy.href)}
                     aria-current={isActive ? "true" : undefined}

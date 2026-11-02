@@ -2,10 +2,12 @@
 
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useThreeSceneSetup } from "@/app/helpers/useThreeSceneSetup";
+import { prefetchRoute } from "@/app/helpers/prefetch";
 import "../../i18n/config";
 import { useMenu } from "@/components/MenuContext";
 import { useMenuFallAnimation } from "@/components/useMenuFallAnimation";
@@ -35,6 +37,7 @@ type DetailStyle = CSSProperties & {
 };
 
 export function ProjectPageContent({ slug }: ProjectPageContentProps) {
+  const router = useRouter();
   const detail = getProjectDetailBySlug(slug);
   const { t } = useTranslation("common");
   const { isOpen: isMenuOpen } = useMenu();
@@ -200,7 +203,16 @@ export function ProjectPageContent({ slug }: ProjectPageContentProps) {
 
           <div className="next-project">
             <hr style={nextFall()} />
-            <Link href={`/work/${nextProjectSlug}`}>
+            <Link
+              href={`/work/${nextProjectSlug}`}
+              prefetch={false}
+              onMouseEnter={() =>
+                prefetchRoute(router, `/work/${nextProjectSlug}`)
+              }
+              onTouchStart={() =>
+                prefetchRoute(router, `/work/${nextProjectSlug}`)
+              }
+            >
               <div className="next-project-wrapper" style={nextFall()}>
                 <div className="next-project-left">
                   <div className="next-project-selected-wrapper">
