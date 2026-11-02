@@ -32,120 +32,12 @@ import {
 } from "@/app/helpers/runtime/index";
 import { updateAllMeshOpacities } from "./materialOpacity";
 import { getPointerTargetVector } from "./pointerDriver";
-
-// ─── Geometry merge ───────────────────────────────────────────────────────────
-
-const mergeGeometries = (
-  geometries: THREE.BufferGeometry[],
-  useGroups = false,
-): THREE.BufferGeometry | null => {
-  if (geometries.length === 0) {
-    return null;
-  }
-
-  const processedGeometries = geometries.map((geometry) =>
-    geometry.index ? geometry.toNonIndexed() : geometry,
-  );
-
-  const disposeProcessedClones = () => {
-    processedGeometries.forEach((processed, index) => {
-      if (processed !== geometries[index]) {
-        processed.dispose();
-      }
-    });
-  };
-
-  const attributeInfos = new Map<
-    string,
-    {
-      arrayType: { new (size: number): any };
-      itemSize: number;
-      normalized: boolean;
-      totalLength: number;
-      arrays: ArrayLike<number>[];
-    }
-  >();
-
-  for (const geometry of processedGeometries) {
-    const attributes = geometry.attributes as Record<
-      string,
-      THREE.BufferAttribute
-    >;
-    for (const name of Object.keys(attributes)) {
-      const attribute = attributes[name];
-
-      if (!attributeInfos.has(name)) {
-        attributeInfos.set(name, {
-          arrayType: attribute.array.constructor as {
-            new (size: number): any;
-          },
-          itemSize: attribute.itemSize,
-          normalized: attribute.normalized,
-          totalLength: attribute.array.length,
-          arrays: [attribute.array],
-        });
-        continue;
-      }
-
-      const info = attributeInfos.get(name)!;
-
-      if (
-        info.itemSize !== attribute.itemSize ||
-        info.normalized !== attribute.normalized ||
-        info.arrayType !==
-          (attribute.array.constructor as { new (size: number): any })
-      ) {
-        disposeProcessedClones();
-        return null;
-      }
-
-      info.totalLength += attribute.array.length;
-      info.arrays.push(attribute.array);
-    }
-  }
-
-  for (const info of attributeInfos.values()) {
-    if (info.arrays.length !== processedGeometries.length) {
-      disposeProcessedClones();
-      return null;
-    }
-  }
-
-  const mergedGeometry = new THREE.BufferGeometry();
-
-  attributeInfos.forEach((info, name) => {
-    const mergedArray = new info.arrayType(info.totalLength);
-    let offset = 0;
-    for (const array of info.arrays) {
-      mergedArray.set(array, offset);
-      offset += array.length;
-    }
-
-    const attribute = new THREE.BufferAttribute(
-      mergedArray,
-      info.itemSize,
-      info.normalized,
-    );
-    mergedGeometry.setAttribute(name, attribute);
-  });
-
-  if (useGroups) {
-    let groupStart = 0;
-    processedGeometries.forEach((geometry, index) => {
-      const position = geometry.getAttribute("position");
-      if (!position) {
-        return;
-      }
-      const count = position.count;
-      mergedGeometry.addGroup(groupStart, count, index);
-      groupStart += count;
-    });
-  }
-
-  disposeProcessedClones();
-
-  return mergedGeometry;
-};
+import {
+  applyGradientToGeometry,
+  createShapeGeometry,
+  type GeometryDetail,
+  type GradientAxis,
+} from "./geometry";
 
 // ─── Shapes ───────────────────────────────────────────────────────────────────
 
@@ -202,71 +94,6 @@ const GRADIENT_AXES: Record<ShapeId, GradientAxis> = {
   sphereFlamingoSpring: "y",
 };
 
-/**
- * Gradient axis descriptors:
- * - "radial": distance from the origin in 3D space (sqrt(x^2 + y^2 + z^2)).
- * - "y": uses the Y component to drive the gradient.
- */
-type GradientAxis = "radial" | "y";
-
-const applyGradientToGeometry = (
-  geometry: THREE.BufferGeometry,
-  stops: readonly string[],
-  axis: GradientAxis,
-): THREE.BufferGeometry => {
-  const nonIndexed = geometry.index ? geometry.toNonIndexed() : geometry;
-  if (nonIndexed !== geometry) {
-    geometry.dispose();
-  }
-  const position = nonIndexed.getAttribute("position");
-
-  if (!position) {
-    return nonIndexed;
-  }
-
-  const values = new Float32Array(position.count);
-  let min = Infinity;
-  let max = -Infinity;
-
-  for (let i = 0; i < position.count; i += 1) {
-    const value =
-      axis === "y"
-        ? position.getY(i)
-        : Math.hypot(position.getX(i), position.getY(i), position.getZ(i));
-    values[i] = value;
-    min = Math.min(min, value);
-    max = Math.max(max, value);
-  }
-
-  const range = max - min || 1;
-  const stopColors = stops.map((hex) => new THREE.Color(hex));
-  const colors = new Float32Array(position.count * 3);
-
-  for (let i = 0; i < position.count; i += 1) {
-    const value = values[i];
-    const t = (value - min) / range;
-    const scaled = t * (stopColors.length - 1);
-    const index = Math.floor(scaled);
-    const nextIndex = Math.min(stopColors.length - 1, index + 1);
-    const localT = scaled - index;
-    const from = stopColors[index];
-    const to = stopColors[nextIndex];
-    const color = from.clone().lerp(to, localT);
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
-  }
-
-  nonIndexed.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-
-  // Garantimos limites atualizados para evitar que o Three.js oculte a malha ao
-  // aplicar frustum culling com dados desatualizados.
-  nonIndexed.computeBoundingBox();
-  nonIndexed.computeBoundingSphere();
-
-  return nonIndexed;
-};
-
 const createGlossyMaterial = () =>
   new THREE.MeshPhysicalMaterial({
     vertexColors: true,
@@ -282,144 +109,20 @@ const createGlossyMaterial = () =>
     ior: 1.45,
   });
 
-const THICKNESS = 0.64;
-const TORUS_RADIUS = 1.28;
-const TORUS_RADIAL_SEGMENTS = 128;
-const TORUS_TUBULAR_SEGMENTS = 220;
-const CAP_SEGMENTS = 64;
-
-class CircularArcCurve extends THREE.Curve<THREE.Vector3> {
-  public constructor(
-    private readonly radius: number,
-    private readonly arc: number,
-    private readonly startAngle = -arc / 2,
-  ) {
-    super();
-  }
-
-  override getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
-    const theta = this.startAngle + this.arc * t;
-    const x = Math.cos(theta) * this.radius;
-    const z = Math.sin(theta) * this.radius;
-    target.set(x, 0, z);
-    return target;
-  }
-}
-
-class WaveCurve extends THREE.Curve<THREE.Vector3> {
-  private readonly halfLength: number;
-
-  public constructor(
-    private readonly length: number,
-    private readonly amplitude: number,
-  ) {
-    super();
-    this.halfLength = length / 1.5;
-  }
-
-  override getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
-    const x = THREE.MathUtils.lerp(-this.halfLength, this.halfLength, t);
-    const waveT = (t - 0.5) * Math.PI * 2.5;
-    const y = 0;
-    const z = Math.sin(waveT) * this.amplitude;
-    target.set(x, y, z);
-    return target;
-  }
-}
-
-const createRoundedTubeGeometry = (
-  curve: THREE.Curve<THREE.Vector3>,
-  tubularSegments: number,
-  radialSegments: number,
-) => {
-  const tube = new THREE.TubeGeometry(
-    curve,
-    tubularSegments,
-    THICKNESS,
-    radialSegments,
-    false,
-  );
-
-  const hemiOrigin = new THREE.SphereGeometry(
-    THICKNESS,
-    CAP_SEGMENTS,
-    CAP_SEGMENTS,
-    0,
-    Math.PI * 2,
-    Math.PI / 2,
-    Math.PI / 2,
-  );
-
-  const startPoint = curve.getPoint(0);
-  const endPoint = curve.getPoint(1);
-
-  const tStart = curve.getTangent(0).normalize();
-  const tEnd = curve.getTangent(1).normalize();
-
-  const up = new THREE.Vector3(0, 1, 0);
-
-  const qStart = new THREE.Quaternion().setFromUnitVectors(up, tStart);
-  const qEnd = new THREE.Quaternion().setFromUnitVectors(
-    up,
-    tEnd.clone().multiplyScalar(-1),
-  );
-
-  const startCap = hemiOrigin.clone();
-  startCap.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(qStart));
-  startCap.translate(startPoint.x, startPoint.y, startPoint.z);
-
-  const endCap = hemiOrigin.clone();
-  endCap.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(qEnd));
-  endCap.translate(endPoint.x, endPoint.y, endPoint.z);
-
-  const merged = mergeGeometries([tube, startCap, endCap], true);
-
-  hemiOrigin.dispose();
-
-  if (!merged) {
-    startCap.dispose();
-    endCap.dispose();
-    return tube;
-  }
-
-  tube.dispose();
-  startCap.dispose();
-  endCap.dispose();
-
-  return merged;
-};
-
-const createPartialTorusGeometry = (arc: number) =>
-  createRoundedTubeGeometry(
-    new CircularArcCurve(TORUS_RADIUS, arc),
-    TORUS_TUBULAR_SEGMENTS,
-    TORUS_RADIAL_SEGMENTS,
-  );
-
 export async function addDuartoisSignatureShapes(
   scene: THREE.Scene,
   initialVariant: VariantState,
   initialTheme: ThemeName,
+  detail: GeometryDetail = "high",
 ): Promise<ShapesHandle> {
   const group = new THREE.Group();
   scene.add(group);
   group.scale.setScalar(1.2);
 
-  const waveCurve = new WaveCurve(3.8, 0.4);
-
-  const geometryFactories: Record<ShapeId, () => THREE.BufferGeometry> = {
-    torusSpringAzure: () => createPartialTorusGeometry((3 * Math.PI) / 2),
-    waveSpringLime: () => createRoundedTubeGeometry(waveCurve, 280, 88),
-    semiLimeFlamingo: () => createPartialTorusGeometry(Math.PI),
-    torusFlamingoLime: () => createPartialTorusGeometry((3 * Math.PI) / 2),
-    semiFlamingoAzure: () => createPartialTorusGeometry(Math.PI),
-    sphereFlamingoSpring: () => new THREE.SphereGeometry(THICKNESS, 96, 96),
-  };
-
   const meshes = SHAPE_ORDER.reduce<Record<ShapeId, THREE.Mesh>>(
     (acc, id) => {
       const geometry = applyGradientToGeometry(
-        geometryFactories[id](),
+        createShapeGeometry(id, detail),
         GRADIENT_STOPS[id],
         GRADIENT_AXES[id],
       );
@@ -603,7 +306,35 @@ export type InitSceneOptions = {
   theme: ThemeName;
   palette?: GradientPalette;
   parallax?: boolean;
+  /** Resolved animation quality tier; drives tessellation and resolution. */
+  quality?: "high" | "low";
+  /** Overrides the tessellation tier derived from `quality`. */
+  detail?: GeometryDetail;
 };
+
+/** Pages that show the canvas through `backdrop-filter: blur(60px)` (see globals.css). */
+const BLURRED_PAGE_SELECTOR = ".about-page, .contact-page, .projects, .project";
+
+/** Max frame rate while animating: keeps 90–144 Hz screens from multiplying GPU work. */
+const ACTIVE_FRAME_MS = 12;
+/** Heartbeat for the idle breathing motion (~20 fps). */
+const IDLE_FRAME_MS = 50;
+/** Distance (world units / radians) below which the scene counts as settled. */
+const SETTLE_EPSILON = 5e-4;
+const BREATHING_TOLERANCE = 0.006;
+
+const LOW_QUALITY_MAX_PIXEL_RATIO = 1.5;
+/** The 60px blur hides any detail beyond 1 canvas pixel per CSS pixel. */
+const BLURRED_MAX_PIXEL_RATIO = 1;
+const MIN_PIXEL_RATIO = 0.7;
+const BLUR_RATIO_DELAY_MS = 450;
+const BLUR_CHECK_INTERVAL_MS = 250;
+
+/** Adaptive resolution steps applied if frames keep running slow. */
+const PERF_SCALES = [1, 0.85, 0.7] as const;
+const PERF_SAMPLE_FRAMES = 60;
+/** Average frame time (ms) above which we're missing 60 fps by a wide margin (~48 fps). */
+const SLOW_FRAME_MS = 21;
 
 const getToneMappingExposure = (theme: ThemeName) =>
   theme === "light" ? 1.1 : 1.5;
@@ -624,6 +355,8 @@ const initScene = async ({
   theme,
   palette,
   parallax = true,
+  quality = "high",
+  detail,
 }: InitSceneOptions): Promise<ThreeAppHandle> => {
   const globalWindow = getWindow();
 
@@ -633,6 +366,8 @@ const initScene = async ({
 
   const mobileQuery = globalWindow.matchMedia("(max-width: 768px)");
   let isMobile = mobileQuery.matches;
+  const geometryDetail: GeometryDetail =
+    detail ?? (quality === "low" ? "low" : isMobile ? "medium" : "high");
   const handleMobileChange = (event: MediaQueryListEvent) => {
     isMobile = event.matches;
   };
@@ -700,6 +435,7 @@ const initScene = async ({
     scene,
     initialVariantState,
     theme,
+    geometryDetail,
   );
   shapes.setBrightness(DEFAULT_BRIGHTNESS);
   const shapesGroup = shapes.group;
@@ -755,8 +491,204 @@ const initScene = async ({
   let isVisible = !globalWindow.document.hidden;
   let readyDispatched = false;
   let animationId: number | null = null;
+  let timerId: number | null = null;
   let disposed = false;
   const pointerListenerOptions = { passive: true } as const;
+
+  // ── Frame pacing ───────────────────────────────────────────────────────────
+  // The scene used to render every vsync forever, even when nothing moved. That
+  // keeps the GPU (and, on pages with a backdrop blur, the compositor) busy on
+  // phones and fanless laptops. Now:
+  //  - while something is moving we render at up to ~60 fps;
+  //  - when everything has settled, pages with the breathing idle motion tick
+  //    at a low heartbeat (the motion is ~1% scale, imperceptible below that);
+  //  - blurred pages (60px CSS blur hides the breathing) stop rendering
+  //    entirely until something changes again.
+  let moving = true;
+  let asleep = false;
+  let lastRenderAt = 0;
+
+  // ── Resolution ─────────────────────────────────────────────────────────────
+  let currentPixelRatio = 0;
+  let blurredRatio = false;
+  let blurTimer: number | null = null;
+  let perfStep = 0;
+  let lastBlurCheckAt = 0;
+  let lastActiveFrameAt = 0;
+  let activeFrameTotal = 0;
+  let activeFrameSamples = 0;
+
+  const isMenuOpen = () =>
+    globalWindow.document.body?.dataset.menuOpen === "true";
+
+  // The blur is only real where the browser applies the unprefixed
+  // `backdrop-filter` (e.g. not Safari <= 17). Without it the canvas is shown
+  // sharp, so it must keep its full resolution and idle motion there.
+  const supportsBackdropBlur =
+    typeof CSS !== "undefined" &&
+    typeof CSS.supports === "function" &&
+    CSS.supports("backdrop-filter", "blur(1px)");
+
+  // Mirrors the CSS rule that applies `backdrop-filter: blur(60px)` — on those
+  // pages the canvas is shown through a heavy blur, so it can be rendered at a
+  // lower resolution (and without the idle breathing) with no visible change.
+  const isBlurredPage = () =>
+    supportsBackdropBlur &&
+    !isMenuOpen() &&
+    globalWindow.document.querySelector(BLURRED_PAGE_SELECTOR) !== null;
+
+  const computePixelRatio = () => {
+    let ratio = getRendererPixelRatio();
+    if (quality === "low") {
+      ratio = Math.min(ratio, LOW_QUALITY_MAX_PIXEL_RATIO);
+    }
+    if (blurredRatio) {
+      ratio = Math.min(ratio, BLURRED_MAX_PIXEL_RATIO);
+    }
+    return Math.max(MIN_PIXEL_RATIO, ratio * PERF_SCALES[perfStep]);
+  };
+
+  const renderNow = () => {
+    renderer.render(scene, camera);
+    lastRenderAt = globalWindow.performance.now();
+  };
+
+  /**
+   * Applies the effective pixel ratio and resizes the drawing buffer. Returns
+   * true when the buffer changed (which clears it, so we re-render right away
+   * to avoid presenting an empty frame).
+   */
+  const applyPixelRatio = (force = false) => {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    if (height === 0) {
+      return false;
+    }
+
+    const ratio = computePixelRatio();
+
+    if (!force && ratio === currentPixelRatio) {
+      return false;
+    }
+
+    currentPixelRatio = ratio;
+    renderer.setPixelRatio(ratio);
+    renderer.setSize(width, height, false);
+    return true;
+  };
+
+  const requestFrame = (delayMs = 0) => {
+    if (disposed || !isVisible || animationId !== null || timerId !== null) {
+      return;
+    }
+
+    if (delayMs > 4) {
+      timerId = globalWindow.setTimeout(() => {
+        timerId = null;
+        if (!disposed && isVisible && animationId === null) {
+          animationId = globalWindow.requestAnimationFrame(tick);
+        }
+      }, delayMs);
+      return;
+    }
+
+    animationId = globalWindow.requestAnimationFrame(tick);
+  };
+
+  const cancelFrame = () => {
+    if (animationId !== null) {
+      globalWindow.cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+    if (timerId !== null) {
+      globalWindow.clearTimeout(timerId);
+      timerId = null;
+    }
+  };
+
+  /** Marks the scene dirty and makes sure the render loop is running. */
+  const wake = () => {
+    moving = true;
+
+    if (asleep) {
+      asleep = false;
+      // Discard the time spent asleep so the first frame doesn't take a huge
+      // lerp step towards the target.
+      clock.getDelta();
+    }
+
+    requestFrame();
+  };
+
+  const syncBlurredRatio = () => {
+    if (!isBlurredPage()) {
+      if (blurTimer !== null) {
+        globalWindow.clearTimeout(blurTimer);
+        blurTimer = null;
+      }
+      if (blurredRatio) {
+        blurredRatio = false;
+        if (applyPixelRatio()) {
+          renderNow();
+        }
+        wake();
+      }
+      return;
+    }
+
+    if (!blurredRatio && blurTimer === null) {
+      // Wait for the CSS blur transition so the shapes stay crisp while it fades in.
+      blurTimer = globalWindow.setTimeout(() => {
+        blurTimer = null;
+        if (disposed || !isBlurredPage()) {
+          return;
+        }
+        blurredRatio = true;
+        if (applyPixelRatio()) {
+          renderNow();
+        }
+        wake();
+      }, BLUR_RATIO_DELAY_MS);
+    }
+  };
+
+  /**
+   * Safety net for weak GPUs: if frames keep missing the 60 fps budget by a
+   * wide margin while the scene is animating, step the render resolution down. It
+   * only ever goes down, so a device that can't keep up settles on a lower
+   * (but smooth) resolution instead of stuttering.
+   */
+  const trackFramePerformance = (now: number, wasMoving: boolean) => {
+    if (
+      !wasMoving ||
+      lastActiveFrameAt === 0 ||
+      now - lastActiveFrameAt > 100 ||
+      globalWindow.document.body?.dataset.navigating === "true"
+    ) {
+      lastActiveFrameAt = wasMoving ? now : 0;
+      return;
+    }
+
+    activeFrameTotal += now - lastActiveFrameAt;
+    activeFrameSamples += 1;
+    lastActiveFrameAt = now;
+
+    if (activeFrameSamples < PERF_SAMPLE_FRAMES) {
+      return;
+    }
+
+    const average = activeFrameTotal / activeFrameSamples;
+    activeFrameTotal = 0;
+    activeFrameSamples = 0;
+
+    if (average > SLOW_FRAME_MS && perfStep < PERF_SCALES.length - 1) {
+      perfStep += 1;
+      if (applyPixelRatio()) {
+        renderNow();
+      }
+    }
+  };
 
   const resize = () => {
     const width = canvas.clientWidth;
@@ -766,14 +698,10 @@ const initScene = async ({
       return;
     }
 
-    if (canvas.width !== width || canvas.height !== height) {
-      // ── Pixel ratio: capped per device class ────────────────────────────────
-      // iOS → max 2, Safari desktop → max 1.5, others → max 2.
-      // Applied on every resize so DPR changes (moving between screens) are
-      // handled correctly.
-      renderer.setPixelRatio(getRendererPixelRatio());
-      renderer.setSize(width, height, false);
-    }
+    // Pixel ratio is capped per device class and quality tier (see
+    // computePixelRatio). Applied on every resize so DPR changes (moving
+    // between screens) are handled correctly.
+    applyPixelRatio(true);
 
     const aspect = width / height;
     const ortho = camera as unknown as THREE.OrthographicCamera;
@@ -790,6 +718,7 @@ const initScene = async ({
         height,
       ),
     }));
+    wake();
   };
 
   const pointerMove = (event: PointerEvent) => {
@@ -803,6 +732,10 @@ const initScene = async ({
         ...state,
         pointer: { x, y },
       };
+
+      if (state.parallax) {
+        wake();
+      }
     }
   };
 
@@ -814,15 +747,23 @@ const initScene = async ({
     setState({ hovered: false });
   };
 
-  const tick = () => {
-    if (disposed) {
+  const tick = (now: number) => {
+    animationId = null;
+
+    if (disposed || !isVisible) {
       return;
     }
 
-    if (!isVisible) {
-      animationId = null;
+    // Throttle: full rate (capped, so 120 Hz screens don't double the work)
+    // while moving, a slow heartbeat otherwise.
+    const minInterval = moving ? ACTIVE_FRAME_MS : IDLE_FRAME_MS;
+    if (now - lastRenderAt < minInterval) {
+      requestFrame(minInterval - (now - lastRenderAt));
       return;
     }
+
+    const wasMoving = moving;
+    trackFramePerformance(now, wasMoving);
 
     // ── Safari/iOS tab-switch guard ──────────────────────────────────────────
     // When the tab is backgrounded and restored, getDelta() can return several
@@ -843,6 +784,16 @@ const initScene = async ({
       return clamp(delta * (state.hovered ? 7 : 5), 0, 1);
     })();
 
+    // Largest remaining distance to any target; used to decide when the scene
+    // has settled and rendering can slow down or stop.
+    let remaining = 0;
+    const track = (difference: number) => {
+      const distance = Math.abs(difference);
+      if (distance > remaining) {
+        remaining = distance;
+      }
+    };
+
     if (variantLerp > 0) {
       shapeIds.forEach((id) => {
         const mesh = shapes.meshes[id];
@@ -852,11 +803,17 @@ const initScene = async ({
         }
 
         const [tx, ty, tz] = target.position;
+        track(tx - mesh.position.x);
+        track(ty - mesh.position.y);
+        track(tz - mesh.position.z);
         mesh.position.x += (tx - mesh.position.x) * variantLerp;
         mesh.position.y += (ty - mesh.position.y) * variantLerp;
         mesh.position.z += (tz - mesh.position.z) * variantLerp;
 
         const [rx, ry, rz] = target.rotation;
+        track(rx - mesh.rotation.x);
+        track(ry - mesh.rotation.y);
+        track(rz - mesh.rotation.z);
         mesh.rotation.x += (rx - mesh.rotation.x) * variantLerp;
         mesh.rotation.y += (ry - mesh.rotation.y) * variantLerp;
         mesh.rotation.z += (rz - mesh.rotation.z) * variantLerp;
@@ -864,11 +821,15 @@ const initScene = async ({
         const scaleTarget = target.scale;
         if (Array.isArray(scaleTarget)) {
           const [sx, sy, sz] = scaleTarget;
+          track(sx - mesh.scale.x);
+          track(sy - mesh.scale.y);
+          track(sz - mesh.scale.z);
           mesh.scale.x += (sx - mesh.scale.x) * variantLerp;
           mesh.scale.y += (sy - mesh.scale.y) * variantLerp;
           mesh.scale.z += (sz - mesh.scale.z) * variantLerp;
         } else {
           const uniform = scaleTarget ?? 1;
+          track(uniform - mesh.scale.x);
           mesh.scale.x += (uniform - mesh.scale.x) * variantLerp;
           mesh.scale.y += (uniform - mesh.scale.y) * variantLerp;
           mesh.scale.z += (uniform - mesh.scale.z) * variantLerp;
@@ -882,17 +843,28 @@ const initScene = async ({
       devicePointerTarget,
     );
 
+    track(targetPointer.x - pointer.x);
+    track(targetPointer.y - pointer.y);
     pointer.lerp(targetPointer, clamp(delta * 7, 0, 1));
 
     const mobile = isMobile;
     const baseTilt = mobile ? 0.18 : 0.32;
     const parallaxStrength = state.parallax ? baseTilt : 0;
-    const breathe = (mobile ? 0.006 : 0.01) * Math.sin(elapsed * 0.85);
+    // The idle "breathing" is hidden by the CSS blur on the inner pages.
+    const breathing = !blurredRatio;
+    const breathe = breathing
+      ? (mobile ? 0.006 : 0.01) * Math.sin(elapsed * 0.85)
+      : 0;
     const hoverBoost = state.hovered ? 0.045 : 0;
 
     const targetPosX = pointer.x * parallaxStrength;
     const targetPosY = pointer.y * parallaxStrength * 0.75;
 
+    const maxX = (mobile ? 0.22 : 0.32) * (globalWindow.innerWidth / 2) * 0.01;
+    const maxY = (mobile ? 0.18 : 0.26) * (globalWindow.innerHeight / 2) * 0.01;
+
+    track(clamp(targetPosX, -maxX, maxX) - shapesGroup.position.x);
+    track(clamp(targetPosY, -maxY, maxY) - shapesGroup.position.y);
     shapesGroup.position.x +=
       (targetPosX - shapesGroup.position.x) * clamp(delta * 6, 0, 1);
     shapesGroup.position.y +=
@@ -901,14 +873,13 @@ const initScene = async ({
     const scaleTarget = 1 + breathe + hoverBoost + state.cursorBoost;
     const lerpScale = clamp(delta * 4, 0, 1);
     const currentScale = shapesGroup.scale.x;
+    const scaleDistance = Math.abs(scaleTarget - currentScale);
     const nextScale = currentScale + (scaleTarget - currentScale) * lerpScale;
     shapesGroup.scale.setScalar(nextScale);
-    const maxX = (mobile ? 0.22 : 0.32) * (globalWindow.innerWidth / 2) * 0.01;
-    const maxY = (mobile ? 0.18 : 0.26) * (globalWindow.innerHeight / 2) * 0.01;
     shapesGroup.position.x = clamp(shapesGroup.position.x, -maxX, maxX);
     shapesGroup.position.y = clamp(shapesGroup.position.y, -maxY, maxY);
 
-    renderer.render(scene, camera);
+    renderNow();
 
     if (!readyDispatched && elapsed > 0.35) {
       readyDispatched = true;
@@ -917,8 +888,29 @@ const initScene = async ({
       dispatchStateChange(eventTarget, state);
     }
 
-    if (!disposed) {
-      animationId = globalWindow.requestAnimationFrame(tick);
+    // While breathing, the scale always trails its (moving) target slightly;
+    // tolerate that so the scene can still be considered settled.
+    const scaleTolerance = breathing ? BREATHING_TOLERANCE : SETTLE_EPSILON;
+    moving =
+      remaining > SETTLE_EPSILON ||
+      scaleDistance > scaleTolerance ||
+      !readyDispatched;
+
+    if (now - lastBlurCheckAt > BLUR_CHECK_INTERVAL_MS) {
+      lastBlurCheckAt = now;
+      syncBlurredRatio();
+    }
+
+    if (disposed) {
+      return;
+    }
+
+    if (moving) {
+      requestFrame();
+    } else if (breathing) {
+      requestFrame(IDLE_FRAME_MS);
+    } else {
+      asleep = true;
     }
   };
 
@@ -926,21 +918,34 @@ const initScene = async ({
     isVisible = !globalWindow.document.hidden;
 
     if (!isVisible) {
-      if (animationId !== null) {
-        globalWindow.cancelAnimationFrame(animationId);
-        animationId = null;
-      }
+      cancelFrame();
       clock.stop();
+      asleep = true;
       return;
     }
 
     // Reset the clock so getDelta() starts fresh after suspension.
     // Belt-and-suspenders with the MAX_DELTA_S clamp above.
     clock.start();
-    if (!disposed && animationId === null) {
-      animationId = globalWindow.requestAnimationFrame(tick);
-    }
+    asleep = false;
+    wake();
   };
+
+  const handleMenuChange = () => {
+    syncBlurredRatio();
+    wake();
+  };
+
+  const menuObserver =
+    typeof MutationObserver === "undefined"
+      ? null
+      : new MutationObserver(handleMenuChange);
+  if (globalWindow.document.body) {
+    menuObserver?.observe(globalWindow.document.body, {
+      attributes: true,
+      attributeFilter: ["data-menu-open"],
+    });
+  }
 
   const setState: ThreeAppHandle["setState"] = (
     updater: ThreeAppHandle["setState"] extends (u: infer U) => void
@@ -1161,6 +1166,11 @@ const initScene = async ({
     if (changed) {
       dispatchStateChange(eventTarget, state);
     }
+
+    if (changed || opacityChanged || shapeOpacityChanged || shapeBlurChanged) {
+      syncBlurredRatio();
+      wake();
+    }
   };
 
   const dispose = () => {
@@ -1170,10 +1180,12 @@ const initScene = async ({
 
     disposed = true;
 
-    if (animationId !== null) {
-      globalWindow.cancelAnimationFrame(animationId);
-      animationId = null;
+    cancelFrame();
+    if (blurTimer !== null) {
+      globalWindow.clearTimeout(blurTimer);
+      blurTimer = null;
     }
+    menuObserver?.disconnect();
     mobileQuery.removeEventListener("change", handleMobileChange);
     globalWindow.removeEventListener("resize", resize);
     globalWindow.removeEventListener("pointermove", pointerMove);
@@ -1227,8 +1239,10 @@ const initScene = async ({
 
   dispatchStateChange(eventTarget, state);
 
+  syncBlurredRatio();
+
   if (isVisible) {
-    animationId = globalWindow.requestAnimationFrame(tick);
+    wake();
   }
 
   return handle;

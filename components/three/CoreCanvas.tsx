@@ -100,7 +100,11 @@ export default function CoreCanvas({ isReady }: CoreCanvasProps) {
     if (!persistentInitPromise) {
       persistentInitPromise = import("./sceneBundle")
         .then(({ default: initScene }) =>
-          initScene({ canvas: persistentCanvas as HTMLCanvasElement, theme }),
+          initScene({
+            canvas: persistentCanvas as HTMLCanvasElement,
+            theme,
+            quality: resolvedQuality,
+          }),
         )
         .then((handle) => {
           persistentHandle = handle;

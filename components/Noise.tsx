@@ -4,15 +4,16 @@ import type { CSSProperties } from "react";
 
 import { useTheme, type Theme } from "@/app/theme/ThemeContext";
 
+// The contrast/invert filters live in the baked textures (noise-light.png /
+// noise-dark.png, selected through --noise-image in globals.css), so no live
+// CSS filter is needed on this full-screen layer.
 const NOISE_STYLE_MAP: Record<Theme, CSSProperties> = {
   light: {
     opacity: 0.22,
-    filter: "contrast(1.35)",
     mixBlendMode: "multiply",
   },
   dark: {
     opacity: 0.18,
-    filter: "invert(1) brightness(1.2) contrast(1.75)",
     mixBlendMode: "screen",
   },
 };

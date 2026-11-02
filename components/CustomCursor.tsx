@@ -120,6 +120,25 @@ export default function CustomCursor() {
         cursor.style.height = sizeValue;
       }
 
+      // Once the cursor has caught up with the pointer there is nothing left to
+      // animate: snap to the final position and stop the per-frame loop instead
+      // of running it forever. Any pointer/scale change restarts it.
+      const caughtUp =
+        Math.abs(targetPosition.x - dotPosition.x) < 0.1 &&
+        Math.abs(targetPosition.y - dotPosition.y) < 0.1 &&
+        Math.abs(targetPosition.x - cursorPosition.x) < 0.1 &&
+        Math.abs(targetPosition.y - cursorPosition.y) < 0.1 &&
+        currentScale === targetScale;
+
+      if (caughtUp) {
+        dotPosition.x = cursorPosition.x = targetPosition.x;
+        dotPosition.y = cursorPosition.y = targetPosition.y;
+        applyTransform(dot, dotPosition.x, dotPosition.y);
+        applyTransform(cursor, cursorPosition.x, cursorPosition.y);
+        animationActive = false;
+        return;
+      }
+
       if (animationActive) {
         raf = requestAnimationFrame(tick);
       }

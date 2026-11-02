@@ -821,110 +821,148 @@ body[data-preloading="true"] main {
 .noise {
   position: fixed;
   z-index: 9999;
-  top: -300%;
-  left: -150%;
-  height: 600%;
-  width: 600%;
-  -webkit-animation: grain 7s steps(10) infinite;
-  animation: grain 7s steps(10) infinite;
-  background-image: url(/noise.png);
+  /* Just the viewport plus one texture tile of slack on each side — the grain
+     animation shifts the layer by less than a tile, so the screen is always
+     covered. (It used to be 600% x 600% of the viewport.) */
+  top: -200px;
+  left: -200px;
+  width: calc(100% + 400px);
+  height: calc(100% + 400px);
+  animation: grain 7s step-end infinite;
+  /* The contrast/invert/brightness filter that used to run live is baked into
+     the light and dark textures. */
+  background-image: var(--noise-image, url(/noise-light.png));
   background-size: 200px;
   background-repeat: repeat;
   pointer-events: none;
   opacity: var(--noise-opacity, 0.22);
   mix-blend-mode: var(--noise-blend-mode, multiply);
-  filter: var(--noise-filter, contrast(1.35));
   transition:
     opacity 0.3s ease,
-    filter 0.3s ease,
     mix-blend-mode 0.3s ease;
 }
 
-@-webkit-keyframes grain {
-  0%,
-  to {
-    transform: translate(0);
-  }
+/* On the pages with the 60px backdrop blur the grain is blurred away, so
+   there is nothing to animate. Keep it running while the menu is open (the
+   blur is lifted then). */
+body:has(.about-page, .contact-page, .projects, .project) .noise {
+  animation-play-state: paused;
+}
 
-  10% {
-    transform: translate(-5%, -10%);
-  }
+body[data-menu-open="true"] .noise {
+  animation-play-state: running;
+}
 
-  20% {
-    transform: translate(-15%, 5%);
-  }
-
-  30% {
-    transform: translate(7%, -25%);
-  }
-
-  40% {
-    transform: translate(-5%, 25%);
-  }
-
-  50% {
-    transform: translate(-15%, 10%);
-  }
-
-  60% {
-    transform: translate(15%);
-  }
-
-  70% {
-    transform: translateY(15%);
-  }
-
-  80% {
-    transform: translate(3%, 35%);
-  }
-
-  90% {
-    transform: translate(-10%, 10%);
+@media (prefers-reduced-motion: reduce) {
+  .noise {
+    animation: none;
   }
 }
 
 @keyframes grain {
-  0%,
-  to {
-    transform: translate(0);
-  }
-
-  10% {
-    transform: translate(-5%, -10%);
-  }
-
-  20% {
-    transform: translate(-15%, 5%);
-  }
-
-  30% {
-    transform: translate(7%, -25%);
-  }
-
-  40% {
-    transform: translate(-5%, 25%);
-  }
-
-  50% {
-    transform: translate(-15%, 10%);
-  }
-
-  60% {
-    transform: translate(15%);
-  }
-
-  70% {
-    transform: translateY(15%);
-  }
-
-  80% {
-    transform: translate(3%, 35%);
-  }
-
-  90% {
-    transform: translate(-10%, 10%);
-  }
+  0% { transform: translate3d(0px, 0px, 0); }
+  1% { transform: translate3d(157px, 146px, 0); }
+  2% { transform: translate3d(114px, 92px, 0); }
+  3% { transform: translate3d(70px, 38px, 0); }
+  4% { transform: translate3d(27px, 184px, 0); }
+  5% { transform: translate3d(184px, 130px, 0); }
+  6% { transform: translate3d(141px, 76px, 0); }
+  7% { transform: translate3d(98px, 22px, 0); }
+  8% { transform: translate3d(54px, 168px, 0); }
+  9% { transform: translate3d(11px, 114px, 0); }
+  10% { transform: translate3d(168px, 60px, 0); }
+  11% { transform: translate3d(82px, 141px, 0); }
+  12% { transform: translate3d(195px, 22px, 0); }
+  13% { transform: translate3d(109px, 103px, 0); }
+  14% { transform: translate3d(22px, 184px, 0); }
+  15% { transform: translate3d(136px, 65px, 0); }
+  16% { transform: translate3d(50px, 146px, 0); }
+  17% { transform: translate3d(163px, 27px, 0); }
+  18% { transform: translate3d(77px, 108px, 0); }
+  19% { transform: translate3d(190px, 189px, 0); }
+  20% { transform: translate3d(104px, 70px, 0); }
+  21% { transform: translate3d(94px, 108px, 0); }
+  22% { transform: translate3d(84px, 146px, 0); }
+  23% { transform: translate3d(74px, 184px, 0); }
+  24% { transform: translate3d(64px, 22px, 0); }
+  25% { transform: translate3d(54px, 60px, 0); }
+  26% { transform: translate3d(44px, 98px, 0); }
+  27% { transform: translate3d(35px, 136px, 0); }
+  28% { transform: translate3d(25px, 174px, 0); }
+  29% { transform: translate3d(15px, 12px, 0); }
+  30% { transform: translate3d(5px, 50px, 0); }
+  31% { transform: translate3d(101px, 120px, 0); }
+  32% { transform: translate3d(197px, 190px, 0); }
+  33% { transform: translate3d(94px, 60px, 0); }
+  34% { transform: translate3d(190px, 130px, 0); }
+  35% { transform: translate3d(86px, 0px, 0); }
+  36% { transform: translate3d(183px, 70px, 0); }
+  37% { transform: translate3d(79px, 140px, 0); }
+  38% { transform: translate3d(175px, 10px, 0); }
+  39% { transform: translate3d(72px, 80px, 0); }
+  40% { transform: translate3d(168px, 150px, 0); }
+  41% { transform: translate3d(82px, 69px, 0); }
+  42% { transform: translate3d(195px, 188px, 0); }
+  43% { transform: translate3d(109px, 107px, 0); }
+  44% { transform: translate3d(22px, 26px, 0); }
+  45% { transform: translate3d(136px, 145px, 0); }
+  46% { transform: translate3d(50px, 64px, 0); }
+  47% { transform: translate3d(163px, 183px, 0); }
+  48% { transform: translate3d(77px, 102px, 0); }
+  49% { transform: translate3d(190px, 21px, 0); }
+  50% { transform: translate3d(104px, 140px, 0); }
+  51% { transform: translate3d(163px, 86px, 0); }
+  52% { transform: translate3d(22px, 32px, 0); }
+  53% { transform: translate3d(82px, 178px, 0); }
+  54% { transform: translate3d(141px, 124px, 0); }
+  55% { transform: translate3d(0px, 70px, 0); }
+  56% { transform: translate3d(59px, 16px, 0); }
+  57% { transform: translate3d(118px, 162px, 0); }
+  58% { transform: translate3d(178px, 108px, 0); }
+  59% { transform: translate3d(37px, 54px, 0); }
+  60% { transform: translate3d(96px, 0px, 0); }
+  61% { transform: translate3d(166px, 81px, 0); }
+  62% { transform: translate3d(37px, 162px, 0); }
+  63% { transform: translate3d(107px, 43px, 0); }
+  64% { transform: translate3d(178px, 124px, 0); }
+  65% { transform: translate3d(48px, 5px, 0); }
+  66% { transform: translate3d(118px, 86px, 0); }
+  67% { transform: translate3d(189px, 167px, 0); }
+  68% { transform: translate3d(59px, 48px, 0); }
+  69% { transform: translate3d(130px, 129px, 0); }
+  70% { transform: translate3d(0px, 10px, 0); }
+  71% { transform: translate3d(26px, 118px, 0); }
+  72% { transform: translate3d(52px, 26px, 0); }
+  73% { transform: translate3d(78px, 134px, 0); }
+  74% { transform: translate3d(104px, 42px, 0); }
+  75% { transform: translate3d(130px, 150px, 0); }
+  76% { transform: translate3d(156px, 58px, 0); }
+  77% { transform: translate3d(181px, 166px, 0); }
+  78% { transform: translate3d(7px, 74px, 0); }
+  79% { transform: translate3d(33px, 182px, 0); }
+  80% { transform: translate3d(59px, 90px, 0); }
+  81% { transform: translate3d(147px, 155px, 0); }
+  82% { transform: translate3d(35px, 20px, 0); }
+  83% { transform: translate3d(122px, 85px, 0); }
+  84% { transform: translate3d(10px, 150px, 0); }
+  85% { transform: translate3d(98px, 15px, 0); }
+  86% { transform: translate3d(185px, 80px, 0); }
+  87% { transform: translate3d(73px, 145px, 0); }
+  88% { transform: translate3d(161px, 10px, 0); }
+  89% { transform: translate3d(48px, 75px, 0); }
+  90% { transform: translate3d(136px, 140px, 0); }
+  91% { transform: translate3d(22px, 86px, 0); }
+  92% { transform: translate3d(109px, 32px, 0); }
+  93% { transform: translate3d(195px, 178px, 0); }
+  94% { transform: translate3d(82px, 124px, 0); }
+  95% { transform: translate3d(168px, 70px, 0); }
+  96% { transform: translate3d(54px, 16px, 0); }
+  97% { transform: translate3d(141px, 162px, 0); }
+  98% { transform: translate3d(27px, 108px, 0); }
+  99% { transform: translate3d(114px, 54px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
+
 
 .page-head {
   display: flex;
@@ -2616,7 +2654,7 @@ html.light {
   --background-color: #f3f2f9;
   --color: #606887;
   --noise-opacity: 0.22;
-  --noise-filter: contrast(1.35);
+  --noise-image: url(/noise-light.png);
   --noise-blend-mode: multiply;
 }
 
@@ -2626,7 +2664,7 @@ html.dark {
   --background-color: #2b2b33;
   --color: #f3f2f9;
   --noise-opacity: 0.18;
-  --noise-filter: invert(1) brightness(1.2) contrast(1.75);
+  --noise-image: url(/noise-dark.png);
   --noise-blend-mode: screen;
   --header-blend-mode: difference;
 }

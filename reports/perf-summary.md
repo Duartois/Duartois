@@ -30,3 +30,23 @@ Generated at: N/A (run `npm run perf:report` to regenerate)
 - `npm run perf:report` to regenerate this file from build artifacts.
 - `PERF_BASELINE=true npm run perf:report` to capture a baseline on a previous commit.
 - `NEXT_PUBLIC_PERF_DEBUG=true npm run dev` to log FCP, 3D init timing, and image counts.
+
+## Low-end device pass (3D scene + grain layer)
+
+Measured on an Intel UHD 617 (MacBook Air class) with `EXT_disjoint_timer_query_webgl2`, same canvas size on both builds:
+
+| Metric                                | Before                 | After (`low` tier)      |
+| ------------------------------------- | ---------------------- | ----------------------- |
+| Triangles                             | 374,080                | 40,376                  |
+| Vertices                              | 1,122,240              | 21,642                  |
+| Geometry memory                       | 47.1 MB                | 1.0 MB                  |
+| JS heap after scene init              | 60.6 MB                | 9.8 MB                  |
+| GPU time / frame @ 1024×768           | 8.3 ms                 | 2.9 ms                  |
+| GPU time / frame @ 2048×1536          | 16.9 ms                | 9.4 ms                  |
+| Frames rendered, About page, idle 3 s | continuous             | 0                       |
+| `.noise` layer size                   | 600% × 600%            | viewport + 400px        |
+| Noise texture weight                  | 107 KB (+ live filter) | 6 KB × 2 (filter baked) |
+
+Visual parity of the 3D canvas (same viewport, same state, pixel diff against the previous build): mean difference ≤ 0.14/255; ≤ 0.21% of pixels differ by more than 4/255 (edge pixels and specular glints).
+
+Pixel ratio on blurred pages is capped at 1× and the idle breathing is skipped there only when the browser actually applies the unprefixed `backdrop-filter` (Safari ≤ 17 shows those pages sharp, so it keeps full resolution).

@@ -99,7 +99,6 @@ export default async function RootLayout({
           href="https://ap-south-1.graphassets.com"
           crossOrigin="anonymous"
         />
-        <link rel="preload" href="/noise.png" as="image" type="image/png" />
       </head>
       <body
         data-preloading="true"

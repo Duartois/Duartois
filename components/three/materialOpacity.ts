@@ -20,9 +20,22 @@ export const applyOpacityToMaterial = (
     return;
   }
 
+  const transparent = opacity < 1 ? true : material.transparent;
+
+  if (material.opacity === opacity && material.transparent === transparent) {
+    return;
+  }
+
+  // Opacity is a plain uniform; only flipping `transparent` changes the
+  // compiled program, so only then do we ask three.js to re-evaluate it.
+  const transparencyChanged = material.transparent !== transparent;
+
   material.opacity = opacity;
-  material.transparent = opacity < 1 ? true : material.transparent;
-  material.needsUpdate = true;
+  material.transparent = transparent;
+
+  if (transparencyChanged) {
+    material.needsUpdate = true;
+  }
 };
 
 export const applyOpacityToMesh = (mesh: THREE.Mesh, opacity: number) => {
