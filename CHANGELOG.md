@@ -4,6 +4,22 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Não lançado]
 
+### Auditoria completa
+
+- Formas das páginas internas (Work, projeto, About, Contact) com opacidade 0,6 em vez de 1 (`INNER_PAGE_SHAPE_OPACITY` em `components/three/types.ts`); a Home e o menu continuam a 1.
+- JavaScript inicial por rota: ~226 KB → ~202 KB gzip (bruto 739 → 646 KB, sem contar os polyfills que navegadores modernos não baixam).
+  - Redux Toolkit e react-redux removidos do app: o store só guardava duas flags que ninguém lia.
+  - `useReducedMotion` do framer-motion trocado por um hook de `matchMedia` (`usePrefersReducedMotion`); o framer-motion ficou só no Preloader, via `LazyMotion` + `domAnimation`.
+  - Dados dos projetos (`projectDetails`) fora do bundle inicial: o Preloader só lista as capas.
+  - Fallback do locomotive-scroll removido (era código morto).
+- Imagens: a galeria dos projetos tinha `priority` em todas as imagens (14 por projeto) e nenhum `sizes`; agora só o hero é prioritário e as demais são lazy com `sizes` correto. Abrir um projeto: 43 → 2 requisições à CDN.
+- Pré-carga do Preloader: não baixa mais as capas originais sem redimensionar nem as imagens de detalhe; só capas em 828 px, em prioridade baixa, 2 por vez, e apenas em tela larga, conexão boa e nível `high`.
+- Player do Spotify (About) só carrega quando o navegador está ocioso, fora da animação de entrada.
+- `<head>`: removido o preconnect para `eu-central-1` (quase não usado) e adicionado o preload da fonte variável.
+- Itens que caem: estado final `filter: none` / `transform: none` em vez de `blur(0px)` / `translate3d` identidade, e `will-change` sem `filter`; deixam de manter uma superfície própria por item depois da animação.
+- Service worker: navigation preload ligado, e a home deixou de ser baixada no install (nunca era servida do cache). Registro passa a esperar o evento `load`.
+- `useInnerVh` ignora escritas sem mudança e não escuta mais o scroll do visualViewport.
+
 ### Navegação contínua
 
 - O fundo 3D é o mesmo canvas durante todo o uso e só se reajusta a cada página: as formas seguem uma mola amortecida (`components/three/motion.ts`) em vez de interpolação por frame, retomam de onde estão se o destino muda no meio do caminho e não dão mais "snap" na troca de rota (`useThreeSceneSetup` só ajusta direto no primeiro paint e no resize).

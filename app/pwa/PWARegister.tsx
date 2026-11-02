@@ -1,12 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAppDispatch } from "@/app/store/hooks";
-import { setPwaInstallPromptSeen } from "@/app/store/uiSlice";
 
 const PWARegister = () => {
-  const dispatch = useAppDispatch();
-
   useEffect(() => {
     if (!("serviceWorker" in navigator)) {
       return;
@@ -39,20 +35,22 @@ const PWARegister = () => {
       }
     };
 
-    const handleBeforeInstallPrompt = () => {
-      dispatch(setPwaInstallPromptSeen(true));
-    };
+    // Register once the page has finished loading so the worker's install work
+    // (precaching the app shell) never competes with the first render.
+    if (document.readyState === "complete") {
+      void registerServiceWorker();
+      return;
+    }
 
-    registerServiceWorker();
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    const handleLoad = () => {
+      void registerServiceWorker();
+    };
+    window.addEventListener("load", handleLoad, { once: true });
 
     return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt,
-      );
+      window.removeEventListener("load", handleLoad);
     };
-  }, [dispatch]);
+  }, []);
 
   return null;
 };

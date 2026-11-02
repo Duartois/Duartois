@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/app/helpers/usePrefersReducedMotion";
 
 import { getFallItemStyle } from "./fallAnimation";
 import { useAnimationQuality } from "./AnimationQualityContext";
@@ -18,7 +18,7 @@ export function useMenuFallAnimation(
   totalItems: number,
   options?: { variant?: "default" | "work" },
 ) {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);

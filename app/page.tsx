@@ -18,7 +18,7 @@ import {
   type MouseEvent,
 } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import { useReducedMotion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/app/helpers/usePrefersReducedMotion";
 import { getFallItemStyle } from "@/components/fallAnimation";
 import { useAnimationQuality } from "@/components/AnimationQualityContext";
 import {
@@ -252,7 +252,7 @@ export default function HomePage() {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation("common");
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import "../i18n/config";
@@ -26,6 +26,31 @@ export default function AboutPage() {
   useEffect(() => {
     return applyMediaKeySystemAccessHack();
   }, []);
+
+  // The Spotify player is a heavy third-party page. Load it once the browser is
+  // idle (and the entry animation had time to run) instead of in the middle of
+  // the page transition, when it only competes with the animation for the CPU.
+  const [embedSrc, setEmbedSrc] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    let timeoutId: number | undefined;
+    let idleId: number | undefined;
+    const show = () => setEmbedSrc(spotifyEmbedUrl);
+
+    if (typeof window.requestIdleCallback === "function") {
+      timeoutId = window.setTimeout(() => {
+        idleId = window.requestIdleCallback(show, { timeout: 3000 });
+      }, 900);
+    } else {
+      timeoutId = window.setTimeout(show, 1800);
+    }
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (idleId !== undefined) {
+        window.cancelIdleCallback(idleId);
+      }
+    };
+  }, [spotifyEmbedUrl]);
 
   let fallIndex = 0;
   const nextFall = () => fallStyle(fallIndex++);
@@ -66,7 +91,7 @@ export default function AboutPage() {
                   data-testid="embed-iframe"
                   height={80}
                   loading="lazy"
-                  src={spotifyEmbedUrl}
+                  src={embedSrc}
                   style={{ borderRadius: "12px" }}
                   width="100%"
                 />

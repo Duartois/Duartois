@@ -43,7 +43,12 @@ export default function GalleryImage({
             className="project-content-image"
             width={1920} // Default width for gallery images
             height={1080} // Default height for gallery images
-            priority={true}
+            // The project hero already carries `priority`. Marking every gallery
+            // image too (14 per project) preloaded all of them at the widest
+            // size before the page was even readable.
+            sizes={IMAGE_SIZES.gallery}
+            loading="lazy"
+            decoding="async"
             style={{ color: "transparent", width: "100%", height: "auto" }}
           />
         </div>

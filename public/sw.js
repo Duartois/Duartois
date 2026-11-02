@@ -1,7 +1,10 @@
 const CACHE_VERSION = "duartois-pwa-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
-const APP_SHELL = ["/", "/offline", "/manifest.webmanifest", "/Logo.svg"];
+// Only what the offline fallback needs. The home page used to be cached here
+// too, but it is never served from the cache (navigations go to /offline), so
+// it was just an extra document download on every install.
+const APP_SHELL = ["/offline", "/manifest.webmanifest", "/Logo.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -12,8 +15,14 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
+    // Navigation preload: the network request for a page starts in parallel
+    // with the worker's boot instead of after it.
+    (self.registration.navigationPreload
+      ? self.registration.navigationPreload.enable()
+      : Promise.resolve()
+    )
+      .catch(() => undefined)
+      .then(() => caches.keys())
       .then((keys) =>
         Promise.all(
           keys
@@ -36,10 +45,15 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(async () => {
-        const staticCache = await caches.open(STATIC_CACHE);
-        return staticCache.match("/offline");
-      }),
+      (async () => {
+        try {
+          const preloaded = await event.preloadResponse;
+          return preloaded || (await fetch(request));
+        } catch {
+          const staticCache = await caches.open(STATIC_CACHE);
+          return staticCache.match("/offline");
+        }
+      })(),
     );
     return;
   }

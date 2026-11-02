@@ -1,8 +1,6 @@
 "use client";
 
 import { PropsWithChildren, useEffect } from "react";
-import { useAppDispatch } from "@/app/store/hooks";
-import { setSmoothScrollEngine } from "@/app/store/uiSlice";
 
 /**
  * Detecta se o dispositivo é touch/mobile.
@@ -33,16 +31,11 @@ const LENIS_WAKE_EVENTS = [
 const LENIS_IDLE_GRACE_MS = 300;
 
 export default function SmoothScrollProvider({ children }: PropsWithChildren) {
-  const dispatch = useAppDispatch();
-
   useEffect(() => {
+    let cancelled = false;
     let cleanup: (() => void) | undefined;
 
     const initSmoothScroll = async () => {
-      if (typeof window === "undefined") {
-        return;
-      }
-
       // Em dispositivos touch/mobile, o scroll nativo é superior ao JS scroll.
       // Desabilitar o smooth scroll JS melhora significativamente a performance
       // no Chrome Mobile, Safari iOS e outros browsers mobile.
@@ -51,7 +44,11 @@ export default function SmoothScrollProvider({ children }: PropsWithChildren) {
       }
 
       try {
-        const [{ default: Lenis }] = await Promise.all([import("lenis")]);
+        const { default: Lenis } = await import("lenis");
+
+        if (cancelled) {
+          return;
+        }
 
         // `autoRaf` kept a requestAnimationFrame loop running on every frame
         // for the whole visit, even on pages that never scroll. Drive Lenis
@@ -91,8 +88,6 @@ export default function SmoothScrollProvider({ children }: PropsWithChildren) {
         );
         wake();
 
-        dispatch(setSmoothScrollEngine("lenis"));
-
         cleanup = () => {
           LENIS_WAKE_EVENTS.forEach((eventName) =>
             window.removeEventListener(eventName, wake),
@@ -100,44 +95,19 @@ export default function SmoothScrollProvider({ children }: PropsWithChildren) {
           window.cancelAnimationFrame(frame);
           lenis.destroy();
         };
-        return;
-      } catch {
-        // fallback abaixo
-      }
-
-      try {
-        const LocomotiveScroll = (await import("locomotive-scroll")).default;
-        const locomotive = new (
-          LocomotiveScroll as unknown as new (
-            options: Record<string, unknown>,
-          ) => {
-            destroy: () => void;
-          }
-        )({
-          smooth: true,
-          // Desabilitar smooth scroll em mobile para melhor performance nativa
-          smartphone: { smooth: false },
-          tablet: { smooth: false },
-        });
-
-        dispatch(setSmoothScrollEngine("locomotive"));
-
-        cleanup = () => {
-          locomotive.destroy();
-        };
       } catch (error) {
+        // Native scrolling still works without the smoothing layer.
         console.error("Falha ao inicializar smooth scrolling", error);
       }
     };
 
-    initSmoothScroll();
+    void initSmoothScroll();
 
     return () => {
-      if (cleanup) {
-        cleanup();
-      }
+      cancelled = true;
+      cleanup?.();
     };
-  }, [dispatch]);
+  }, []);
 
   return children;
 }

@@ -8,7 +8,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "react-i18next";
 import "../app/i18n/config";
-import { useReducedMotion } from "framer-motion";
+import { usePrefersReducedMotion } from "@/app/helpers/usePrefersReducedMotion";
 import { getFallItemStyle } from "./fallAnimation";
 import {
   WORK_ITEM_STAGGER_DELAY,
@@ -177,7 +177,7 @@ export default function Navbar() {
     };
   }, [app, isOpen, menuSceneVersion]);
   const { t } = useTranslation("common");
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const disableFallAnimation = Boolean(prefersReducedMotion);
   const [isFallActive, setIsFallActive] = useState(disableFallAnimation);
   const controlsHideTimeoutRef = useRef<number | undefined>(undefined);

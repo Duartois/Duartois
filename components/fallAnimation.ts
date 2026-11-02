@@ -8,7 +8,9 @@ import {
   WORK_TRANSITION,
 } from "./animation/fallConstants";
 
-const ACTIVE_TRANSFORM = "translate3d(0, 0, 0) scale(1)";
+// `none` instead of an identity translate3d/scale: it interpolates the same way,
+// but a 3D transform at rest keeps every item promoted to its own layer.
+const ACTIVE_TRANSFORM = "none";
 const WORK_INACTIVE_TRANSFORM = "translate3d(0, -60px, 0) scale(0.98)";
 const DEFAULT_INACTIVE_TRANSFORM = "translate3d(0, -100px, 0)";
 const MOBILE_WORK_INACTIVE_TRANSFORM = "translate3d(0, -24px, 0) scale(0.995)";
@@ -67,20 +69,14 @@ export function getFallItemStyle(
         : isWorkVariant
           ? WORK_INACTIVE_TRANSFORM
           : DEFAULT_INACTIVE_TRANSFORM,
-    filter:
-      isWorkVariant && !lowQuality
-        ? isActive
-          ? "blur(0px)"
-          : "blur(6px)"
-        : "none",
+    // `none` (not `blur(0px)`) at rest: a CSS filter interpolates to/from `none`
+    // exactly like to/from blur(0), but an element that keeps a filter — even a
+    // null one — stays on its own offscreen surface once the animation is over.
+    filter: isWorkVariant && !lowQuality && !isActive ? "blur(6px)" : "none",
     transition: isWorkVariant ? WORK_TRANSITION : FALL_TRANSITION,
     transitionDelay: `${delay}ms`,
     // Permanent will-change keeps a compositor layer alive per item; on the
     // light preset let the browser promote layers only while they animate.
-    willChange: lowQuality
-      ? undefined
-      : isWorkVariant
-        ? "transform, opacity, filter"
-        : "transform",
+    willChange: lowQuality ? undefined : "transform, opacity",
   };
 }

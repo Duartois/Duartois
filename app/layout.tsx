@@ -10,7 +10,6 @@ import CustomCursor from "@/components/CustomCursor";
 import I18nProvider from "./i18n/I18nProvider";
 import { AnimationQualityProvider } from "@/components/AnimationQualityContext";
 import PWARegister from "./pwa/PWARegister";
-import StoreProvider from "./store/StoreProvider";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 type SupportedLang = "pt" | "en";
@@ -89,14 +88,19 @@ export default async function RootLayout({
       <head>
         <ThemeScript />
         <meta name="google" content="notranslate" />
-        <link
-          rel="preconnect"
-          href="https://eu-central-1.graphassets.com"
-          crossOrigin="anonymous"
-        />
+        {/* All but one project asset live on ap-south-1; a second preconnect
+            would open a connection that is almost never used. */}
         <link
           rel="preconnect"
           href="https://ap-south-1.graphassets.com"
+          crossOrigin="anonymous"
+        />
+        {/* The UI/body font: found in the HTML instead of after the CSS. */}
+        <link
+          rel="preload"
+          href="/fonts/studio-feixen-sans-variable.woff2"
+          as="font"
+          type="font/woff2"
           crossOrigin="anonymous"
         />
       </head>
@@ -108,19 +112,17 @@ export default async function RootLayout({
           "body-scroll-control",
         )}
       >
-        <StoreProvider>
-          <ThemeProvider>
-            <AnimationQualityProvider>
-              <I18nProvider lang={lang}>
-                <SmoothScrollProvider>
-                  <PWARegister />
-                  <CustomCursor />
-                  <AppShell>{children}</AppShell>
-                </SmoothScrollProvider>
-              </I18nProvider>
-            </AnimationQualityProvider>
-          </ThemeProvider>
-        </StoreProvider>
+        <ThemeProvider>
+          <AnimationQualityProvider>
+            <I18nProvider lang={lang}>
+              <SmoothScrollProvider>
+                <PWARegister />
+                <CustomCursor />
+                <AppShell>{children}</AppShell>
+              </SmoothScrollProvider>
+            </I18nProvider>
+          </AnimationQualityProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

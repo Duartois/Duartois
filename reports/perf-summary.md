@@ -66,3 +66,22 @@ Measured against the previous build, with the router responses delayed by 1.5 s 
 | Largest 3D step at page swap | 8.5 world units in one tick     | 2.2–2.9, decaying smoothly to rest in ~1.5 s |
 
 The canvas element, WebGL context and document are the same before and after every navigation; only the shapes' targets change.
+
+## Full audit pass
+
+Initial JavaScript per route (gzip, `<script>` tags of the HTML, polyfills excluded):
+
+| Route    | Before | After  |
+| -------- | ------ | ------ |
+| /        | 226 KB | 202 KB |
+| /work    | 232 KB | 207 KB |
+| /about   | 228 KB | 203 KB |
+| /contact | 222 KB | 197 KB |
+
+Opening a project (`/work/duartois`), requests to the image CDN: 43 before (13 gallery images at 2560 px plus the Preloader's background downloads) → 2 after (hero + first visible image); the other 14 gallery images are lazy and use `sizes`.
+
+Fall-in items at rest no longer hold a `filter` or a 3D transform, so each one stops owning an offscreen surface once its animation ends.
+
+Not measured here: real-device frame rates (the test browser caps `requestAnimationFrame`), and the effect of `navigationPreload` (needs a deployed service worker).
+
+Safe to remove from `package.json` when the lockfiles can be regenerated: `@reduxjs/toolkit`, `react-redux`, `locomotive-scroll` (nothing imports them any more).

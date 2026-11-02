@@ -20,7 +20,15 @@ export function useInnerVh(): void {
   useEffect(() => {
     let rafId: number | undefined;
 
+    let lastHeight = -1;
+
     const setVh = (height: number) => {
+      // Nothing to recalculate when the height didn't actually change.
+      if (height === lastHeight) {
+        return;
+      }
+
+      lastHeight = height;
       document.documentElement.style.setProperty(
         "--innerVh",
         `${height * 0.01}px`,
@@ -30,8 +38,7 @@ export function useInnerVh(): void {
     const update = () => {
       // Prefer visualViewport when available — it gives the exact visible
       // area height, accounting for the on-screen keyboard on mobile.
-      const height =
-        window.visualViewport?.height ?? window.innerHeight;
+      const height = window.visualViewport?.height ?? window.innerHeight;
       setVh(height);
     };
 
@@ -53,7 +60,6 @@ export function useInnerVh(): void {
     // visualViewport is more reliable on mobile (handles keyboard, safe areas)
     if (window.visualViewport) {
       window.visualViewport.addEventListener("resize", scheduleUpdate);
-      window.visualViewport.addEventListener("scroll", scheduleUpdate);
     }
 
     window.addEventListener("resize", scheduleUpdate, { passive: true });
@@ -67,7 +73,6 @@ export function useInnerVh(): void {
       }
       if (window.visualViewport) {
         window.visualViewport.removeEventListener("resize", scheduleUpdate);
-        window.visualViewport.removeEventListener("scroll", scheduleUpdate);
       }
       window.removeEventListener("resize", scheduleUpdate);
       window.removeEventListener("orientationchange", scheduleUpdate);

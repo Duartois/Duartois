@@ -19,11 +19,7 @@ export type PointerDriver = "device" | "manual";
 export type PointerTarget = { x: number; y: number };
 
 export type VariantName =
-  | "home"
-  | "about"
-  | "work"
-  | "contact"
-  | "projectDetail";
+  "home" | "about" | "work" | "contact" | "projectDetail";
 
 export type ShapeScale = number | Vector3Tuple;
 
@@ -174,6 +170,13 @@ const createMenuMonogramVariant = (): VariantState => ({
   },
 });
 
+/**
+ * Opacity of the shapes that stay visible on the inner pages (work, project,
+ * about, contact). The Home keeps them at full strength; behind the text of the
+ * other pages they read better as a softer wash of colour. Single knob.
+ */
+export const INNER_PAGE_SHAPE_OPACITY = 0.6;
+
 const createWorkVariant = (): VariantState => ({
   torusSpringAzure: {
     position: [-0.5, 0.4, -0.9],
@@ -185,7 +188,7 @@ const createWorkVariant = (): VariantState => ({
     position: [0.9, 0, -1],
     rotation: [1, 1, 1],
     scale: [0.4, 0.4, 0.4],
-    opacity: 1,
+    opacity: INNER_PAGE_SHAPE_OPACITY,
   },
   semiLimeFlamingo: {
     position: [-1.1, -0.3, -0.6],
@@ -224,7 +227,7 @@ const createProjectDetailVariant = (): VariantState => ({
     position: [0, 0, 0],
     rotation: [-1, -1, 1],
     scale: [0.6, 0.6, 0.6],
-    opacity: 1,
+    opacity: INNER_PAGE_SHAPE_OPACITY,
   },
   semiLimeFlamingo: {
     position: [0.95, -0.65, -0.55],
@@ -257,7 +260,7 @@ const createAboutVariant = (): VariantState => ({
     position: [0.4, -0.32, -0.95],
     rotation: [Math.PI / 2, Math.PI * -1.1, 0.35],
     scale: [0.26, 0.26, 0.26],
-    opacity: 1,
+    opacity: INNER_PAGE_SHAPE_OPACITY,
   },
   waveSpringLime: {
     position: [-0.8, 0.78, -0.7],
@@ -287,7 +290,7 @@ const createAboutVariant = (): VariantState => ({
     position: [0.8, 0.1, -0.1],
     rotation: [0, 0, 0],
     scale: 0.22,
-    opacity: 1,
+    opacity: INNER_PAGE_SHAPE_OPACITY,
   },
 });
 
@@ -308,7 +311,7 @@ const createContactVariant = (): VariantState => ({
     position: [0.9, -0.8, -0.5],
     rotation: [Math.PI / 2, Math.PI * -0.4, 0.3],
     scale: [0.2, 0.2, 0.2],
-    opacity: 1,
+    opacity: INNER_PAGE_SHAPE_OPACITY,
   },
   torusFlamingoLime: {
     position: [-0.3, 0.7, -0.4],
@@ -320,7 +323,7 @@ const createContactVariant = (): VariantState => ({
     position: [-1.0, 0.1, -0.3],
     rotation: [Math.PI / 2, Math.PI * -1.7, -0.1],
     scale: [0.24, 0.24, 0.24],
-    opacity: 1,
+    opacity: INNER_PAGE_SHAPE_OPACITY,
   },
   sphereFlamingoSpring: {
     position: [0.3, 0.8, -0.15],

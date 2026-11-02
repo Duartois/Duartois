@@ -66,11 +66,6 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      "@store": require("path").resolve(__dirname, "app/store"),
-    };
-
     if (!isServer) {
       config.resolve.fallback = {
         ...(config.resolve.fallback || {}),

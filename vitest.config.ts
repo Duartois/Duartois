@@ -6,7 +6,6 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "."),
       "@/components": path.resolve(__dirname, "components"),
-      "@/store": path.resolve(__dirname, "app/store"),
     },
   },
   test: {

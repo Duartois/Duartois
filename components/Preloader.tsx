@@ -6,16 +6,18 @@ import "@/app/i18n/config";
 
 import type { ThreeAppState } from "./three/types";
 import {
-  motion,
+  LazyMotion,
+  domAnimation,
+  m,
   type Variants,
   useAnimationControls,
-  useReducedMotion,
 } from "framer-motion";
+import { usePrefersReducedMotion } from "@/app/helpers/usePrefersReducedMotion";
 import {
   BACKGROUND_ASSET_URLS,
   ESSENTIAL_ASSET_URLS,
-  WORK_PROJECT_COVER_URLS,
 } from "@/app/helpers/criticalAssets";
+import { shouldPreloadHeavyAssets } from "@/app/helpers/prefetch";
 import { useAnimationQuality } from "./AnimationQualityContext";
 type PreloaderStatus = "fonts" | "assets" | "scene" | "idle" | "ready";
 
@@ -40,7 +42,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const entryStartedRef = useRef(false);
   const isHidingRef = useRef(false);
   const { t } = useTranslation("common");
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { resolvedQuality } = useAnimationQuality();
   const reduceMotion = prefersReducedMotion || resolvedQuality === "low";
   const [hasMounted, setHasMounted] = useState(false);
@@ -50,7 +52,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const [isHidden, setIsHidden] = useState(false);
   const essentialAssets = useMemo(() => ESSENTIAL_ASSET_URLS, []);
   const backgroundAssets = useMemo(() => BACKGROUND_ASSET_URLS, []);
-  const projectCoverAssets = useMemo(() => WORK_PROJECT_COVER_URLS, []);
+  // Read inside the idle callback; keeping it in a ref means a later quality
+  // change doesn't restart the whole preload effect.
+  const qualityRef = useRef(resolvedQuality);
+  useEffect(() => {
+    qualityRef.current = resolvedQuality;
+  }, [resolvedQuality]);
   const progressRatio = useMemo(() => {
     if (hasTimedOut) {
       return 1;
@@ -134,13 +141,20 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         return;
       }
 
-      const backgroundImages = Array.from(
-        new Set([...backgroundAssets, ...projectCoverAssets]),
-      );
+      // Warm the Work covers only where they will actually be shown (the cover
+      // column is hidden on phones and portrait tablets), on a connection that
+      // can afford it, and not on devices already running the light preset.
+      const coversHidden = window.matchMedia(COVERS_HIDDEN_MEDIA_QUERY).matches;
 
-      backgroundImages.forEach((url) => {
-        void preloadImage(url);
-      });
+      if (
+        coversHidden ||
+        qualityRef.current === "low" ||
+        !shouldPreloadHeavyAssets()
+      ) {
+        return;
+      }
+
+      preloadInBackground(backgroundAssets, () => cancelled);
     };
 
     if (typeof window.requestIdleCallback === "function") {
@@ -164,7 +178,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
         }
       }
     };
-  }, [backgroundAssets, essentialAssets, hasMounted, projectCoverAssets]);
+  }, [backgroundAssets, essentialAssets, hasMounted]);
 
   const previewClassName = STATIC_PREVIEW_STYLES;
 
@@ -384,59 +398,92 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   ]);
 
   return (
-    <div
-      className="splashscreen"
-      data-fall-skip="true"
-      data-state={isHidden ? "hidden" : isHiding ? "hiding" : "visible"}
-      aria-hidden={isHiding || isHidden}
-      data-preloader-root="true"
-    >
+    <LazyMotion features={domAnimation} strict>
       <div
-        className={previewClassName}
-        aria-hidden="true"
-        style={{ transform: "translateY(52px)" }}
+        className="splashscreen"
+        data-fall-skip="true"
+        data-state={isHidden ? "hidden" : isHiding ? "hiding" : "visible"}
+        aria-hidden={isHiding || isHidden}
+        data-preloader-root="true"
       >
-        <PreloaderLogo
-          controls={logoControls}
-          groupVariants={logoGroupVariants}
-          pieceVariants={logoPieceVariants}
-          idleConfig={idleConfig}
-        />
+        <div
+          className={previewClassName}
+          aria-hidden="true"
+          style={{ transform: "translateY(52px)" }}
+        >
+          <PreloaderLogo
+            controls={logoControls}
+            groupVariants={logoGroupVariants}
+            pieceVariants={logoPieceVariants}
+            idleConfig={idleConfig}
+          />
+        </div>
+        <m.div
+          className="loading-text-wrapper"
+          aria-live="polite"
+          initial="initial"
+          animate={textControls}
+          variants={textVariants}
+          style={{ translateZ: 0 }}
+        >
+          <p className="loading-text">
+            <FallWordFragments text={preloaderTitle} />
+          </p>
+          <p className="visually-hidden">{progressText}</p>
+          <p className="visually-hidden">{statusLabel}</p>
+        </m.div>
+        <m.div
+          className="credits"
+          initial="initial"
+          animate={creditsControls}
+          variants={creditsVariants}
+          style={{ translateZ: 0 }}
+        >
+          <p>Designed and coded by Matheus Duarte © 2025</p>
+        </m.div>
       </div>
-      <motion.div
-        className="loading-text-wrapper"
-        aria-live="polite"
-        initial="initial"
-        animate={textControls}
-        variants={textVariants}
-        style={{ translateZ: 0 }}
-      >
-        <p className="loading-text">
-          <FallWordFragments text={preloaderTitle} />
-        </p>
-        <p className="visually-hidden">{progressText}</p>
-        <p className="visually-hidden">{statusLabel}</p>
-      </motion.div>
-      <motion.div
-        className="credits"
-        initial="initial"
-        animate={creditsControls}
-        variants={creditsVariants}
-        style={{ translateZ: 0 }}
-      >
-        <p>Designed and coded by Matheus Duarte © 2025</p>
-      </motion.div>
-    </div>
+    </LazyMotion>
   );
 }
 
-function preloadImage(url: string): Promise<void> {
+/** Mirrors the CSS that hides `.projects-left` (the Work cover column). */
+const COVERS_HIDDEN_MEDIA_QUERY =
+  "(max-width: 47.99em), (max-width: 61.99em) and (orientation: portrait)";
+const BACKGROUND_PRELOAD_CONCURRENCY = 2;
+
+/**
+ * Downloads images a couple at a time, at low priority, so warming the cache
+ * never competes with what the page is actually doing.
+ */
+function preloadInBackground(
+  urls: readonly string[],
+  isCancelled: () => boolean,
+) {
+  const queue = [...urls];
+
+  const next = (): void => {
+    const url = queue.shift();
+    if (!url || isCancelled()) {
+      return;
+    }
+    void preloadImage(url, "low").then(next);
+  };
+
+  for (let i = 0; i < BACKGROUND_PRELOAD_CONCURRENCY; i += 1) {
+    next();
+  }
+}
+
+function preloadImage(
+  url: string,
+  priority: "high" | "low" = "high",
+): Promise<void> {
   // Use fetch for remote Hygraph CDN assets (WebP URL already baked in).
   if (url.startsWith("https://")) {
     return fetch(url, {
       method: "GET",
       headers: { Accept: "image/webp,image/avif,image/*,*/*;q=0.8" },
-      priority: "high",
+      priority,
     })
       .then((res) => {
         // Consume the body so the response actually lands in the HTTP cache.
@@ -462,7 +509,7 @@ function preloadImage(url: string): Promise<void> {
     image.loading = "eager";
     if ("fetchPriority" in image) {
       (image as HTMLImageElement & { fetchPriority?: string }).fetchPriority =
-        "high";
+        priority;
     }
     image.src = url;
 
@@ -543,7 +590,7 @@ function PreloaderLogo({
   idleConfig: Array<{ ampY: number; ampR: number; duration: number }>;
 }) {
   return (
-    <motion.svg
+    <m.svg
       data-name="deconstructedLogo"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 474 358"
@@ -556,7 +603,7 @@ function PreloaderLogo({
       preserveAspectRatio="xMidYMid meet"
       style={{ translateZ: 0 }}
     >
-      <motion.path
+      <m.path
         id="BaseWave"
         d="M152.983 347C94.2985 347 45.7051 306.564 37.2766 253.839C35.6219 243.488 40.2441 233.389 47.788 226.11C62.4297 211.983 85.5198 211.637 100.578 225.32L101.091 225.786C109.302 233.246 112.941 244.471 118.29 254.19C124.764 265.954 137.869 274 152.983 274C168.542 274 181.972 265.473 188.231 253.14C192.928 243.885 196.174 233.414 203.605 226.169C218.129 212.01 241.147 211.551 256.224 225.119L256.912 225.737C265.232 233.225 270.39 243.973 268.496 255.005C259.543 307.159 211.234 347 152.983 347Z"
         pathLength={1}
@@ -566,7 +613,7 @@ function PreloaderLogo({
         strokeWidth={11}
         style={{ transformOrigin: "center" }}
       />
-      <motion.path
+      <m.path
         id="CoreShape"
         d="M163.986 5C80.3013 5 13.5034 64.6834 5.21662 142.296C3.67664 156.72 10.532 170.78 21.2954 181.06C43.0688 201.856 76.7407 202.361 97.4656 182.201L98.1532 181.532C108.996 170.985 113.357 155.459 119.756 141.684C128.01 123.913 146.431 111.667 168.317 111.667C198.877 111.667 224.621 135.545 225.817 165C226.719 187.199 213.419 206.231 193.73 214.26C180.991 219.455 167.216 223.84 157.616 233.57C136.876 254.591 138.307 289.474 160.955 310.279C171.241 319.728 184.697 325.373 198.219 323.696C279.435 313.623 339.792 246.413 336.486 165C332.897 76.6344 255.666 5 163.986 5Z"
         pathLength={1}
@@ -577,7 +624,7 @@ function PreloaderLogo({
         style={{ transformOrigin: "center" }}
       />
       <g transform="matrix(0.989521 -0.14439 -0.169429 -0.985543 368.986 356.854)">
-        <motion.rect
+        <m.rect
           id="SideBar"
           width="69.1299"
           height="230.201"
@@ -594,7 +641,7 @@ function PreloaderLogo({
         />
       </g>
 
-      <motion.path
+      <m.path
         id="Accent"
         d="M362.378 156.771C321.716 168.224 294.73 199.608 295.996 230.915C296.349 239.662 303.271 246.532 311.604 249.871C323.934 254.812 337.872 251.102 345.591 240.827L345.902 240.413C351.42 233.067 351.926 222.676 356.125 214.511C359.572 207.808 366.715 202.08 375.995 199.466C385.686 196.737 395.417 198.048 402.282 202.281C409.85 206.949 415.731 214.838 423.966 218.185C436.225 223.166 450.131 219.537 457.87 209.337L458.287 208.787C463.891 201.402 465.954 191.43 460.655 183.53C443.077 157.321 402.608 145.439 362.378 156.771Z"
         pathLength={1}
@@ -604,7 +651,7 @@ function PreloaderLogo({
         strokeWidth={11}
         style={{ transformOrigin: "center" }}
       />
-      <motion.circle
+      <m.circle
         id="CoreDot"
         cx="170.984"
         cy="165"
@@ -616,6 +663,6 @@ function PreloaderLogo({
         strokeWidth={11}
         style={{ transformOrigin: "center" }}
       />
-    </motion.svg>
+    </m.svg>
   );
 }
